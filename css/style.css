@@ -99,6 +99,7 @@ body {
   content: "";
   position: absolute;
   left: 50%;
+  transform: translateX(-50%);
   width: 3px;
   height: 100%;
   background: #3b82f6;
@@ -122,7 +123,8 @@ body {
 .timeline-item::before {
   content: "";
   position: absolute;
-  top: 30px;
+  top: 50%;
+  transform: translateY(-50%);
   width: 14px;
   height: 14px;
   background: #ff5c5c;
@@ -248,7 +250,7 @@ body {
   width: 100%;
   height: 100%;
 
-  object-fit: contain;   /* 🔑 KEY FIX */
+  object-fit: contain;   /* ?? KEY FIX */
   object-position: center;
 
   border-radius: 12px;
@@ -357,7 +359,7 @@ body {
 
   /* vertical line */
   .timeline::before {
-    left: 12px;
+    left: 37px;
   }
 
   /* each item */
@@ -368,10 +370,12 @@ body {
     text-align: left;
   }
 
-  /* dots */
+  /* dots - FIXED: Changed from left: 5px to left: 12px */
   .timeline-item::before {
-    left: 5px;
-    top: 26px;
+    left: 0.5px; /* CHANGED THIS LINE - was 5px */
+    top: 50%;
+    transform: translateY(-50%);
+    right: auto !important; /* Added to override desktop styles */
     margin-bottom: 20px;
   }
 
@@ -388,6 +392,12 @@ body {
   .content p {
     text-align: left;
   }
+
+  .timeline-item.left::before,
+    .timeline-item.right::before {
+      left: 0.5px !important; /* Force same position */
+      right: auto !important;
+    }
 
 }
 
