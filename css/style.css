@@ -8,6 +8,7 @@
 body {
   background: #0b1020;
   color: white;
+  overflow-x: hidden;
 }
 
 /* Top Button */
@@ -91,6 +92,7 @@ body {
   position: relative;
   width: 80%;
   margin: auto;
+  max-width: 1000px;
 }
 
 .timeline::before {
@@ -108,6 +110,15 @@ body {
   position: relative;
 }
 
+.timeline-item.left {
+  left: 0;
+  text-align: right;
+}
+
+.timeline-item.right {
+  left: 50%;
+}
+
 .timeline-item::before {
   content: "";
   position: absolute;
@@ -118,17 +129,8 @@ body {
   border-radius: 50%;
 }
 
-.timeline-item.left {
-  left: 0;
-  text-align: right;
-}
-
 .timeline-item.left::before {
   right: -7px;
-}
-
-.timeline-item.right {
-  left: 50%;
 }
 
 .timeline-item.right::before {
@@ -198,6 +200,7 @@ body {
   overflow-y: hidden;
   cursor: grab;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .id-scroll.dragging {
@@ -342,4 +345,96 @@ body {
   border-radius: 12px;
   background: #0b1020;
   pointer-events: none;
+}
+
+/* MOBILE VIEW */
+@media (max-width: 768px) {
+
+  .timeline {
+    width: 100%;
+    padding-left: 30px;
+  }
+
+  /* vertical line */
+  .timeline::before {
+    left: 12px;
+  }
+
+  /* each item */
+  .timeline-item {
+    width: 100%;
+    padding: 10px 10px 20px 40px;
+    left: 0 !important;
+    text-align: left;
+  }
+
+  /* dots */
+  .timeline-item::before {
+    left: 5px;
+    top: 26px;
+    margin-bottom: 20px;
+  }
+
+  /* card */
+  .content {
+    width: 100%;
+    display: block;
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  /* force text alignment like your reference */
+  .content h3,
+  .content p {
+    text-align: left;
+  }
+
+}
+
+@media (max-width: 480px) {
+  .content h3 {
+    font-size: 18px;
+  }
+
+  .content p {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 768px) {
+
+  .id-card {
+    min-width: 160px;
+    height: 240px;
+  }
+
+  .id-track {
+    gap: 14px;
+  }
+
+}
+
+@media (max-width: 768px) {
+
+  .vision {
+    padding: 60px 15px;
+  }
+
+  .vision h1 {
+    font-size: 26px;
+  }
+
+  .vision-quote {
+    font-size: 16px;
+    padding: 18px;
+  }
+
+  .batch-btn {
+      font-size: 12px;
+      padding: 8px 14px;
+    }
+
+   .hover-zone {
+       display: none;
+     }
 }
