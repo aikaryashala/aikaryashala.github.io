@@ -1,14 +1,12 @@
 const slider = document.querySelector('.id-scroll');
 const track = document.querySelector('.id-track');
-const leftArrow = document.querySelector('.left-arrow');
-const rightArrow = document.querySelector('.right-arrow');
 const hoverLeft = document.querySelector('.hover-left');
 const hoverRight = document.querySelector('.hover-right');
 
 /* =========================
    AUTO SCROLL CORE
 ========================= */
-let baseSpeed = 0.35;     // default speed
+let baseSpeed = 0.6;     // default speed
 let edgeBoost = 0;       // added by mouse distance
 let autoRAF;
 
@@ -40,7 +38,7 @@ function rampSpeed(e, direction) {
   const intensity = Math.min(distance / zoneWidth, 1);
 
   // ramp smoothly (max ±3)
-  edgeBoost = intensity * 3 * direction;
+  edgeBoost = intensity * 5 * direction;
 }
 
 hoverLeft.addEventListener('mousemove', (e) => {
@@ -98,13 +96,3 @@ slider.addEventListener('wheel', (e) => {
   slider.scrollLeft += e.deltaY;
 });
 
-/* =========================
-   ARROWS
-========================= */
-leftArrow.onclick = () => {
-  slider.scrollLeft -= 300;
-};
-
-rightArrow.onclick = () => {
-  slider.scrollLeft += 300;
-};
