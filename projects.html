@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Projects - AI Karyashala</title>
+  <link rel="stylesheet" href="css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    .projects-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 80px 20px;
+    }
+    
+    .projects-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    
+    .projects-header h1 {
+      font-size: 42px;
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    
+    .projects-header p {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.8);
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 30px;
+      margin-top: 40px;
+    }
+    
+    .project-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      padding: 30px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .project-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      border-color: rgba(59, 130, 246, 0.5);
+    }
+    
+    .project-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    }
+    
+    .project-image-container {
+      width: 100%;
+      height: 200px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #0b1020;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .project-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transition: transform 0.3s ease;
+    }
+    
+    .project-card:hover .project-image {
+      transform: scale(1.05);
+    }
+    
+    .project-card h3 {
+      font-size: 24px;
+      margin-bottom: 15px;
+      color: white;
+    }
+    
+    .project-card p {
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.6;
+      margin-bottom: 20px;
+      flex-grow: 1;
+    }
+    
+    /* Technology tags removed - keeping only the image, title and description */
+    
+    .back-home {
+      text-align: center;
+      margin-top: 60px;
+    }
+    
+    .home-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 30px;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: transform 0.3s ease;
+    }
+    
+    .home-btn:hover {
+      transform: translateY(-3px);
+    }
+    
+    /* Project links - hidden but accessible */
+    .project-link {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      z-index: 1;
+    }
+    
+    @media (max-width: 768px) {
+      .projects-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .project-card {
+        padding: 20px;
+      }
+      
+      .projects-header h1 {
+        font-size: 32px;
+      }
+      
+      .project-image-container {
+        height: 180px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .project-image-container {
+        height: 160px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Button -->
+  <a 
+    href="https://ai-karyashala-1nym0mq.gamma.site" 
+    class="batch-btn" 
+    target="_blank" 
+    rel="noopener noreferrer"
+  >
+    Next Batch Starts
+  </a>
+
+  <div class="projects-container">
+    <div class="projects-header">
+      <h1>Our Projects</h1>
+      <p>Hands-on implementation of real-world applications using modern technologies and AI tools. Each project represents our practical learning journey and technical growth.</p>
+    </div>
+
+    <div class="projects-grid">
+      
+      <!-- Project 1 -->
+      <div class="project-card">
+        <a href="https://linuxdojo.onrender.com" class="project-link" target="_blank"></a>
+        <div class="project-image-container">
+          <img src="images/members/p1.png" alt="AI-Powered Portfolio" class="project-image" onerror="this.src='https://placehold.co/350x200/1e3a8a/ffffff?text=Project+1'">
+        </div>
+        <h3>AI-Powered Portfolio</h3>
+        <p>This interactive portfolio website built with HTML, CSS, and JavaScript showcases our journey with flip cards, auto-scrolling galleries, and responsive design.</p>
+        <!-- Technology tags removed -->
+      </div>
+
+      <!-- Project 2 -->
+      <div class="project-card">
+        <a href="https://nexus-tool.19062002.xyz" class="project-link" target="_blank"></a>
+        <div class="project-image-container">
+          <img src="images/members/p2.png" alt="AI Learning Assistant" class="project-image" onerror="this.src='https://placehold.co/350x200/1e3a8a/ffffff?text=Project+2'">
+        </div>
+        <h3>AI Learning Assistant</h3>
+        <p>An intelligent tool that helps track learning progress, suggests resources, and provides personalized study recommendations using machine learning algorithms.</p>
+        <!-- Technology tags removed -->
+      </div>
+
+      <!-- Project 3 -->
+      <div class="project-card">
+        <a href="https://asciinemaeditor.19122001.xyz/" class="project-link" target="_blank"></a>
+        <div class="project-image-container">
+          <img src="images/members/p3.png" alt="Data Visualization Dashboard" class="project-image" onerror="this.src='https://placehold.co/350x200/1e3a8a/ffffff?text=Project+3'">
+        </div>
+        <h3>Data Visualization Dashboard</h3>
+        <p>Interactive dashboard for visualizing learning metrics, progress tracking, and performance analytics with real-time updates and custom reporting.</p>
+        <!-- Technology tags removed -->
+      </div>
+
+      <!-- Project 4 -->
+      <div class="project-card">
+        <a href="https://asciinemaplayer.19122001.xyz/" class="project-link" target="_blank"></a>
+        <div class="project-image-container">
+          <img src="images/members/p4.png" alt="Secure Authentication System" class="project-image" onerror="this.src='https://placehold.co/350x200/1e3a8a/ffffff?text=Project+4'">
+        </div>
+        <h3>Secure Authentication System</h3>
+        <p>A full-featured authentication system with multi-factor authentication, session management, and security best practices implementation.</p>
+        <!-- Technology tags removed -->
+      </div>
+
+      <!-- Project 5 -->
+      <div class="project-card">
+        <a href="https://telugishmagic.19122001.xyz/" class="project-link" target="_blank"></a>
+        <div class="project-image-container">
+          <img src="images/members/p5.png" alt="Mobile Learning App" class="project-image" onerror="this.src='https://placehold.co/350x200/1e3a8a/ffffff?text=Project+5'">
+        </div>
+        <h3>Mobile Learning App</h3>
+        <p>Cross-platform mobile application for on-the-go learning with offline capabilities, push notifications, and interactive content delivery.</p>
+        <!-- Technology tags removed -->
+      </div>
+
+      <!-- Project 6 -->
+      <div class="project-card">
+        <a href="https://billcraft-app.onrender.com" class="project-link" target="_blank"></a>
+        <div class="project-image-container">
+          <img src="images/members/p6.png" alt="Real-Time Collaboration Tool" class="project-image" onerror="this.src='https://placehold.co/350x200/1e3a8a/ffffff?text=Project+6'">
+        </div>
+        <h3>Real-Time Collaboration Tool</h3>
+        <p>A collaborative coding environment with real-time code editing, video conferencing, and integrated AI pair programming assistance.</p>
+        <!-- Technology tags removed -->
+      </div>
+
+      <!-- Project 7 - NEW PROJECT ADDED HERE -->
+      <div class="project-card">
+        <a href="https://citybusadvisor.12022001.xyz/" class="project-link" target="_blank"></a>
+        <div class="project-image-container">
+          <img src="images/members/p7.png" alt="City Bus Advisor" class="project-image" onerror="this.src='https://placehold.co/350x200/1e3a8a/ffffff?text=Project+7'">
+        </div>
+        <h3>City Bus Advisor</h3>
+        <p>A backend-driven application that provides route-based and place-based city bus schedules using FastAPI, SQLite, and a simple web frontend..</p>
+      </div>
+
+    </div>
+
+    <div class="back-home">
+      <a href="index.html" class="home-btn">
+         Back to Home
+      </a>
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
