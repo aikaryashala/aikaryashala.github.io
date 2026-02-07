@@ -2,30 +2,260 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Yoga Journey</title>
-  <link rel="stylesheet" href="css/yoga.css">
+  <title>Yoga Journey - AI Karyashala</title>
+  <link rel="stylesheet" href="css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Yoga Page Specific Styles */
+    .yoga-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 80px 20px;
+      min-height: 100vh;
+    }
+    
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateX(-5px);
+    }
+    
+    .yoga-hero {
+      text-align: center;
+      margin-bottom: 60px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .yoga-hero h1 {
+      font-size: 42px;
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      line-height: 1.2;
+    }
+    
+    .yoga-hero p {
+      font-size: 18px;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 15px;
+    }
+    
+    .yoga-hero p:first-of-type {
+      color: #3b82f6;
+      font-weight: 600;
+      font-size: 20px;
+    }
+    
+    /* Single Image Container */
+    .single-image {
+      max-width: 800px;
+      margin: 40px auto;
+      position: relative;
+    }
+    
+    .single-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease;
+    }
+    
+    .single-image img:hover {
+      transform: scale(1.01);
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+    
+    /* Additional Info Section */
+    .yoga-info {
+      max-width: 800px;
+      margin: 60px auto 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      padding: 40px;
+    }
+    
+    .yoga-info h2 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      color: #3b82f6;
+      text-align: center;
+    }
+    
+    .yoga-info p {
+      font-size: 17px;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 15px;
+    }
+    
+    .yoga-details {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .detail-item {
+      text-align: center;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .detail-item h3 {
+      color: #3b82f6;
+      margin-bottom: 10px;
+      font-size: 20px;
+    }
+    
+    .detail-item p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 16px;
+    }
+    
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .yoga-container {
+        padding: 40px 15px;
+      }
+      
+      .back-btn {
+        padding: 8px 16px;
+        font-size: 14px;
+        margin-bottom: 30px;
+      }
+      
+      .yoga-hero h1 {
+        font-size: 32px;
+      }
+      
+      .yoga-hero p {
+        font-size: 16px;
+      }
+      
+      .yoga-hero p:first-of-type {
+        font-size: 18px;
+      }
+      
+      .single-image {
+        margin: 30px auto;
+      }
+      
+      .single-image img {
+        border-radius: 16px;
+      }
+      
+      .yoga-info {
+        padding: 25px;
+        margin-top: 40px;
+      }
+      
+      .yoga-info h2 {
+        font-size: 24px;
+      }
+      
+      .yoga-info p {
+        font-size: 15px;
+      }
+      
+      .yoga-details {
+        gap: 20px;
+      }
+      
+      .detail-item {
+        padding: 15px;
+        min-width: 140px;
+      }
+      
+      .detail-item h3 {
+        font-size: 18px;
+      }
+      
+      .detail-item p {
+        font-size: 14px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .yoga-hero h1 {
+        font-size: 28px;
+      }
+      
+      .yoga-info {
+        padding: 20px;
+      }
+      
+      .yoga-details {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .detail-item {
+        width: 100%;
+        max-width: 300px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<!-- Back Button -->
-<a href="index.html" class="back-btn">← Back</a>
+  <!-- Header with Logo -->
+  <header class="header">
+    <img src="images/logo transparent.png" alt="AI ????????" class="header-logo">
+    <a 
+        href="https://ai-karyashala-1nym0mq.gamma.site" 
+        class="batch-btn" 
+        target="_blank" 
+        rel="noopener noreferrer"
+      >
+        Next Batch Starts
+      </a>
+  </header>
+  
+  <!-- Back Button -->
+  <div class="yoga-container">
 
-<!-- Header -->
-<section class="yoga-hero">
-  <h1>Engineering the Inner Self</h1>
-  <p>Inner Engineering helped us understand that true well-being begins within.<p>
-  <p>Through this experience, we explored how inner stability can influence clarity, decision-making, and our relationship with life itself.</p>
-</section>
+    <!-- Header -->
+    <section class="yoga-hero">
+      <h1>Engineering the Inner Self</h1>
+      <p>Inner Engineering helped us understand that true well-being begins within.</p>
+      <p>Through this experience, we explored how inner stability can influence clarity, decision-making, and our relationship with life itself.</p>
+    </section>
 
-<!-- Yoga Image Section -->
-<section class="yoga-gallery">
+    <!-- Yoga Image Section -->
+    <section class="yoga-gallery">
+      <div class="single-image">
+        <img src="images/yoga/y1.png" alt="Yoga Practice" onerror="this.style.display='none'">
+      </div>
+    </section>
 
-  <!-- SINGLE IMAGE (you can add more later) -->
-  <div class="single-image">
-    <img src="images/yoga/y1.png" alt="Yoga Practice">
+   
   </div>
 
-</section>
-
+  <script src="js/script.js"></script>
 </body>
 </html>

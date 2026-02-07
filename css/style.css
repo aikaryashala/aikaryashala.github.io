@@ -11,17 +11,66 @@ body {
   overflow-x: hidden;
 }
 
-/* Top Button */
-.batch-btn {
-  position: fixed;
-  top: 20px;
-  right: 20px;
+/* Header with Glassmorphism Effect - Logo Left, Button Right */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Logo left, button right */
+  padding: 5px 25px;
+  
+  /* Glassmorphism - Semi-transparent dark */
+  background: rgba(11, 16, 32, 0.9); /* Slightly more opaque for better contrast */
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  
+  /* Border */
+  
+  /* Sticky positioning */
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  min-height: 50px;
+}
+
+/* Logo - Bigger size */
+.header-logo {
+  height: 100px; /* Increased from 60px */
+  width: auto;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+  transition: transform 0.3s ease;
+}
+
+.header-logo:hover {
+  transform: scale(1.05);
+}
+
+/* Next Batch Button inside header - Right side */
+.header .batch-btn {
+  position: static; /* Remove fixed positioning */
+  top: auto;
+  right: auto;
+  margin: 0;
   background: #ff5c5c;
   color: white;
-  padding: 10px 20px;
+  padding: 12px 25px;
   border-radius: 25px;
   text-decoration: none;
-  z-index: 100;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 4px 12px rgba(255, 92, 92, 0.3);
+}
+
+.header .batch-btn:hover {
+  background: #ff4444;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 92, 92, 0.4);
+}
+
+/* Remove the old fixed button from body */
+body > .batch-btn {
+  display: none;
 }
 
 /* Vision */
@@ -29,7 +78,7 @@ body {
    VISION (REFINED)
 ======================= */
 .vision {
-  padding: 90px 20px 80px;
+  padding: 70px 20px 80px; /* Reduced top padding since header is fixed */
   max-width: 1000px;
   margin: auto;
   text-align: center;
@@ -250,7 +299,7 @@ body {
   width: 100%;
   height: 100%;
 
-  object-fit: contain;   /* ?? KEY FIX */
+  object-fit: cover;   /* ?? KEY FIX */
   object-position: center;
 
   border-radius: 12px;
@@ -343,7 +392,7 @@ body {
 .card-face img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   border-radius: 12px;
   background: #0b1020;
   pointer-events: none;
@@ -351,7 +400,43 @@ body {
 
 /* MOBILE VIEW */
 @media (max-width: 768px) {
+  /* Header Mobile */
+  .header {
+    padding: 8px 20px;
+    flex-direction: row; /* Stack vertically on mobile */
+    gap: 15px;
+    min-height: 70px;
+    justify-content: space-between; /* Logo left, button right */
+    align-items: center;
+  }
+  
+  .header-logo {
+    height: 70px; /* Slightly smaller on mobile but still prominent */
+    max-width: 200px; 
+  }
+  
+  .header .batch-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+    white-space: nowrap; /* Prevent button text from wrapping */
+    flex-shrink: 0;
+  }
 
+  /* Vision Mobile */
+  .vision {
+    padding: 40px 15px 60px; /* Adjusted for stacked header */
+  }
+
+  .vision h1 {
+    font-size: 26px;
+  }
+
+  .vision-quote {
+    font-size: 16px;
+    padding: 18px;
+  }
+
+  /* Timeline Mobile */
   .timeline {
     width: 100%;
     padding-left: 30px;
@@ -399,6 +484,20 @@ body {
       right: auto !important;
     }
 
+  /* ID Cards Mobile */
+  .id-card {
+    min-width: 160px;
+    height: 240px;
+  }
+
+  .id-track {
+    gap: 14px;
+  }
+
+  /* Hover zones on mobile */
+  .hover-zone {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
@@ -409,42 +508,42 @@ body {
   .content p {
     font-size: 13px;
   }
+  
 }
 
-@media (max-width: 768px) {
-
-  .id-card {
-    min-width: 160px;
-    height: 240px;
+@media (max-width: 480px) {
+  /* For very small screens */
+  .header {
+    padding: 8px 15px;
+    gap: 12px;
+    min-height: 65px;
   }
-
-  .id-track {
-    gap: 14px;
+  
+  .header-logo {
+    height: 55px;
+    max-width: 180px;
   }
-
+  
+  .header .batch-btn {
+    padding: 7px 14px;
+    font-size: 12px;
+  }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 375px) {
+  /* For iPhone SE/small phones */
 
-  .vision {
-    padding: 60px 15px;
-  }
-
-  .vision h1 {
-    font-size: 26px;
-  }
-
-  .vision-quote {
-    font-size: 16px;
-    padding: 18px;
-  }
-
-  .batch-btn {
-      font-size: 12px;
-      padding: 8px 14px;
+  .header {
+      min-height: 60px;
     }
-
-   .hover-zone {
-       display: none;
-     }
+   
+  .header .batch-btn {
+    font-size: 11px;
+    padding: 6px 12px;
+  }
+  
+  .header-logo {
+    height: 50px;
+    max-width: 160px;
+  }
 }

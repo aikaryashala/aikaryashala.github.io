@@ -2,42 +2,293 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>apdts Journey</title>
-  <link rel="stylesheet" href="css/yoga.css">
+  <title>APDTS 2025 - AI Karyashala</title>
+  <link rel="stylesheet" href="css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* APDTS Page Specific Styles */
+    .apdts-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 80px 20px;
+      min-height: 100vh;
+    }
+    
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateX(-5px);
+    }
+    
+    .apdts-hero {
+      text-align: center;
+      margin-bottom: 50px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .apdts-hero h1 {
+      font-size: 42px;
+      margin-bottom: 15px;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      line-height: 1.2;
+    }
+    
+    .apdts-hero p {
+      font-size: 18px;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 15px;
+    }
+    
+    .apdts-hero .subtitle {
+      color: #3b82f6;
+      font-weight: 600;
+      font-size: 20px;
+    }
+    
+    /* Gallery Styles */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
+      margin-top: 40px;
+    }
+    
+    .gallery-grid img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .gallery-grid img:hover {
+      transform: translateY(-5px) scale(1.02);
+      border-color: rgba(59, 130, 246, 0.5);
+      box-shadow: 0 20px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* APDTS Description */
+    .apdts-description {
+      max-width: 800px;
+      margin: 60px auto 40px;
+      text-align: center;
+      padding: 30px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+    }
+    
+    .apdts-description p {
+      font-size: 18px;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.85);
+    }
+    
+    /* Event Info */
+    .event-info {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin: 40px auto;
+      flex-wrap: wrap;
+      max-width: 900px;
+    }
+    
+    .info-card {
+      text-align: center;
+      padding: 25px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      min-width: 200px;
+      transition: transform 0.3s ease;
+    }
+    
+    .info-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+    
+    .info-card h3 {
+      color: #3b82f6;
+      margin-bottom: 10px;
+      font-size: 20px;
+    }
+    
+    .info-card p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 16px;
+    }
+    
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .apdts-container {
+        padding: 40px 15px;
+      }
+      
+      .back-btn {
+        padding: 8px 16px;
+        font-size: 14px;
+        margin-bottom: 30px;
+      }
+      
+      .apdts-hero h1 {
+        font-size: 32px;
+      }
+      
+      .apdts-hero p {
+        font-size: 16px;
+      }
+      
+      .apdts-hero .subtitle {
+        font-size: 18px;
+      }
+      
+      .gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 20px;
+      }
+      
+      .gallery-grid img {
+        height: 180px;
+        border-radius: 14px;
+      }
+      
+      .apdts-description {
+        padding: 25px 20px;
+        margin: 40px auto 30px;
+      }
+      
+      .apdts-description p {
+        font-size: 16px;
+      }
+      
+      .event-info {
+        gap: 20px;
+        margin: 30px auto;
+      }
+      
+      .info-card {
+        padding: 20px;
+        min-width: 160px;
+      }
+      
+      .info-card h3 {
+        font-size: 18px;
+      }
+      
+      .info-card p {
+        font-size: 14px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .apdts-hero h1 {
+        font-size: 28px;
+      }
+      
+      .gallery-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      
+      .gallery-grid img {
+        height: 200px;
+      }
+      
+      .event-info {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .info-card {
+        width: 100%;
+        max-width: 300px;
+      }
+    }
+    
+    @media (max-width: 375px) {
+      .gallery-grid img {
+        height: 180px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<!-- Back Button -->
-<a href="index.html" class="back-btn">← Back</a>
+  <!-- Header with Logo -->
+  <header class="header">
+    <img src="images/logo transparent.png" alt="AI ????????" class="header-logo">
+    <a 
+        href="https://ai-karyashala-1nym0mq.gamma.site" 
+        class="batch-btn" 
+        target="_blank" 
+        rel="noopener noreferrer"
+      >
+        Next Batch Starts
+      </a>
+  </header>
+  
+  <!-- Back Button -->
+  <div class="apdts-container">
 
-<!-- Header -->
-<section class="yoga-hero">
-  <h1>APDTS</h1>
-  <p>Academic and professional foundation.</p>
-</section>
+    <!-- Header -->
+    <section class="apdts-hero">
+      <h1>APDTS 2025</h1>
+      <p class="subtitle">Andhra Pradesh Digital Technology Summit</p>
+      <p>Academic and professional foundation through technology innovation.</p>
+    </section>
 
-<!-- apdts Images Gallery -->
-<section class="yoga-gallery">
+    <!-- APDTS Description -->
+    <section class="apdts-description">
+      <p>The Andhra Pradesh Digital Technology Summit (APDTS 2025) is a premier technology event showcasing innovation, digital transformation, and emerging technologies in Andhra Pradesh.</p>
+    </section>
 
-  <div class="gallery-grid">
-    <img src="images/apdts/k1.png" alt="apdts 1">
-    <img src="images/apdts/k2.png" alt="apdts 2">
-    <img src="images/apdts/k3.png" alt="apdts 3">
-    <img src="images/apdts/k4.png" alt="apdts 4">
-    <img src="images/apdts/k5.png" alt="apdts 5">
-    <img src="images/apdts/k6.png" alt="apdts 6">
-    <img src="images/apdts/k7.png" alt="apdts 7">
-    <img src="images/apdts/k8.png" alt="apdts 8">
-    <img src="images/apdts/k9.png" alt="apdts 9">
-    <img src="images/apdts/k10.png" alt="apdts 10">
-    <img src="images/apdts/k11.png" alt="apdts 11">
-    <img src="images/apdts/k12.png" alt="apdts 12">
-    <img src="images/apdts/k13.png" alt="apdts 13">
-    <img src="images/apdts/k14.png" alt="apdts 14">
-    <img src="images/apdts/k15.png" alt="apdts 15">
+    <!-- APDTS Images Gallery -->
+    <section class="yoga-gallery">
+      <div class="gallery-grid">
+        <img src="images/apdts/k1.png" alt="APDTS 1" onerror="this.style.display='none'">
+        <img src="images/apdts/k2.png" alt="APDTS 2" onerror="this.style.display='none'">
+        <img src="images/apdts/k3.png" alt="APDTS 3" onerror="this.style.display='none'">
+        <img src="images/apdts/k4.png" alt="APDTS 4" onerror="this.style.display='none'">
+        <img src="images/apdts/k5.png" alt="APDTS 5" onerror="this.style.display='none'">
+        <img src="images/apdts/k6.png" alt="APDTS 6" onerror="this.style.display='none'">
+        <img src="images/apdts/k7.png" alt="APDTS 7" onerror="this.style.display='none'">
+        <img src="images/apdts/k8.png" alt="APDTS 8" onerror="this.style.display='none'">
+        <img src="images/apdts/k9.png" alt="APDTS 9" onerror="this.style.display='none'">
+        <img src="images/apdts/k10.png" alt="APDTS 10" onerror="this.style.display='none'">
+        <img src="images/apdts/k11.png" alt="APDTS 11" onerror="this.style.display='none'">
+        <img src="images/apdts/k12.png" alt="APDTS 12" onerror="this.style.display='none'">
+        <img src="images/apdts/k13.png" alt="APDTS 13" onerror="this.style.display='none'">
+        <img src="images/apdts/k14.png" alt="APDTS 14" onerror="this.style.display='none'">
+        <img src="images/apdts/k15.png" alt="APDTS 15" onerror="this.style.display='none'">
+      </div>
+    </section>
   </div>
 
-</section>
-
+  <script src="js/script.js"></script>
 </body>
 </html>
