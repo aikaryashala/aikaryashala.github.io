@@ -265,7 +265,7 @@ body > .batch-btn {
 
 /* ID Section */
 .id-section {
-  padding: 80px 0 100px;
+  padding: 80px 0 60px;
   background: linear-gradient(180deg, #050914, #020617);
 }
 
@@ -481,6 +481,68 @@ body > .batch-btn {
   border: 1px solid rgba(255, 255, 255, 0.28);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
   pointer-events: none;
+}
+
+.site-footer {
+  margin: 20px auto 0;
+  padding: 40px 20px;
+  max-width: 1100px;
+  background: transparent;
+  border: none;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 32px;
+}
+
+.footer-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.footer-card h4 {
+  margin: 0;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.footer-title {
+  font-size: 20px;
+  margin: 0;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.footer-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 15px;
+}
+
+.footer-card p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 15px;
+}
+
+.footer-credit {
+  margin-top: 26px;
+  color: rgba(255, 255, 255, 0.65);
+  text-align: center;
+  font-size: 13px;
+  display: flex;
+  justify-content: center;
 }
 
 /* MOBILE VIEW */
