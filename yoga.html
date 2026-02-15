@@ -251,7 +251,11 @@
     <!-- Yoga Image Section -->
     <section class="yoga-gallery">
       <div class="single-image">
-        <img src="images/yoga/y1.png" alt="Yoga Practice" onerror="this.style.display='none'">
+        <picture>
+          <source type="image/webp" srcset="images/yoga/y1.webp">
+          <source type="image/png" srcset="images/yoga/y1.png">
+          <img src="images/yoga/y1.png" alt="Yoga Practice" loading="lazy" onerror="this.style.display='none'">
+        </picture>
       </div>
     </section>
 
