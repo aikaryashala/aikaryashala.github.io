@@ -4,25 +4,30 @@ rows.forEach(setupRow);
 const galleryGrid = document.querySelector('.gallery-grid');
 if (galleryGrid) {
   const galleryImages = Array.from(galleryGrid.querySelectorAll('img'));
+  const galleryItems = Array.from(galleryGrid.children).filter((item) =>
+    item.matches('picture, img')
+  );
   const previewLimit = 9;
-  const hiddenImages = galleryImages.slice(previewLimit);
+  const hiddenItems = galleryItems.slice(previewLimit);
 
-  hiddenImages.forEach((img) => img.classList.add('gallery-hidden'));
+  hiddenItems.forEach((item) => {
+    item.classList.add('gallery-hidden');
+  });
 
-  if (hiddenImages.length) {
+  if (hiddenItems.length) {
     const moreButton = document.createElement('button');
     moreButton.type = 'button';
     moreButton.className = 'gallery-more';
-    moreButton.textContent = `+${hiddenImages.length} more`;
-    const referenceImage = galleryImages[previewLimit];
-    if (referenceImage) {
-      galleryGrid.insertBefore(moreButton, referenceImage);
+    moreButton.textContent = `+${hiddenItems.length} more`;
+    const referenceItem = galleryItems[previewLimit];
+    if (referenceItem) {
+      galleryGrid.insertBefore(moreButton, referenceItem);
     } else {
       galleryGrid.appendChild(moreButton);
     }
 
     moreButton.addEventListener('click', () => {
-      hiddenImages.forEach((img) => img.classList.remove('gallery-hidden'));
+      hiddenItems.forEach((item) => item.classList.remove('gallery-hidden'));
       moreButton.remove();
     });
   }
