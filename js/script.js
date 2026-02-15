@@ -132,6 +132,12 @@ if (projectsGrid) {
   }
 }
 
+document.querySelectorAll('.project-link').forEach((link) => {
+  link.addEventListener('click', () => {
+    window.setTimeout(() => link.blur(), 0);
+  });
+});
+
 function setupRow(row) {
   const slider = row.querySelector('.id-scroll');
   const track = row.querySelector('.id-track');
