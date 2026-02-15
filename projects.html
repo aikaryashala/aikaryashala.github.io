@@ -60,6 +60,26 @@
       box-shadow: 0 20px 40px rgba(0,0,0,0.3);
       border-color: rgba(59, 130, 246, 0.5);
     }
+
+    .project-card::after {
+      content: 'View project';
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(59, 130, 246, 0.95);
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+
+    .project-card:hover::after,
+    .project-card:focus-within::after {
+      opacity: 1;
+      transform: translateY(-2px);
+    }
     
     .project-card::before {
       content: '';
@@ -139,7 +159,37 @@
       top: 0;
       left: 0;
       opacity: 0;
-      z-index: 1;
+      z-index: 5;
+      pointer-events: auto;
+    }
+
+    .project-hidden {
+      display: none;
+    }
+
+    .projects-toggle {
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    .projects-toggle-button {
+      border: none;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      color: white;
+      padding: 14px 34px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 18px 30px rgba(59, 130, 246, 0.35);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .projects-toggle-button:hover,
+    .projects-toggle-button:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 25px 45px rgba(59, 130, 246, 0.45);
+      outline: none;
     }
     
     @media (max-width: 768px) {
@@ -322,6 +372,8 @@
       </div>
 
     </div>
+
+    <div class="projects-toggle" aria-live="polite" aria-atomic="true"></div>
 
   </div>
 

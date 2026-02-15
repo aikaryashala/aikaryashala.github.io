@@ -92,6 +92,46 @@ if (galleryGrid) {
   }
 }
 
+const projectsGrid = document.querySelector('.projects-grid');
+if (projectsGrid) {
+  const projectCards = Array.from(projectsGrid.querySelectorAll('.project-card'));
+  const previewLimit = 6;
+  const hiddenCards = projectCards.slice(previewLimit);
+
+  hiddenCards.forEach((card) => card.classList.add('project-hidden'));
+
+  if (hiddenCards.length) {
+    const projectsToggle = document.querySelector('.projects-toggle');
+    const toggleContainer = projectsToggle || document.createElement('div');
+    if (!projectsToggle) {
+      toggleContainer.className = 'projects-toggle';
+      projectsGrid.parentNode.insertBefore(toggleContainer, projectsGrid.nextSibling);
+    }
+
+    const toggleButton = document.createElement('button');
+    toggleButton.type = 'button';
+    toggleButton.className = 'projects-toggle-button';
+    let expanded = false;
+
+    const updateLabel = () => {
+      toggleButton.textContent = expanded ? 'Show fewer projects' : `Show ${hiddenCards.length} more projects`;
+      toggleButton.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    };
+    updateLabel();
+
+    toggleButton.addEventListener('click', () => {
+      expanded = !expanded;
+      hiddenCards.forEach((card) => card.classList.toggle('project-hidden', !expanded));
+      updateLabel();
+      if (!expanded) {
+        projectsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+
+    toggleContainer.appendChild(toggleButton);
+  }
+}
+
 function setupRow(row) {
   const slider = row.querySelector('.id-scroll');
   const track = row.querySelector('.id-track');
