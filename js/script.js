@@ -46,12 +46,34 @@ if (galleryGrid) {
       lightboxCaption.textContent = target.alt || `Image ${index + 1}`;
       lightboxImg.classList.remove('transitioning');
     }, 180);
+    const nextIndex = (index + 1) % galleryImages.length;
+    const prevIndex = (index - 1 + galleryImages.length) % galleryImages.length;
+    const next = galleryImages[nextIndex];
+    const prev = galleryImages[prevIndex];
+    if (next) {
+      const preloadNext = new Image();
+      preloadNext.src = next.currentSrc || next.src;
+    }
+    if (prev) {
+      const preloadPrev = new Image();
+      preloadPrev.src = prev.currentSrc || prev.src;
+    }
   }
 
   function openLightbox(index) {
     currentIndex = index;
     if (!lightbox) return;
     displayImage(currentIndex);
+    const nextIndex = (currentIndex + 1) % galleryImages.length;
+    const prevIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
+    if (galleryImages[nextIndex]) {
+      const preloadNext = new Image();
+      preloadNext.src = galleryImages[nextIndex].currentSrc || galleryImages[nextIndex].src;
+    }
+    if (galleryImages[prevIndex]) {
+      const preloadPrev = new Image();
+      preloadPrev.src = galleryImages[prevIndex].currentSrc || galleryImages[prevIndex].src;
+    }
     lightbox.classList.add('active');
     lightbox.setAttribute('aria-hidden', 'false');
   }
