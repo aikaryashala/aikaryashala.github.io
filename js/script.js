@@ -7,6 +7,7 @@ if (galleryGrid) {
   const galleryItems = Array.from(galleryGrid.children).filter((item) =>
     item.matches('picture, img')
   );
+  const preloadQueue = galleryImages.map((img) => img.currentSrc || img.src).filter(Boolean);
   const previewLimit = 9;
   const hiddenItems = galleryItems.slice(previewLimit);
 
@@ -115,6 +116,28 @@ if (galleryGrid) {
       if (event.target === lightbox) {
         closeLightbox();
       }
+    });
+  }
+
+  function preloadAllLightboxImages() {
+    let index = 0;
+    const step = () => {
+      if (index >= preloadQueue.length) return;
+      const src = preloadQueue[index];
+      index += 1;
+      const img = new Image();
+      img.onload = () => setTimeout(step, 80);
+      img.onerror = () => setTimeout(step, 80);
+      img.src = src;
+    };
+    step();
+  }
+
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(preloadAllLightboxImages, { timeout: 2000 });
+  } else {
+    window.addEventListener('load', () => {
+      setTimeout(preloadAllLightboxImages, 500);
     });
   }
 }
