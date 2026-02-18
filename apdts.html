@@ -201,8 +201,15 @@
     }
 
     .lightbox-arrow:hover {
-      transform: translateX(2px);
       box-shadow: 0 20px 30px rgba(59, 130, 246, 0.55);
+    }
+
+    .lightbox-arrow.right:hover {
+      transform: translateX(2px);
+    }
+
+    .lightbox-arrow.left:hover {
+      transform: translateX(-2px);
     }
 
     @keyframes bounceAlpha {
@@ -214,6 +221,17 @@
 
     .lightbox-arrow .arrow.bouncing {
       animation: bounceAlpha 1.4s linear;
+    }
+
+    .lightbox-arrow.left .arrow.bouncing {
+      animation: bounceAlphaLeft 1.4s linear;
+    }
+
+    @keyframes bounceAlphaLeft {
+      0% {opacity: 1; transform: translateX(0px) scale(1) rotate(180deg);}
+      25%{opacity: 0; transform:translateX(-10px) scale(0.9) rotate(180deg);}
+      26%{opacity: 0; transform:translateX(10px) scale(0.9) rotate(180deg);}
+      55% {opacity: 1; transform: translateX(0px) scale(1) rotate(180deg);}
     }
 
     .lightbox-arrow:hover {
