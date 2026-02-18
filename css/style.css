@@ -516,7 +516,7 @@ body > .batch-btn {
   margin: 0;
   font-size: 18px;
   color: rgba(255, 255, 255, 0.85);
-  letter-spacing: 0.25em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   margin-bottom: 8px;
 }
@@ -525,7 +525,12 @@ body > .batch-btn {
   font-size: 20px;
   margin: 0;
   color: #ffffff;
-  font-weight: 600;
+  font-weight: 400;
+}
+
+.footer-small,
+.footer-note-text {
+  font-weight: 300;
 }
 
 .footer-card ul {
@@ -543,6 +548,7 @@ body > .batch-btn {
   margin: 0;
   color: rgba(255, 255, 255, 0.82);
   font-size: 15px;
+  font-weight: 300;
 }
 
 .footer-credit {
