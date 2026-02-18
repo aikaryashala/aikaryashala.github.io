@@ -16,7 +16,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between; /* Logo left, button right */
-  padding: 5px 25px;
+  padding: 16px 22px;
   
   /* Glassmorphism - Semi-transparent dark */
   background: rgba(11, 16, 32, 0.9); /* Slightly more opaque for better contrast */
@@ -30,20 +30,24 @@ body {
   position: sticky;
   top: 0;
   z-index: 1000;
-  min-height: 50px;
+  min-height: 78px;
 }
 
-/* Logo - Bigger size */
+/* Logo - Tighter fit */
 .header-logo {
-  height: 100px; /* Increased from 60px */
+  height: 40px;
   width: auto;
+  object-fit: contain;
+  display: block;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
   transition: transform 0.3s ease;
 }
 
-.header-logo:hover {
-  transform: scale(1.05);
+.header a {
+  display: inline-flex;
+  align-items: center;
 }
+
 
 /* Next Batch Button inside header - Right side */
 .header .batch-btn {
@@ -397,9 +401,6 @@ body > .batch-btn {
     4px 8px 10px rgba(0, 255, 255, 0.18);
   z-index: 10;
 }
-.id-card:hover img {
-  transform: scale(1.05);
-}
 
 /* Hover scroll zones */
 .hover-zone {
@@ -472,10 +473,18 @@ body > .batch-btn {
 }
 
 /* IMAGE */
+.card-face picture {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.card-face picture img,
 .card-face img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
   border-radius: 12px;
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.28);
@@ -549,17 +558,17 @@ body > .batch-btn {
 @media (max-width: 768px) {
   /* Header Mobile */
   .header {
-    padding: 8px 20px;
+    padding: 16px 16px;
     flex-direction: row; /* Stack vertically on mobile */
     gap: 15px;
-    min-height: 70px;
+    min-height: 80px;
     justify-content: space-between; /* Logo left, button right */
     align-items: center;
   }
   
   .header-logo {
-    height: 70px; /* Slightly smaller on mobile but still prominent */
-    max-width: 200px; 
+    height: 34px;
+    max-width: 200px;
   }
   
   .header .batch-btn {
@@ -678,13 +687,13 @@ body > .batch-btn {
 @media (max-width: 480px) {
   /* For very small screens */
   .header {
-    padding: 8px 15px;
+    padding: 16px 12px;
     gap: 12px;
-    min-height: 65px;
+    min-height: 76px;
   }
   
   .header-logo {
-    height: 55px;
+    height: 30px;
     max-width: 180px;
   }
   
@@ -698,7 +707,7 @@ body > .batch-btn {
   /* For iPhone SE/small phones */
 
   .header {
-      min-height: 60px;
+      min-height: 72px;
     }
    
   .header .batch-btn {
@@ -707,7 +716,7 @@ body > .batch-btn {
   }
   
   .header-logo {
-    height: 50px;
+    height: 26px;
     max-width: 160px;
   }
 }
