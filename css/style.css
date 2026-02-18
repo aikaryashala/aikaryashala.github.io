@@ -218,11 +218,19 @@ body > .batch-btn {
   height: 46px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.4);
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.05);
-  font-size: 22px;
+  text-align: center;
+}
+
+.content-symbol img {
+  width: 26px;
+  height: 26px;
+  display: block;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
 }
 
 .content-text h3 {
@@ -648,12 +656,23 @@ body > .batch-btn {
   }
 
   .timeline-item.left .content,
-  .timeline-item.left .content-info {
+  .timeline-item.right .content {
+    flex-direction: column;
+    text-align: left;
+  }
+
+  .timeline-item.left .content-info,
+  .timeline-item.right .content-info {
     flex-direction: row;
     text-align: left;
   }
 
   .content-arrow--left {
+    transform: none;
+  }
+
+  .timeline-item.left .content:hover .content-arrow,
+  .timeline-item.right .content:hover .content-arrow {
     transform: none;
   }
 
