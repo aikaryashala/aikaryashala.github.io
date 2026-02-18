@@ -316,3 +316,46 @@ function setupRow(row) {
 
   autoScroll();
 }
+
+document.body.classList.add('js');
+
+const revealTargets = document.querySelectorAll('.reveal, .reveal-item');
+if (revealTargets.length) {
+  if ('IntersectionObserver' in window) {
+    const revealObserver = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.15,
+        rootMargin: '0px 0px -10% 0px',
+      }
+    );
+
+    revealTargets.forEach((target) => revealObserver.observe(target));
+  } else {
+    revealTargets.forEach((target) => target.classList.add('is-visible'));
+  }
+}
+
+const heroSection = document.querySelector('.hero');
+if (heroSection) {
+  const toggleHeroState = () => {
+    const heroHeight = heroSection.offsetHeight || 1;
+    const threshold = heroHeight * 0.35;
+    if (window.scrollY > threshold) {
+      document.body.classList.add('scrolled');
+    } else {
+      document.body.classList.remove('scrolled');
+    }
+  };
+
+  toggleHeroState();
+  window.addEventListener('scroll', toggleHeroState, { passive: true });
+  window.addEventListener('resize', toggleHeroState);
+}
