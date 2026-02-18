@@ -208,6 +208,7 @@ function setupRow(row) {
     const input = card.querySelector('input');
     return input && /d$/.test(input.id);
   });
+  const loopEnabled = Boolean(firstDup);
 
   function getLoopWidth() {
     if (firstDup && firstDup.offsetLeft > 0) {
@@ -216,7 +217,7 @@ function setupRow(row) {
     return track.scrollWidth / 2;
   }
 
-  if (directionMultiplier === -1) {
+  if (directionMultiplier === -1 && loopEnabled) {
     requestAnimationFrame(() => {
       slider.scrollLeft = getLoopWidth();
     });
@@ -228,7 +229,7 @@ function setupRow(row) {
       slider.scrollLeft += rawSpeed * directionMultiplier;
     }
 
-    if (!isPaused) {
+    if (!isPaused && loopEnabled) {
       normalizeScroll();
     }
 
@@ -288,13 +289,17 @@ function setupRow(row) {
     e.preventDefault();
     const walk = e.pageX - startX;
     slider.scrollLeft = startScroll - walk;
-    normalizeManualScroll();
+    if (loopEnabled) {
+      normalizeManualScroll();
+    }
   });
 
   slider.addEventListener('wheel', (e) => {
     e.preventDefault();
     slider.scrollLeft += e.deltaY;
-    normalizeManualScroll();
+    if (loopEnabled) {
+      normalizeManualScroll();
+    }
   });
 
   slider.addEventListener('mouseover', (e) => {
