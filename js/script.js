@@ -359,3 +359,11 @@ if (heroSection) {
   window.addEventListener('scroll', toggleHeroState, { passive: true });
   window.addEventListener('resize', toggleHeroState);
 }
+
+window.addEventListener('load', () => {
+  window.scrollTo({ top: 0, behavior: 'auto' });
+});
+
+window.addEventListener('beforeunload', () => {
+  window.scrollTo(0, 0);
+});
