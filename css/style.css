@@ -912,14 +912,27 @@ body.home .site-footer {
 /* MOBILE VIEW */
 @media (max-width: 768px) {
   /* Header Mobile */
+  .header {
+    padding: 0 6px;
+  }
+
   .nav-shell {
-    flex-direction: column;
-    gap: 10px;
-    padding: 12px 16px;
+    width: 100%;
+    max-width: none;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 12px;
   }
 
   .nav-links {
     display: none;
+  }
+
+  .nav-hero-cta {
+    width: auto;
+    text-align: center;
+    white-space: nowrap;
   }
 
   /* Hero Mobile */
@@ -1099,7 +1112,7 @@ body.home .site-footer {
 @media (max-width: 480px) {
   /* For very small screens */
   .header {
-    padding: 16px 12px;
+    padding: 0 6px;
     gap: 12px;
     min-height: 76px;
   }
