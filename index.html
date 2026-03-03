@@ -8,20 +8,23 @@
 </head>
 <body class="home">
 
-<!-- Header with Logo -->
+<!-- Header with floating nav -->
 <header class="header">
-  <a href="index.html" aria-label="Home">
-    <img src="images/logo transparent.png" alt="AI ????????" class="header-logo">
-  </a>
-  <!-- Top Right Button -->
-  <a 
-    href="/ugadhi-2026/index.html" 
-    class="batch-btn" 
-    target="_blank" 
-    rel="noopener noreferrer"
-  >
-    Join the Next Batch
-  </a>
+  <div class="nav-shell">
+    <a href="index.html" aria-label="Home" class="nav-brand">
+      <img src="images/logo transparent.png" alt="AI Karyashala logo" class="header-logo">
+    </a>
+
+    <nav class="nav-links" aria-label="Main">
+      <a href="#journey">Our Journey</a>
+      <a href="projects.html">Projects</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <a href="/ugadhi-2026/index.html" class="hero-btn hero-btn--primary nav-hero-cta" target="_blank" rel="noopener noreferrer">
+      Join the Next Batch
+    </a>
+  </div>
 </header>
 
 
@@ -56,6 +59,23 @@
   </div>
 </section>
 
+<section class="features reveal" id="features">
+  <div class="features-grid">
+    <article class="feature-card">
+      <h3>Deep practice</h3>
+      <p>Blend mentors, real briefs, and AI tooling so every build feels like a launch.</p>
+    </article>
+    <article class="feature-card">
+      <h3>AI workflow</h3>
+      <p>Use prompts, copilots, and automation to prototype fast without losing craft.</p>
+    </article>
+    <article class="feature-card">
+      <h3>Career focus</h3>
+      <p>Weekly reviews, portfolio-ready projects, and interview-ready comfort.</p>
+    </article>
+  </div>
+</section>
+
 
 <!-- Vision Section -->
 <section class="vision reveal">
@@ -86,7 +106,7 @@
 
 <!-- Journey Timeline -->
 <!-- Journey Timeline -->
-<section class="journey reveal">
+<section class="journey reveal" id="journey">
   <h2>Our Journey</h2>
 
   <div class="timeline">
@@ -1597,7 +1617,7 @@
   </div>
 </section>
 
-<footer class="site-footer">
+<footer class="site-footer" id="contact">
   <div class="footer-grid">
     <div class="footer-card">
       <h4>Contact</h4>
