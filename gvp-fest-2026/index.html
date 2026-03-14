@@ -1,0 +1,2574 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AIKYA | Student Developer Community</title>
+    <meta
+      name="description"
+      content="AIKYA is a student-led developer community where builders collaborate on projects, learn emerging technologies, and launch ideas together."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Outfit:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+:root {
+  --bg: #05060b;
+  --bg-soft: #0a0d17;
+  --panel: rgba(16, 18, 30, 0.72);
+  --panel-strong: rgba(13, 15, 28, 0.9);
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #f5f7ff;
+  --muted: #a1a7bb;
+  --muted-strong: #c7cee0;
+  --cyan: #00d9ff;
+  --pink: #ff3db8;
+  --blue: #5b7cff;
+  --green: #3ae6b3;
+  --purple: #9f6cff;
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  --radius: 20px;
+  --max-width: 1160px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: var(--text);
+  font-family: "DM Sans", sans-serif;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(0, 217, 255, 0.18), transparent 28%),
+    radial-gradient(circle at 82% 16%, rgba(255, 61, 184, 0.16), transparent 26%),
+    linear-gradient(180deg, #05060b 0%, #070910 42%, #040509 100%);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.container {
+  width: min(calc(100% - 2rem), var(--max-width));
+  margin: 0 auto;
+}
+
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  padding: 1rem 0 0;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  background: rgba(10, 12, 20, 0.58);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+}
+
+.section {
+  position: relative;
+  padding: 4.5rem 0;
+}
+
+#about.section {
+  padding: 4.5rem 0 2.5rem;
+}
+
+.section-glow::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(72rem, 86vw);
+  height: 24rem;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse, rgba(0, 217, 255, 0.07), transparent 68%);
+  pointer-events: none;
+}
+
+.section-divider {
+  width: min(calc(100% - 2rem), var(--max-width));
+  height: 1px;
+  margin: 0 auto 2rem;
+  background: linear-gradient(90deg, transparent, rgba(0, 217, 255, 0.38), rgba(255, 61, 184, 0.32), transparent);
+  opacity: 0.7;
+}
+
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7rem 0 4rem;
+  overflow: hidden;
+}
+
+#hero-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.82;
+}
+
+.hero-orb {
+  position: absolute;
+  width: 28rem;
+  height: 28rem;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.hero-orb-left {
+  top: 16%;
+  left: 12%;
+  background: rgba(0, 217, 255, 0.2);
+}
+
+.hero-orb-right {
+  right: 10%;
+  bottom: 16%;
+  background: rgba(255, 61, 184, 0.18);
+}
+
+.floating-symbol {
+  position: absolute;
+  z-index: 1;
+  font-family: "Outfit", sans-serif;
+  color: rgba(0, 217, 255, 0.34);
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  animation: floatY 8s ease-in-out infinite;
+}
+
+.symbol-one {
+  top: 18%;
+  left: 10%;
+  font-size: 1rem;
+}
+
+.symbol-two {
+  top: 22%;
+  right: 16%;
+  font-size: 0.95rem;
+  color: rgba(255, 61, 184, 0.36);
+  animation-delay: -2s;
+}
+
+.symbol-three {
+  right: 18%;
+  bottom: 21%;
+  font-size: 0.95rem;
+  animation-delay: -4s;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+.hero-copy {
+  max-width: 54rem;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8de8ff;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: "DM Sans", sans-serif;
+  line-height: 1;
+}
+
+h1 {
+  font-size: clamp(4.2rem, 11vw, 8rem);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+
+h2 {
+  font-size: clamp(2.25rem, 5vw, 4rem);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+}
+
+h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--cyan), var(--pink) 58%, var(--blue));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-tagline {
+  max-width: 18ch;
+  margin: 1.25rem auto 0;
+  font-size: clamp(1.55rem, 3vw, 2.35rem);
+  color: var(--muted-strong);
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.hero-description {
+  max-width: 44rem;
+  margin: 1.35rem auto 0;
+  font-size: 1.08rem;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.hero-pills,
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.hero-pills {
+  justify-content: center;
+  margin-top: 1.4rem;
+}
+
+.hero-pill,
+.tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.2rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: #d9dff1;
+  font-size: 0.84rem;
+  font-weight: 500;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.15rem;
+  padding: 0.9rem 1.35rem;
+  border-radius: 0.9rem;
+  border: 1px solid transparent;
+  font-family: "DM Sans", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    background 220ms ease;
+  cursor: pointer;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+}
+
+.button:focus-visible,
+.footer a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 217, 255, 0.75);
+}
+
+.button-primary {
+  background: linear-gradient(135deg, var(--cyan), var(--blue));
+  color: #02040b;
+  box-shadow: 0 0 28px rgba(0, 217, 255, 0.2);
+}
+
+.button-primary:hover {
+  box-shadow:
+    0 0 32px rgba(0, 217, 255, 0.28),
+    0 12px 28px rgba(0, 217, 255, 0.18);
+}
+
+.button-secondary {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text);
+}
+
+.button-secondary:hover {
+  border-color: rgba(0, 217, 255, 0.34);
+  box-shadow: 0 0 24px rgba(0, 217, 255, 0.1);
+}
+
+.button-nav {
+  min-height: 2.7rem;
+  padding: 0.72rem 1rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--cyan), var(--blue));
+  color: #02040b;
+  box-shadow: 0 0 24px rgba(0, 217, 255, 0.16);
+}
+
+.button-nav:hover {
+  box-shadow: 0 0 28px rgba(0, 217, 255, 0.24);
+}
+
+.glass {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(18, 20, 34, 0.8), rgba(10, 12, 22, 0.72));
+  backdrop-filter: blur(18px);
+  box-shadow: var(--shadow);
+}
+
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(0, 217, 255, 0.18), transparent, rgba(255, 61, 184, 0.16));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.why-grid {
+  margin-top: 2.75rem;
+  display: grid;
+  gap: 1.1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.why-card {
+  --accent: var(--cyan);
+  position: relative;
+  padding: 1.6rem 1.5rem 1.45rem;
+  border-radius: 1.1rem;
+  border: 1px solid var(--border);
+  background:
+    radial-gradient(120% 140% at 12% 6%, rgba(0, 217, 255, 0.12), transparent 65%),
+    radial-gradient(140% 120% at 88% 10%, rgba(255, 61, 184, 0.08), transparent 60%),
+    var(--panel-strong);
+  box-shadow: 0 22px 62px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  transition: transform 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
+}
+
+.why-card::before {
+  content: "";
+  position: absolute;
+  top: -42px;
+  left: -76px;
+  width: 260px;
+  height: 150px;
+  background: linear-gradient(118deg, var(--accent), transparent 70%);
+  transform: rotate(10deg);
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 220ms ease, transform 320ms ease;
+}
+
+.why-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--accent);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.55),
+    0 0 32px var(--accent);
+}
+
+.why-card:hover::before {
+  opacity: 0.9;
+  transform: rotate(6deg) translateY(6px);
+}
+
+.why-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  margin-bottom: 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--accent);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.why-icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.9rem;
+  background: linear-gradient(140deg, var(--accent), rgba(255, 255, 255, 0.08));
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35), 0 0 22px rgba(0, 217, 255, 0.25);
+}
+
+.why-icon svg {
+  width: 2rem;
+  height: 2rem;
+  color: #041018;
+}
+
+.why-title {
+  margin: 0 0 0.45rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.why-copy {
+  margin: 0 0 0.9rem;
+  color: var(--muted-strong);
+  font-size: 0.98rem;
+  line-height: 1.65;
+}
+
+.why-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 180ms ease, background 180ms ease;
+}
+
+.why-cta svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.why-card:hover .why-cta {
+  transform: translateX(2px);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.section-heading {
+  max-width: 48rem;
+  margin-bottom: 2.25rem;
+}
+
+.section-heading.centered {
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+}
+
+.section-heading.centered h2 {
+  font-size: clamp(1.8rem, 3.6vw, 2.6rem);
+}
+
+.section-heading.centered .eyebrow {
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+}
+
+.section-heading h2,
+.section-copy h2,
+.launch-copy h2,
+.final-cta h2 {
+  max-width: 22ch;
+}
+
+h2.section-line-small {
+  font-size: clamp(1.55rem, 3vw, 2.25rem);
+  line-height: 1.16;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  max-width: 24ch;
+  margin-left: auto;
+  margin-right: auto;
+  color: var(--muted-strong);
+}
+
+.section-heading.centered h2,
+.final-cta h2 {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.section-copy p,
+.section-heading p,
+.launch-copy p,
+.final-cta p {
+  margin-top: 1rem;
+}
+
+.section-subtitle {
+  color: var(--muted-strong);
+  margin-top: 0.5rem;
+}
+
+.about-stacked {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-top: 3rem;
+}
+
+.about-panel-wide {
+  max-width: 48rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.about-points-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 1.35rem;
+}
+
+.launch-panel {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem;
+  align-items: center;
+}
+
+.launch-panel > .button {
+  justify-self: center;
+}
+
+.footer-centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  padding: 2.5rem 0 1rem;
+}
+
+.footer-desc {
+  max-width: 28rem;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.footer-links-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  color: var(--muted);
+  font-size: 0.94rem;
+  font-weight: 500;
+}
+
+.footer-links-row a:hover {
+  color: var(--text);
+}
+
+.footer-socials a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.03);
+  transition: transform 200ms ease, border-color 200ms ease, background 200ms ease, color 200ms ease;
+}
+
+.footer-socials a:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 217, 255, 0.25);
+  background: rgba(0, 217, 255, 0.06);
+  color: var(--cyan);
+}
+
+.footer-socials svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex-shrink: 0;
+}
+
+.footer-socials span {
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.section-copy {
+  max-width: 32rem;
+}
+
+.section-copy p:not(:last-child) {
+  margin-bottom: 0.65rem;
+}
+
+.about-panel,
+.launch-panel,
+.final-cta {
+  padding: 1.65rem;
+}
+
+.panel-badge,
+.project-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.9rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.panel-badge {
+  background: rgba(0, 217, 255, 0.08);
+  border: 1px solid rgba(0, 217, 255, 0.16);
+  color: #9cf0ff;
+}
+
+.about-panel-head h3 {
+  margin-top: 0.9rem;
+  font-size: 1.65rem;
+}
+
+.about-points {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.35rem;
+}
+
+.about-point {
+  padding: 1rem 1.05rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.03);
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.about-point:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0, 217, 255, 0.22);
+  box-shadow: 0 0 24px rgba(0, 217, 255, 0.07);
+}
+
+.about-point strong {
+  display: block;
+  font-family: "Outfit", sans-serif;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.about-point p {
+  margin-top: 0.45rem;
+}
+
+.card-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.feature-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.activity-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.project-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.feature-card,
+.activity-card,
+.project-card {
+  padding: 1.5rem;
+  transition:
+    transform 240ms ease,
+    border-color 240ms ease,
+    box-shadow 240ms ease;
+}
+
+.feature-card:hover,
+.activity-card:hover,
+.project-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(0, 217, 255, 0.22);
+  box-shadow:
+    var(--shadow),
+    0 0 30px rgba(0, 217, 255, 0.08);
+}
+
+.feature-card p,
+.activity-card p,
+.project-card p {
+  margin-top: 0.75rem;
+}
+
+.feature-icon,
+.activity-icon {
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  margin-bottom: 1.1rem;
+  border-radius: 1rem;
+  font-family: "Outfit", sans-serif;
+  font-size: 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cyan {
+  color: #92efff;
+  background: linear-gradient(180deg, rgba(0, 217, 255, 0.14), rgba(0, 217, 255, 0.04));
+}
+
+.pink {
+  color: #ff9fda;
+  background: linear-gradient(180deg, rgba(255, 61, 184, 0.14), rgba(255, 61, 184, 0.04));
+}
+
+.blue {
+  color: #afbcff;
+  background: linear-gradient(180deg, rgba(91, 124, 255, 0.14), rgba(91, 124, 255, 0.04));
+}
+
+.purple {
+  color: #d5b6ff;
+  background: linear-gradient(180deg, rgba(159, 108, 255, 0.14), rgba(159, 108, 255, 0.04));
+}
+
+.green {
+  color: #bdf7e6;
+  background: linear-gradient(180deg, rgba(58, 230, 179, 0.14), rgba(58, 230, 179, 0.04));
+}
+
+.project-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.project-status.cyan {
+  background: rgba(0, 217, 255, 0.1);
+  border: 1px solid rgba(0, 217, 255, 0.16);
+}
+
+.project-status.pink {
+  background: rgba(255, 61, 184, 0.1);
+  border: 1px solid rgba(255, 61, 184, 0.16);
+}
+
+.project-status.blue {
+  background: rgba(91, 124, 255, 0.1);
+  border: 1px solid rgba(91, 124, 255, 0.16);
+}
+
+.project-status.purple {
+  background: rgba(159, 108, 255, 0.1);
+  border: 1px solid rgba(159, 108, 255, 0.16);
+}
+
+.project-status.green {
+  background: rgba(58, 230, 179, 0.1);
+  border: 1px solid rgba(58, 230, 179, 0.16);
+}
+
+.project-arrow {
+  color: #6e7794;
+  font-size: 1.1rem;
+}
+
+.tag-row {
+  margin-top: 1rem;
+}
+
+.project-card-cta {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-style: dashed;
+}
+
+.project-plus {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--muted-strong);
+  font-size: 1.4rem;
+}
+
+.launch-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.launch-panel::after {
+  content: "";
+  position: absolute;
+  top: -4rem;
+  right: -3rem;
+  width: 16rem;
+  height: 16rem;
+  border-radius: 50%;
+  background: rgba(0, 217, 255, 0.08);
+  filter: blur(30px);
+  pointer-events: none;
+}
+
+.launch-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.launch-copy h2.section-line-small {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.final-cta {
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+  padding: 3rem 2rem;
+}
+
+.final-cta p {
+  max-width: 36rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.final-cta .hero-actions {
+  margin-top: 1.75rem;
+}
+
+.final-cta::after {
+  content: "";
+  position: absolute;
+  inset: auto 50% -8rem auto;
+  width: 26rem;
+  height: 26rem;
+  transform: translateX(50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 217, 255, 0.06), rgba(255, 61, 184, 0.04), transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+}
+
+.final-cta > * {
+  position: relative;
+  z-index: 1;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-family: "Outfit", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.8rem;
+  background: linear-gradient(135deg, var(--cyan), var(--pink));
+  color: #081018;
+  box-shadow: 0 0 20px rgba(0, 217, 255, 0.22);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.35rem;
+  color: var(--muted);
+  font-size: 0.94rem;
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  color: var(--text);
+}
+
+.footer {
+  padding: 1rem 0 2rem;
+}
+
+.footer-brand {
+  margin-bottom: 0;
+}
+
+.footer-bottom {
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
+}
+
+.back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 50;
+  width: 3rem;
+  height: 3rem;
+  border: none;
+  border-radius: 50%;
+  background: rgba(10, 12, 22, 0.85);
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition: opacity 300ms ease, visibility 300ms ease, transform 300ms ease, box-shadow 220ms ease;
+}
+
+.back-to-top.is-shown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.back-to-top:hover {
+  box-shadow: 0 0 24px rgba(0, 217, 255, 0.3), 0 0 0 1px rgba(0, 217, 255, 0.25);
+}
+
+.back-to-top:hover .btt-arrow {
+  transform: translateY(-1px);
+}
+
+.progress-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.progress-ring-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 2.5;
+}
+
+.progress-ring-fill {
+  fill: none;
+  stroke: var(--cyan);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 131.95;
+  stroke-dashoffset: 131.95;
+  transition: stroke-dashoffset 60ms linear;
+}
+
+.btt-arrow {
+  position: relative;
+  z-index: 1;
+  width: 1.15rem;
+  height: 1.15rem;
+  color: var(--cyan);
+  transition: transform 200ms ease;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 700ms ease,
+    transform 700ms ease;
+  transition-delay: var(--reveal-delay, 0s);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal.style-sparkle.is-visible {
+  animation: sparkleRise 950ms cubic-bezier(0.25, 0.6, 0.35, 1.05) forwards;
+}
+
+.reveal.style-swipe.is-visible {
+  animation: swipeIn 900ms cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+
+.reveal.style-glow.is-visible {
+  animation: glowPulse 1100ms cubic-bezier(0.28, 0.84, 0.42, 1) forwards;
+}
+
+.reveal.style-wave.is-visible {
+  animation: waveLift 1000ms cubic-bezier(0.52, 0.16, 0.24, 1.02) forwards;
+}
+
+.reveal.style-pop.is-visible {
+  animation: popSpark 850ms cubic-bezier(0.4, 0, 0.2, 1.1) forwards;
+}
+
+.reveal.style-orbit.is-visible {
+  animation: orbitSlide 1050ms cubic-bezier(0.25, 0.7, 0.45, 1) forwards;
+}
+
+.reveal.style-zoom.is-visible {
+  animation: zoomBloom 950ms cubic-bezier(0.32, 0, 0.12, 1.1) forwards;
+}
+
+.reveal.style-glimmer.is-visible {
+  animation: glimmerFade 1000ms cubic-bezier(0.48, 0, 0.12, 1) forwards;
+}
+
+@keyframes sparkleRise {
+  from {
+    opacity: 0;
+    transform: translateY(32px) scale(0.96);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes swipeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-48px) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+}
+
+@keyframes glowPulse {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(18px);
+    filter: drop-shadow(0 0 0 rgba(0, 217, 255, 0));
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: drop-shadow(0 0 28px rgba(0, 217, 255, 0.25));
+  }
+}
+
+@keyframes waveLift {
+  from {
+    opacity: 0;
+    transform: translateY(32px) rotate(-4deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0);
+  }
+}
+
+@keyframes popSpark {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(14px);
+  }
+  60% {
+    transform: scale(1.06) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes orbitSlide {
+  from {
+    opacity: 0;
+    transform: translateY(28px) rotate(-9deg) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0) scale(1);
+  }
+}
+
+@keyframes zoomBloom {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(24px);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes glimmerFade {
+  from {
+    opacity: 0;
+    transform: translateY(42px);
+    filter: drop-shadow(0 0 0 rgba(0, 217, 255, 0));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: drop-shadow(0 0 20px rgba(0, 217, 255, 0.1));
+  }
+}
+
+@keyframes floatY {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+/* ── Hamburger + Mobile Menu ── */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: border-color 200ms ease, background 200ms ease;
+}
+
+.hamburger:hover {
+  border-color: rgba(0, 217, 255, 0.32);
+  background: rgba(0, 217, 255, 0.07);
+}
+
+.ham-line {
+  display: block;
+  width: 1.1rem;
+  height: 1.5px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: transform 280ms ease, opacity 200ms ease;
+}
+
+.hamburger.is-open .ham-line:nth-child(1) {
+  transform: translateY(6.5px) rotate(45deg);
+}
+
+.hamburger.is-open .ham-line:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.is-open .ham-line:nth-child(3) {
+  transform: translateY(-6.5px) rotate(-45deg);
+}
+
+.mobile-menu {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  background: rgba(5, 6, 11, 0.97);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 5rem 2rem 3rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 260ms ease;
+}
+
+.mobile-menu.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobile-link {
+  font-family: "Outfit", sans-serif;
+  font-size: clamp(1.6rem, 7vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--muted-strong);
+  padding: 0.55rem 1rem;
+  border-radius: 0.75rem;
+  transition: color 180ms ease, background 180ms ease;
+}
+
+.mobile-link:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mobile-cta {
+  margin-top: 1.25rem;
+  width: auto !important;
+  padding: 0.9rem 2.5rem;
+  font-size: 1rem;
+}
+
+/* ── Tablet (≤ 1080px) ── */
+@media (max-width: 1080px) {
+  .feature-grid,
+  .activity-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .project-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .about-points-row,
+  .launch-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .launch-panel {
+    text-align: center;
+  }
+
+  .launch-panel > .button {
+    justify-self: center;
+  }
+
+  .launch-copy h2.section-line-small {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .why-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ── Mobile (≤ 760px) ── */
+@media (max-width: 760px) {
+  .section {
+    padding: 3.5rem 0;
+  }
+
+  .site-header {
+    padding-top: 0.75rem;
+  }
+
+  .nav {
+    border-radius: 1.25rem;
+  }
+
+  h1 {
+    font-size: clamp(3.2rem, 16vw, 5rem);
+  }
+
+  h2 {
+    font-size: clamp(1.9rem, 9vw, 3rem);
+  }
+
+  .hero {
+    min-height: auto;
+    padding-top: 5rem;
+    padding-bottom: 3rem;
+  }
+
+  .nav-links,
+  .button-nav {
+    display: none;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .mobile-menu {
+    display: flex;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .hero-actions .button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero-pills,
+  .tag-row {
+    justify-content: center;
+  }
+
+  .hero-tagline {
+    font-size: clamp(1.3rem, 5vw, 1.9rem);
+  }
+
+  .hero-description {
+    font-size: 1rem;
+  }
+
+  .feature-grid,
+  .activity-grid,
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .why-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .floating-symbol {
+    display: none;
+  }
+
+  .about-points-row {
+    grid-template-columns: 1fr;
+  }
+
+  .launch-panel {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+
+  .launch-copy h2.section-line-small {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .launch-panel > .button {
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  .final-cta {
+    padding: 2rem 1.25rem;
+  }
+
+  .final-cta .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .final-cta .hero-actions .button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .section-heading.centered h2 {
+    font-size: clamp(1.55rem, 7vw, 2.2rem);
+  }
+
+  .mentors-track-wrap::before,
+  .mentors-track-wrap::after {
+    width: 3rem;
+  }
+
+  .mentor-card {
+    width: 230px;
+    padding: 1.1rem 1rem 1rem;
+  }
+
+  .footer-links-row {
+    gap: 0.75rem;
+  }
+
+  .footer-socials {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .back-to-top {
+    bottom: 1.25rem;
+    right: 1.25rem;
+  }
+
+  .glass.about-panel {
+    padding: 1.25rem;
+  }
+
+  .why-card {
+    padding: 1.4rem 1.25rem 1.25rem;
+  }
+}
+
+/* ── Small phones (≤ 480px) ── */
+@media (max-width: 480px) {
+  .container {
+    width: calc(100% - 1.5rem);
+  }
+
+  .section {
+    padding: 2.75rem 0;
+  }
+
+  h1 {
+    font-size: clamp(2.8rem, 18vw, 4rem);
+    letter-spacing: -0.04em;
+  }
+
+  .hero {
+    padding-top: 4.5rem;
+  }
+
+  .hero-tagline {
+    font-size: clamp(1.15rem, 5.5vw, 1.55rem);
+    max-width: 22ch;
+  }
+
+  .eyebrow {
+    font-size: 0.74rem;
+  }
+
+  .hero-pill,
+  .tag {
+    font-size: 0.78rem;
+    padding: 0.38rem 0.65rem;
+  }
+
+  .about-point {
+    padding: 0.85rem 0.9rem;
+  }
+
+  .about-panel-head h3 {
+    font-size: 1.35rem;
+  }
+
+  .activity-card,
+  .feature-card,
+  .project-card {
+    padding: 1.25rem;
+  }
+
+  .mentor-card {
+    width: 210px;
+    padding: 1rem 0.9rem 0.9rem;
+  }
+
+  .mentor-name {
+    font-size: 0.9rem;
+  }
+
+  .mentor-role {
+    font-size: 0.75rem;
+  }
+
+  .mentors-track-wrap::before,
+  .mentors-track-wrap::after {
+    width: 2rem;
+  }
+
+  .final-cta {
+    padding: 1.75rem 1rem;
+  }
+
+  .footer-desc {
+    font-size: 0.9rem;
+  }
+
+  .footer-links-row {
+    gap: 0.6rem;
+  }
+
+  .footer-socials a {
+    padding: 0.45rem 0.7rem;
+  }
+
+  .footer-socials span {
+    font-size: 0.8rem;
+  }
+
+  .back-to-top {
+    width: 2.6rem;
+    height: 2.6rem;
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  .section-heading.centered h2 {
+    font-size: clamp(1.45rem, 8vw, 2rem);
+  }
+
+  h2.section-line-small {
+    font-size: clamp(1.3rem, 6.5vw, 1.9rem);
+  }
+}
+
+/* ── Mentors Section ── */
+.mentors-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  margin-top: 2.75rem;
+}
+
+.mentors-track-wrap {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  --gap: 1.1rem;
+}
+
+.mentors-track-wrap::before,
+.mentors-track-wrap::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 7rem;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.mentors-track-wrap::before {
+  left: 0;
+  background: linear-gradient(90deg, var(--bg), transparent);
+}
+
+.mentors-track-wrap::after {
+  right: 0;
+  background: linear-gradient(-90deg, var(--bg), transparent);
+}
+
+.mentors-track {
+  display: flex;
+  gap: var(--gap);
+  width: max-content;
+  animation: mentorScrollLeft 38s linear infinite;
+}
+
+.mentors-track.reverse {
+  animation: mentorScrollRight 42s linear infinite;
+}
+
+.mentors-track-wrap:hover .mentors-track {
+  animation-play-state: paused;
+}
+
+@keyframes mentorScrollLeft {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes mentorScrollRight {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+
+.mentor-card {
+  flex-shrink: 0;
+  width: 272px;
+  padding: 1.35rem 1.3rem 1.15rem;
+  border-radius: 1.15rem;
+  border: 1px solid var(--border);
+  background: linear-gradient(160deg, rgba(18, 20, 36, 0.88), rgba(10, 12, 22, 0.78));
+  backdrop-filter: blur(18px);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.42);
+  transition: transform 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.mentor-card::before {
+  content: "";
+  position: absolute;
+  top: -36px;
+  left: -60px;
+  width: 200px;
+  height: 130px;
+  background: linear-gradient(118deg, var(--mentor-accent, var(--cyan)), transparent 72%);
+  transform: rotate(10deg);
+  opacity: 0.35;
+  pointer-events: none;
+  transition: opacity 220ms ease;
+}
+
+.mentor-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--mentor-accent, var(--cyan));
+  box-shadow:
+    0 22px 56px rgba(0, 0, 0, 0.52),
+    0 0 28px rgba(0, 217, 255, 0.12);
+}
+
+.mentor-card:hover::before {
+  opacity: 0.65;
+}
+
+.mentor-avatar {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Outfit", sans-serif;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: #041018;
+  margin-bottom: 0.85rem;
+  background: linear-gradient(135deg, var(--mentor-accent, var(--cyan)), color-mix(in srgb, var(--mentor-accent, var(--cyan)) 60%, var(--pink)));
+  box-shadow: 0 0 18px rgba(0, 217, 255, 0.28);
+  flex-shrink: 0;
+}
+
+.mentor-name {
+  font-size: 0.97rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 0.28rem;
+  font-family: "Outfit", sans-serif;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.mentor-role {
+  font-size: 0.79rem;
+  color: var(--muted);
+  line-height: 1.55;
+  margin: 0 0 0.9rem;
+}
+
+.mentor-linkedin {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--mentor-accent, var(--cyan));
+  padding: 0.32rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.03);
+  transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.mentor-linkedin:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: var(--mentor-accent, var(--cyan));
+  transform: translateX(2px);
+}
+
+.mentor-linkedin svg {
+  width: 0.88rem;
+  height: 0.88rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav container">
+        <a class="brand" href="#top" aria-label="AIKYA home">
+          <span class="brand-mark">A</span>
+          <span>AIKYA</span>
+        </a>
+        <div class="nav-links">
+          <a href="#about">About</a>
+          <a href="#activities">Activities</a>
+          <a href="#projects">Projects</a>
+          <a href="#mentors">Mentors</a>
+          <a href="#join">Join Us</a>
+        </div>
+        <a class="button button-nav" href="#join">Join Now</a>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+          <span class="ham-line"></span>
+          <span class="ham-line"></span>
+          <span class="ham-line"></span>
+        </button>
+      </nav>
+    </header>
+
+    <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+      <a href="#about" class="mobile-link">About</a>
+      <a href="#activities" class="mobile-link">Activities</a>
+      <a href="#projects" class="mobile-link">Projects</a>
+      <a href="#mentors" class="mobile-link">Mentors</a>
+      <a href="#join" class="mobile-link">Join Us</a>
+      <a class="button button-primary mobile-cta" href="#join">Join Now</a>
+    </div>
+
+    <main id="top">
+      <section class="hero section">
+        <canvas id="hero-canvas" aria-hidden="true"></canvas>
+        <div class="hero-orb hero-orb-left"></div>
+        <div class="hero-orb hero-orb-right"></div>
+        <div class="floating-symbol symbol-one" aria-hidden="true">&lt;/&gt;</div>
+        <div class="floating-symbol symbol-two" aria-hidden="true">{ }</div>
+        <div class="floating-symbol symbol-three" aria-hidden="true">=&gt;</div>
+
+        <div class="container hero-inner">
+          <div class="hero-copy reveal style-zoom" data-stagger data-stagger-step="0.12">
+            <span class="eyebrow reveal">Built by students. For students.</span>
+            <h1 class="reveal">AIKYA</h1>
+            <p class="hero-tagline reveal">
+              Connecting student developers across colleges to
+              <span class="gradient-text">build the future</span>
+            </p>
+            <p class="hero-description reveal">
+              AIKYA is a student-led developer community where builders collaborate on
+              projects, learn emerging technologies, and launch ideas together.
+            </p>
+            <div class="hero-actions reveal">
+              <a class="button button-primary" href="#join">Join the Community</a>
+              <a class="button button-secondary" href="#projects">Explore Projects</a>
+            </div>
+            <div class="hero-pills reveal">
+              <span class="hero-pill">Open Source</span>
+              <span class="hero-pill">Hackathons</span>
+              <span class="hero-pill">Workshops</span>
+              <span class="hero-pill">Project Teams</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="about" class="section section-glow">
+        <div class="section-divider"></div>
+        <div class="container about-stacked" data-stagger data-stagger-step="0.15">
+          <div class="section-heading centered reveal style-swipe">
+            <span class="eyebrow">About AIKYA</span>
+            <h2 class="section-line-small" style="margin-top: 0;">
+              A community for student developers who want to
+              <span class="gradient-text">ship real work</span>
+            </h2>
+            <p style="max-width: 38rem; margin: 1rem auto 0;">
+              AIKYA is a focused space for ambitious student developers to learn faster,
+              build better, and ship together.
+            </p>
+          </div>
+
+          <div class="glass about-panel about-panel-wide reveal style-glow">
+            <div class="about-panel-head" style="text-align: center;">
+              <span class="panel-badge">Core value</span>
+              <h3>Momentum over noise.</h3>
+            </div>
+            <div class="about-points about-points-row">
+              <article class="about-point">
+                <strong>Build together</strong>
+                <p>Find peers to co-build products, tools, and experiments.</p>
+              </article>
+              <article class="about-point">
+                <strong>Learn by doing</strong>
+                <p>Use workshops, hackathons, and open source as practical learning loops.</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="why" class="section section-glow">
+        <div class="section-divider"></div>
+        <div class="container">
+          <div class="section-heading centered reveal style-zoom" style="gap: 0.6rem;">
+            <span class="eyebrow">Why Join</span>
+            <h2 style="margin-bottom: 0.25rem;">Why Join <span class="gradient-text">AIKYA</span></h2>
+            <p class="hero-tagline" style="margin: 0 auto; max-width: 36rem;">
+              Be part of a community built by developers, for <span class="gradient-text">developers.</span>
+            </p>
+          </div>
+
+          <div class="why-grid" data-stagger data-stagger-step="0.12">
+            <article class="why-card reveal style-zoom" style="--accent: #00d9ff;">
+              <span class="why-chip">Projects</span>
+              <div class="why-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2c-1.8 1.7-3.1 5.2-3.1 8.2A3.1 3.1 0 0 0 12 13.3a3.1 3.1 0 0 0 3.1-3.1C15.1 7.3 13.8 3.7 12 2Zm-4.7 9.7-2.5 1.3a1 1 0 0 0-.5.88V17l3.3-1.1 2.1-2.1Zm9.4 0 2.5 1.3a1 1 0 0 1 .5.88V17l-3.3-1.1-2.1-2.1ZM10 15.9l-1.1 4.4 3.1-1.1 3.1 1.1L14 15.9Z" />
+                </svg>
+              </div>
+              <h3 class="why-title">Build Real-World Projects</h3>
+              <p class="why-copy">Work on meaningful builds that solve real problems and make an impact.</p>
+              <span class="why-cta">See builds
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </span>
+            </article>
+
+            <article class="why-card reveal style-zoom" style="--accent: #ff3db8;">
+              <span class="why-chip">Network</span>
+              <div class="why-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="7" cy="7" r="3.2" />
+                  <circle cx="17" cy="7" r="3.2" />
+                  <circle cx="12" cy="17" r="3.2" />
+                  <path stroke-linecap="round" d="M9.2 9.2 10.6 11m3-1 1.4-1.8M12 13.8v-.6" />
+                </svg>
+              </div>
+              <h3 class="why-title">Meet Developers from Other Colleges</h3>
+              <p class="why-copy">Expand your network and collaborate with talented builders across campuses.</p>
+              <span class="why-cta">Find teammates
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </span>
+            </article>
+
+            <article class="why-card reveal style-zoom" style="--accent: #5b7cff;">
+              <span class="why-chip">Skills</span>
+              <div class="why-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v6m0 0 3-3m-3 3-3-3M6 14h2.5m7 0H18M9 18h6" />
+                  <circle cx="12" cy="12" r="9" />
+                </svg>
+              </div>
+              <h3 class="why-title">Learn New Technologies</h3>
+              <p class="why-copy">Stay ahead with workshops, peer learning, and hands-on experience.</p>
+              <span class="why-cta">See workshops
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </span>
+            </article>
+
+            <article class="why-card reveal style-zoom" style="--accent: #9f6cff;">
+              <span class="why-chip">Open Source</span>
+              <div class="why-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v5m0 0-3 3m3-3 3 3M7 17a3 3 0 1 1-2-5.65M17 17a3 3 0 1 0 2-5.65" />
+                  <circle cx="12" cy="9" r="7" opacity="0.14" fill="currentColor" />
+                </svg>
+              </div>
+              <h3 class="why-title">Collaborate on Open Source</h3>
+              <p class="why-copy">Contribute to impactful open-source projects and build your portfolio.</p>
+              <span class="why-cta">Browse repos
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </span>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="activities" class="section section-glow">
+        <div class="section-divider"></div>
+        <div class="container">
+          <div class="section-heading centered reveal style-zoom">
+            <span class="eyebrow">What We Do</span>
+            <h2 class="section-line-small" style="margin-top: 0;">
+              Activities that turn learning into
+              <span class="gradient-text">real momentum</span>
+            </h2>
+          </div>
+
+          <div class="card-grid activity-grid" data-stagger data-stagger-step="0.12">
+            <article class="glass activity-card reveal style-zoom">
+              <div class="activity-icon cyan">//</div>
+              <h3>Hackathons</h3>
+              <p>Short, high-energy builds around product ideas and problem solving.</p>
+            </article>
+            <article class="glass activity-card reveal style-zoom">
+              <div class="activity-icon pink">**</div>
+              <h3>Workshops</h3>
+              <p>Hands-on sessions focused on practical tools, systems, and workflows.</p>
+            </article>
+            <article class="glass activity-card reveal style-zoom">
+              <div class="activity-icon blue">[]</div>
+              <h3>Open Source Projects</h3>
+              <p>Collaborative repositories where students learn by contributing and shipping.</p>
+            </article>
+            <article class="glass activity-card reveal style-zoom">
+              <div class="activity-icon green">o</div>
+              <h3>Tech Meetups</h3>
+              <p>Community conversations, demos, and exchanges between student builders.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="projects" class="section section-glow">
+        <div class="container">
+          <div class="section-heading centered reveal style-zoom">
+            <span class="eyebrow">Community Projects</span>
+            <h2 class="section-line-small">
+              Early ideas and products being
+              <span class="gradient-text">built together</span>
+            </h2>
+          </div>
+
+          <div class="card-grid project-grid" data-stagger data-stagger-step="0.12">
+            <article class="glass project-card reveal style-zoom">
+              <div class="project-top">
+                <span class="project-status cyan">In Progress</span>
+                <span class="project-arrow">-&gt;</span>
+              </div>
+              <h3>AI Project</h3>
+              <p>Experimental AI tools designed around student use cases and workflows.</p>
+              <div class="tag-row">
+                <span class="tag">Python</span>
+                <span class="tag">LLMs</span>
+              </div>
+            </article>
+            <article class="glass project-card reveal style-zoom">
+              <div class="project-top">
+                <span class="project-status pink">Builder Tool</span>
+                <span class="project-arrow">-&gt;</span>
+              </div>
+              <h3>Developer Tool</h3>
+              <p>Utilities and internal tools that help student teams move faster.</p>
+              <div class="tag-row">
+                <span class="tag">TypeScript</span>
+                <span class="tag">CLI</span>
+              </div>
+            </article>
+            <article class="glass project-card reveal style-zoom">
+              <div class="project-top">
+                <span class="project-status blue">Open Source</span>
+                <span class="project-arrow">-&gt;</span>
+              </div>
+              <h3>Open Source Project</h3>
+              <p>Shared repositories where students contribute, review, and learn in public.</p>
+              <div class="tag-row">
+                <span class="tag">GitHub</span>
+                <span class="tag">OSS</span>
+              </div>
+            </article>
+            <article class="glass project-card reveal style-zoom">
+              <div class="project-top">
+                <span class="project-status purple">Prototype</span>
+                <span class="project-arrow">-&gt;</span>
+              </div>
+              <h3>Student Innovation</h3>
+              <p>Product concepts and rapid prototypes shaped through community collaboration.</p>
+              <div class="tag-row">
+                <span class="tag">Design</span>
+                <span class="tag">MVP</span>
+              </div>
+            </article>
+            <article class="glass project-card reveal style-zoom">
+              <div class="project-top">
+                <span class="project-status green">Community</span>
+                <span class="project-arrow">-&gt;</span>
+              </div>
+              <h3>Community Platform</h3>
+              <p>Internal systems that support discovery, collaboration, and team formation.</p>
+              <div class="tag-row">
+                <span class="tag">Web</span>
+                <span class="tag">Platform</span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Our Mentors ── -->
+      <section id="mentors" class="section section-glow">
+        <div class="section-divider"></div>
+        <div class="container">
+          <div class="section-heading centered reveal style-zoom">
+            <span class="eyebrow">Industry Leaders</span>
+            <h2 class="section-line-small" style="margin-top: 0;">
+              Our <span class="gradient-text">Mentors</span>
+            </h2>
+            <p style="max-width: 38rem; margin: 0.85rem auto 0;">
+              World-class engineers and founders from Microsoft, Meta, Amazon, and IITs — guiding the next generation of builders.
+            </p>
+          </div>
+
+          <div class="mentors-rows reveal style-sparkle">
+            <!-- Row 1 — scrolls left (4 mentors duplicated) -->
+            <div class="mentors-track-wrap">
+              <div class="mentors-track">
+                <!-- Babu Uppala -->
+                <div class="mentor-card" style="--mentor-accent: #00d9ff;">
+                  <div class="mentor-avatar">BU</div>
+                  <p class="mentor-name">Babu Uppala</p>
+                  <p class="mentor-role">Principal Software Engineer at Microsoft&ensp;·&ensp;IIT Kanpur</p>
+                  <a class="mentor-linkedin" href="https://www.linkedin.com/in/babu-uppala-5645645/" target="_blank" rel="noreferrer">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    LinkedIn
+                  </a>
+                </div>
+                <!-- Raghuram Murthy Petla -->
+                <div class="mentor-card" style="--mentor-accent: #ff3db8;">
+                  <div class="mentor-avatar">RP</div>
+                  <p class="mentor-name">Raghuram Murthy Petla</p>
+                  <p class="mentor-role">Senior Software Engineer at Instacart&ensp;·&ensp;Ex: Meta, Microsoft&ensp;·&ensp;IIT Madras</p>
+                  <a class="mentor-linkedin" href="https://www.linkedin.com/in/raghup57/" target="_blank" rel="noreferrer">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    LinkedIn
+                  </a>
+                </div>
+                <!-- Bharat Meda -->
+                <div class="mentor-card" style="--mentor-accent: #5b7cff;">
+                  <div class="mentor-avatar">BM</div>
+                  <p class="mentor-name">Bharat Meda</p>
+                  <p class="mentor-role">Architecting AI-Native Platforms &amp; Agentic Workflows&ensp;·&ensp;Driving AI-Led Transformation at Scale</p>
+                  <a class="mentor-linkedin" href="https://www.linkedin.com/in/bharatmeda/" target="_blank" rel="noreferrer">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    LinkedIn
+                  </a>
+                </div>
+                <!-- Dhanunjaya Naidu Yandrapu -->
+                <div class="mentor-card" style="--mentor-accent: #9f6cff;">
+                  <div class="mentor-avatar">DY</div>
+                  <p class="mentor-name">Dhanunjaya Naidu Yandrapu</p>
+                  <p class="mentor-role">Principal Software Engineer (Consultant)&ensp;·&ensp;Ex: Microsoft&ensp;·&ensp;IIT Kanpur</p>
+                  <a class="mentor-linkedin" href="https://www.linkedin.com/in/dhanunjay/" target="_blank" rel="noreferrer">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    LinkedIn
+                  </a>
+                </div>
+                <!-- Duplicate for seamless loop -->
+                <div class="mentor-card" style="--mentor-accent: #00d9ff;">
+                  <div class="mentor-avatar">BU</div>
+                  <p class="mentor-name">Babu Uppala</p>
+                  <p class="mentor-role">Principal Software Engineer at Microsoft&ensp;·&ensp;IIT Kanpur</p>
+                  <a class="mentor-linkedin" href="https://www.linkedin.com/in/babu-uppala-5645645/" target="_blank" rel="noreferrer">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    LinkedIn
+                  </a>
+                </div>
+                <div class="mentor-card" style="--mentor-accent: #ff3db8;">
+                  <div class="mentor-avatar">RP</div>
+                  <p class="mentor-name">Raghuram Murthy Petla</p>
+                  <p class="mentor-role">Senior Software Engineer at Instacart&ensp;·&ensp;Ex: Meta, Microsoft&ensp;·&ensp;IIT Madras</p>
+                  <a class="mentor-linkedin" href="https://www.linkedin.com/in/raghup57/" target="_blank" rel="noreferrer">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    LinkedIn
+                  </a>
+                </div>
+                <div class="mentor-card" style="--mentor-accent: #5b7cff;">
+                  <div class="mentor-avatar">BM</div>
+                  <p class="mentor-name">Bharat Meda</p>
+                  <p class="mentor-role">Architecting AI-Native Platforms &amp; Agentic Workflows&ensp;·&ensp;Driving AI-Led Transformation at Scale</p>
+                  <a class="mentor-linkedin" href="https://www.linkedin.com/in/bharatmeda/" target="_blank" rel="noreferrer">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    LinkedIn
+                  </a>
+                </div>
+                <div class="mentor-card" style="--mentor-accent: #9f6cff;">
+                  <div class="mentor-avatar">DY</div>
+                  <p class="mentor-name">Dhanunjaya Naidu Yandrapu</p>
+                  <p class="mentor-role">Principal Software Engineer (Consultant)&ensp;·&ensp;Ex: Microsoft&ensp;·&ensp;IIT Kanpur</p>
+                  <a class="mentor-linkedin" href="https://www.linkedin.com/in/dhanunjay/" target="_blank" rel="noreferrer">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    LinkedIn
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 2 — scrolls right (3 mentors duplicated) -->
+            <div class="mentors-track-wrap">
+              <div class="mentors-track reverse">
+                <!-- Chandra Sanapala -->
+                <div class="mentor-card" style="--mentor-accent: #3ae6b3;">
+                  <div class="mentor-avatar">CS</div>
+                  <p class="mentor-name">Chandra Sanapala</p>
+                  <p class="mentor-role">Software Engineer at Sundeck&ensp;·&ensp;Ex: Architect at MapR&ensp;·&ensp;IIT Kanpur</p>
+                  <a class="mentor-linkedin" href="https://www.linkedin.com/in/chandrasanapala/" target="_blank" rel="noreferrer">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    LinkedIn
+                  </a>
+                </div>
+                <!-- Dr. Madan Dabbeeru -->
+                <div class="mentor-card" style="--mentor-accent: #00d9ff;">
+                  <div class="mentor-avatar">MD</div>
+                  <p class="mentor-name">Dr. Madan Dabbeeru</p>
+                  <p class="mentor-role">Founder @ Eizen&ensp;·&ensp;Computer Vision, Robotics &amp; Optimization</p>
+                  <a class="mentor-linkedin" href="https://www.linkedin.com/in/dr-madan-dabbeeru-6206b29/" target="_blank" rel="noreferrer">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    LinkedIn
+                  </a>
+                </div>
+                <!-- Sambasiva Suda -->
+                <div class="mentor-card" style="--mentor-accent: #ff3db8;">
+                  <div class="mentor-avatar">SS</div>
+                  <p class="mentor-name">Sambasiva Suda</p>
+                  <p class="mentor-role">Founder&ensp;·&ensp;Building Unified Business Application for SMBs&ensp;·&ensp;Ex: Amazon, Samsung</p>
+                  <a class="mentor-linkedin" href="https://www.linkedin.com/in/sambasiva-suda/" target="_blank" rel="noreferrer">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    LinkedIn
+                  </a>
+                </div>
+                <!-- Duplicate for seamless loop -->
+                <div class="mentor-card" style="--mentor-accent: #3ae6b3;">
+                  <div class="mentor-avatar">CS</div>
+                  <p class="mentor-name">Chandra Sanapala</p>
+                  <p class="mentor-role">Software Engineer at Sundeck&ensp;·&ensp;Ex: Architect at MapR&ensp;·&ensp;IIT Kanpur</p>
+                  <a class="mentor-linkedin" href="https://www.linkedin.com/in/chandrasanapala/" target="_blank" rel="noreferrer">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    LinkedIn
+                  </a>
+                </div>
+                <div class="mentor-card" style="--mentor-accent: #00d9ff;">
+                  <div class="mentor-avatar">MD</div>
+                  <p class="mentor-name">Dr. Madan Dabbeeru</p>
+                  <p class="mentor-role">Founder @ Eizen&ensp;·&ensp;Computer Vision, Robotics &amp; Optimization</p>
+                  <a class="mentor-linkedin" href="https://www.linkedin.com/in/dr-madan-dabbeeru-6206b29/" target="_blank" rel="noreferrer">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    LinkedIn
+                  </a>
+                </div>
+                <div class="mentor-card" style="--mentor-accent: #ff3db8;">
+                  <div class="mentor-avatar">SS</div>
+                  <p class="mentor-name">Sambasiva Suda</p>
+                  <p class="mentor-role">Founder&ensp;·&ensp;Building Unified Business Application for SMBs&ensp;·&ensp;Ex: Amazon, Samsung</p>
+                  <a class="mentor-linkedin" href="https://www.linkedin.com/in/sambasiva-suda/" target="_blank" rel="noreferrer">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    LinkedIn
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="glass launch-panel reveal style-zoom">
+            <div class="launch-copy reveal style-zoom">
+              <span class="eyebrow">Launch Your Idea with AIKYA</span>
+              <h2 class="section-line-small">
+                Bring an idea in.
+                <span class="gradient-text">Build it with momentum.</span>
+              </h2>
+              <p>
+                Founding members can propose projects, attract collaborators, and turn
+                early concepts into working builds with community support.
+              </p>
+            </div>
+            <a class="button button-primary" href="#join">Propose a Project</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="join" class="section section-glow">
+        <div class="container">
+          <div class="final-cta glass reveal style-glimmer">
+            <span class="eyebrow">Help Build AIKYA from Day One</span>
+            <h2 class="section-line-small">
+              Join the first generation of student developers shaping this
+              <span class="gradient-text">community from the ground up</span>
+            </h2>
+            <p>
+              Join early, meet strong builders, and help define what AIKYA becomes.
+            </p>
+            <div class="hero-actions">
+              <a
+                class="button button-primary"
+                href="https://discord.com"
+                target="_blank"
+                rel="noreferrer"
+                >Join Discord</a
+              >
+              <a class="button button-secondary" href="#projects">Explore Projects</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <button class="back-to-top" id="backToTop" aria-label="Scroll to top">
+      <svg class="progress-ring" viewBox="0 0 48 48">
+        <circle class="progress-ring-bg" cx="24" cy="24" r="21" />
+        <circle class="progress-ring-fill" id="progressCircle" cx="24" cy="24" r="21" />
+      </svg>
+      <svg class="btt-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+      </svg>
+    </button>
+
+    <footer class="footer">
+      <div class="container footer-centered">
+        <a class="brand footer-brand" href="#top">
+          <span class="brand-mark">A</span>
+          <span>AIKYA</span>
+        </a>
+        <p class="footer-desc">
+          Connecting student developers across colleges to build, learn, and grow
+          together.
+        </p>
+        <div class="footer-links-row footer-socials">
+          <a href="https://github.com" target="_blank" rel="noreferrer" aria-label="GitHub">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+            <span>GitHub</span>
+          </a>
+          <a href="https://discord.com" target="_blank" rel="noreferrer" aria-label="Discord">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+            <span>Discord</span>
+          </a>
+          <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.17.054 1.97.24 2.43.403a4.088 4.088 0 0 1 1.523.99 4.088 4.088 0 0 1 .99 1.524c.163.46.349 1.26.403 2.43.058 1.265.07 1.645.07 4.849s-.012 3.584-.07 4.85c-.054 1.17-.24 1.97-.403 2.43a4.088 4.088 0 0 1-.99 1.523 4.088 4.088 0 0 1-1.524.99c-.46.163-1.26.349-2.43.403-1.265.058-1.645.07-4.849.07s-3.584-.012-4.85-.07c-1.17-.054-1.97-.24-2.43-.403a4.088 4.088 0 0 1-1.523-.99 4.088 4.088 0 0 1-.99-1.524c-.163-.46-.349-1.26-.403-2.43C2.175 15.584 2.163 15.204 2.163 12s.012-3.584.07-4.85c.054-1.17.24-1.97.403-2.43a4.088 4.088 0 0 1 .99-1.523A4.088 4.088 0 0 1 5.15 2.636c.46-.163 1.26-.349 2.43-.403C8.845 2.175 9.225 2.163 12 2.163zM12 0C8.741 0 8.333.014 7.053.072 5.775.131 4.902.333 4.14.63a5.882 5.882 0 0 0-2.126 1.384A5.882 5.882 0 0 0 .63 4.14C.333 4.902.131 5.775.072 7.053.014 8.333 0 8.741 0 12s.014 3.668.072 4.948c.059 1.277.261 2.15.558 2.912a5.882 5.882 0 0 0 1.384 2.126 5.882 5.882 0 0 0 2.126 1.384c.762.297 1.635.499 2.913.558C8.333 23.986 8.741 24 12 24s3.668-.014 4.948-.072c1.277-.059 2.15-.261 2.912-.558a5.882 5.882 0 0 0 2.126-1.384 5.882 5.882 0 0 0 1.384-2.126c.297-.762.499-1.635.558-2.913C23.986 15.668 24 15.259 24 12s-.014-3.668-.072-4.948c-.059-1.277-.261-2.15-.558-2.912a5.882 5.882 0 0 0-1.384-2.126A5.882 5.882 0 0 0 19.86.63C19.098.333 18.225.131 16.948.072 15.668.014 15.259 0 12 0zm0 5.838a6.163 6.163 0 1 0 0 12.325 6.163 6.163 0 0 0 0-12.325zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+            <span>Instagram</span>
+          </a>
+          <a href="#" aria-label="Email">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <span>Email</span>
+          </a>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <p>&copy; AIKYA. Built by students, for students.</p>
+      </div>
+    </footer>
+
+    <script>
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function applyStaggerDelays() {
+  const staggerContainers = document.querySelectorAll("[data-stagger]");
+  staggerContainers.forEach((group) => {
+    const base = parseFloat(group.dataset.staggerBase) || 0;
+    const step = parseFloat(group.dataset.staggerStep) || 0.1;
+    const children = Array.from(group.children).filter((child) =>
+      child.classList.contains("reveal")
+    );
+    children.forEach((child, index) => {
+      child.style.setProperty("--reveal-delay", `${(base + index * step).toFixed(2)}s`);
+    });
+  });
+}
+
+if ("scrollRestoration" in history) {
+  history.scrollRestoration = "manual";
+}
+
+window.scrollTo(0, 0);
+
+applyStaggerDelays();
+
+const reveals = document.querySelectorAll(".reveal");
+
+if (!prefersReducedMotion && "IntersectionObserver" in window) {
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.16 }
+  );
+
+  reveals.forEach((element) => revealObserver.observe(element));
+} else {
+  reveals.forEach((element) => element.classList.add("is-visible"));
+}
+
+const canvas = document.getElementById("hero-canvas");
+
+if (canvas) {
+  const ctx = canvas.getContext("2d");
+
+  const shouldUpdateMotion = !prefersReducedMotion;
+
+  const NODE_COUNT = 55;
+  const nodes = [];
+  const mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    mouse.x = canvas.width / 2;
+    mouse.y = canvas.height / 2;
+  }
+
+  resize();
+
+  class Node {
+    constructor() {
+      this.reset();
+      this.y = Math.random() * canvas.height;
+    }
+
+    reset() {
+      this.x = Math.random() * canvas.width;
+      this.y = -10;
+      this.vx = (Math.random() - 0.5) * 0.3;
+      this.vy = (Math.random() - 0.5) * 0.3;
+      this.r = Math.random() * 2 + 1;
+      this.opacity = Math.random() * 0.25 + 0.65;
+      this.color = Math.random() > 0.6 ? "#ff00aa" : "#00e5ff";
+      this.pulse = 0;
+      this.pulseSpeed = Math.random() * 0.02 + 0.01;
+    }
+
+    update() {
+      this.x += this.vx;
+      this.y += this.vy;
+      this.pulse += this.pulseSpeed;
+      const g = Math.sin(this.pulse) * 0.5 + 0.5;
+      this.currentR = this.r + g * 1.2;
+      if (Math.abs(this.x) > canvas.width || this.x < 0) this.vx *= -1;
+      if (Math.abs(this.y) > canvas.height || this.y < 0) this.vy *= -1;
+    }
+
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.currentR, 0, Math.PI * 2);
+      const alphaHex = Math.min(
+        Math.floor(this.opacity * 240) + 15,
+        255
+      ).toString(16).padStart(2, "0");
+      ctx.fillStyle = this.color + alphaHex;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.currentR * 3, 0, Math.PI * 2);
+      const gr = ctx.createRadialGradient(
+        this.x,
+        this.y,
+        0,
+        this.x,
+        this.y,
+        this.currentR * 3
+      );
+      gr.addColorStop(0, this.color + "44");
+      gr.addColorStop(1, "transparent");
+      ctx.fillStyle = gr;
+      ctx.fill();
+    }
+  }
+
+  for (let i = 0; i < NODE_COUNT; i++) {
+    nodes.push(new Node());
+  }
+
+  window.addEventListener("mousemove", (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+  });
+
+  function drawConnections() {
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const dx = nodes[i].x - nodes[j].x;
+        const dy = nodes[i].y - nodes[j].y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < 160) {
+          const a = (1 - d / 160) * 0.15;
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.strokeStyle = `rgba(0,229,255,${Math.min(a * 1.4, 0.4)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+      const dx = nodes[i].x - mouse.x;
+      const dy = nodes[i].y - mouse.y;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d < 200) {
+        const a = (1 - d / 200) * 0.3;
+        ctx.beginPath();
+        ctx.moveTo(nodes[i].x, nodes[i].y);
+        ctx.lineTo(mouse.x, mouse.y);
+        ctx.strokeStyle = `rgba(255,0,170,${Math.min(a * 1.4, 0.45)})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawConnections();
+    nodes.forEach((n) => {
+      if (shouldUpdateMotion) n.update();
+      n.draw();
+    });
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+
+  window.addEventListener("resize", resize);
+}
+
+// Back to top button with progress ring
+const backToTopBtn = document.getElementById("backToTop");
+const progressCircle = document.getElementById("progressCircle");
+
+if (backToTopBtn && progressCircle) {
+  const circumference = 2 * Math.PI * 21; // r=21
+  progressCircle.style.strokeDasharray = circumference;
+  progressCircle.style.strokeDashoffset = circumference;
+
+  function updateProgress() {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const scrollPercent = docHeight > 0 ? scrollTop / docHeight : 0;
+    const offset = circumference - (scrollPercent * circumference);
+    progressCircle.style.strokeDashoffset = offset;
+
+    if (scrollTop > 300) {
+      backToTopBtn.classList.add("is-shown");
+    } else {
+      backToTopBtn.classList.remove("is-shown");
+    }
+  }
+
+  window.addEventListener("scroll", updateProgress, { passive: true });
+  updateProgress();
+
+  backToTopBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+}
+
+window.addEventListener("beforeunload", () => {
+  window.scrollTo({
+    top: 0,
+    left: 0,
+  });
+});
+
+// ── Hamburger / mobile menu ──
+const hamburger = document.getElementById("hamburger");
+const mobileMenu = document.getElementById("mobileMenu");
+
+function openMenu() {
+  hamburger.classList.add("is-open");
+  mobileMenu.classList.add("is-open");
+  hamburger.setAttribute("aria-expanded", "true");
+  mobileMenu.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+}
+
+function closeMenu() {
+  hamburger.classList.remove("is-open");
+  mobileMenu.classList.remove("is-open");
+  hamburger.setAttribute("aria-expanded", "false");
+  mobileMenu.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+}
+
+if (hamburger && mobileMenu) {
+  hamburger.addEventListener("click", () => {
+    if (hamburger.classList.contains("is-open")) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+
+  mobileMenu.querySelectorAll(".mobile-link, .mobile-cta").forEach((link) => {
+    link.addEventListener("click", closeMenu);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && hamburger.classList.contains("is-open")) {
+      closeMenu();
+      hamburger.focus();
+    }
+  });
+}
+    </script>
+  </body>
+</html>
