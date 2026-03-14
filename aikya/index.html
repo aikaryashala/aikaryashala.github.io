@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AIKYA | Community for Builders & Learners</title>
+  <title>AIKYA Community</title>
   <meta name="description" content="AIKYA is a community where professionals, founders, and students collaborate, learn emerging technologies, and grow together across domains." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -138,13 +138,11 @@ img { display: block; max-width: 100%; }
 }
 .hero-content { position: relative; z-index: 1; text-align: center; max-width: 52rem; margin: 0 auto; }
 .hero-badge {
-  display: inline-flex; align-items: center; gap: 0.4rem;
-  padding: 0.45rem 1rem; border-radius: 999px;
-  background: var(--blue-pale); color: var(--blue-deep);
-  font-size: 0.8rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  display: block;
+  height: 1rem;
   margin-bottom: 1.5rem;
 }
-.hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); }
+.hero-badge-dot { display: none; }
 .hero h1 {
   font-family: 'Instrument Serif', serif; font-weight: 400;
   font-size: clamp(3.2rem, 8.5vw, 6.5rem); line-height: 1.02; letter-spacing: -0.03em;
@@ -310,27 +308,57 @@ img { display: block; max-width: 100%; }
 .mentor-card {
   background: var(--white); border: 1px solid var(--border);
   border-radius: var(--radius); padding: 1.5rem 1.25rem;
-  text-align: center;
-  transition: transform 260ms, box-shadow 260ms, border-color 260ms;
+  text-align: center; position: relative; overflow: hidden;
+  transition: transform 280ms cubic-bezier(.22,.68,0,1.2), box-shadow 280ms, border-color 280ms, background 280ms;
+  cursor: default;
 }
-.mentor-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); border-color: var(--blue-pale); }
+.mentor-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--blue-deep), var(--blue), var(--blue-light));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 320ms cubic-bezier(.22,.68,0,1.2);
+}
+.mentor-card::after {
+  content: ''; position: absolute; inset: 0; border-radius: var(--radius);
+  background: radial-gradient(ellipse at 50% 0%, rgba(43,94,167,0.06) 0%, transparent 70%);
+  opacity: 0; transition: opacity 280ms;
+}
+.mentor-card:hover { transform: translateY(-6px); box-shadow: 0 16px 48px rgba(43,94,167,0.14); border-color: rgba(74,138,212,0.35); }
+.mentor-card:hover::before { transform: scaleX(1); }
+.mentor-card:hover::after { opacity: 1; }
 .mentor-avatar {
-  width: 3.5rem; height: 3.5rem; border-radius: 50%;
+  width: 4rem; height: 4rem; border-radius: 50%;
   margin: 0 auto 1rem;
   display: flex; align-items: center; justify-content: center;
-  font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 1.1rem;
-  color: var(--white);
+  font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 1.15rem;
+  color: var(--white); position: relative; z-index: 1;
+  transition: transform 300ms cubic-bezier(.22,.68,0,1.2), box-shadow 300ms;
 }
-.mentor-name { font-family: 'Instrument Serif', serif; font-size: 1.05rem; font-weight: 400; line-height: 1.3; margin-bottom: 0.4rem; }
-.mentor-role { font-size: 0.8rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 0.85rem; }
+.mentor-card:hover .mentor-avatar {
+  transform: scale(1.12);
+  box-shadow: 0 8px 28px rgba(43,94,167,0.35);
+}
+.mentor-name {
+  font-family: 'Instrument Serif', serif; font-size: 1.08rem; font-weight: 400;
+  line-height: 1.3; margin-bottom: 0.4rem; position: relative; z-index: 1;
+  transition: color 260ms;
+  background: linear-gradient(135deg, var(--blue-deep), var(--blue-light));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: var(--brown-deepest); color: var(--brown-deepest);
+}
+.mentor-card:hover .mentor-name {
+  -webkit-text-fill-color: transparent;
+}
+.mentor-role { font-size: 0.8rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 0.85rem; position: relative; z-index: 1; }
 .mentor-link {
   display: inline-flex; align-items: center; gap: 0.3rem;
   font-size: 0.78rem; font-weight: 700; color: var(--blue);
-  padding: 0.35rem 0.75rem; border-radius: 999px;
+  padding: 0.35rem 0.85rem; border-radius: 999px;
   background: var(--blue-pale); letter-spacing: 0.02em;
-  transition: background 200ms, transform 200ms;
+  transition: background 220ms, color 220ms, transform 220ms, box-shadow 220ms;
+  position: relative; z-index: 1;
 }
-.mentor-link:hover { background: var(--blue); color: var(--white); transform: translateY(-1px); }
+.mentor-link:hover { background: var(--blue); color: var(--white); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(43,94,167,0.3); }
 .mentor-link svg { width: 0.85rem; height: 0.85rem; }
 
 /* ── JOIN SECTION ── */
@@ -385,12 +413,15 @@ img { display: block; max-width: 100%; }
   .hamburger { display: flex; }
   .mobile-menu { display: flex; }
   .hero { min-height: auto; padding: 6rem 0 3.5rem; }
+  .hero-badge { height: 0.5rem; margin-bottom: 1rem; }
   .event-card { grid-template-columns: 1fr; }
   .event-date-block { flex-direction: row; gap: 0.75rem; padding: 1rem 1.5rem; min-width: 0; }
   .event-day { font-size: 2rem; }
   .audience-grid { grid-template-columns: repeat(2, 1fr); }
   .purpose-grid { grid-template-columns: 1fr; }
-  .mentors-grid { grid-template-columns: repeat(2, 1fr); }
+  .mentors-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  .mentor-card { padding: 1.25rem 1rem; }
+  .mentor-card::after { display: none; }
   .hero-actions { flex-direction: column; align-items: stretch; }
   .btn { width: 100%; justify-content: center; }
   .join-card { padding: 2rem 1.25rem; }
@@ -400,7 +431,9 @@ img { display: block; max-width: 100%; }
   .hero h1 { font-size: clamp(2.5rem, 14vw, 3.5rem); }
   .section { padding: 2.75rem 0; }
   .audience-grid { grid-template-columns: 1fr; }
-  .mentors-grid { grid-template-columns: 1fr; }
+  .mentors-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+  .mentor-name { font-size: 0.95rem; }
+  .mentor-role { font-size: 0.75rem; }
   .back-to-top { bottom: 1.25rem; right: 1.25rem; }
 }
 
@@ -481,7 +514,9 @@ img { display: block; max-width: 100%; }
     </nav>
     <a class="nav-cta" href="#join">Join Community</a>
     <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
-      <span class="ham-line"></span><span class="ham-line"></span><span class="ham-line"></span>
+      <span class="ham-line"></span>
+      <span class="ham-line"></span>
+      <span class="ham-line"></span>
     </button>
   </div>
 </header>
@@ -501,10 +536,10 @@ img { display: block; max-width: 100%; }
     <div class="hero-bg"></div>
     <div class="hero-pattern"></div>
     <div class="container hero-content">
-      <div class="hero-badge reveal"><span class="hero-badge-dot"></span> Community for Builders &amp; Learners</div>
+      <div class="hero-badge reveal"><span class="hero-badge-dot"></span> </div>
       <h1 class="reveal">AIKYA<br><em>Community</em></h1>
       <p class="hero-sub reveal">
-        A space where working professionals, startup founders, and students come together to learn, build, and grow across technology domains.
+        A space where working professionals, startup founders, and students come together to build and grow across technology domains.
       </p>
       <div class="hero-actions reveal">
         <a class="btn btn-primary" href="#join">Join the Community</a>
@@ -517,8 +552,8 @@ img { display: block; max-width: 100%; }
   <section id="activities" class="section section-alt">
     <div class="container">
       <div class="centered">
-        <span class="section-label reveal">Upcoming Activities</span>
-        <h2 class="section-title centered reveal" style="margin-left:auto;margin-right:auto;">What's happening next</h2>
+        <!-- <span class="section-label reveal">Upcoming Activities</span> -->
+        <h2 class="section-title centered reveal" style="margin-left:auto;margin-right:auto;">Upcoming Activities</h2>
       </div>
 
       <div class="event-card reveal">
@@ -530,8 +565,8 @@ img { display: block; max-width: 100%; }
           </div>
         </div>
         <div class="event-body">
-          <span class="event-tag">Community Meetup</span>
-          <h3>AI Summit 2026 Delhi — Insights &amp; Perspectives</h3>
+          <span class="event-tag">AI Summit 2026 Delhi — Insights &amp; Perspectives</span>
+          <!-- <h3>AI Summit 2026 Delhi — Insights &amp; Perspectives</h3> -->
           <p>
             Members who attended the AI Summit 2026 in Delhi will communicate their key learnings, perspectives, and takeaways directly to the community members.
           </p>
@@ -542,7 +577,7 @@ img { display: block; max-width: 100%; }
             </span>
             <span class="event-meta-item">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              2nd Floor, Left Side, Lecture Room
+              2nd Floor, Left Side, Lecture Room, Department Of Instrumentation Engineering, Andhra University North Campus, Visakhapatnam - 530003.
             </span>
           </div>
           <a class="event-location-link" href="https://maps.app.goo.gl/vkqqA4n8xuRwbrNz6" target="_blank" rel="noreferrer">
@@ -601,7 +636,7 @@ img { display: block; max-width: 100%; }
   </section>
 
   <!-- ── MENTORS ── -->
-  <section id="mentors" class="section">
+  <section id="mentors" class="section section-alt">
     <div class="container">
       <div class="centered">
         <span class="section-label reveal">Industry Mentors</span>
@@ -725,7 +760,7 @@ img { display: block; max-width: 100%; }
           <div class="audience-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.1 2.7 3 6 3s6-1.9 6-3v-5"/></svg>
           </div>
-          <h3>School Students (Class 12)</h3>
+          <h3>Inter Students</h3>
           <p>Make informed decisions about your next step — understand engineering branches, emerging fields, and where the real opportunities are heading.</p>
         </article>
 
@@ -771,13 +806,13 @@ img { display: block; max-width: 100%; }
     <div class="container">
       <div class="centered">
         <span class="section-label reveal">Get Connected</span>
-        <h2 class="section-title centered reveal" style="margin-left:auto;margin-right:auto;">Join our community</h2>
+        <h2 class="section-title centered reveal" style="margin-left:auto;margin-right:auto;">Join the community</h2>
       </div>
 
       <div class="join-card reveal">
         <img src="assets/whatsapp.jpeg" alt="WhatsApp QR Code" width="200" height="200" style="border-radius: var(--radius-sm); margin: 0 auto 1.5rem; display: block; object-fit: contain;" />
-        <h3>Join Our WhatsApp Group</h3>
-        <p>Scan the QR code or tap below for more details, updates, and to connect with the community.</p>
+        <!-- <h3>Join Our WhatsApp Group</h3> -->
+        <p>Scan the QR code And Join the community.</p>
         <a class="whatsapp-badge" href="https://chat.whatsapp.com/Lp0F8EORaNT7lgdlcQo7Yr" target="_blank" rel="noreferrer">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
           Join WhatsApp Group
@@ -802,7 +837,7 @@ img { display: block; max-width: 100%; }
 <!-- FOOTER -->
 <footer class="footer">
   <div class="container">
-    <p>&copy; AIKYA Community. Built by builders, for builders.</p>
+    <p>&copy; Built by AI Karyashala</p>
   </div>
 </footer>
 
