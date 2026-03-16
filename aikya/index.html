@@ -72,6 +72,9 @@ img { display: block; max-width: 100%; }
   font-size: 1.5rem; font-weight: 400; letter-spacing: -0.02em;
   color: var(--brown-dark);
 }
+.logo-text { display: flex; flex-direction: row; align-items: center; gap: 0.4rem; }
+.logo-name { font-size: 1.5rem; }
+.logo-by { font-size: 1.5rem; font-family: 'Instrument Serif', serif; font-weight: 400; color: var(--text-muted); letter-spacing: -0.02em; white-space: nowrap; }
 .logo-mark {
   width: 2.25rem; height: 2.25rem; border-radius: 8px;
   background: linear-gradient(135deg, var(--brown-dark), var(--blue));
@@ -139,10 +142,24 @@ img { display: block; max-width: 100%; }
 .hero-content { position: relative; z-index: 1; text-align: center; max-width: 52rem; margin: 0 auto; }
 .hero-badge {
   display: block;
-  height: 1rem;
   margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.01em;
 }
 .hero-badge-dot { display: none; }
+.brand-link {
+  font-weight: 600;
+  color: var(--blue);
+  background: linear-gradient(135deg, var(--blue), var(--blue-light));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--blue-light);
+  transition: opacity 0.2s;
+}
+.brand-link:hover { opacity: 0.75; }
 .hero h1 {
   font-family: 'Instrument Serif', serif; font-weight: 400;
   font-size: clamp(3.2rem, 8.5vw, 6.5rem); line-height: 1.02; letter-spacing: -0.03em;
@@ -152,6 +169,9 @@ img { display: block; max-width: 100%; }
   font-style: italic; color: var(--blue);
   background: linear-gradient(135deg, var(--blue), var(--blue-light));
   -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hero-by {
+  margin-top: 0.6rem; font-size: 1rem; color: var(--text-secondary);
 }
 .hero-sub {
   margin-top: 1.5rem; font-size: 1.15rem; line-height: 1.7; color: var(--text-secondary);
@@ -413,7 +433,8 @@ img { display: block; max-width: 100%; }
   .hamburger { display: flex; }
   .mobile-menu { display: flex; }
   .hero { min-height: auto; padding: 6rem 0 3.5rem; }
-  .hero-badge { height: 0.5rem; margin-bottom: 1rem; }
+  .hero-badge { height: 0.5rem; margin-bottom: 0; }
+  .hero-by { font-size: 0.9rem; }
   .event-card { grid-template-columns: 1fr; }
   .event-date-block { flex-direction: row; gap: 0.75rem; padding: 1rem 1.5rem; min-width: 0; }
   .event-day { font-size: 2rem; }
@@ -504,7 +525,10 @@ img { display: block; max-width: 100%; }
   <div class="container nav-inner">
     <a class="logo" href="#top">
       <span class="logo-mark">A</span>
-      <span>AIKYA</span>
+      <span class="logo-text">
+        <span class="logo-name">AIKYA</span>
+        <span class="logo-by"><a href="https://aikaryashala.com/" target="_blank" rel="noreferrer" class="brand-link" onclick="event.stopPropagation()">AI Karyashala</a></span>
+      </span>
     </a>
     <nav class="nav-links">
       <a href="#activities">Activities</a>
@@ -536,7 +560,7 @@ img { display: block; max-width: 100%; }
     <div class="hero-bg"></div>
     <div class="hero-pattern"></div>
     <div class="container hero-content">
-      <div class="hero-badge reveal"><span class="hero-badge-dot"></span> </div>
+      <div class="hero-badge reveal"><span class="hero-badge-dot"></span></div>
       <h1 class="reveal">AIKYA<br><em>Community</em></h1>
       <p class="hero-sub reveal">
         A space where working professionals, startup founders, and students come together to build and grow across technology domains.
@@ -837,7 +861,7 @@ img { display: block; max-width: 100%; }
 <!-- FOOTER -->
 <footer class="footer">
   <div class="container">
-    <p>&copy; Built by AI Karyashala</p>
+    <p>&copy; Built by <a href="https://aikaryashala.com/" target="_blank" rel="noreferrer" class="brand-link">AI Karyashala</a></p>
   </div>
 </footer>
 
