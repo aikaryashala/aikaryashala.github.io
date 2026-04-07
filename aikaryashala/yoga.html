@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Yoga Journey - AI Karyashala</title>
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Yoga Page Specific Styles */
+    .yoga-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 100px 20px;
+      min-height: 100vh;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 15px;
+      margin-bottom: 50px;
+      border: 2px solid rgba(59, 130, 246, 0.3);
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .back-btn:hover {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: #3b82f6;
+      transform: translateX(-6px);
+    }
+
+    .yoga-hero {
+      text-align: center;
+      margin-bottom: 80px;
+      max-width: 850px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 60px 40px;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(139, 92, 246, 0.06));
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 24px;
+    }
+
+    .yoga-hero h1 {
+      font-size: 56px;
+      margin-bottom: 24px;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      line-height: 1.15;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .yoga-hero p {
+      font-size: 18px;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 16px;
+      font-weight: 400;
+    }
+
+    .yoga-hero p:first-of-type {
+      color: #3b82f6;
+      font-weight: 700;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 20px;
+    }
+    
+    /* Single Image Container */
+    .single-image {
+      max-width: 900px;
+      margin: 60px auto;
+      position: relative;
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(139, 92, 246, 0.06));
+      border-radius: 24px;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .single-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 16px;
+      border: 2px solid rgba(59, 130, 246, 0.3);
+      box-shadow: 0 24px 48px rgba(59, 130, 246, 0.15);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: block;
+    }
+
+    .single-image img:hover {
+      transform: scale(1.02);
+      border-color: #3b82f6;
+      box-shadow: 0 32px 64px rgba(59, 130, 246, 0.25);
+    }
+    
+    /* Additional Info Section */
+    .yoga-info {
+      max-width: 800px;
+      margin: 60px auto 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      padding: 40px;
+    }
+    
+    .yoga-info h2 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      color: #3b82f6;
+      text-align: center;
+    }
+    
+    .yoga-info p {
+      font-size: 17px;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 15px;
+    }
+    
+    .yoga-details {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .detail-item {
+      text-align: center;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .detail-item h3 {
+      color: #3b82f6;
+      margin-bottom: 10px;
+      font-size: 20px;
+    }
+    
+    .detail-item p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 16px;
+    }
+    
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .yoga-container {
+        padding: 40px 15px;
+      }
+      
+      .back-btn {
+        padding: 8px 16px;
+        font-size: 14px;
+        margin-bottom: 30px;
+      }
+      
+      .yoga-hero h1 {
+        font-size: 32px;
+      }
+      
+      .yoga-hero p {
+        font-size: 16px;
+      }
+      
+      .yoga-hero p:first-of-type {
+        font-size: 18px;
+      }
+      
+      .single-image {
+        margin: 30px auto;
+      }
+      
+      .single-image img {
+        border-radius: 16px;
+      }
+      
+      .yoga-info {
+        padding: 25px;
+        margin-top: 40px;
+      }
+      
+      .yoga-info h2 {
+        font-size: 24px;
+      }
+      
+      .yoga-info p {
+        font-size: 15px;
+      }
+      
+      .yoga-details {
+        gap: 20px;
+      }
+      
+      .detail-item {
+        padding: 15px;
+        min-width: 140px;
+      }
+      
+      .detail-item h3 {
+        font-size: 18px;
+      }
+      
+      .detail-item p {
+        font-size: 14px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .yoga-hero h1 {
+        font-size: 28px;
+      }
+      
+      .yoga-info {
+        padding: 20px;
+      }
+      
+      .yoga-details {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .detail-item {
+        width: 100%;
+        max-width: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="nav-shell">
+      <a href="../index.html" aria-label="Home" class="nav-brand">
+        <img src="images/logo transparent.png" alt="AI Karyashala logo" class="header-logo">
+      </a>
+
+      <nav class="nav-links" aria-label="Main">
+        <a href="../index.html#journey">Our Journey</a>
+        <a href="students.html">Our Students</a>
+        <a href="projects.html">Projects</a>
+      </nav>
+
+      <a 
+        href="https://ai-karyashala-1nym0mq.gamma.site" 
+        class="hero-btn hero-btn--primary nav-hero-cta" 
+        target="_blank" 
+        rel="noopener noreferrer"
+      >
+        Next Batch Starts
+      </a>
+    </div>
+  </header>
+  
+  <!-- Back Button -->
+  <div class="yoga-container">
+
+    <!-- Header -->
+    <section class="yoga-hero">
+      <h1>Engineering the Inner Self</h1>
+      <p>Inner Engineering helped us understand that true well-being begins within.</p>
+      <p>Through this experience, we explored how inner stability can influence clarity, decision-making, and our relationship with life itself.</p>
+    </section>
+
+    <!-- Yoga Image Section -->
+    <section class="yoga-gallery">
+      <div class="single-image">
+        <picture>
+          <source type="image/webp" srcset="images/yoga/y1.webp">
+          <source type="image/png" srcset="images/yoga/y1.png">
+          <img src="images/yoga/y1.png" alt="Yoga Practice" loading="lazy" onerror="this.style.display='none'">
+        </picture>
+      </div>
+    </section>
+
+
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>AI Karyashala</h3>
+        <p class="footer-tagline">Training and R&D</p>
+        <p class="footer-description">Building software craft for the next generation of engineers.</p>
+      </div>
+
+      <div class="footer-section">
+        <h4>Connect</h4>
+        <p>By Rohini Kumar Barla</p>
+        <p class="footer-phone">Mobile: +91 91042 42425</p>
+        <p style="margin-top: 12px;"><a href="https://www.linkedin.com/in/rohinibarla/" target="_blank" rel="noopener noreferrer" class="footer-social-link">LinkedIn Profile →</a></p>
+      </div>
+
+      <div class="footer-section">
+        <h4>Quick Links</h4>
+        <ul class="footer-links">
+          <li><a href="../index.html#journey">Our Journey</a></li>
+          <li><a href="students.html">Our Students</a></li>
+          <li><a href="projects.html">Projects</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-divider"></div>
+
+    <p class="footer-credit">
+      © 2025 AI Karyashala
+    </p>
+
+    <button class="jump-to-top" aria-label="Jump to top" title="Back to top">↑</button>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
