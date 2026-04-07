@@ -1770,9 +1770,11 @@ body.home .site-footer {
   position: absolute;
   z-index: 10;
   animation: pinFloat 3.2s ease-in-out infinite;
+  text-decoration: none;
+  cursor: pointer;
 }
 
-/* Circle dot — the anchor */
+/* Circle dot */
 .mpin-dot {
   position: absolute;
   top: 0; left: 0;
@@ -1785,8 +1787,6 @@ body.home .site-footer {
   display: flex;
   align-items: center;
   justify-content: center;
-  text-decoration: none;
-  cursor: pointer;
   z-index: 2;
   animation: pinPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
   transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), border-color 0.2s;
@@ -1823,6 +1823,7 @@ body.home .site-footer {
 /* Info label card */
 .mpin-label {
   position: absolute;
+  pointer-events: auto;
   top: 0;
   transform: translateY(-50%);
   background: rgba(8,10,30,0.92);
@@ -1830,7 +1831,6 @@ body.home .site-footer {
   border-radius: 12px;
   padding: 10px 14px;
   width: 148px;
-  pointer-events: none;
   backdrop-filter: blur(10px);
   transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
