@@ -94,44 +94,45 @@
   <div class="journey-header">
     <p class="hero-eyebrow">Our Journey</p>
     <h2>Our Journey</h2>
-    <p class="journey-sub">Five milestones. One path.</p>
+    <p class="journey-sub">Eight milestones. One path.</p>
   </div>
 
   <div class="journey-map-wrap">
-    <!-- Map background + path -->
+    <!-- Map canvas -->
     <div class="journey-map">
       <div class="map-grid"></div>
-      <svg class="map-svg" viewBox="0 0 900 420" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <svg class="map-svg" viewBox="0 0 900 720" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <defs>
-          <linearGradient id="routeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id="routeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%"   stop-color="#8b5cf6"/>
-            <stop offset="30%"  stop-color="#3b82f6"/>
-            <stop offset="55%"  stop-color="#10b981"/>
-            <stop offset="80%"  stop-color="#f59e0b"/>
-            <stop offset="100%" stop-color="#ec4899"/>
+            <stop offset="14%"  stop-color="#3b82f6"/>
+            <stop offset="29%"  stop-color="#10b981"/>
+            <stop offset="43%"  stop-color="#f59e0b"/>
+            <stop offset="57%"  stop-color="#ec4899"/>
+            <stop offset="71%"  stop-color="#06b6d4"/>
+            <stop offset="86%"  stop-color="#f97316"/>
+            <stop offset="100%" stop-color="#a855f7"/>
           </linearGradient>
           <filter id="glow">
             <feGaussianBlur stdDeviation="3" result="blur"/>
             <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
-        <!-- Winding route -->
+        <!-- S-curve route through 8 stops -->
         <path class="map-route-shadow"
-          d="M 95,78 C 280,55 530,88 775,100 C 855,110 610,210 445,222 C 295,232 120,308 95,336 C 68,358 360,368 775,350"
-          fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="18" stroke-linecap="round"/>
+          d="M 90,65 C 340,35 500,160 738,151 C 560,145 280,215 90,238 C 280,260 520,315 738,324 C 560,332 280,388 90,410 C 280,418 520,502 738,497 C 560,505 280,560 90,583 C 280,591 520,660 738,655"
+          fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
         <path class="map-route"
-          d="M 95,78 C 280,55 530,88 775,100 C 855,110 610,210 445,222 C 295,232 120,308 95,336 C 68,358 360,368 775,350"
-          fill="none" stroke="url(#routeGrad)" stroke-width="3" stroke-linecap="round"
+          d="M 90,65 C 340,35 500,160 738,151 C 560,145 280,215 90,238 C 280,260 520,315 738,324 C 560,332 280,388 90,410 C 280,418 520,502 738,497 C 560,505 280,560 90,583 C 280,591 520,660 738,655"
+          fill="none" stroke="url(#routeGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
           stroke-dasharray="10 7" filter="url(#glow)"/>
       </svg>
     </div>
 
-    <!-- Pins positioned over the map -->
-
-    <!-- 01 Yoga — top-left -->
-    <a href="aikaryashala/yoga.html" class="mpin" style="--c:#8b5cf6; left:9%; top:14%">
+    <!-- 01 Yoga — left, label right -->
+    <a href="aikaryashala/yoga.html" class="mpin" style="--c:#8b5cf6; left:10%; top:9%">
       <div class="mpin-dot reveal-item">
-        <img src="aikaryashala/images/timeline/t1.png" alt="Yoga" loading="lazy">
+        <span class="mpin-emoji">🧘</span>
       </div>
       <div class="mpin-label mpin-label--right">
         <span class="mpin-num">01</span>
@@ -140,22 +141,22 @@
       </div>
     </a>
 
-    <!-- 02 APDTS — top-right -->
-    <a href="aikaryashala/apdts.html" class="mpin" style="--c:#3b82f6; left:83%; top:19%">
+    <!-- 02 APDTS — right, label left -->
+    <a href="aikaryashala/apdts.html" class="mpin" style="--c:#3b82f6; left:82%; top:21%">
+      <div class="mpin-dot reveal-item">
+        <span class="mpin-emoji">🖥️</span>
+      </div>
       <div class="mpin-label mpin-label--left">
         <span class="mpin-num">02</span>
         <strong>APDTS</strong>
         <p>Digital summit &amp; tech showcase.</p>
       </div>
-      <div class="mpin-dot reveal-item">
-        <img src="aikaryashala/images/timeline/t2.png" alt="APDTS" loading="lazy">
-      </div>
     </a>
 
-    <!-- 03 Projects — centre -->
-    <a href="aikaryashala/projects.html" class="mpin" style="--c:#10b981; left:46%; top:48%">
+    <!-- 03 Projects — left, label right -->
+    <a href="aikaryashala/projects.html" class="mpin" style="--c:#10b981; left:10%; top:33%">
       <div class="mpin-dot reveal-item">
-        <img src="aikaryashala/images/timeline/t3.png" alt="Projects" loading="lazy">
+        <span class="mpin-emoji">🚀</span>
       </div>
       <div class="mpin-label mpin-label--right">
         <span class="mpin-num">03</span>
@@ -164,27 +165,63 @@
       </div>
     </a>
 
-    <!-- 04 KIET — bottom-left -->
-    <a href="https://aikaryashala.com/bootcamp/kiet/" class="mpin" style="--c:#f59e0b; left:9%; top:75%" target="_blank" rel="noopener noreferrer">
+    <!-- 04 KIET — right, label left -->
+    <a href="https://aikaryashala.com/bootcamp/kiet/" class="mpin" style="--c:#f59e0b; left:82%; top:45%" target="_blank" rel="noopener noreferrer">
       <div class="mpin-dot reveal-item">
-        <img src="aikaryashala/images/timeline/t4.png" alt="KIET" loading="lazy">
+        <span class="mpin-emoji">🎓</span>
       </div>
-      <div class="mpin-label mpin-label--right">
+      <div class="mpin-label mpin-label--left">
         <span class="mpin-num">04</span>
         <strong>KIET</strong>
         <p>Academic &amp; professional foundation.</p>
       </div>
     </a>
 
-    <!-- 05 Bootcamp — bottom-right -->
-    <a href="aikaryashala/bootcamp-reviews.html" class="mpin" style="--c:#ec4899; left:83%; top:78%">
-      <div class="mpin-label mpin-label--left">
+    <!-- 05 Bootcamp — left, label right -->
+    <a href="aikaryashala/bootcamp-reviews.html" class="mpin" style="--c:#ec4899; left:10%; top:57%">
+      <div class="mpin-dot reveal-item">
+        <span class="mpin-emoji">⚡</span>
+      </div>
+      <div class="mpin-label mpin-label--right">
         <span class="mpin-num">05</span>
         <strong>Bootcamp</strong>
         <p>Accelerated learning &amp; career launchpad.</p>
       </div>
+    </a>
+
+    <!-- 06 Sumedha — right, label left -->
+    <a href="https://sumedhagvpce.in/" class="mpin" style="--c:#06b6d4; left:82%; top:69%" target="_blank" rel="noopener noreferrer">
       <div class="mpin-dot reveal-item">
-        <img src="aikaryashala/images/timeline/t5.png" alt="Bootcamp" loading="lazy">
+        <span class="mpin-emoji">🤝</span>
+      </div>
+      <div class="mpin-label mpin-label--left">
+        <span class="mpin-num">06</span>
+        <strong>Sumedha 2026</strong>
+        <p>AIKYA Community stall at Gayathri College.</p>
+      </div>
+    </a>
+
+    <!-- 07 AU 100 Years — left, label right -->
+    <a href="#" class="mpin" style="--c:#f97316; left:10%; top:81%">
+      <div class="mpin-dot reveal-item">
+        <span class="mpin-emoji">🏛️</span>
+      </div>
+      <div class="mpin-label mpin-label--right">
+        <span class="mpin-num">07</span>
+        <strong>AU 100 Years</strong>
+        <p>Tech summit at AU Convention Centre.</p>
+      </div>
+    </a>
+
+    <!-- 08 AI Fusion — right, label left -->
+    <a href="https://aifamvt26.ai-fusion.in/" class="mpin" style="--c:#a855f7; left:82%; top:91%" target="_blank" rel="noopener noreferrer">
+      <div class="mpin-dot reveal-item">
+        <span class="mpin-emoji">🤖</span>
+      </div>
+      <div class="mpin-label mpin-label--left">
+        <span class="mpin-num">08</span>
+        <strong>AI Fusion</strong>
+        <p>Attended AI Fusion summit 2026.</p>
       </div>
     </a>
 
