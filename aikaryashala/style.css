@@ -77,7 +77,7 @@ body.home {
 ======================= */
 .hero {
   position: relative;
-  padding: 110px 20px 70px;
+  padding: 110px 20px 60px;
   overflow: hidden;
   background: #0b1020;
 }
@@ -124,29 +124,13 @@ body.home {
 
 body.home .hero {
   position: relative;
-  min-height: 100vh;
   z-index: 1;
   overflow: visible;
-}
-
-body.home .hero-shell {
-  opacity: 1;
-  transition: opacity 0.4s ease;
-}
-
-body.home.scrolled .hero-shell {
-  opacity: 0.02;
-}
-
-body.home.scrolled .hero::after {
-  background:
-    linear-gradient(180deg, rgba(11, 16, 32, 0.7) 0%, rgba(11, 16, 32, 0.92) 55%, rgba(11, 16, 32, 0.99) 100%);
 }
 
 body.home .vision {
   position: relative;
   z-index: 2;
-  margin-top: -120px;
 }
 
 body.home .journey,
@@ -378,9 +362,9 @@ body.home .site-footer {
    VISION (REFINED)
 ======================= */
 .vision {
-  padding: 120px 24px 120px;
+  padding: 80px 24px;
   max-width: 1100px;
-  margin: 0 auto;
+  margin: 60px auto 60px;
   text-align: center;
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(139, 92, 246, 0.06));
   border: 1px solid rgba(59, 130, 246, 0.2);
@@ -2337,10 +2321,11 @@ body.home .site-footer {
     ─────────────────────────────────────────── */
 .photo-grid {
   --grid-gap: 12px;
-  --col-min: 120px;           /* minimum column width */
+  --col-size: 140px;
 
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--col-min), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(var(--col-size), var(--col-size)));
+  justify-content: center;
   gap: var(--grid-gap);
   list-style: none;
 }
@@ -2365,7 +2350,7 @@ body.home .site-footer {
     BATCH SECTION
    ─────────────────────────────────────────── */
 .batch-section {
-  padding: 80px 24px;
+  padding: 80px 24px 60px;
   max-width: 1100px;
   margin: 0 auto;
   text-align: center;
@@ -2395,7 +2380,14 @@ body.home .site-footer {
 }
 
 @media (max-width: 768px) {
-  .batch-section { padding: 48px 16px; }
+  .batch-section { padding: 48px 16px 40px; }
   .batch-title  { font-size: 26px; }
   .batch-subtitle { font-size: 18px; }
+  .photo-grid { --col-size: 110px; --grid-gap: 8px; }
+  .vision { margin: 32px auto 32px; padding: 48px 20px; }
+}
+
+@media (max-width: 480px) {
+  .photo-grid { --col-size: 90px; --grid-gap: 6px; }
+  .vision { margin: 24px auto 24px; padding: 36px 16px; }
 }
