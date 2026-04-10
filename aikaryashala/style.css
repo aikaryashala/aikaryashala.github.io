@@ -2328,3 +2328,35 @@ body.home .site-footer {
   transform: translateY(-4px);
   box-shadow: 0 20px 48px rgba(34, 197, 94, 0.5);
 }
+
+/* ───────────────────────────────────────────
+    RESPONSIVE PHOTO GRID
+    • Auto-fit columns: min 240px, max 1fr
+    • Swap the min value to taste (200–320px)
+    • Gap is adjustable via --grid-gap
+    ─────────────────────────────────────────── */
+.photo-grid {
+  --grid-gap: 12px;
+  --col-min: 120px;           /* minimum column width */
+
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--col-min), 1fr));
+  gap: var(--grid-gap);
+  list-style: none;
+}
+
+.photo-grid__item {
+  overflow: hidden;
+  border-radius: 6px;
+  background: #e7e5e4;       /* placeholder colour while loading */
+  aspect-ratio: 1 / 1;       /* square cells — change to 4/3, 3/2, 16/9 etc. */
+  border: 2px solid #d6d3d1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.photo-grid__item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;          /* fills the cell without distortion */
+}
