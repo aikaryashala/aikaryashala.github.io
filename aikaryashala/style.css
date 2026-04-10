@@ -2360,3 +2360,42 @@ body.home .site-footer {
   height: 100%;
   object-fit: cover;          /* fills the cell without distortion */
 }
+
+/* ───────────────────────────────────────────
+    BATCH SECTION
+   ─────────────────────────────────────────── */
+.batch-section {
+  padding: 80px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.batch-shell {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.batch-title {
+  font-size: 36px;
+  letter-spacing: -0.5px;
+  margin-bottom: 40px;
+  color: #fff;
+}
+
+.batch-subtitle {
+  font-size: 22px;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 32px 0 16px;
+  text-align: left;
+}
+
+.batch-subtitle:first-of-type {
+  margin-top: 0;
+}
+
+@media (max-width: 768px) {
+  .batch-section { padding: 48px 16px; }
+  .batch-title  { font-size: 26px; }
+  .batch-subtitle { font-size: 18px; }
+}
