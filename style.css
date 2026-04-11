@@ -1026,7 +1026,7 @@ body.home .site-footer {
   }
 
   body.home .vision {
-    margin-top: -80px;
+    margin-top: 0;
   }
 
   .vision {
@@ -1155,7 +1155,7 @@ body.home .site-footer {
   }
 
   body.home .vision {
-    margin-top: -60px;
+    margin-top: 0;
   }
 
   .hero-copy h1 {
@@ -2390,4 +2390,52 @@ body.home .site-footer {
 @media (max-width: 480px) {
   .photo-grid { --col-size: 90px; --grid-gap: 6px; }
   .vision { margin: 24px auto 24px; padding: 36px 16px; }
+}
+
+/* ===== LIGHTBOX MOBILE FIXES ===== */
+@media (max-width: 768px) {
+  .lightbox-inner {
+    gap: 10px;
+  }
+
+  .lightbox-arrow {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .lightbox-arrow {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+
+  .lightbox-inner {
+    gap: 6px;
+  }
+}
+
+/* ===== GALLERY GRID MOBILE FIX ===== */
+@media (max-width: 480px) {
+  .gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+    gap: 14px !important;
+  }
+
+  .gallery-grid img {
+    height: 160px !important;
+  }
+}
+
+/* ===== ID CARD MOBILE SIZE ===== */
+@media (max-width: 480px) {
+  .id-card {
+    min-width: 180px;
+    width: 180px;
+    max-width: 180px;
+    height: 180px;
+  }
 }
