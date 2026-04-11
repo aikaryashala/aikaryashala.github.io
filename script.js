@@ -308,7 +308,7 @@ if (galleryGrid) {
     if (!lightboxImg || !lightboxCaption || !target) return;
     lightboxImg.classList.add('transitioning');
     setTimeout(() => {
-      lightboxImg.src = target.src;
+      lightboxImg.src = target.dataset.full || target.src;
       lightboxCaption.textContent = target.alt || `Image ${index + 1}`;
       lightboxImg.classList.remove('transitioning');
     }, 180);
