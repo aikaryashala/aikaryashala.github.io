@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Fusion 2026 - AI Karyashala</title>
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    .aifusion-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 100px 20px;
+      min-height: 100vh;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 15px;
+      margin-bottom: 50px;
+      border: 2px solid rgba(59, 130, 246, 0.3);
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .back-btn:hover {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: #3b82f6;
+      transform: translateX(-6px);
+    }
+
+    .aifusion-hero {
+      text-align: center;
+      margin-bottom: 80px;
+      max-width: 850px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 60px 40px;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(139, 92, 246, 0.06));
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 24px;
+    }
+
+    .aifusion-hero h1 {
+      font-size: 56px;
+      margin-bottom: 24px;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      line-height: 1.15;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .aifusion-hero p {
+      font-size: 18px;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 16px;
+      font-weight: 400;
+    }
+
+    .aifusion-hero .subtitle {
+      color: #3b82f6;
+      font-weight: 700;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 28px;
+      margin-top: 60px;
+    }
+
+    .gallery-grid picture {
+      display: block;
+    }
+
+    .gallery-grid img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 16px;
+      border: 2px solid rgba(59, 130, 246, 0.3);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      box-shadow: 0 12px 28px rgba(59, 130, 246, 0.15);
+    }
+
+    .gallery-grid img:hover {
+      transform: translateY(-8px) scale(1.03);
+      border-color: #3b82f6;
+      box-shadow: 0 24px 48px rgba(59, 130, 246, 0.3);
+    }
+
+    .aifusion-description {
+      max-width: 800px;
+      margin: 60px auto 40px;
+      text-align: center;
+      padding: 30px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+    }
+
+    .aifusion-description p {
+      font-size: 18px;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .gallery-lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 2000;
+    }
+
+    .gallery-lightbox.active {
+      display: flex;
+    }
+
+    .lightbox-inner {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+    }
+
+    .lightbox-content {
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .lightbox-content img {
+      max-width: 100%;
+      max-height: 80vh;
+      border-radius: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      object-fit: contain;
+      transition: transform 0.35s ease, opacity 0.35s ease;
+    }
+
+    .lightbox-content img.transitioning {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+
+    .lightbox-arrow {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.35), rgba(59, 130, 246, 0.1));
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lightbox-arrow .arrow {
+      position: relative;
+      width: 12px;
+      height: 12px;
+      display: inline-block;
+      background-size: contain;
+      background-image: url("data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHN0eWxlPi5zdDB7ZmlsbDojZmZmfTwvc3R5bGU+PHBhdGggY2xhc3M9InN0MCIgZD0iTTMxOS4xIDIxN2MyMC4yIDIwLjIgMTkuOSA1My4yLS42IDczLjdzLTUzLjUgMjAuOC03My43LjZsLTE5MC0xOTBjLTIwLjEtMjAuMi0xOS44LTUzLjIuNy03My43UzEwOSA2LjggMTI5LjEgMjdsMTkwIDE5MHoiLz48cGF0aCBjbGFzcz0ic3QwIiBkPSJNMzE5LjEgMjkwLjVjMjAuMi0yMC4yIDE5LjktNTMuMi0uNi03My43cy01My41LTIwLjgtNzMuNy0uNmwtMTkwIDE5MGMtMjAuMiAyMC4yLTE5LjkgNTMuMi42IDczLjdzNTMuNSAyMC44IDczLjcuNmwxOTAtMTkweiIvPjwvc3ZnPg==");
+      opacity: 0.9;
+    }
+
+    .lightbox-arrow.left .arrow {
+      transform: rotate(180deg);
+    }
+
+    .lightbox-arrow:hover {
+      box-shadow: 0 20px 30px rgba(59, 130, 246, 0.55);
+      background: rgba(59, 130, 246, 0.6);
+    }
+
+    .lightbox-arrow.right:hover { transform: translateX(2px); }
+    .lightbox-arrow.left:hover  { transform: translateX(-2px); }
+
+    .lightbox-caption {
+      margin-top: 12px;
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 14px;
+      letter-spacing: 0.4px;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 40px;
+      right: -82px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(6px);
+      border-radius: 12px;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      transition: transform 0.3s ease;
+      z-index: 2100;
+    }
+
+    .lightbox-close:hover { transform: translateY(-3px); }
+
+    .aifusion-takeaway {
+      margin-top: 70px;
+    }
+
+    .aifusion-section-heading {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .aifusion-section-heading span {
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* Takeaway card */
+    .takeaway-card {
+      display: block;
+      text-decoration: none;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 36px 40px;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(139, 92, 246, 0.06));
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      border-radius: 20px;
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .takeaway-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    }
+
+    .takeaway-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(59, 130, 246, 0.5);
+      box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15);
+    }
+
+    .takeaway-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .takeaway-tag {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #3b82f6;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      border-radius: 999px;
+      padding: 3px 10px;
+    }
+
+    .takeaway-author {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .takeaway-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+      line-height: 1.35;
+    }
+
+    .takeaway-summary {
+      font-size: 15px;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 20px;
+    }
+
+    .takeaway-link {
+      font-size: 14px;
+      font-weight: 600;
+      color: #3b82f6;
+    }
+
+    @media (max-width: 768px) {
+      .aifusion-container { padding: 40px 15px; }
+      .back-btn { padding: 8px 16px; font-size: 14px; margin-bottom: 30px; }
+      .aifusion-hero h1 { font-size: 32px; }
+      .aifusion-hero p { font-size: 16px; }
+      .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+      .gallery-grid img { height: 180px; border-radius: 14px; }
+      .aifusion-description { padding: 25px 20px; margin: 40px auto 30px; }
+      .aifusion-description p { font-size: 16px; }
+      .takeaway-card { padding: 24px 20px; }
+      .takeaway-title { font-size: 18px; }
+    }
+
+    @media (max-width: 480px) {
+      .aifusion-hero h1 { font-size: 28px; }
+      .gallery-grid { grid-template-columns: 1fr; gap: 15px; }
+      .gallery-grid img { height: 200px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="nav-shell">
+      <a href="index.html" aria-label="Home" class="nav-brand">
+        <img src="images/logo transparent.png" alt="AI Karyashala logo" class="header-logo">
+      </a>
+
+      <nav class="nav-links" aria-label="Main">
+        <a href="index.html#journey">Our Journey</a>
+        <a href="students.html">Our Students</a>
+        <a href="projects.html">Projects</a>
+      </nav>
+
+      <a
+        href="/ugadhi-2026/index.html"
+        class="hero-btn hero-btn--primary nav-hero-cta"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Join the Next Batch
+      </a>
+    </div>
+  </header>
+
+  <div class="aifusion-container">
+
+    <section class="aifusion-hero">
+      <h1>AI Fusion 2026</h1>
+      <p class="subtitle">AI Fusion Summit — Vijayawada</p>
+      <p>Our team attended the AI Fusion Summit 2026, connecting with AI researchers, engineers, and innovators shaping the future of technology in India.</p>
+    </section>
+
+    <section class="aifusion-description">
+      <p>AI Fusion brought together practitioners and learners from across the region. Being part of this summit reinforced our commitment to staying at the frontier of AI-powered learning and development.</p>
+    </section>
+
+    <section class="aifusion-gallery">
+      <div class="gallery-grid">
+        <picture>
+          <img src="images/aifusion/1_thumb.jpeg" data-full="images/aifusion/1.jpeg" alt="AI Fusion 2026 - Photo 1" loading="lazy" onerror="this.style.display='none'">
+        </picture>
+        <picture>
+          <img src="images/aifusion/2_thumb.jpeg" data-full="images/aifusion/2.jpeg" alt="AI Fusion 2026 - Photo 2" loading="lazy" onerror="this.style.display='none'">
+        </picture>
+        <picture>
+          <img src="images/aifusion/3_thumb.jpeg" data-full="images/aifusion/3.jpeg" alt="AI Fusion 2026 - Photo 3" loading="lazy" onerror="this.style.display='none'">
+        </picture>
+        <picture>
+          <img src="images/aifusion/4_thumb.jpeg" data-full="images/aifusion/4.jpeg" alt="AI Fusion 2026 - Photo 4" loading="lazy" onerror="this.style.display='none'">
+        </picture>
+        <picture>
+          <img src="images/aifusion/5_thumb.jpeg" data-full="images/aifusion/5.jpeg" alt="AI Fusion 2026 - Photo 5" loading="lazy" onerror="this.style.display='none'">
+        </picture>
+        <picture>
+          <img src="images/aifusion/6_thumb.jpeg" data-full="images/aifusion/6.jpeg" alt="AI Fusion 2026 - Photo 6" loading="lazy" onerror="this.style.display='none'">
+        </picture>
+        <picture>
+          <img src="images/aifusion/7_thumb.jpeg" data-full="images/aifusion/7.jpeg" alt="AI Fusion 2026 - Photo 7" loading="lazy" onerror="this.style.display='none'">
+        </picture>
+        <picture>
+          <img src="images/aifusion/8_thumb.jpeg" data-full="images/aifusion/8.jpeg" alt="AI Fusion 2026 - Photo 8" loading="lazy" onerror="this.style.display='none'">
+        </picture>
+        <picture>
+          <img src="images/aifusion/9_thumb.jpeg" data-full="images/aifusion/9.jpeg" alt="AI Fusion 2026 - Photo 9" loading="lazy" onerror="this.style.display='none'">
+        </picture>
+      </div>
+    </section>
+
+    <!-- Takeaway -->
+    <section class="aifusion-takeaway">
+      <h2 class="aifusion-section-heading">Key <span>Takeaway</span></h2>
+      <a
+        href="https://www.linkedin.com/pulse/agentic-ai-from-ideation-independent-action-learning-path-vuppala-ikxac/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="takeaway-card"
+      >
+        <div class="takeaway-meta">
+          <span class="takeaway-tag">LinkedIn Article</span>
+          <span class="takeaway-author">Dr. Sunil Kumar Vuppala · Apr 7, 2026</span>
+        </div>
+        <h3 class="takeaway-title">Agentic AI: From Ideation to Independent Action with Learning Path</h3>
+        <p class="takeaway-summary">A deep-dive into how Agentic AI systems move beyond reactive responses to proactive, goal-seeking behaviour — covering the four-phase learning path from foundations through multi-agent orchestration.</p>
+        <span class="takeaway-link">Read on LinkedIn →</span>
+      </a>
+    </section>
+
+  </div>
+
+  <div class="gallery-lightbox" aria-hidden="true">
+    <div class="lightbox-inner">
+      <button class="lightbox-arrow left" data-dir="prev" aria-label="Previous image"><span class="arrow"></span></button>
+      <div class="lightbox-content">
+        <button class="lightbox-close" aria-label="Close">×</button>
+        <img src="" alt="">
+        <p class="lightbox-caption"></p>
+      </div>
+      <button class="lightbox-arrow right" data-dir="next" aria-label="Next image"><span class="arrow"></span></button>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>AI Karyashala</h3>
+        <p class="footer-tagline">Training and R&D</p>
+        <p class="footer-description">Building software craft for the next generation of engineers.</p>
+      </div>
+
+      <div class="footer-section">
+        <h4>Connect</h4>
+        <p>By Rohini Kumar Barla</p>
+        <p class="footer-phone">Mobile: +91 91042 42425</p>
+        <p style="margin-top: 12px;"><a href="https://www.linkedin.com/in/rohinibarla/" target="_blank" rel="noopener noreferrer" class="footer-social-link">LinkedIn Profile →</a></p>
+      </div>
+
+      <div class="footer-section">
+        <h4>Quick Links</h4>
+        <ul class="footer-links">
+          <li><a href="index.html#journey">Our Journey</a></li>
+          <li><a href="students.html">Our Students</a></li>
+          <li><a href="projects.html">Projects</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-divider"></div>
+
+    <p class="footer-credit">
+      © 2025 AI Karyashala
+    </p>
+
+    <button class="jump-to-top" aria-label="Jump to top" title="Back to top">↑</button>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
