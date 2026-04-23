@@ -988,11 +988,11 @@
 `${openTag('html', 'html', 0)}
 ${openTag('head', 'head', 2)}
 ${openTag('title', 'title', 4)}${textNode('title-text', 'Hello')}${closeTag('title', 'title', 0)}
-${closeTag('head', 'head', 2)}
+${closeTag('head', 'head', 2, true)}
 ${openTag('body', 'body', 2)}
 ${openTag('h1', 'h1', 4)}${textNode('h1-text', 'Welcome')}${closeTag('h1', 'h1', 0)}
 ${openTag('p', 'p', 4)}${textNode('p-text-1', 'Learn ')}${openTag('em', 'em', 0)}${textNode('em-text', 'trees')}${closeTag('em', 'em', 0)}${textNode('p-text-2', ' visually')}${closeTag('p', 'p', 0)}
-${closeTag('body', 'body', 2)}
+${closeTag('body', 'body', 2, true)}
 ${closeTag('html', 'html', 0)}`;
 
     sc.innerHTML = src;
