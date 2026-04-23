@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSA Session — Gayatri Vidya Parishad College of Engineering for Women | AI Karyashala</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f1117;--bg2:#161b27;--bg3:#1d2333;
+  --text:#e2e8f0;--text2:#94a3b8;--accent:#38bdf8;--accent2:#a78bfa;
+  --green:#34d399;--link:#60a5fa;--card:#1a2036;--border:#2a3450;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+a{color:var(--link);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ── HERO ── */
+.hero{
+  min-height:65vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(160deg,#080c14 0%,#0e1628 45%,#121e38 100%);
+  position:relative;overflow:hidden;padding:72px 24px;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 700px 500px at 50% 30%,rgba(56,189,248,0.07),transparent);
+}
+.hero-inner{position:relative;z-index:1;text-align:center;max-width:760px}
+.hero-badge{
+  display:inline-block;padding:6px 20px;border:1px solid var(--accent);
+  border-radius:20px;font-size:12px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--accent);margin-bottom:24px;
+}
+.hero h1{
+  font-family:'Space Grotesk',sans-serif;font-size:clamp(2.2rem,6vw,3.8rem);
+  letter-spacing:2px;color:#fff;margin-bottom:10px;line-height:1.15;
+}
+.hero h2{
+  font-size:clamp(1.1rem,2.5vw,1.5rem);font-weight:500;
+  color:var(--accent);margin-bottom:18px;
+}
+.hero .tagline{font-size:1.05rem;color:var(--text2);font-style:italic}
+.hero-meta{
+  margin-top:36px;display:flex;flex-wrap:wrap;gap:28px;justify-content:center;
+}
+.meta-item{text-align:center}
+.meta-label{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--accent);margin-bottom:4px}
+.meta-value{font-size:0.95rem;color:#fff}
+
+/* ── PHOTOS BANNER ── */
+.photos-banner{
+  background:var(--bg2);padding:40px 24px;text-align:center;
+  border-bottom:1px solid var(--border);
+}
+.photos-banner p{color:var(--text2);margin-bottom:16px;font-size:1rem}
+.photos-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:12px 28px;background:var(--accent);color:#000;
+  font-weight:700;font-size:14px;border-radius:8px;text-decoration:none;
+  letter-spacing:0.5px;transition:background 0.2s;
+}
+.photos-btn:hover{background:#7dd3fc;text-decoration:none}
+
+/* ── CONTENT ── */
+.content{max-width:860px;margin:0 auto;padding:0 24px}
+section{padding:52px 0}
+.section-title{
+  font-family:'Space Grotesk',sans-serif;font-size:1.45rem;color:var(--accent);
+  margin-bottom:28px;position:relative;padding-left:20px;
+}
+.section-title::before{
+  content:'';position:absolute;left:0;top:4px;width:4px;height:28px;
+  background:var(--accent);border-radius:2px;
+}
+
+/* ── CARDS ── */
+.note-block{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:20px 24px;margin-bottom:16px;
+}
+.note-block p{color:var(--text);margin-bottom:8px}
+.note-block p:last-child{margin-bottom:0}
+.note-highlight{
+  border-left:3px solid var(--green);padding-left:16px;
+  color:var(--green);font-weight:500;
+}
+
+/* ── PROBLEM CARD ── */
+.problem-card{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  overflow:hidden;margin-bottom:24px;
+}
+.problem-header{
+  padding:16px 20px;background:rgba(167,139,250,0.08);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+.problem-num{
+  width:36px;height:36px;border-radius:50%;background:var(--accent2);
+  color:#fff;font-weight:700;font-size:1rem;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.problem-title{font-family:'Space Grotesk',sans-serif;font-size:1.05rem;color:#fff}
+.problem-body{padding:20px 24px}
+.problem-statement{
+  color:var(--text);margin-bottom:20px;font-size:1rem;line-height:1.8;
+}
+.problem-statement strong{color:var(--accent2)}
+
+/* ── QUESTIONS ── */
+.question-card{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  overflow:hidden;margin-bottom:16px;
+}
+.question-header{
+  padding:14px 20px;background:rgba(56,189,248,0.06);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+.question-num{
+  width:32px;height:32px;border-radius:50%;background:var(--accent);
+  color:#000;font-weight:700;font-size:0.9rem;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.question-text{font-family:'Space Grotesk',sans-serif;font-size:1rem;color:#fff}
+.question-body{padding:16px 20px}
+.question-body p{color:var(--text2);font-size:0.95rem;line-height:1.75}
+.more-tag{
+  display:inline-block;margin-top:20px;padding:8px 20px;
+  border:1px dashed var(--border);border-radius:8px;
+  color:var(--text2);font-size:0.88rem;font-style:italic;
+}
+
+/* ── THANK YOU ── */
+.thank-you{
+  background:linear-gradient(135deg,#0e1628,#141e35);
+  border:1px solid var(--accent);border-radius:12px;
+  padding:30px 36px;margin:40px 0;text-align:center;
+}
+.thank-you h3{color:var(--accent);font-size:1.2rem;margin-bottom:12px;font-family:'Space Grotesk',sans-serif}
+.thank-you p{color:var(--text2);font-size:1rem}
+
+/* ── FOOTER ── */
+footer{
+  text-align:center;padding:40px 24px;border-top:1px solid var(--border);
+  color:var(--text2);font-size:14px;
+}
+footer .brand{font-size:1.2rem;font-weight:700;color:var(--accent);margin-bottom:8px}
+footer a{color:var(--accent)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .hero{min-height:auto;padding:56px 20px}
+  .hero-badge{font-size:11px;letter-spacing:1px;padding:5px 14px}
+  .hero h2{font-size:1rem}
+  .hero .tagline{font-size:0.95rem}
+  .hero-meta{margin-top:28px;gap:20px}
+
+  .photos-banner{padding:28px 16px}
+
+  .content{padding:0 16px}
+  section{padding:36px 0}
+  .section-title{font-size:1.2rem;margin-bottom:20px}
+
+  .note-block{padding:16px 18px}
+  .note-highlight{padding-left:12px;font-size:0.93rem}
+
+  .problem-header{padding:14px 16px;gap:10px}
+  .problem-title{font-size:0.95rem}
+  .problem-body{padding:16px}
+  .problem-statement{font-size:0.95rem}
+
+  .question-header{padding:12px 16px;gap:10px}
+  .question-text{font-size:0.95rem}
+  .question-body{padding:14px 16px}
+  .question-body p{font-size:0.9rem}
+
+  .thank-you{padding:24px 20px;margin:28px 0}
+  .thank-you h3{font-size:1.05rem}
+  .thank-you p{font-size:0.93rem}
+
+  footer{padding:28px 16px}
+}
+
+@media(max-width:480px){
+  .hero-meta{flex-direction:column;align-items:center;gap:14px}
+  .meta-item{width:100%}
+  .hero-badge{font-size:10px}
+  .section-title{font-size:1.1rem}
+  .problem-title{font-size:0.88rem}
+  .question-text{font-size:0.88rem}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-inner">
+<h1>Data Structures &amp;<br>Algorithms</h1>
+    <h2>Foundations of Algorithmic Thinking</h2>
+    <p class="tagline">From first principles to recursive mastery — building real problem-solving skills.</p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <div class="meta-label">Duration</div>
+        <div class="meta-value">2 Days</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Venue</div>
+        <div class="meta-value">Gayatri Vidya Parishad College of Engineering for Women, Visakhapatnam</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Conducted by</div>
+        <div class="meta-value">AI Karyashala</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- PHOTOS BANNER -->
+<div class="photos-banner">
+  <p>Session photos — relive the moments from both days</p>
+  <span style="display:inline-block;padding:10px 24px;border:1px dashed var(--border);border-radius:8px;color:var(--text2);font-size:14px;letter-spacing:1px;">Coming Soon</span>
+</div>
+
+<div class="content">
+
+<!-- SESSION OVERVIEW -->
+<section>
+  <h3 class="section-title">Session Overview</h3>
+  <div class="note-block">
+    <p>A two-day hands-on session at Gayatri Vidya Parishad College of Engineering for Women focused on learning the fundamentals of Data Structures and Algorithms. Students were introduced to core concepts and practiced writing programs to develop algorithmic thinking from the ground up.</p>
+  </div>
+  <div class="note-block">
+    <p class="note-highlight">Core philosophy: A program is a precise description of a process. Learning DSA means learning to think precisely.</p>
+  </div>
+</section>
+
+<!-- PROBLEM SECTION -->
+<section>
+  <h3 class="section-title">Problem of the Session</h3>
+
+  <div class="problem-card">
+    <div class="problem-header">
+      <div class="problem-num">Q1</div>
+      <div class="problem-title">Print Digits of a Number Using Recursion</div>
+    </div>
+    <div class="problem-body">
+      <p class="problem-statement">
+        Read a number from the user and <strong>print each digit</strong> of that number on a separate line using a <strong>recursive function</strong>. Do not use loops inside the recursive function.
+      </p>
+      <p style="color:var(--text2);font-size:0.9rem;margin-bottom:0">
+        <strong style="color:#fff">Example:</strong> Input <code style="color:var(--accent2)">1234</code> → output digits: <code style="color:var(--green)">1 2 3 4</code> (one per line)
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- QUESTIONS FROM STUDENTS -->
+<section>
+  <h3 class="section-title">Questions From Students</h3>
+
+  <div class="question-card">
+    <div class="question-header">
+      <div class="question-num">1</div>
+      <div class="question-text">What is DSA?</div>
+    </div>
+    <div class="question-body">
+      <p>DSA stands for <strong style="color:var(--accent)">Data Structures and Algorithms</strong>. A <em>data structure</em> is a way of organising data in memory so it can be used efficiently — examples include arrays, stacks, queues, and trees. An <em>algorithm</em> is a step-by-step procedure to solve a problem using that data. Together they form the core of all software — from a search engine to a banking app, every program relies on DSA under the hood.</p>
+    </div>
+  </div>
+
+  <div class="question-card">
+    <div class="question-header">
+      <div class="question-num">2</div>
+      <div class="question-text">How is DSA implemented in companies?</div>
+    </div>
+    <div class="question-body">
+      <p>In real companies, DSA shows up at every level. Choosing the right data structure — like a <strong style="color:var(--accent)">hash map</strong> for O(1) lookups or a <strong style="color:var(--accent)">priority queue</strong> for scheduling — directly affects how fast and scalable a product is. Algorithms power search rankings, recommendation feeds, route optimisation in maps, fraud detection in banking, and compiler design. Engineers also apply DSA concepts during code reviews and system design to justify choices around time and space trade-offs.</p>
+    </div>
+  </div>
+
+  <div class="more-tag">+ Many more questions were explored during the session</div>
+</section>
+
+<div class="thank-you">
+  <h3>Thank You — Gayatri Vidya Parishad College of Engineering for Women</h3>
+  <p>We thank the faculty and management of <strong style="color:#fff">Gayatri Vidya Parishad College of Engineering for Women, Visakhapatnam</strong> for the warm welcome and for providing the space and opportunity to engage with their students. The enthusiasm of the students made every minute worthwhile.</p>
+</div>
+
+</div>
+
+<footer>
+  <div class="brand">AI Karyashala</div>
+  <p>Training &amp; Research · <a href="https://aikaryashala.com" target="_blank">aikaryashala.com</a></p>
+  <p style="margin-top:8px;font-size:13px">DSA Session · Gayatri Vidya Parishad College of Engineering for Women</p>
+</footer>
+
+</body>
+</html>
