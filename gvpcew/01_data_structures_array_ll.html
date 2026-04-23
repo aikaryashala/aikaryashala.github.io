@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Structures — A Visual Introduction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Geist:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f4efe4;
+    --paper-deep: #ede6d5;
+    --ink: #1a1612;
+    --ink-soft: #4a4640;
+    --ink-muted: #8a847a;
+    --rule: #d6cfbe;
+    --array: #b44323;
+    --array-soft: #f2d5c4;
+    --array-deep: #7a2c15;
+    --list: #2d5f4e;
+    --list-soft: #cfe0d6;
+    --list-deep: #1d3f33;
+    --accent: #8b6f2e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Geist', system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(rgba(139, 111, 46, 0.035) 1px, transparent 1px);
+    background-size: 4px 4px;
+    min-height: 100vh;
+  }
+
+  .wrapper {
+    max-width: 940px;
+    margin: 0 auto;
+    padding: 80px 40px 120px;
+  }
+
+  header.hero {
+    padding: 40px 0 60px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 60px;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: clamp(56px, 9vw, 96px);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+  }
+
+  h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    margin-top: 24px;
+    font-size: 19px;
+    color: var(--ink-soft);
+    max-width: 560px;
+    line-height: 1.55;
+  }
+
+  .definition {
+    padding: 36px 40px;
+    margin-bottom: 80px;
+    border-left: 2px solid var(--accent);
+    background: rgba(139, 111, 46, 0.05);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .definition p {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    line-height: 1.5;
+    font-weight: 400;
+    color: var(--ink);
+  }
+
+  .definition p em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  section.structure {
+    margin-bottom: 110px;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    margin-bottom: 14px;
+  }
+
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ink-muted);
+    letter-spacing: 0.1em;
+  }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 48px;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .array-section h2 { color: var(--array-deep); }
+  .list-section h2 { color: var(--list-deep); }
+
+  .section-lead {
+    font-size: 18px;
+    color: var(--ink-soft);
+    max-width: 620px;
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  .props-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+
+  .prop {
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    background: var(--paper-deep);
+    border: 1px solid var(--rule);
+    color: var(--ink-soft);
+  }
+
+  .prop.good { color: var(--list-deep); border-color: var(--list-soft); background: var(--list-soft); }
+  .prop.bad { color: var(--array-deep); border-color: var(--array-soft); background: var(--array-soft); }
+
+  .stage {
+    background: #ffffff;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 40px 32px 32px;
+    margin-bottom: 28px;
+    box-shadow:
+      0 1px 2px rgba(26, 22, 18, 0.04),
+      0 8px 24px rgba(26, 22, 18, 0.04);
+  }
+
+  .stage-inner {
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ink-soft);
+    padding: 14px 18px;
+    background: var(--paper);
+    border-radius: 6px;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    line-height: 1.5;
+    border: 1px solid var(--rule);
+  }
+
+  .status .tick {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-right: 10px;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .control-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px 6px 14px;
+    background: var(--paper);
+    border-radius: 8px;
+    border: 1px solid var(--rule);
+  }
+
+  .control-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  button.op {
+    font-family: 'Geist', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 14px;
+    border: 1px solid var(--rule);
+    background: #ffffff;
+    color: var(--ink);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 140ms ease;
+  }
+
+  button.op:hover:not(:disabled) {
+    border-color: var(--ink-soft);
+    background: var(--paper-deep);
+  }
+
+  button.op.primary-array {
+    background: var(--array);
+    color: #fff;
+    border-color: var(--array);
+  }
+
+  button.op.primary-array:hover:not(:disabled) {
+    background: var(--array-deep);
+    border-color: var(--array-deep);
+  }
+
+  button.op.primary-list {
+    background: var(--list);
+    color: #fff;
+    border-color: var(--list);
+  }
+
+  button.op.primary-list:hover:not(:disabled) {
+    background: var(--list-deep);
+    border-color: var(--list-deep);
+  }
+
+  button.op.idx {
+    font-family: 'JetBrains Mono', monospace;
+    padding: 8px 12px;
+    min-width: 34px;
+  }
+
+  button.op:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .explainer {
+    font-size: 16px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+    max-width: 680px;
+    margin-top: 20px;
+  }
+
+  .explainer strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .explainer code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    background: var(--paper-deep);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  /* SVG styles */
+  svg.ds {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+
+  .cell {
+    transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1), opacity 200ms ease;
+  }
+
+  .cell.ghost {
+    opacity: 0.25;
+  }
+
+  .cell.highlight rect {
+    stroke: var(--array) !important;
+    stroke-width: 2 !important;
+    filter: drop-shadow(0 0 0 var(--array));
+  }
+
+  .cell.dropped {
+    animation: drop-in 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes drop-in {
+    from { transform: translateY(-30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .pointer-indicator {
+    transition: transform 600ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .pointer-indicator.instant {
+    transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .node {
+    transition: transform 380ms cubic-bezier(0.4, 0, 0.2, 1), opacity 300ms ease;
+  }
+
+  .node.highlight rect {
+    stroke: var(--list) !important;
+    stroke-width: 2 !important;
+  }
+
+  .node.new {
+    animation: node-fade-in 500ms ease-out;
+  }
+
+  @keyframes node-fade-in {
+    from { opacity: 0; transform: translateY(-12px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .arrow-line {
+    transition: x1 420ms cubic-bezier(0.4, 0, 0.2, 1),
+                y1 420ms cubic-bezier(0.4, 0, 0.2, 1),
+                x2 420ms cubic-bezier(0.4, 0, 0.2, 1),
+                y2 420ms cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 300ms ease;
+  }
+
+  .arrow-line.walking {
+    stroke: var(--list) !important;
+    stroke-width: 2.5 !important;
+  }
+
+  .formula {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    fill: var(--ink-soft);
+  }
+
+  .formula .highlight-fill { fill: var(--array); font-weight: 500; }
+
+  /* Comparison table */
+  .comparison {
+    margin-top: 80px;
+    padding-top: 60px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .comparison h2 {
+    font-size: 36px;
+    margin-bottom: 36px;
+    color: var(--ink);
+  }
+
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+
+  .compare-table th, .compare-table td {
+    padding: 18px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .compare-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    font-weight: 500;
+  }
+
+  .compare-table td:first-child {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    color: var(--ink);
+  }
+
+  .compare-table .op-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  .compare-table .complexity {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .compare-table .c-fast { color: var(--list-deep); }
+  .compare-table .c-slow { color: var(--array-deep); }
+
+  footer {
+    margin-top: 100px;
+    padding-top: 40px;
+    border-top: 1px solid var(--rule);
+    font-size: 13px;
+    color: var(--ink-muted);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  footer a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--accent);
+  }
+
+  @media (max-width: 640px) {
+    .wrapper { padding: 48px 20px 80px; }
+    h1 { font-size: 56px; }
+    h2 { font-size: 36px; }
+    .controls { gap: 8px; }
+    .control-group { padding: 6px 10px; }
+    button.op { padding: 7px 12px; font-size: 12px; }
+    .stage { padding: 28px 20px 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header class="hero">
+    <div class="eyebrow">Foundations · CS 101</div>
+    <h1>Data <em>Structures</em></h1>
+    <p class="hero-sub">A visual introduction to the two most foundational ways we organize data in memory — and the trade-off that underlies every choice between them.</p>
+  </header>
+
+  <div class="definition">
+    <p>A data structure is <em>a way of arranging data in memory</em> so that the operations you care about — accessing, inserting, finding, deleting — can be performed efficiently. Picking a structure is really picking <em>which operations you want to be fast</em>.</p>
+  </div>
+
+  <!-- ARRAY SECTION -->
+  <section class="structure array-section">
+    <div class="section-head">
+      <span class="section-num">01</span>
+      <h2>Array</h2>
+    </div>
+    <p class="section-lead">A contiguous row of equal-sized cells. The address of any element is computable, so you jump straight to it — but making room in the middle forces everyone to shift.</p>
+
+    <div class="props-row">
+      <div class="prop good">access &nbsp;·&nbsp; O(1)</div>
+      <div class="prop bad">insert &nbsp;·&nbsp; O(n)</div>
+      <div class="prop bad">delete &nbsp;·&nbsp; O(n)</div>
+      <div class="prop">contiguous memory</div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-inner">
+        <svg class="ds" id="array-svg" viewBox="0 0 640 260" role="img" aria-label="Interactive array visualization"></svg>
+      </div>
+
+      <div class="status" id="array-status">
+        <span class="tick"></span>
+        Initial state. Try any operation.
+      </div>
+
+      <div class="controls">
+        <div class="control-group">
+          <span class="control-label">Access</span>
+          <button class="op idx" onclick="arrayAccess(0)">0</button>
+          <button class="op idx" onclick="arrayAccess(1)">1</button>
+          <button class="op idx" onclick="arrayAccess(2)">2</button>
+          <button class="op idx" onclick="arrayAccess(3)">3</button>
+          <button class="op idx" onclick="arrayAccess(4)">4</button>
+        </div>
+        <button class="op primary-array" onclick="arrayInsertAt2()">insert 99 at index 2</button>
+        <button class="op primary-array" onclick="arrayDeleteAt1()">delete index 1</button>
+        <button class="op" onclick="arrayReset()">reset</button>
+      </div>
+    </div>
+
+    <div class="explainer">
+      <p>Watch closely: <strong>access is instant</strong> because the computer can calculate <code>address = base + i × size</code> and leap directly to the cell. But <strong>insertion drags every later element one step right</strong> to clear a slot — that shuffle is the O(n) work. Deletion is the mirror image: close the gap by shifting everyone left.</p>
+    </div>
+  </section>
+
+  <!-- LINKED LIST SECTION -->
+  <section class="structure list-section">
+    <div class="section-head">
+      <span class="section-num">02</span>
+      <h2>Linked List</h2>
+    </div>
+    <p class="section-lead">Nodes scattered anywhere in memory, each holding a value and a pointer to the next. No formula can jump to index <em>i</em> — you have to walk. But inserting and removing cost almost nothing.</p>
+
+    <div class="props-row">
+      <div class="prop bad">access &nbsp;·&nbsp; O(n)</div>
+      <div class="prop good">insert &nbsp;·&nbsp; O(1)*</div>
+      <div class="prop good">delete &nbsp;·&nbsp; O(1)*</div>
+      <div class="prop">scattered memory</div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-inner">
+        <svg class="ds" id="list-svg" viewBox="0 0 640 260" role="img" aria-label="Interactive linked list visualization"></svg>
+      </div>
+
+      <div class="status" id="list-status">
+        <span class="tick"></span>
+        Initial state. Notice the non-sequential memory addresses.
+      </div>
+
+      <div class="controls">
+        <div class="control-group">
+          <span class="control-label">Find</span>
+          <button class="op idx" onclick="listFind(0)">0</button>
+          <button class="op idx" onclick="listFind(1)">1</button>
+          <button class="op idx" onclick="listFind(2)">2</button>
+        </div>
+        <button class="op primary-list" onclick="listInsertAfter0()">insert 99 after node 0</button>
+        <button class="op primary-list" onclick="listDeleteAt1()">delete node 1</button>
+        <button class="op" onclick="listReset()">reset</button>
+      </div>
+    </div>
+
+    <div class="explainer">
+      <p>The contrast is everything. <strong>Find walks the chain</strong> — every step is a pointer dereference, and you pay O(n) to reach the end. But <strong>insertion and deletion touch only two pointers</strong>: no element moves in memory, the surrounding nodes just rewire. The asterisk on O(1) means "given you already have the pointer to the spot" — locating it is still O(n).</p>
+    </div>
+  </section>
+
+  <!-- COMPARISON -->
+  <section class="comparison">
+    <h2>The trade-off, at a glance</h2>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Operation</th>
+          <th>What happens</th>
+          <th>Array</th>
+          <th>Linked List</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Random access</td>
+          <td class="op-name">get index <em>i</em></td>
+          <td class="complexity c-fast">O(1)</td>
+          <td class="complexity c-slow">O(n)</td>
+        </tr>
+        <tr>
+          <td>Insert at middle</td>
+          <td class="op-name">splice in a new element</td>
+          <td class="complexity c-slow">O(n)</td>
+          <td class="complexity c-fast">O(1)*</td>
+        </tr>
+        <tr>
+          <td>Delete at middle</td>
+          <td class="op-name">remove an element</td>
+          <td class="complexity c-slow">O(n)</td>
+          <td class="complexity c-fast">O(1)*</td>
+        </tr>
+        <tr>
+          <td>Memory layout</td>
+          <td class="op-name">where elements live</td>
+          <td class="complexity">contiguous</td>
+          <td class="complexity">scattered</td>
+        </tr>
+        <tr>
+          <td>Space overhead</td>
+          <td class="op-name">per element</td>
+          <td class="complexity c-fast">value only</td>
+          <td class="complexity c-slow">value + pointer</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <footer>
+    <p>Every data structure that comes next — stacks, queues, trees, hash tables, graphs — is built on variations of this same trade-off between <span style="color: var(--array-deep)">contiguity</span> and <span style="color: var(--list-deep)">indirection</span>.</p>
+  </footer>
+
+</div>
+
+<script>
+  // ────────────────────────────────────────────────────────────────
+  // UTILITIES
+  // ────────────────────────────────────────────────────────────────
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+
+  function el(tag, attrs = {}, parent = null) {
+    const node = document.createElementNS(SVG_NS, tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      node.setAttribute(k, v);
+    }
+    if (parent) parent.appendChild(node);
+    return node;
+  }
+
+  function setStatus(id, html) {
+    document.getElementById(id).innerHTML = '<span class="tick"></span>' + html;
+  }
+
+  function disableControls(section, disabled) {
+    document.querySelectorAll(`.${section}-section button.op`).forEach(b => b.disabled = disabled);
+  }
+
+  // ────────────────────────────────────────────────────────────────
+  // ARRAY
+  // ────────────────────────────────────────────────────────────────
+  const INITIAL_ARRAY = [42, 17, 9, 28, 63];
+  const BASE_ADDR = 1000;
+  const ELEM_SIZE = 4;
+  let arrayState = [...INITIAL_ARRAY];
+  let arrayAnimating = false;
+
+  const ARR_CELL_W = 76;
+  const ARR_CELL_H = 60;
+  const ARR_ROW_Y = 110;
+  const ARR_START_X = (640 - INITIAL_ARRAY.length * ARR_CELL_W) / 2;
+
+  const arraySvg = document.getElementById('array-svg');
+
+  function renderArray(animated = true) {
+    arraySvg.innerHTML = '';
+
+    // Labels column
+    const labelX = ARR_START_X - 14;
+    const lbl = (y, text) => el('text', {
+      x: labelX, y: y,
+      'text-anchor': 'end',
+      'dominant-baseline': 'central',
+      'font-family': 'JetBrains Mono, monospace',
+      'font-size': 11,
+      fill: 'var(--ink-muted)',
+      'letter-spacing': '0.05em'
+    }, arraySvg).textContent = text;
+
+    lbl(70, 'INDEX');
+    lbl(ARR_ROW_Y + ARR_CELL_H / 2, 'VALUE');
+    lbl(ARR_ROW_Y + ARR_CELL_H + 24, 'ADDR');
+
+    // Access indicator (hidden initially) — a triangle above the target cell
+    const indicator = el('g', {
+      class: 'pointer-indicator',
+      id: 'arr-indicator',
+      opacity: 0,
+      transform: `translate(${ARR_START_X + ARR_CELL_W / 2}, 70)`
+    }, arraySvg);
+    el('path', {
+      d: 'M 0,-8 L 6,4 L -6,4 Z',
+      fill: 'var(--array)'
+    }, indicator);
+
+    // Formula display (initially hidden)
+    el('text', {
+      x: 320,
+      y: 225,
+      'text-anchor': 'middle',
+      'font-family': 'JetBrains Mono, monospace',
+      'font-size': 13,
+      fill: 'var(--ink-muted)',
+      id: 'arr-formula',
+      opacity: 0
+    }, arraySvg);
+
+    // Cells
+    arrayState.forEach((val, i) => {
+      renderCell(val, i, i, animated);
+    });
+  }
+
+  function renderCell(val, renderIdx, logicalIdx, animated) {
+    const x = ARR_START_X + renderIdx * ARR_CELL_W;
+
+    const g = el('g', {
+      class: 'cell',
+      'data-idx': logicalIdx,
+      transform: `translate(${x}, 0)`
+    }, arraySvg);
+
+    // Index label
+    el('text', {
+      x: ARR_CELL_W / 2, y: 70,
+      'text-anchor': 'middle',
+      'dominant-baseline': 'central',
+      'font-family': 'JetBrains Mono, monospace',
+      'font-size': 13,
+      'font-weight': 500,
+      fill: 'var(--ink-soft)'
+    }, g).textContent = renderIdx;
+
+    // Cell box
+    el('rect', {
+      x: 0, y: ARR_ROW_Y,
+      width: ARR_CELL_W, height: ARR_CELL_H,
+      fill: 'var(--array-soft)',
+      stroke: 'var(--array)',
+      'stroke-width': 1,
+      rx: 2
+    }, g);
+
+    // Value
+    el('text', {
+      x: ARR_CELL_W / 2,
+      y: ARR_ROW_Y + ARR_CELL_H / 2,
+      'text-anchor': 'middle',
+      'dominant-baseline': 'central',
+      'font-family': 'Fraunces, serif',
+      'font-size': 22,
+      'font-weight': 500,
+      fill: 'var(--array-deep)'
+    }, g).textContent = val;
+
+    // Address
+    const addr = BASE_ADDR + renderIdx * ELEM_SIZE;
+    el('text', {
+      x: ARR_CELL_W / 2,
+      y: ARR_ROW_Y + ARR_CELL_H + 24,
+      'text-anchor': 'middle',
+      'dominant-baseline': 'central',
+      'font-family': 'JetBrains Mono, monospace',
+      'font-size': 11,
+      fill: 'var(--ink-muted)'
+    }, g).textContent = addr;
+
+    return g;
+  }
+
+  async function arrayAccess(i) {
+    if (arrayAnimating) return;
+    arrayAnimating = true;
+    disableControls('array', true);
+
+    const indicator = document.getElementById('arr-indicator');
+    const formula = document.getElementById('arr-formula');
+    const targetX = ARR_START_X + i * ARR_CELL_W + ARR_CELL_W / 2;
+    const targetAddr = BASE_ADDR + i * ELEM_SIZE;
+
+    // Show formula
+    formula.innerHTML = `address = <tspan fill="var(--array-deep)" font-weight="500">${BASE_ADDR}</tspan> + <tspan fill="var(--array)" font-weight="500">${i}</tspan> × ${ELEM_SIZE} = <tspan fill="var(--array-deep)" font-weight="500">${targetAddr}</tspan>`;
+    formula.setAttribute('opacity', 1);
+
+    setStatus('array-status', `Computing address for index <b>${i}</b>… one multiplication and one add. <span style="color:var(--array-deep)">Jump.</span>`);
+
+    // Jump indicator directly (O(1) — fast transition)
+    indicator.classList.remove('instant');
+    indicator.setAttribute('opacity', 1);
+    indicator.setAttribute('transform', `translate(${targetX}, 70)`);
+
+    await sleep(650);
+
+    // Highlight target cell
+    document.querySelectorAll('#array-svg .cell').forEach(c => c.classList.remove('highlight'));
+    const cell = document.querySelector(`#array-svg .cell[data-idx="${i}"]`);
+    if (cell) cell.classList.add('highlight');
+
+    setStatus('array-status', `Got <b>arr[${i}] = ${arrayState[i]}</b> in constant time. No walking, no searching.`);
+
+    await sleep(1600);
+
+    // Cleanup
+    indicator.setAttribute('opacity', 0);
+    formula.setAttribute('opacity', 0);
+    if (cell) cell.classList.remove('highlight');
+
+    arrayAnimating = false;
+    disableControls('array', false);
+  }
+
+  async function arrayInsertAt2() {
+    if (arrayAnimating) return;
+    arrayAnimating = true;
+    disableControls('array', true);
+
+    const insertPos = 2;
+    const newVal = 99;
+
+    setStatus('array-status', `Inserting <b>${newVal}</b> at index ${insertPos}. First, everyone from index ${insertPos} onward must <b style="color:var(--array-deep)">shift right</b> to make room…`);
+
+    await sleep(900);
+
+    // Shift right: visually move cells at idx 2, 3, 4 one at a time to positions 3, 4, 5
+    const cells = Array.from(document.querySelectorAll('#array-svg .cell'));
+    // We have 5 cells (indices 0-4). We need to shift cells at idx 2, 3, 4 right by one position.
+    // Start from the rightmost to avoid overlap.
+    for (let i = arrayState.length - 1; i >= insertPos; i--) {
+      const cell = cells[i];
+      const newX = ARR_START_X + (i + 1) * ARR_CELL_W;
+      cell.setAttribute('transform', `translate(${newX}, 0)`);
+
+      // Update the address displayed below
+      const addrText = cell.querySelectorAll('text')[2];
+      addrText.textContent = BASE_ADDR + (i + 1) * ELEM_SIZE;
+
+      // Update the index label above
+      const idxText = cell.querySelectorAll('text')[0];
+      idxText.textContent = i + 1;
+
+      await sleep(320);
+    }
+
+    setStatus('array-status', `Each shifted element is real work. For an array of length n, this is <b>O(n)</b> in the worst case.`);
+
+    await sleep(600);
+
+    // Insert new cell at position 2
+    arrayState.splice(insertPos, 0, newVal);
+
+    // Create the new cell with drop-in animation
+    const newCell = renderCell(newVal, insertPos, insertPos, true);
+    newCell.classList.add('dropped');
+
+    // Update data-idx attributes for all cells to match new logical indices
+    Array.from(document.querySelectorAll('#array-svg .cell')).forEach((c, idx) => {
+      if (idx !== arrayState.length) { // skip the newly-added (it's already set)
+        // The DOM order doesn't match logical order after insertion; re-derive from position
+      }
+    });
+
+    await sleep(500);
+
+    setStatus('array-status', `Inserted ${newVal} at index ${insertPos}. Array is now <code style="font-family:'JetBrains Mono',monospace">[${arrayState.join(', ')}]</code>.`);
+
+    // Re-render cleanly to fix data-idx attributes
+    await sleep(1400);
+    renderArray();
+    setStatus('array-status', `<span class="tick"></span>Ready for the next operation.`.replace('<span class="tick"></span>', ''));
+    setStatus('array-status', `Array after insertion: <code style="font-family:'JetBrains Mono',monospace">[${arrayState.join(', ')}]</code>`);
+
+    arrayAnimating = false;
+    disableControls('array', false);
+  }
+
+  async function arrayDeleteAt1() {
+    if (arrayAnimating) return;
+    arrayAnimating = true;
+    disableControls('array', true);
+
+    const delPos = 1;
+    const delVal = arrayState[delPos];
+
+    setStatus('array-status', `Deleting index ${delPos} (value <b>${delVal}</b>). The slot vanishes — now every later element must <b style="color:var(--array-deep)">shift left</b> to close the gap.`);
+
+    // Fade the target cell
+    const cells = Array.from(document.querySelectorAll('#array-svg .cell'));
+    const target = cells[delPos];
+    if (target) target.classList.add('ghost');
+
+    await sleep(700);
+
+    // Remove the cell, then shift cells at positions > delPos left by one
+    if (target) target.remove();
+
+    for (let i = delPos + 1; i < arrayState.length; i++) {
+      const cell = cells[i];
+      const newX = ARR_START_X + (i - 1) * ARR_CELL_W;
+      cell.setAttribute('transform', `translate(${newX}, 0)`);
+
+      const addrText = cell.querySelectorAll('text')[2];
+      addrText.textContent = BASE_ADDR + (i - 1) * ELEM_SIZE;
+
+      const idxText = cell.querySelectorAll('text')[0];
+      idxText.textContent = i - 1;
+
+      await sleep(320);
+    }
+
+    arrayState.splice(delPos, 1);
+
+    await sleep(400);
+    renderArray();
+    setStatus('array-status', `Array after deletion: <code style="font-family:'JetBrains Mono',monospace">[${arrayState.join(', ')}]</code>`);
+
+    arrayAnimating = false;
+    disableControls('array', false);
+  }
+
+  function arrayReset() {
+    if (arrayAnimating) return;
+    arrayState = [...INITIAL_ARRAY];
+    renderArray();
+    setStatus('array-status', `Reset. Try the operations in any order.`);
+  }
+
+  // ────────────────────────────────────────────────────────────────
+  // LINKED LIST
+  // ────────────────────────────────────────────────────────────────
+  const INITIAL_LIST = [
+    { val: 42, addr: '0x5024' },
+    { val: 17, addr: '0x2108' },
+    { val: 9,  addr: '0x7432' }
+  ];
+  const EXTRA_ADDR = '0x8F12';
+  let listState = INITIAL_LIST.map(n => ({ ...n }));
+  let listAnimating = false;
+
+  const NODE_W = 120;
+  const NODE_H = 60;
+  const NODE_Y = 95;
+  const NODE_GAP = 40;
+  const HEAD_X = 26;
+
+  const listSvg = document.getElementById('list-svg');
+
+  function nodeX(i) {
+    // center the chain
+    const n = listState.length;
+    const chainW = n * NODE_W + (n - 1) * NODE_GAP;
+    const startX = (640 - chainW) / 2;
+    return startX + i * (NODE_W + NODE_GAP);
+  }
+
+  function renderList() {
+    listSvg.innerHTML = '';
+
+    // head label + arrow
+    const startX = nodeX(0);
+    el('text', {
+      x: HEAD_X + 4, y: NODE_Y + NODE_H / 2 - 14,
+      'font-family': 'JetBrains Mono, monospace',
+      'font-size': 11,
+      fill: 'var(--ink-muted)',
+      'letter-spacing': '0.05em'
+    }, listSvg).textContent = 'HEAD';
+
+    const headArrow = el('line', {
+      x1: HEAD_X, y1: NODE_Y + NODE_H / 2,
+      x2: startX - 4, y2: NODE_Y + NODE_H / 2,
+      stroke: 'var(--ink-muted)',
+      'stroke-width': 1.5,
+      class: 'arrow-line',
+      id: 'head-arrow',
+      'marker-end': 'url(#list-arrow-head)'
+    }, listSvg);
+
+    // arrow marker defs
+    const defs = el('defs', {}, listSvg);
+    const marker = el('marker', {
+      id: 'list-arrow-head',
+      viewBox: '0 0 10 10',
+      refX: 8, refY: 5,
+      markerWidth: 7, markerHeight: 7,
+      orient: 'auto-start-reverse'
+    }, defs);
+    el('path', {
+      d: 'M2 1L8 5L2 9',
+      fill: 'none',
+      stroke: 'context-stroke',
+      'stroke-width': 1.5,
+      'stroke-linecap': 'round',
+      'stroke-linejoin': 'round'
+    }, marker);
+
+    // arrows between nodes (render before nodes so nodes sit above)
+    for (let i = 0; i < listState.length - 1; i++) {
+      const fromX = nodeX(i) + NODE_W - 18;
+      const toX = nodeX(i + 1) - 4;
+      el('line', {
+        x1: fromX, y1: NODE_Y + NODE_H / 2,
+        x2: toX, y2: NODE_Y + NODE_H / 2,
+        stroke: 'var(--ink-muted)',
+        'stroke-width': 1.5,
+        class: 'arrow-line',
+        'data-arrow-from': i,
+        'marker-end': 'url(#list-arrow-head)'
+      }, listSvg);
+    }
+
+    // nodes
+    listState.forEach((node, i) => {
+      renderNode(node, i);
+    });
+
+    // NULL terminator
+    const lastX = nodeX(listState.length - 1);
+    el('text', {
+      x: lastX + NODE_W + NODE_GAP - 12,
+      y: NODE_Y + NODE_H / 2,
+      'dominant-baseline': 'central',
+      'font-family': 'JetBrains Mono, monospace',
+      'font-size': 13,
+      'font-weight': 500,
+      fill: 'var(--ink-soft)'
+    }, listSvg).textContent = 'NULL';
+
+    // Final arrow to NULL
+    const finalFromX = lastX + NODE_W - 18;
+    const finalToX = lastX + NODE_W + NODE_GAP - 22;
+    el('line', {
+      x1: finalFromX, y1: NODE_Y + NODE_H / 2,
+      x2: finalToX, y2: NODE_Y + NODE_H / 2,
+      stroke: 'var(--ink-muted)',
+      'stroke-width': 1.5,
+      class: 'arrow-line',
+      'data-arrow-from': listState.length - 1,
+      'marker-end': 'url(#list-arrow-head)'
+    }, listSvg);
+  }
+
+  function renderNode(node, i) {
+    const x = nodeX(i);
+    const g = el('g', {
+      class: 'node',
+      'data-idx': i,
+      transform: `translate(${x}, 0)`
+    }, listSvg);
+
+    // main rect
+    el('rect', {
+      x: 0, y: NODE_Y,
+      width: NODE_W, height: NODE_H,
+      fill: 'var(--list-soft)',
+      stroke: 'var(--list)',
+      'stroke-width': 1,
+      rx: 4
+    }, g);
+
+    // divider between data and next
+    el('line', {
+      x1: NODE_W - 32, y1: NODE_Y,
+      x2: NODE_W - 32, y2: NODE_Y + NODE_H,
+      stroke: 'var(--list)',
+      'stroke-width': 0.5,
+      opacity: 0.4
+    }, g);
+
+    // data value
+    el('text', {
+      x: (NODE_W - 32) / 2,
+      y: NODE_Y + NODE_H / 2,
+      'text-anchor': 'middle',
+      'dominant-baseline': 'central',
+      'font-family': 'Fraunces, serif',
+      'font-size': 22,
+      'font-weight': 500,
+      fill: 'var(--list-deep)'
+    }, g).textContent = node.val;
+
+    // pointer dot
+    el('circle', {
+      cx: NODE_W - 16,
+      cy: NODE_Y + NODE_H / 2,
+      r: 3,
+      fill: 'var(--list-deep)'
+    }, g);
+
+    // address below
+    el('text', {
+      x: NODE_W / 2,
+      y: NODE_Y + NODE_H + 18,
+      'text-anchor': 'middle',
+      'font-family': 'JetBrains Mono, monospace',
+      'font-size': 11,
+      fill: 'var(--ink-muted)'
+    }, g).textContent = node.addr;
+
+    // tiny labels above the two halves
+    el('text', {
+      x: (NODE_W - 32) / 2,
+      y: NODE_Y - 8,
+      'text-anchor': 'middle',
+      'font-family': 'JetBrains Mono, monospace',
+      'font-size': 10,
+      fill: 'var(--ink-muted)',
+      'letter-spacing': '0.05em'
+    }, g).textContent = 'data';
+
+    el('text', {
+      x: NODE_W - 16,
+      y: NODE_Y - 8,
+      'text-anchor': 'middle',
+      'font-family': 'JetBrains Mono, monospace',
+      'font-size': 10,
+      fill: 'var(--ink-muted)',
+      'letter-spacing': '0.05em'
+    }, g).textContent = 'next';
+
+    return g;
+  }
+
+  async function listFind(target) {
+    if (listAnimating) return;
+    listAnimating = true;
+    disableControls('list', true);
+
+    setStatus('list-status', `Finding index <b>${target}</b>. Starting at <b>head</b>… we have to walk.`);
+
+    // highlight head arrow
+    const headArrow = document.getElementById('head-arrow');
+    headArrow.classList.add('walking');
+
+    await sleep(550);
+
+    // walk through nodes 0..target
+    for (let i = 0; i <= target; i++) {
+      const node = document.querySelector(`#list-svg .node[data-idx="${i}"]`);
+      if (node) node.classList.add('highlight');
+
+      if (i === target) {
+        setStatus('list-status', `Reached index <b>${i}</b>. Value is <b>${listState[i].val}</b>. Took <b>${i + 1}</b> pointer hops.`);
+      } else {
+        setStatus('list-status', `At index <b>${i}</b>. Not the target — follow the <b>next</b> pointer to index ${i + 1}.`);
+      }
+
+      await sleep(750);
+
+      if (i < target) {
+        // highlight the arrow from this node
+        const arrow = document.querySelector(`#list-svg .arrow-line[data-arrow-from="${i}"]`);
+        if (arrow) arrow.classList.add('walking');
+        await sleep(400);
+      }
+    }
+
+    await sleep(900);
+
+    // cleanup
+    document.querySelectorAll('#list-svg .node').forEach(n => n.classList.remove('highlight'));
+    document.querySelectorAll('#list-svg .arrow-line').forEach(a => a.classList.remove('walking'));
+
+    listAnimating = false;
+    disableControls('list', false);
+  }
+
+  async function listInsertAfter0() {
+    if (listAnimating) return;
+    listAnimating = true;
+    disableControls('list', true);
+
+    const insertPos = 1; // insert new node at position 1 (i.e., after node 0)
+    const newNode = { val: 99, addr: EXTRA_ADDR };
+
+    setStatus('list-status', `Inserting <b>99</b> between node 0 and node 1. No shifting — we only need to <b style="color:var(--list-deep)">rewire two pointers</b>.`);
+
+    await sleep(900);
+
+    // Step 1: show the new node appearing above the line
+    const aboveY = -30;
+    const node0X = nodeX(0);
+    const node1X = nodeX(1);
+    const newNodeX = (node0X + node1X) / 2 + (NODE_W / 2) - (NODE_W / 2); // will update
+    // place new node above between 0 and 1
+    const placeX = (node0X + node1X) / 2;
+
+    // create temporary new node
+    const g = el('g', {
+      class: 'node new',
+      id: 'new-node',
+      transform: `translate(${placeX}, ${aboveY})`
+    }, listSvg);
+    el('rect', {
+      x: 0, y: NODE_Y,
+      width: NODE_W, height: NODE_H,
+      fill: 'var(--list-soft)',
+      stroke: 'var(--list)',
+      'stroke-width': 2,
+      rx: 4
+    }, g);
+    el('line', {
+      x1: NODE_W - 32, y1: NODE_Y,
+      x2: NODE_W - 32, y2: NODE_Y + NODE_H,
+      stroke: 'var(--list)',
+      'stroke-width': 0.5,
+      opacity: 0.4
+    }, g);
+    el('text', {
+      x: (NODE_W - 32) / 2, y: NODE_Y + NODE_H / 2,
+      'text-anchor': 'middle',
+      'dominant-baseline': 'central',
+      'font-family': 'Fraunces, serif',
+      'font-size': 22,
+      'font-weight': 500,
+      fill: 'var(--list-deep)'
+    }, g).textContent = newNode.val;
+    el('circle', {
+      cx: NODE_W - 16,
+      cy: NODE_Y + NODE_H / 2,
+      r: 3,
+      fill: 'var(--list-deep)'
+    }, g);
+    el('text', {
+      x: NODE_W / 2,
+      y: NODE_Y + NODE_H + 18,
+      'text-anchor': 'middle',
+      'font-family': 'JetBrains Mono, monospace',
+      'font-size': 11,
+      fill: 'var(--list-deep)',
+      'font-weight': 500
+    }, g).textContent = newNode.addr;
+
+    await sleep(600);
+
+    setStatus('list-status', `<b style="color:var(--list-deep)">Pointer change 1:</b> node 0's <code>next</code> now points to our new node.`);
+
+    // Step 2: rewire predecessor's arrow to point to new node (which is above)
+    const predArrow = document.querySelector(`#list-svg .arrow-line[data-arrow-from="0"]`);
+    if (predArrow) {
+      predArrow.classList.add('walking');
+      predArrow.setAttribute('x2', placeX - 4);
+      predArrow.setAttribute('y2', NODE_Y + NODE_H / 2 + aboveY);
+    }
+
+    await sleep(1200);
+
+    setStatus('list-status', `<b style="color:var(--list-deep)">Pointer change 2:</b> the new node's <code>next</code> points to what was index 1.`);
+
+    // Step 3: draw new arrow from new node to node 1
+    const newArrow = el('line', {
+      x1: placeX + NODE_W - 18, y1: NODE_Y + NODE_H / 2 + aboveY,
+      x2: node1X - 4, y2: NODE_Y + NODE_H / 2,
+      stroke: 'var(--list)',
+      'stroke-width': 2.5,
+      class: 'arrow-line walking',
+      'marker-end': 'url(#list-arrow-head)',
+      opacity: 0
+    }, listSvg);
+    newArrow.setAttribute('opacity', 0);
+    requestAnimationFrame(() => newArrow.setAttribute('opacity', 1));
+
+    await sleep(1200);
+
+    setStatus('list-status', `That's it. <b>Two pointer writes — O(1)</b>. Nothing in memory moved.`);
+
+    await sleep(1400);
+
+    // Step 4: clean up — update state and re-render with new node in line
+    listState.splice(insertPos, 0, newNode);
+    renderList();
+
+    setStatus('list-status', `List after insertion: <code style="font-family:'JetBrains Mono',monospace">[${listState.map(n => n.val).join(' → ')}]</code>`);
+
+    listAnimating = false;
+    disableControls('list', false);
+  }
+
+  async function listDeleteAt1() {
+    if (listAnimating) return;
+    listAnimating = true;
+    disableControls('list', true);
+
+    if (listState.length < 2) {
+      setStatus('list-status', `Not enough nodes to delete index 1. Reset to try again.`);
+      listAnimating = false;
+      disableControls('list', false);
+      return;
+    }
+
+    const delPos = 1;
+    const delVal = listState[delPos].val;
+
+    setStatus('list-status', `Deleting node at index ${delPos} (value <b>${delVal}</b>). We just need node 0's <code>next</code> to skip over it.`);
+
+    await sleep(900);
+
+    // Highlight the node being deleted
+    const targetNode = document.querySelector(`#list-svg .node[data-idx="${delPos}"]`);
+    if (targetNode) targetNode.classList.add('highlight');
+
+    await sleep(600);
+
+    setStatus('list-status', `<b style="color:var(--list-deep)">Rewire:</b> node 0's <code>next</code> jumps over the deleted node to node ${delPos + 1}.`);
+
+    // Rewire predecessor arrow to skip the deleted node
+    const predArrow = document.querySelector(`#list-svg .arrow-line[data-arrow-from="${delPos - 1}"]`);
+    if (predArrow && delPos + 1 < listState.length) {
+      const skipToX = nodeX(delPos + 1) - 4;
+      predArrow.classList.add('walking');
+      predArrow.setAttribute('x2', skipToX);
+    } else if (predArrow) {
+      // deleting last node — pred now points to NULL
+      const nullX = nodeX(delPos) + NODE_W + NODE_GAP - 22;
+      predArrow.classList.add('walking');
+      predArrow.setAttribute('x2', nullX);
+    }
+
+    await sleep(900);
+
+    // Fade out the deleted node
+    if (targetNode) {
+      targetNode.style.transition = 'opacity 500ms ease, transform 500ms ease';
+      targetNode.style.opacity = '0';
+      targetNode.style.transform = `translate(${nodeX(delPos)}px, -30px)`;
+    }
+
+    // Also fade out the arrow that was coming out of the deleted node
+    const deletedArrow = document.querySelector(`#list-svg .arrow-line[data-arrow-from="${delPos}"]`);
+    if (deletedArrow) deletedArrow.setAttribute('opacity', 0);
+
+    await sleep(700);
+
+    setStatus('list-status', `Gone. <b>One pointer write — O(1)</b>. The deleted node's memory is now released.`);
+
+    await sleep(1200);
+
+    // Update state and re-render
+    listState.splice(delPos, 1);
+    renderList();
+
+    setStatus('list-status', `List after deletion: <code style="font-family:'JetBrains Mono',monospace">[${listState.map(n => n.val).join(' → ')}]</code>`);
+
+    listAnimating = false;
+    disableControls('list', false);
+  }
+
+  function listReset() {
+    if (listAnimating) return;
+    listState = INITIAL_LIST.map(n => ({ ...n }));
+    renderList();
+    setStatus('list-status', `Reset. Notice the scattered memory addresses below each node.`);
+  }
+
+  // ────────────────────────────────────────────────────────────────
+  // INIT
+  // ────────────────────────────────────────────────────────────────
+  renderArray();
+  renderList();
+</script>
+</body>
+</html>

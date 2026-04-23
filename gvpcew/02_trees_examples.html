@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trees — A Visual Introduction</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Geist:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+  :root {
+    --paper: #f4efe4;
+    --paper-deep: #ede6d5;
+    --ink: #1a1612;
+    --ink-soft: #4a4640;
+    --ink-muted: #8a847a;
+    --rule: #d6cfbe;
+    --accent: #8b6f2e;
+
+    --dir: #b8860b;
+    --dir-soft: #f2e5c4;
+    --dir-deep: #6b4d06;
+
+    --dom: #2c5282;
+    --dom-soft: #d4dfed;
+    --dom-deep: #1a365d;
+    --dom-text: #718096;
+
+    --expr: #276749;
+    --expr-soft: #cfe0d6;
+    --expr-deep: #1c4532;
+    --expr-op: #6b46c1;
+    --expr-op-soft: #e2d5f2;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Geist', system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    background-image: radial-gradient(rgba(139, 111, 46, 0.035) 1px, transparent 1px);
+    background-size: 4px 4px;
+    min-height: 100vh;
+  }
+
+  .wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 72px 40px 120px;
+  }
+
+  /* ─── Hero ─── */
+  header.hero {
+    padding: 32px 0 56px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 56px;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: clamp(56px, 9vw, 96px);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+  }
+
+  h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    margin-top: 24px;
+    font-size: 19px;
+    color: var(--ink-soft);
+    max-width: 620px;
+    line-height: 1.55;
+  }
+
+  /* ─── Section ─── */
+  section.tree-section {
+    margin-bottom: 100px;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    margin-bottom: 14px;
+  }
+
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ink-muted);
+    letter-spacing: 0.1em;
+  }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 42px;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .dir-section h2 { color: var(--dir-deep); }
+  .dom-section h2 { color: var(--dom-deep); }
+  .expr-section h2 { color: var(--expr-deep); }
+
+  .section-lead {
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 640px;
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+
+  /* ─── Stage ─── */
+  .stage {
+    background: #ffffff;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 32px 28px 28px;
+    box-shadow:
+      0 1px 2px rgba(26, 22, 18, 0.04),
+      0 8px 24px rgba(26, 22, 18, 0.04);
+  }
+
+  .stage-inner {
+    position: relative;
+    margin-bottom: 20px;
+    min-height: 280px;
+    overflow-x: auto;
+  }
+
+  svg.tree {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+
+  /* ─── Controls ─── */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    align-items: center;
+  }
+
+  .status-bar {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ink-soft);
+    padding: 12px 16px;
+    background: var(--paper);
+    border-radius: 6px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    line-height: 1.5;
+    border: 1px solid var(--rule);
+    margin-bottom: 18px;
+  }
+
+  .status-bar .tick {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    margin-right: 10px;
+    animation: pulse 1.4s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  .dir-section .tick { background: var(--dir); }
+  .dom-section .tick { background: var(--dom); }
+  .expr-section .tick { background: var(--expr); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  button.op {
+    font-family: 'Geist', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 14px;
+    border: 1px solid var(--rule);
+    background: #ffffff;
+    color: var(--ink);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 140ms ease;
+  }
+
+  button.op:hover:not(:disabled) {
+    border-color: var(--ink-soft);
+    background: var(--paper-deep);
+  }
+
+  button.op:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  button.op.primary-dir {
+    background: var(--dir);
+    color: #fff;
+    border-color: var(--dir);
+  }
+  button.op.primary-dir:hover:not(:disabled) {
+    background: var(--dir-deep);
+    border-color: var(--dir-deep);
+  }
+
+  button.op.primary-dom {
+    background: var(--dom);
+    color: #fff;
+    border-color: var(--dom);
+  }
+  button.op.primary-dom:hover:not(:disabled) {
+    background: var(--dom-deep);
+    border-color: var(--dom-deep);
+  }
+
+  button.op.primary-expr {
+    background: var(--expr);
+    color: #fff;
+    border-color: var(--expr);
+  }
+  button.op.primary-expr:hover:not(:disabled) {
+    background: var(--expr-deep);
+    border-color: var(--expr-deep);
+  }
+
+  /* ─── Tree node common styles ─── */
+  .node {
+    transition: transform 420ms cubic-bezier(0.4, 0, 0.2, 1), opacity 340ms ease;
+    cursor: pointer;
+  }
+
+  .node.no-click { cursor: default; }
+
+  .tree-edge {
+    transition: all 420ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .node.fade-in {
+    animation: fade-in 400ms ease;
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; transform-origin: center; }
+    to { opacity: 1; }
+  }
+
+  /* ─── Directory tree specific ─── */
+  .dir-node rect {
+    transition: fill 180ms ease, stroke 180ms ease;
+  }
+
+  .dir-node.highlight rect {
+    fill: var(--dir-soft);
+    stroke: var(--dir-deep);
+  }
+
+  .dir-node.highlight text {
+    fill: var(--dir-deep);
+  }
+
+  .path-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--dir-deep);
+    padding: 10px 16px;
+    background: var(--dir-soft);
+    border-radius: 6px;
+    margin-bottom: 18px;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .path-segment {
+    opacity: 0.6;
+  }
+  .path-segment.active {
+    opacity: 1;
+    font-weight: 500;
+  }
+
+  /* ─── DOM tree specific ─── */
+  .dom-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 24px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 820px) {
+    .dom-layout { grid-template-columns: 1fr; }
+  }
+
+  .source-code {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    white-space: pre;
+    overflow-x: auto;
+    min-height: 280px;
+  }
+
+  .source-code .src-node {
+    padding: 1px 2px;
+    border-radius: 3px;
+    transition: background 120ms ease, color 120ms ease;
+    cursor: pointer;
+  }
+
+  .source-code .src-node:hover,
+  .source-code .src-node.highlight {
+    background: var(--dom-soft);
+    color: var(--dom-deep);
+  }
+
+  .source-code .tag-punct { color: var(--ink-muted); }
+  .source-code .tag-name { color: var(--dom); font-weight: 500; }
+  .source-code .text-content { color: var(--dom-text); font-style: italic; }
+
+  .dom-node rect {
+    transition: fill 180ms ease, stroke 180ms ease;
+  }
+  .dom-node.highlight rect {
+    fill: var(--dom-soft);
+    stroke: var(--dom-deep);
+    stroke-width: 2;
+  }
+  .dom-node.highlight text {
+    fill: var(--dom-deep);
+  }
+
+  /* ─── Expression tree specific ─── */
+  .expr-display {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--expr-deep);
+    padding: 16px 20px;
+    background: var(--expr-soft);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+    min-height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.02em;
+  }
+
+  .expr-display .eval-highlight {
+    color: var(--expr-op);
+    transition: color 300ms ease;
+    display: inline-block;
+    animation: pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+
+  .expr-node.evaluating circle,
+  .expr-node.evaluating rect {
+    stroke: var(--expr-op) !important;
+    stroke-width: 3 !important;
+    filter: drop-shadow(0 0 0 var(--expr-op));
+  }
+
+  .expr-node.computed circle {
+    fill: var(--expr-soft) !important;
+    stroke: var(--expr-deep) !important;
+  }
+
+  .expr-node.computed text {
+    fill: var(--expr-deep) !important;
+  }
+
+  .expr-node.vanish {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+
+  /* ─── Legend ─── */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid;
+  }
+
+  .legend-swatch.circle {
+    border-radius: 50%;
+  }
+
+  /* ─── Footer ─── */
+  footer {
+    margin-top: 80px;
+    padding-top: 36px;
+    border-top: 1px solid var(--rule);
+    font-size: 13px;
+    color: var(--ink-muted);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    .wrapper { padding: 44px 20px 80px; }
+    h1 { font-size: 56px; }
+    h2 { font-size: 32px; }
+    .stage { padding: 24px 18px 22px; }
+    .controls { gap: 8px; }
+    button.op { padding: 7px 12px; font-size: 12px; }
+    .expr-display { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header class="hero">
+    <div class="eyebrow">Foundations · CS 101</div>
+    <h1><em>Trees</em>,<br>three ways</h1>
+    <p class="hero-sub">A tree is a hierarchy — one root, branches that never rejoin, leaves at the ends. Three places where trees quietly organize the world around us.</p>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SECTION 1: DIRECTORY TREE                            -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="tree-section dir-section">
+    <div class="section-head">
+      <span class="section-num">01</span>
+      <h2>Directory tree</h2>
+    </div>
+    <p class="section-lead">A filesystem <em>is</em> a tree. Click any folder to open or close it; the tree relays itself around your choice.</p>
+
+    <div class="stage">
+      <div class="path-display" id="path-display">
+        <span class="path-segment active">project/</span>
+      </div>
+
+      <div class="stage-inner">
+        <svg class="tree" id="dir-svg" viewBox="0 0 900 340" role="img" aria-label="Directory tree"></svg>
+      </div>
+
+      <div class="controls">
+        <button class="op primary-dir" onclick="dirExpandAll()">expand all</button>
+        <button class="op primary-dir" onclick="dirCollapseAll()">collapse all</button>
+        <button class="op" onclick="dirReset()">reset</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SECTION 2: DOM TREE                                  -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="tree-section dom-section">
+    <div class="section-head">
+      <span class="section-num">02</span>
+      <h2>DOM tree</h2>
+    </div>
+    <p class="section-lead">When a browser reads HTML, it builds a tree. Hover anything on the left — watch the corresponding node light up on the right.</p>
+
+    <div class="stage">
+      <div class="status-bar" id="dom-status">
+        <span class="tick"></span>
+        Hover any tag or text in the source to explore its tree node.
+      </div>
+
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-swatch" style="background: var(--dom-soft); border-color: var(--dom);"></div>
+          element node
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background: #f5f2ea; border-color: var(--dom-text);"></div>
+          text node
+        </div>
+      </div>
+
+      <div class="dom-layout">
+        <div class="source-code" id="source-code"></div>
+        <div class="stage-inner" style="min-height: 380px; margin: 0;">
+          <svg class="tree" id="dom-svg" viewBox="0 0 560 420" role="img" aria-label="DOM tree"></svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SECTION 3: EXPRESSION TREE                           -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="tree-section expr-section">
+    <div class="section-head">
+      <span class="section-num">03</span>
+      <h2>Expression tree</h2>
+    </div>
+    <p class="section-lead">Arithmetic as a tree. Operators at the branches, numbers at the leaves. Evaluating means walking up from the leaves — children first, parent after.</p>
+
+    <div class="stage">
+      <div class="expr-display" id="expr-display">( 3 + 4 ) × ( 5 − 2 )</div>
+
+      <div class="status-bar" id="expr-status">
+        <span class="tick"></span>
+        Press "evaluate" to walk the tree bottom-up.
+      </div>
+
+      <div class="stage-inner" style="min-height: 340px;">
+        <svg class="tree" id="expr-svg" viewBox="0 0 700 320" role="img" aria-label="Expression tree"></svg>
+      </div>
+
+      <div class="controls">
+        <button class="op primary-expr" id="eval-btn" onclick="exprEvaluate()">▶ evaluate step by step</button>
+        <button class="op" onclick="exprReset()">reset</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>A <span style="color: var(--dir-deep)">filesystem</span>, a <span style="color: var(--dom-deep)">parsed document</span>, and an <span style="color: var(--expr-deep)">arithmetic expression</span> — three unrelated worlds, one shared shape.</p>
+  </footer>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SCRIPTS                                                              -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<script>
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  function el(tag, attrs = {}, parent = null) {
+    const n = document.createElementNS(SVG_NS, tag);
+    for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+
+  function setStatus(id, html, tickClass = '') {
+    const dot = `<span class="tick${tickClass ? ' ' + tickClass : ''}"></span>`;
+    document.getElementById(id).innerHTML = dot + html;
+  }
+
+  // ────────────────────────────────────────────────────────────────
+  // Generic tree layout (post-order width, pre-order position)
+  // ────────────────────────────────────────────────────────────────
+  function layoutTree(root, { minWidth, levelHeight, yOffset = 30, getChildren }) {
+    function computeWidth(node) {
+      const children = getChildren(node);
+      if (!children || children.length === 0) {
+        node._w = minWidth;
+        return node._w;
+      }
+      let total = 0;
+      for (const c of children) total += computeWidth(c);
+      node._w = Math.max(minWidth, total);
+      return node._w;
+    }
+
+    function assign(node, leftX, y) {
+      node._x = leftX + node._w / 2;
+      node._y = y;
+      const children = getChildren(node);
+      if (!children || children.length === 0) return;
+      const totalChildren = children.reduce((s, c) => s + c._w, 0);
+      let offset = leftX + (node._w - totalChildren) / 2;
+      for (const c of children) {
+        assign(c, offset, y + levelHeight);
+        offset += c._w;
+      }
+    }
+
+    computeWidth(root);
+    assign(root, 0, yOffset);
+    return root._w;
+  }
+
+  // ════════════════════════════════════════════════════════════════════
+  // ░░░ SECTION 1 — DIRECTORY TREE ░░░
+  // ════════════════════════════════════════════════════════════════════
+  const DIR_DATA = {
+    id: 'project',
+    name: 'project/',
+    type: 'folder',
+    children: [
+      {
+        id: 'src',
+        name: 'src/',
+        type: 'folder',
+        children: [
+          {
+            id: 'components',
+            name: 'components/',
+            type: 'folder',
+            children: [
+              { id: 'button', name: 'Button.tsx', type: 'file' },
+              { id: 'card', name: 'Card.tsx', type: 'file' }
+            ]
+          },
+          {
+            id: 'utils',
+            name: 'utils/',
+            type: 'folder',
+            children: [
+              { id: 'format', name: 'format.ts', type: 'file' }
+            ]
+          },
+          { id: 'index', name: 'index.ts', type: 'file' }
+        ]
+      },
+      {
+        id: 'public',
+        name: 'public/',
+        type: 'folder',
+        children: [
+          { id: 'logo', name: 'logo.svg', type: 'file' }
+        ]
+      },
+      { id: 'pkg', name: 'package.json', type: 'file' }
+    ]
+  };
+
+  // Expansion state, keyed by node id
+  const dirExpanded = new Set();
+  let dirSelected = 'project'; // for path display
+
+  function dirAllFolderIds(node, out = []) {
+    if (node.type === 'folder') {
+      out.push(node.id);
+      if (node.children) node.children.forEach(c => dirAllFolderIds(c, out));
+    }
+    return out;
+  }
+
+  function dirGetChildren(node) {
+    if (node.type !== 'folder') return null;
+    if (!dirExpanded.has(node.id)) return null;
+    return node.children || [];
+  }
+
+  const dirSvg = document.getElementById('dir-svg');
+  const DIR_LEVEL = 78;
+  const DIR_NODE_MIN = 158;
+  const DIR_NODE_H = 38;
+
+  function renderDirTree() {
+    layoutTree(DIR_DATA, {
+      minWidth: DIR_NODE_MIN,
+      levelHeight: DIR_LEVEL,
+      yOffset: 28,
+      getChildren: dirGetChildren
+    });
+
+    // Compute viewBox
+    let maxDepth = 0;
+    (function walk(n, d) {
+      maxDepth = Math.max(maxDepth, d);
+      const cs = dirGetChildren(n);
+      if (cs) cs.forEach(c => walk(c, d + 1));
+    })(DIR_DATA, 0);
+
+    const viewW = Math.max(720, DIR_DATA._w + 80);
+    const viewH = 28 + maxDepth * DIR_LEVEL + DIR_NODE_H + 24;
+    dirSvg.setAttribute('viewBox', `0 0 ${viewW} ${viewH}`);
+
+    // Offset so root centers in viewport if tree narrower
+    const xOffset = (viewW - DIR_DATA._w) / 2;
+
+    // Existing node map for smooth transitions
+    const existing = new Map();
+    dirSvg.querySelectorAll('.node').forEach(n => existing.set(n.dataset.id, n));
+    const existingEdges = new Map();
+    dirSvg.querySelectorAll('.tree-edge').forEach(e => existingEdges.set(e.dataset.id, e));
+
+    const newNodes = new Set();
+    const newEdges = new Set();
+
+    // Draw edges first (behind nodes)
+    function drawEdges(node) {
+      const children = dirGetChildren(node);
+      if (!children) return;
+      for (const child of children) {
+        const edgeId = `${node.id}-${child.id}`;
+        newEdges.add(edgeId);
+        let path = existingEdges.get(edgeId);
+        const x1 = node._x + xOffset;
+        const y1 = node._y + DIR_NODE_H / 2;
+        const x2 = child._x + xOffset;
+        const y2 = child._y - DIR_NODE_H / 2;
+        const d = `M ${x1} ${y1} C ${x1} ${(y1 + y2) / 2}, ${x2} ${(y1 + y2) / 2}, ${x2} ${y2}`;
+        if (!path) {
+          path = el('path', {
+            class: 'tree-edge',
+            'data-id': edgeId,
+            fill: 'none',
+            stroke: 'var(--dir)',
+            'stroke-width': 1.2,
+            opacity: 0.5
+          }, dirSvg);
+        }
+        path.setAttribute('d', d);
+        drawEdges(child);
+      }
+    }
+
+    function drawNodes(node) {
+      newNodes.add(node.id);
+      let g = existing.get(node.id);
+      if (!g) {
+        g = el('g', {
+          class: 'node dir-node fade-in',
+          'data-id': node.id
+        }, dirSvg);
+        renderDirNode(g, node);
+      }
+      g.setAttribute('transform', `translate(${node._x + xOffset - DIR_NODE_MIN / 2}, ${node._y - DIR_NODE_H / 2})`);
+      g.classList.toggle('highlight', node.id === dirSelected);
+
+      // Update expand/collapse indicator
+      if (node.type === 'folder') {
+        const indicator = g.querySelector('.expand-indicator');
+        if (indicator) {
+          indicator.textContent = dirExpanded.has(node.id) ? '−' : '+';
+        }
+      }
+
+      const children = dirGetChildren(node);
+      if (children) children.forEach(drawNodes);
+    }
+
+    drawEdges(DIR_DATA);
+    drawNodes(DIR_DATA);
+
+    // Remove stale
+    existing.forEach((n, id) => {
+      if (!newNodes.has(id)) {
+        n.style.opacity = '0';
+        setTimeout(() => n.remove(), 300);
+      }
+    });
+    existingEdges.forEach((e, id) => {
+      if (!newEdges.has(id)) {
+        e.style.opacity = '0';
+        setTimeout(() => e.remove(), 300);
+      }
+    });
+
+    updatePathDisplay();
+  }
+
+  function renderDirNode(g, node) {
+    const isFolder = node.type === 'folder';
+    const w = DIR_NODE_MIN;
+    const h = DIR_NODE_H;
+
+    // Main rounded rect
+    el('rect', {
+      x: 0, y: 0, width: w, height: h,
+      rx: 6,
+      fill: isFolder ? '#fff9e9' : '#ffffff',
+      stroke: isFolder ? 'var(--dir)' : 'var(--ink-muted)',
+      'stroke-width': isFolder ? 1 : 0.8
+    }, g);
+
+    // Icon group at left
+    const iconG = el('g', { transform: 'translate(10, 10)' }, g);
+    if (isFolder) {
+      el('path', {
+        d: 'M 0 2 L 0 14 Q 0 16 2 16 L 16 16 Q 18 16 18 14 L 18 5 Q 18 3 16 3 L 9 3 L 7 1 L 2 1 Q 0 1 0 2 Z',
+        fill: 'var(--dir)',
+        opacity: 0.9
+      }, iconG);
+    } else {
+      el('path', {
+        d: 'M 3 1 L 3 17 L 15 17 L 15 7 L 10 1 Z M 10 1 L 10 7 L 15 7',
+        fill: 'none',
+        stroke: 'var(--ink-soft)',
+        'stroke-width': 1.2,
+        'stroke-linejoin': 'round'
+      }, iconG);
+    }
+
+    // Label
+    el('text', {
+      x: 38, y: h / 2 + 1,
+      'dominant-baseline': 'central',
+      'font-family': isFolder ? 'Geist, sans-serif' : 'JetBrains Mono, monospace',
+      'font-size': 13,
+      'font-weight': isFolder ? 500 : 400,
+      fill: isFolder ? 'var(--dir-deep)' : 'var(--ink)'
+    }, g).textContent = node.name;
+
+    // Expand/collapse indicator on folders
+    if (isFolder) {
+      const ind = el('text', {
+        class: 'expand-indicator',
+        x: w - 16, y: h / 2 + 1,
+        'text-anchor': 'middle',
+        'dominant-baseline': 'central',
+        'font-family': 'JetBrains Mono, monospace',
+        'font-size': 16,
+        'font-weight': 500,
+        fill: 'var(--dir-deep)'
+      }, g);
+      ind.textContent = dirExpanded.has(node.id) ? '−' : '+';
+    }
+
+    // Click handler
+    g.addEventListener('click', () => dirOnNodeClick(node));
+  }
+
+  function dirOnNodeClick(node) {
+    dirSelected = node.id;
+    if (node.type === 'folder') {
+      if (dirExpanded.has(node.id)) {
+        dirExpanded.delete(node.id);
+      } else {
+        dirExpanded.add(node.id);
+      }
+    }
+    renderDirTree();
+  }
+
+  function findPathTo(id, node = DIR_DATA, path = []) {
+    const newPath = [...path, node];
+    if (node.id === id) return newPath;
+    if (!node.children) return null;
+    for (const c of node.children) {
+      const r = findPathTo(id, c, newPath);
+      if (r) return r;
+    }
+    return null;
+  }
+
+  function updatePathDisplay() {
+    const path = findPathTo(dirSelected) || [DIR_DATA];
+    const pd = document.getElementById('path-display');
+    pd.innerHTML = path.map((n, i) => {
+      const isLast = i === path.length - 1;
+      return `<span class="path-segment${isLast ? ' active' : ''}">${n.name}</span>`;
+    }).join('');
+  }
+
+  function dirExpandAll() {
+    dirAllFolderIds(DIR_DATA).forEach(id => dirExpanded.add(id));
+    renderDirTree();
+  }
+
+  function dirCollapseAll() {
+    dirExpanded.clear();
+    dirExpanded.add('project'); // keep root open
+    dirSelected = 'project';
+    renderDirTree();
+  }
+
+  function dirReset() {
+    dirExpanded.clear();
+    dirAllFolderIds(DIR_DATA).forEach(id => dirExpanded.add(id));
+    dirSelected = 'project';
+    renderDirTree();
+  }
+
+  // ════════════════════════════════════════════════════════════════════
+  // ░░░ SECTION 2 — DOM TREE ░░░
+  // ════════════════════════════════════════════════════════════════════
+  //
+  // Source HTML we're visualizing:
+  //   <html>
+  //     <head>
+  //       <title>Hello</title>
+  //     </head>
+  //     <body>
+  //       <h1>Welcome</h1>
+  //       <p>Learn <em>trees</em> visually</p>
+  //     </body>
+  //   </html>
+
+  // Tree structure — each node has a unique id that links to source tokens
+  const DOM_DATA = {
+    id: 'html', type: 'elem', tag: 'html',
+    children: [
+      {
+        id: 'head', type: 'elem', tag: 'head',
+        children: [
+          {
+            id: 'title', type: 'elem', tag: 'title',
+            children: [
+              { id: 'title-text', type: 'text', value: 'Hello' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'body', type: 'elem', tag: 'body',
+        children: [
+          {
+            id: 'h1', type: 'elem', tag: 'h1',
+            children: [
+              { id: 'h1-text', type: 'text', value: 'Welcome' }
+            ]
+          },
+          {
+            id: 'p', type: 'elem', tag: 'p',
+            children: [
+              { id: 'p-text-1', type: 'text', value: 'Learn ' },
+              {
+                id: 'em', type: 'elem', tag: 'em',
+                children: [
+                  { id: 'em-text', type: 'text', value: 'trees' }
+                ]
+              },
+              { id: 'p-text-2', type: 'text', value: ' visually' }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+
+  // Build the source code display with hover-linked tokens.
+  // Every openings/closing tag pair and every text node carries the same data-id.
+  function buildSourceCode() {
+    const sc = document.getElementById('source-code');
+    const lines = [];
+    const NBSP = ' ';
+
+    const openTag = (id, tag, indent) => `${NBSP.repeat(indent)}<span class="src-node" data-id="${id}"><span class="tag-punct">&lt;</span><span class="tag-name">${tag}</span><span class="tag-punct">&gt;</span></span>`;
+    const closeTag = (id, tag, indent, newline = false) => `${newline ? NBSP.repeat(indent) : ''}<span class="src-node" data-id="${id}"><span class="tag-punct">&lt;/</span><span class="tag-name">${tag}</span><span class="tag-punct">&gt;</span></span>`;
+    const textNode = (id, value) => `<span class="src-node text-content" data-id="${id}">${value.replace(/ /g, '&nbsp;')}</span>`;
+
+    // Manually format the source with highlighting tokens
+    const src =
+`${openTag('html', 'html', 0)}
+${openTag('head', 'head', 2)}
+${openTag('title', 'title', 4)}${textNode('title-text', 'Hello')}${closeTag('title', 'title', 0)}
+${closeTag('head', 'head', 2)}
+${openTag('body', 'body', 2)}
+${openTag('h1', 'h1', 4)}${textNode('h1-text', 'Welcome')}${closeTag('h1', 'h1', 0)}
+${openTag('p', 'p', 4)}${textNode('p-text-1', 'Learn ')}${openTag('em', 'em', 0)}${textNode('em-text', 'trees')}${closeTag('em', 'em', 0)}${textNode('p-text-2', ' visually')}${closeTag('p', 'p', 0)}
+${closeTag('body', 'body', 2)}
+${closeTag('html', 'html', 0)}`;
+
+    sc.innerHTML = src;
+
+    // Wire hover + click
+    sc.querySelectorAll('.src-node').forEach(span => {
+      span.addEventListener('mouseenter', () => domHighlight(span.dataset.id));
+      span.addEventListener('mouseleave', () => domClearHighlight());
+      span.addEventListener('click', () => domFlash(span.dataset.id));
+    });
+  }
+
+  // ─── DOM tree SVG render ───
+  const domSvg = document.getElementById('dom-svg');
+  const DOM_LEVEL = 72;
+  const DOM_NODE_W_MIN = 110;
+  const DOM_NODE_H = 34;
+
+  function domGetChildren(node) {
+    return node.children || null;
+  }
+
+  function renderDomTree() {
+    layoutTree(DOM_DATA, {
+      minWidth: DOM_NODE_W_MIN,
+      levelHeight: DOM_LEVEL,
+      yOffset: 26,
+      getChildren: domGetChildren
+    });
+
+    let maxDepth = 0;
+    (function walk(n, d) {
+      maxDepth = Math.max(maxDepth, d);
+      if (n.children) n.children.forEach(c => walk(c, d + 1));
+    })(DOM_DATA, 0);
+
+    const viewW = Math.max(560, DOM_DATA._w + 40);
+    const viewH = 26 + maxDepth * DOM_LEVEL + DOM_NODE_H + 20;
+    domSvg.setAttribute('viewBox', `0 0 ${viewW} ${viewH}`);
+
+    const xOffset = (viewW - DOM_DATA._w) / 2;
+
+    // Edges
+    function drawEdges(node) {
+      if (!node.children) return;
+      for (const child of node.children) {
+        const x1 = node._x + xOffset;
+        const y1 = node._y + DOM_NODE_H / 2;
+        const x2 = child._x + xOffset;
+        const y2 = child._y - DOM_NODE_H / 2;
+        el('path', {
+          class: 'tree-edge',
+          d: `M ${x1} ${y1} L ${x1} ${(y1 + y2) / 2} L ${x2} ${(y1 + y2) / 2} L ${x2} ${y2}`,
+          fill: 'none',
+          stroke: 'var(--dom)',
+          'stroke-width': 1.2,
+          opacity: 0.35
+        }, domSvg);
+        drawEdges(child);
+      }
+    }
+
+    function drawNodes(node) {
+      const isText = node.type === 'text';
+      const label = isText ? `"${node.value.trim() || node.value}"` : `<${node.tag}>`;
+      const estimateWidth = Math.max(DOM_NODE_W_MIN, label.length * 8 + 16);
+      const w = estimateWidth;
+
+      const g = el('g', {
+        class: 'node dom-node',
+        'data-id': node.id,
+        transform: `translate(${node._x + xOffset - w / 2}, ${node._y - DOM_NODE_H / 2})`
+      }, domSvg);
+
+      el('rect', {
+        x: 0, y: 0, width: w, height: DOM_NODE_H,
+        rx: isText ? 14 : 4,
+        fill: isText ? '#f5f2ea' : '#ffffff',
+        stroke: isText ? 'var(--dom-text)' : 'var(--dom)',
+        'stroke-width': 1,
+        'stroke-dasharray': isText ? '3 2' : 'none'
+      }, g);
+
+      el('text', {
+        x: w / 2, y: DOM_NODE_H / 2 + 1,
+        'text-anchor': 'middle',
+        'dominant-baseline': 'central',
+        'font-family': 'JetBrains Mono, monospace',
+        'font-size': 12,
+        'font-weight': isText ? 400 : 500,
+        'font-style': isText ? 'italic' : 'normal',
+        fill: isText ? 'var(--dom-text)' : 'var(--dom)'
+      }, g).textContent = label;
+
+      g.addEventListener('mouseenter', () => domHighlight(node.id));
+      g.addEventListener('mouseleave', () => domClearHighlight());
+
+      if (node.children) node.children.forEach(drawNodes);
+    }
+
+    domSvg.innerHTML = '';
+    drawEdges(DOM_DATA);
+    drawNodes(DOM_DATA);
+  }
+
+  function domHighlight(id) {
+    // Highlight source
+    document.querySelectorAll('.source-code .src-node').forEach(s => {
+      s.classList.toggle('highlight', s.dataset.id === id);
+    });
+    // Highlight tree node
+    document.querySelectorAll('.dom-node').forEach(n => {
+      n.classList.toggle('highlight', n.dataset.id === id);
+    });
+    // Update status
+    const node = findDomNode(id);
+    if (node) {
+      const desc = node.type === 'text'
+        ? `<b>Text node</b> — a leaf. Carries the literal string <code>"${node.value}"</code>.`
+        : `<b>Element node</b> — an internal node. Represents the HTML tag <code>&lt;${node.tag}&gt;</code>.`;
+      setStatus('dom-status', desc);
+    }
+  }
+
+  function domClearHighlight() {
+    document.querySelectorAll('.source-code .src-node').forEach(s => s.classList.remove('highlight'));
+    document.querySelectorAll('.dom-node').forEach(n => n.classList.remove('highlight'));
+    setStatus('dom-status', 'Hover any tag or text in the source to explore its tree node.');
+  }
+
+  function domFlash(id) {
+    domHighlight(id);
+  }
+
+  function findDomNode(id, node = DOM_DATA) {
+    if (node.id === id) return node;
+    if (!node.children) return null;
+    for (const c of node.children) {
+      const r = findDomNode(id, c);
+      if (r) return r;
+    }
+    return null;
+  }
+
+  // ════════════════════════════════════════════════════════════════════
+  // ░░░ SECTION 3 — EXPRESSION TREE ░░░
+  // ════════════════════════════════════════════════════════════════════
+  //
+  // Expression: (3 + 4) × (5 - 2)
+  //
+  //         ×
+  //        / \
+  //       +   -
+  //      /\   /\
+  //     3  4 5  2
+
+  function buildInitialExpr() {
+    return {
+      id: 'mul', type: 'op', op: '×', value: null,
+      children: [
+        {
+          id: 'add', type: 'op', op: '+', value: null,
+          children: [
+            { id: 'n3', type: 'num', value: 3 },
+            { id: 'n4', type: 'num', value: 4 }
+          ]
+        },
+        {
+          id: 'sub', type: 'op', op: '−', value: null,
+          children: [
+            { id: 'n5', type: 'num', value: 5 },
+            { id: 'n2', type: 'num', value: 2 }
+          ]
+        }
+      ]
+    };
+  }
+
+  let EXPR_DATA = buildInitialExpr();
+  let exprAnimating = false;
+
+  const exprSvg = document.getElementById('expr-svg');
+  const EXPR_LEVEL = 80;
+  const EXPR_NODE_MIN = 110;
+  const EXPR_NODE_R = 26;
+
+  function exprGetChildren(node) {
+    return node.children || null;
+  }
+
+  function renderExprTree() {
+    layoutTree(EXPR_DATA, {
+      minWidth: EXPR_NODE_MIN,
+      levelHeight: EXPR_LEVEL,
+      yOffset: 36,
+      getChildren: exprGetChildren
+    });
+
+    let maxDepth = 0;
+    (function walk(n, d) {
+      maxDepth = Math.max(maxDepth, d);
+      if (n.children) n.children.forEach(c => walk(c, d + 1));
+    })(EXPR_DATA, 0);
+
+    const viewW = Math.max(640, EXPR_DATA._w + 80);
+    const viewH = 36 + maxDepth * EXPR_LEVEL + EXPR_NODE_R * 2 + 30;
+    exprSvg.setAttribute('viewBox', `0 0 ${viewW} ${viewH}`);
+    const xOffset = (viewW - EXPR_DATA._w) / 2;
+
+    const existingNodes = new Map();
+    exprSvg.querySelectorAll('.expr-node').forEach(n => existingNodes.set(n.dataset.id, n));
+    const existingEdges = new Map();
+    exprSvg.querySelectorAll('.tree-edge').forEach(e => existingEdges.set(e.dataset.id, e));
+
+    const keepNodes = new Set();
+    const keepEdges = new Set();
+
+    function drawEdges(node) {
+      if (!node.children) return;
+      for (const child of node.children) {
+        const id = `${node.id}-${child.id}`;
+        keepEdges.add(id);
+        const x1 = node._x + xOffset;
+        const y1 = node._y;
+        const x2 = child._x + xOffset;
+        const y2 = child._y;
+        let line = existingEdges.get(id);
+        if (!line) {
+          line = el('line', {
+            class: 'tree-edge',
+            'data-id': id,
+            stroke: 'var(--expr)',
+            'stroke-width': 1.5,
+            opacity: 0.4
+          }, exprSvg);
+        }
+        line.setAttribute('x1', x1);
+        line.setAttribute('y1', y1);
+        line.setAttribute('x2', x2);
+        line.setAttribute('y2', y2);
+        drawEdges(child);
+      }
+    }
+
+    function drawNodes(node) {
+      keepNodes.add(node.id);
+      const x = node._x + xOffset;
+      const y = node._y;
+
+      let g = existingNodes.get(node.id);
+      if (!g) {
+        g = el('g', {
+          class: 'node expr-node fade-in',
+          'data-id': node.id
+        }, exprSvg);
+        renderExprNode(g, node);
+      } else {
+        // Update displayed label if node was computed
+        const text = g.querySelector('text');
+        if (node.type === 'op' && node.value !== null) {
+          text.textContent = node.value;
+          g.classList.add('computed');
+        } else if (node.type === 'op') {
+          text.textContent = node.op;
+        }
+      }
+      g.setAttribute('transform', `translate(${x}, ${y})`);
+
+      if (node.children) node.children.forEach(drawNodes);
+    }
+
+    drawEdges(EXPR_DATA);
+    drawNodes(EXPR_DATA);
+
+    // Remove stale
+    existingNodes.forEach((n, id) => {
+      if (!keepNodes.has(id)) {
+        n.style.opacity = '0';
+        n.style.transform = n.getAttribute('transform');
+        setTimeout(() => n.remove(), 400);
+      }
+    });
+    existingEdges.forEach((e, id) => {
+      if (!keepEdges.has(id)) {
+        e.style.opacity = '0';
+        setTimeout(() => e.remove(), 400);
+      }
+    });
+  }
+
+  function renderExprNode(g, node) {
+    const isOp = node.type === 'op';
+    if (isOp) {
+      el('circle', {
+        cx: 0, cy: 0, r: EXPR_NODE_R,
+        fill: 'var(--expr-op-soft)',
+        stroke: 'var(--expr-op)',
+        'stroke-width': 1.5
+      }, g);
+      el('text', {
+        x: 0, y: 1,
+        'text-anchor': 'middle',
+        'dominant-baseline': 'central',
+        'font-family': 'Fraunces, serif',
+        'font-size': 22,
+        'font-weight': 500,
+        fill: 'var(--expr-op)'
+      }, g).textContent = node.op;
+    } else {
+      const side = EXPR_NODE_R * 2 - 4;
+      el('rect', {
+        x: -side / 2, y: -side / 2,
+        width: side, height: side,
+        rx: 4,
+        fill: 'var(--expr-soft)',
+        stroke: 'var(--expr)',
+        'stroke-width': 1.5
+      }, g);
+      el('text', {
+        x: 0, y: 1,
+        'text-anchor': 'middle',
+        'dominant-baseline': 'central',
+        'font-family': 'Fraunces, serif',
+        'font-size': 20,
+        'font-weight': 500,
+        fill: 'var(--expr-deep)'
+      }, g).textContent = node.value;
+    }
+  }
+
+  // Evaluation animation: post-order traversal with visual collapse
+  async function exprEvaluate() {
+    if (exprAnimating) return;
+    exprAnimating = true;
+    document.getElementById('eval-btn').disabled = true;
+
+    // Reset first
+    EXPR_DATA = buildInitialExpr();
+    renderExprTree();
+    updateExprDisplay(null);
+
+    await sleep(500);
+
+    // Perform post-order evaluation, animating each step
+    async function visit(node, depth) {
+      if (node.type === 'num') {
+        // Highlight the leaf briefly
+        const g = document.querySelector(`.expr-node[data-id="${node.id}"]`);
+        if (g) g.classList.add('evaluating');
+        setStatus('expr-status', `Leaf <b>${node.value}</b> — value is simply ${node.value}.`, 'expr');
+        await sleep(600);
+        if (g) g.classList.remove('evaluating');
+        return node.value;
+      }
+
+      // Internal node: visit children first
+      const left = await visit(node.children[0], depth + 1);
+      await sleep(200);
+      const right = await visit(node.children[1], depth + 1);
+      await sleep(300);
+
+      // Now compute this node
+      const g = document.querySelector(`.expr-node[data-id="${node.id}"]`);
+      if (g) g.classList.add('evaluating');
+
+      let result;
+      switch (node.op) {
+        case '+': result = left + right; break;
+        case '−': result = left - right; break;
+        case '×': result = left * right; break;
+      }
+
+      setStatus('expr-status', `Node <code>${left} ${node.op} ${right}</code> → <b>${result}</b>. Collapsing subtree.`, 'expr');
+
+      await sleep(900);
+
+      // Collapse: children vanish, this node becomes the result
+      node.value = result;
+      const leftG = document.querySelector(`.expr-node[data-id="${node.children[0].id}"]`);
+      const rightG = document.querySelector(`.expr-node[data-id="${node.children[1].id}"]`);
+      if (leftG) leftG.classList.add('vanish');
+      if (rightG) rightG.classList.add('vanish');
+
+      // Also vanish any sub-edges
+      exprSvg.querySelectorAll(`.tree-edge`).forEach(ed => {
+        const id = ed.dataset.id;
+        if (id === `${node.id}-${node.children[0].id}` || id === `${node.id}-${node.children[1].id}`) {
+          ed.style.opacity = '0';
+        }
+      });
+
+      await sleep(500);
+
+      // Mutate data: remove children, transform this into a num
+      node.children = null;
+      node.type = 'num';
+      // (we keep node.op for display but rendering uses value)
+
+      if (g) {
+        g.classList.remove('evaluating');
+        g.classList.add('computed');
+      }
+      renderExprTree();
+      updateExprDisplay(node.id);
+
+      await sleep(700);
+
+      return result;
+    }
+
+    const finalResult = await visit(EXPR_DATA, 0);
+    setStatus('expr-status', `Done. <b style="color: var(--expr-deep); font-size: 15px;">${finalResult}</b> is the value of the whole expression.`, 'expr');
+
+    exprAnimating = false;
+    document.getElementById('eval-btn').disabled = false;
+  }
+
+  function updateExprDisplay(justComputedId) {
+    // Reconstruct the expression string from current tree state
+    function toStr(node, needParens = false) {
+      if (node.type === 'num' || node.value !== null) {
+        const val = node.value !== null ? node.value : node.value;
+        const highlight = node.id === justComputedId;
+        return highlight
+          ? `<span class="eval-highlight">${val}</span>`
+          : `${val}`;
+      }
+      const leftStr = toStr(node.children[0], true);
+      const rightStr = toStr(node.children[1], true);
+      const inner = `${leftStr} ${node.op} ${rightStr}`;
+      return needParens ? `( ${inner} )` : inner;
+    }
+    document.getElementById('expr-display').innerHTML = toStr(EXPR_DATA);
+  }
+
+  function exprReset() {
+    if (exprAnimating) return;
+    EXPR_DATA = buildInitialExpr();
+    renderExprTree();
+    document.getElementById('expr-display').innerHTML = '( 3 + 4 ) × ( 5 − 2 )';
+    setStatus('expr-status', 'Press "evaluate" to walk the tree bottom-up.', 'expr');
+  }
+
+  // ════════════════════════════════════════════════════════════════════
+  // INIT
+  // ════════════════════════════════════════════════════════════════════
+  dirAllFolderIds(DIR_DATA).forEach(id => dirExpanded.add(id));
+  renderDirTree();
+
+  buildSourceCode();
+  renderDomTree();
+
+  renderExprTree();
+</script>
+</body>
+</html>
