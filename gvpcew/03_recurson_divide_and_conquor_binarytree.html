@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recursion, Divide & Conquer, Binary Trees</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Geist:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f4efe4;
+    --paper-deep: #ede6d5;
+    --ink: #1a1612;
+    --ink-soft: #4a4640;
+    --ink-muted: #8a847a;
+    --rule: #d6cfbe;
+    --accent: #8b6f2e;
+
+    --rec: #4f46e5;
+    --rec-soft: #e0e7ff;
+    --rec-deep: #312e81;
+    --rec-mid: #818cf8;
+
+    --found: #15803d;
+    --found-soft: #d1fae5;
+    --found-deep: #14532d;
+
+    --not-found: #b91c1c;
+    --not-found-soft: #fee2e2;
+    --not-found-deep: #7f1d1d;
+
+    --visited: #b45309;
+    --visited-soft: #fef3c7;
+
+    --pruned: rgba(26, 22, 18, 0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Geist', system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    background-image: radial-gradient(rgba(139, 111, 46, 0.035) 1px, transparent 1px);
+    background-size: 4px 4px;
+    min-height: 100vh;
+  }
+
+  .wrapper {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 72px 40px 120px;
+  }
+
+  /* ─── Hero ─── */
+  header.hero {
+    padding: 32px 0 48px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 60px;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: clamp(52px, 8vw, 84px);
+    line-height: 0.98;
+    letter-spacing: -0.028em;
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--rec);
+  }
+
+  .hero-sub {
+    margin-top: 22px;
+    font-size: 19px;
+    color: var(--ink-soft);
+    max-width: 640px;
+    line-height: 1.55;
+  }
+
+  /* ─── Section headings ─── */
+  section { margin-bottom: 80px; }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    margin-bottom: 16px;
+  }
+
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ink-muted);
+    letter-spacing: 0.1em;
+  }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 38px;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+
+  .section-lead {
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 680px;
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+
+  /* ─── The 4-step method grid ─── */
+  .method-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 4px;
+  }
+
+  @media (max-width: 900px) {
+    .method-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 520px) {
+    .method-grid { grid-template-columns: 1fr; }
+  }
+
+  .method-card {
+    background: #ffffff;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 22px 20px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+
+  .method-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(79, 70, 229, 0.08);
+  }
+
+  .method-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--rec);
+  }
+
+  .step-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--rec);
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    margin-bottom: 14px;
+  }
+
+  .step-illustration {
+    width: 100%;
+    height: 84px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .step-illustration svg {
+    max-width: 120px;
+    max-height: 84px;
+  }
+
+  .step-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 22px;
+    letter-spacing: -0.015em;
+    color: var(--rec-deep);
+    margin-bottom: 8px;
+    line-height: 1.1;
+  }
+
+  .step-desc {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+
+  /* ─── Algorithm / pseudocode ─── */
+  .pseudo-block {
+    background: #ffffff;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 28px 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1.75;
+    overflow-x: auto;
+    box-shadow:
+      0 1px 2px rgba(26, 22, 18, 0.04),
+      0 6px 20px rgba(26, 22, 18, 0.04);
+  }
+
+  .pseudo-line { white-space: pre; display: block; }
+  .pseudo-kw { color: var(--rec); font-weight: 500; }
+  .pseudo-fn { color: var(--rec-deep); font-weight: 500; }
+  .pseudo-var { color: var(--ink); }
+  .pseudo-comment { color: var(--ink-muted); font-style: italic; }
+  .pseudo-str { color: var(--found-deep); }
+  .pseudo-num { color: var(--accent); }
+
+  .pseudo-step-marker {
+    display: inline-block;
+    padding: 1px 8px;
+    margin-right: 10px;
+    background: var(--rec-soft);
+    color: var(--rec-deep);
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+  }
+
+  .pseudo-block .group {
+    padding: 8px 0;
+    border-left: 3px solid transparent;
+    padding-left: 12px;
+    margin-left: -12px;
+    transition: border-color 300ms ease, background 300ms ease;
+  }
+
+  .pseudo-block .group.active {
+    border-left-color: var(--rec);
+    background: rgba(79, 70, 229, 0.04);
+  }
+
+  /* ─── Example stage ─── */
+  .stage {
+    background: #ffffff;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 28px 28px 24px;
+    box-shadow:
+      0 1px 2px rgba(26, 22, 18, 0.04),
+      0 8px 24px rgba(26, 22, 18, 0.04);
+  }
+
+  .stage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .stage-title {
+    font-family: 'Fraunces', serif;
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  .stage-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-muted);
+    letter-spacing: 0.1em;
+    padding: 4px 10px;
+    background: var(--paper);
+    border-radius: 999px;
+    border: 1px solid var(--rule);
+  }
+
+  /* ─── Step indicator chips ─── */
+  .step-indicator {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+
+  .step-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--ink-muted);
+    letter-spacing: 0.02em;
+    transition: all 260ms ease;
+    background: #ffffff;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .step-chip .chip-num {
+    font-weight: 600;
+    color: var(--ink-muted);
+    transition: color 260ms ease;
+  }
+
+  .step-chip .chip-name {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 10.5px;
+  }
+
+  .step-chip.active {
+    background: var(--rec);
+    color: #ffffff;
+    border-color: var(--rec);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+  }
+
+  .step-chip.active .chip-num { color: #ffffff; }
+
+  /* ─── Status narration ─── */
+  .status-bar {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    color: var(--ink);
+    padding: 14px 18px;
+    background: var(--paper);
+    border-radius: 8px;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    line-height: 1.55;
+    border: 1px solid var(--rule);
+    margin-bottom: 20px;
+    gap: 10px;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--rec);
+    flex-shrink: 0;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+
+  .status-bar.found .status-dot { background: var(--found); animation: none; }
+  .status-bar.not-found .status-dot { background: var(--not-found); animation: none; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  .status-bar code {
+    background: rgba(79, 70, 229, 0.1);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+    color: var(--rec-deep);
+  }
+
+  .status-bar b { color: var(--rec-deep); font-weight: 600; }
+
+  .status-bar.found b { color: var(--found-deep); }
+  .status-bar.not-found b { color: var(--not-found-deep); }
+
+  /* ─── Tree + Stack side-by-side ─── */
+  .example-body {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 24px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 860px) {
+    .example-body { grid-template-columns: 1fr; }
+  }
+
+  .tree-canvas {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 16px;
+    min-height: 380px;
+    overflow-x: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  svg.tree {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+    max-width: 560px;
+  }
+
+  /* ─── Call stack panel ─── */
+  .stack-panel {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 16px;
+    min-height: 380px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stack-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .stack-depth {
+    font-size: 11px;
+    color: var(--rec-deep);
+    font-weight: 600;
+    background: var(--rec-soft);
+    padding: 2px 7px;
+    border-radius: 3px;
+  }
+
+  .stack-frames {
+    flex: 1;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 8px;
+    position: relative;
+  }
+
+  .stack-empty {
+    color: var(--ink-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-style: italic;
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .frame {
+    background: #ffffff;
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--rec-mid);
+    border-radius: 4px;
+    padding: 9px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    opacity: 0.55;
+    transition: all 300ms ease;
+    animation: frame-push 380ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes frame-push {
+    0% {
+      opacity: 0;
+      transform: translateY(-12px) scale(0.95);
+    }
+    100% {
+      opacity: 0.55;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .frame.active {
+    opacity: 1;
+    border-left-color: var(--rec);
+    background: var(--rec-soft);
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
+  }
+
+  .frame.popping {
+    animation: frame-pop 380ms ease forwards;
+  }
+
+  @keyframes frame-pop {
+    to {
+      opacity: 0;
+      transform: translateY(-16px) scale(0.92);
+    }
+  }
+
+  .frame.returned-found {
+    border-left-color: var(--found);
+    background: var(--found-soft);
+  }
+
+  .frame.returned-not-found {
+    border-left-color: var(--not-found);
+    background: var(--not-found-soft);
+  }
+
+  .frame-call {
+    font-size: 12.5px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .frame-call .fn-name { color: var(--rec-deep); }
+  .frame-call .fn-arg { color: var(--ink); }
+  .frame-call .fn-arg-val { color: var(--accent); font-weight: 600; }
+
+  .frame-status {
+    font-size: 10.5px;
+    color: var(--ink-muted);
+    margin-top: 3px;
+    letter-spacing: 0.02em;
+  }
+
+  .frame.active .frame-status { color: var(--rec-deep); }
+  .frame.returned-found .frame-status { color: var(--found-deep); font-weight: 500; }
+  .frame.returned-not-found .frame-status { color: var(--not-found-deep); font-weight: 500; }
+
+  /* ─── Controls ─── */
+  .controls {
+    display: flex;
+    gap: 10px;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  button.op {
+    font-family: 'Geist', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 9px 16px;
+    border: 1px solid var(--rule);
+    background: #ffffff;
+    color: var(--ink);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 140ms ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  button.op:hover:not(:disabled) {
+    border-color: var(--ink-soft);
+    background: var(--paper-deep);
+  }
+
+  button.op.primary {
+    background: var(--rec);
+    color: #fff;
+    border-color: var(--rec);
+  }
+
+  button.op.primary:hover:not(:disabled) {
+    background: var(--rec-deep);
+    border-color: var(--rec-deep);
+  }
+
+  button.op:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .speed-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .speed-control select {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 5px 8px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  /* ─── Tree node states ─── */
+  .bst-node {
+    transition: opacity 400ms ease;
+  }
+
+  .bst-node circle {
+    transition: fill 280ms ease, stroke 280ms ease, stroke-width 280ms ease;
+  }
+
+  .bst-node text {
+    transition: fill 280ms ease;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .bst-node.current circle {
+    stroke-width: 3 !important;
+    animation: node-pulse 1.2s ease-in-out infinite;
+  }
+
+  @keyframes node-pulse {
+    0%, 100% { transform: scale(1); transform-origin: center; }
+    50% { transform: scale(1.06); }
+  }
+
+  .bst-node.visited circle {
+    fill: var(--visited-soft) !important;
+    stroke: var(--visited) !important;
+  }
+
+  .bst-node.visited text {
+    fill: var(--visited) !important;
+  }
+
+  .bst-node.pruned {
+    opacity: 0.25;
+  }
+
+  .bst-node.found circle {
+    fill: var(--found-soft) !important;
+    stroke: var(--found) !important;
+    stroke-width: 3 !important;
+    animation: node-success 0.6s ease;
+  }
+
+  .bst-node.found text {
+    fill: var(--found-deep) !important;
+    font-weight: 600 !important;
+  }
+
+  @keyframes node-success {
+    0%, 100% { transform: scale(1); transform-origin: center; }
+    50% { transform: scale(1.2); }
+  }
+
+  .bst-node.null-node circle {
+    fill: var(--not-found-soft) !important;
+    stroke: var(--not-found) !important;
+    stroke-width: 2 !important;
+    stroke-dasharray: 3 2;
+    animation: node-fail 0.6s ease;
+  }
+
+  .bst-node.null-node text {
+    fill: var(--not-found-deep) !important;
+    font-weight: 600 !important;
+  }
+
+  @keyframes node-fail {
+    0%, 100% { transform: scale(1); transform-origin: center; }
+    50% { transform: scale(1.15); }
+  }
+
+  .bst-edge {
+    transition: stroke 300ms ease, stroke-width 300ms ease, opacity 300ms ease;
+  }
+
+  .bst-edge.traversed {
+    stroke: var(--visited) !important;
+    stroke-width: 2 !important;
+  }
+
+  .bst-edge.pruned {
+    opacity: 0.2;
+  }
+
+  /* Return value bubble that rides the path */
+  .return-pill {
+    transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Phantom null node that appears when we recurse into null */
+  .phantom-null {
+    animation: phantom-appear 400ms ease;
+  }
+
+  @keyframes phantom-appear {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── Footer ─── */
+  footer {
+    margin-top: 80px;
+    padding-top: 36px;
+    border-top: 1px solid var(--rule);
+    font-size: 13px;
+    color: var(--ink-muted);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    .wrapper { padding: 44px 20px 80px; }
+    h1 { font-size: 52px; }
+    h2 { font-size: 30px; }
+    .stage { padding: 22px 18px; }
+    .stage-header { flex-direction: column; gap: 8px; align-items: flex-start; }
+    button.op { padding: 8px 12px; font-size: 12px; }
+    .step-chip { padding: 6px 10px; font-size: 10.5px; }
+    .pseudo-block { padding: 20px 18px; font-size: 12.5px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- HERO                                                -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <header class="hero">
+    <div class="eyebrow">Recursion · Divide &amp; Conquer · Binary Trees</div>
+    <h1>A <em>beautiful</em> combination</h1>
+    <p class="hero-sub">Recursion is four simple moves. Binary trees are a structure that begs to be walked recursively. Put them together and searching a BST becomes one of the clearest illustrations of the whole recursion method.</p>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SECTION 01: THE FOUR STEPS                          -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">01</span>
+      <h2>The recursion method</h2>
+    </div>
+    <p class="section-lead">Every recursive function does these four things, in this shape. Learn the shape once — it applies to every recursive algorithm you'll ever write.</p>
+
+    <div class="method-grid">
+      <!-- STEP 1 -->
+      <div class="method-card">
+        <div class="step-number">STEP 01</div>
+        <div class="step-illustration">
+          <svg viewBox="0 0 120 84" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="m1-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M2 1L8 5L2 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </marker>
+            </defs>
+            <!-- parent -->
+            <circle cx="60" cy="18" r="10" fill="#e0e7ff" stroke="#4f46e5" stroke-width="1.5"/>
+            <text x="60" y="22" text-anchor="middle" font-family="Fraunces, serif" font-size="11" font-weight="500" fill="#312e81">P</text>
+            <!-- edges -->
+            <line x1="52" y1="26" x2="32" y2="48" stroke="#4f46e5" stroke-width="1.5"/>
+            <line x1="68" y1="26" x2="88" y2="48" stroke="#4f46e5" stroke-width="1" opacity="0.25" stroke-dasharray="3 2"/>
+            <!-- chosen subproblem (highlighted) -->
+            <circle cx="30" cy="56" r="8" fill="#4f46e5" stroke="#312e81" stroke-width="1.5"/>
+            <text x="30" y="60" text-anchor="middle" font-family="Fraunces, serif" font-size="10" font-weight="500" fill="white">sub</text>
+            <!-- discarded subproblem -->
+            <circle cx="90" cy="56" r="8" fill="none" stroke="#4f46e5" stroke-width="1" stroke-dasharray="3 2" opacity="0.35"/>
+            <!-- indicator arrow -->
+            <g color="#4f46e5">
+              <line x1="30" y1="70" x2="30" y2="78" stroke="currentColor" stroke-width="1.5" marker-end="url(#m1-arr)"/>
+            </g>
+          </svg>
+        </div>
+        <div class="step-title">Break into sub-problem</div>
+        <div class="step-desc">Reduce the original problem to a smaller instance of itself — one branch of the tree, one element less, half the range.</div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="method-card">
+        <div class="step-number">STEP 02</div>
+        <div class="step-illustration">
+          <svg viewBox="0 0 120 84" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="m2-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M2 1L8 5L2 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </marker>
+            </defs>
+            <!-- function box -->
+            <rect x="42" y="30" width="36" height="26" rx="5" fill="#e0e7ff" stroke="#4f46e5" stroke-width="1.5"/>
+            <text x="60" y="47" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" font-weight="600" fill="#312e81">f(n)</text>
+            <!-- looping arrow -->
+            <g color="#4f46e5">
+              <path d="M 78 32 Q 105 20, 100 50 Q 95 70, 78 58" fill="none" stroke="currentColor" stroke-width="1.5" marker-end="url(#m2-arr)"/>
+            </g>
+            <!-- small f(n-1) label -->
+            <text x="100" y="72" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#4f46e5" opacity="0.7">f(n−1)</text>
+          </svg>
+        </div>
+        <div class="step-title">Call itself</div>
+        <div class="step-desc">Invoke the same function on the smaller sub-problem. Trust that the recursion will handle it — this is the leap of faith.</div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="method-card">
+        <div class="step-number">STEP 03</div>
+        <div class="step-illustration">
+          <svg viewBox="0 0 120 84" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="m3-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M2 1L8 5L2 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </marker>
+            </defs>
+            <!-- parent -->
+            <circle cx="60" cy="18" r="10" fill="#4f46e5" stroke="#312e81" stroke-width="1.5"/>
+            <text x="60" y="22" text-anchor="middle" font-family="Fraunces, serif" font-size="11" font-weight="500" fill="white">P</text>
+            <!-- left and right children -->
+            <circle cx="30" cy="60" r="8" fill="#e0e7ff" stroke="#4f46e5" stroke-width="1.2"/>
+            <text x="30" y="64" text-anchor="middle" font-family="Fraunces, serif" font-size="9" fill="#312e81">L</text>
+            <circle cx="90" cy="60" r="8" fill="#e0e7ff" stroke="#4f46e5" stroke-width="1.2"/>
+            <text x="90" y="64" text-anchor="middle" font-family="Fraunces, serif" font-size="9" fill="#312e81">R</text>
+            <!-- upward arrows -->
+            <g color="#4f46e5">
+              <line x1="34" y1="52" x2="52" y2="28" stroke="currentColor" stroke-width="1.5" marker-end="url(#m3-arr)"/>
+              <line x1="86" y1="52" x2="68" y2="28" stroke="currentColor" stroke-width="1.5" marker-end="url(#m3-arr)"/>
+            </g>
+          </svg>
+        </div>
+        <div class="step-title">Join the solutions</div>
+        <div class="step-desc">Combine the returned sub-results into the answer for the original problem. Sometimes it's a sum, sometimes it's just passing one up.</div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="method-card">
+        <div class="step-number">STEP 04</div>
+        <div class="step-illustration">
+          <svg viewBox="0 0 120 84" xmlns="http://www.w3.org/2000/svg">
+            <!-- base case: match -->
+            <circle cx="38" cy="42" r="14" fill="#15803d" stroke="#14532d" stroke-width="1.5"/>
+            <path d="M 32 42 L 36 47 L 45 37" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="38" y="68" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#15803d" font-weight="600">match</text>
+            <!-- base case: null -->
+            <circle cx="82" cy="42" r="14" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.5" stroke-dasharray="3 2"/>
+            <text x="82" y="46" text-anchor="middle" font-family="Fraunces, serif" font-size="14" fill="#b91c1c" font-weight="500">∅</text>
+            <text x="82" y="68" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#b91c1c" font-weight="600">null</text>
+          </svg>
+        </div>
+        <div class="step-title">Terminating condition</div>
+        <div class="step-desc">The smallest case, answered directly, no further recursion. Without it, the function never comes back up.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SECTION 02: THE ALGORITHM                           -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">02</span>
+      <h2>BST search, step by step</h2>
+    </div>
+    <p class="section-lead">A binary search tree already embodies divide-and-conquer: the root's key cleanly splits the world into "smaller on the left, larger on the right." Searching it is just the recursion method, written out literally.</p>
+
+    <div class="pseudo-block" id="pseudocode">
+      <span class="pseudo-line"><span class="pseudo-kw">function</span> <span class="pseudo-fn">search</span>(<span class="pseudo-var">node</span>, <span class="pseudo-var">key</span>):</span>
+      <div class="group" data-step="1">
+        <span class="pseudo-step-marker">STEP 1 — break</span>
+        <span class="pseudo-comment">// reduce to a smaller sub-problem</span>
+        <span class="pseudo-line">    <span class="pseudo-kw">if</span> <span class="pseudo-var">key</span> &lt; <span class="pseudo-var">node</span>.<span class="pseudo-var">key</span>:</span>
+        <span class="pseudo-line">        <span class="pseudo-var">sub</span> = <span class="pseudo-var">node</span>.<span class="pseudo-var">left</span>    <span class="pseudo-comment">// smaller keys live left</span></span>
+        <span class="pseudo-line">    <span class="pseudo-kw">else</span>:</span>
+        <span class="pseudo-line">        <span class="pseudo-var">sub</span> = <span class="pseudo-var">node</span>.<span class="pseudo-var">right</span>   <span class="pseudo-comment">// larger keys live right</span></span>
+      </div>
+      <div class="group" data-step="2">
+        <span class="pseudo-step-marker">STEP 2 — recurse</span>
+        <span class="pseudo-comment">// call itself on the sub-problem</span>
+        <span class="pseudo-line">    <span class="pseudo-var">result</span> = <span class="pseudo-fn">search</span>(<span class="pseudo-var">sub</span>, <span class="pseudo-var">key</span>)</span>
+      </div>
+      <div class="group" data-step="3">
+        <span class="pseudo-step-marker">STEP 3 — join</span>
+        <span class="pseudo-comment">// in BST search, "join" is trivial: pass the answer up</span>
+        <span class="pseudo-line">    <span class="pseudo-kw">return</span> <span class="pseudo-var">result</span></span>
+      </div>
+      <div class="group" data-step="4">
+        <span class="pseudo-step-marker">STEP 4 — stop</span>
+        <span class="pseudo-comment">// base cases checked first each call (shown last, lives first)</span>
+        <span class="pseudo-line">    <span class="pseudo-kw">if</span> <span class="pseudo-var">node</span> <span class="pseudo-kw">is</span> <span class="pseudo-kw">null</span>:           <span class="pseudo-kw">return</span> <span class="pseudo-str">NOT_FOUND</span></span>
+        <span class="pseudo-line">    <span class="pseudo-kw">if</span> <span class="pseudo-var">node</span>.<span class="pseudo-var">key</span> == <span class="pseudo-var">key</span>:       <span class="pseudo-kw">return</span> <span class="pseudo-var">node</span>  <span class="pseudo-comment">// FOUND</span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SECTION 03: EXAMPLE 1 — FOUND                       -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">03</span>
+      <h2>Example 1 · <span style="color: var(--found-deep);">search(7)</span></h2>
+    </div>
+    <p class="section-lead">A successful search. Watch the stack grow as we dive, and then collapse as the "found" result rides back up the chain.</p>
+
+    <div class="stage" id="ex1">
+      <div class="stage-header">
+        <div class="stage-title">Searching for key = 7</div>
+        <div class="stage-label" id="ex1-outcome">pending</div>
+      </div>
+
+      <div class="step-indicator" id="ex1-chips">
+        <div class="step-chip" data-chip="1"><span class="chip-num">01</span><span class="chip-name">break</span></div>
+        <div class="step-chip" data-chip="2"><span class="chip-num">02</span><span class="chip-name">recurse</span></div>
+        <div class="step-chip" data-chip="3"><span class="chip-num">03</span><span class="chip-name">join</span></div>
+        <div class="step-chip" data-chip="4"><span class="chip-num">04</span><span class="chip-name">stop</span></div>
+      </div>
+
+      <div class="status-bar" id="ex1-status">
+        <span class="status-dot"></span>
+        <span class="status-text">Press <b>play</b> or <b>step</b> to begin the search.</span>
+      </div>
+
+      <div class="example-body">
+        <div class="tree-canvas">
+          <svg class="tree" id="ex1-svg" viewBox="0 0 560 380" role="img" aria-label="Binary search tree, searching for 7"></svg>
+        </div>
+        <div class="stack-panel">
+          <div class="stack-header">
+            <span>call stack</span>
+            <span class="stack-depth" id="ex1-depth">depth 0</span>
+          </div>
+          <div class="stack-frames" id="ex1-stack">
+            <div class="stack-empty">empty — search hasn't started</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="op primary" id="ex1-play">▶ play</button>
+        <button class="op" id="ex1-step">→ step</button>
+        <button class="op" id="ex1-reset">↺ reset</button>
+        <div class="speed-control">
+          speed
+          <select id="ex1-speed">
+            <option value="1600">slow</option>
+            <option value="1100" selected>medium</option>
+            <option value="600">fast</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SECTION 04: EXAMPLE 2 — NOT FOUND                   -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">04</span>
+      <h2>Example 2 · <span style="color: var(--not-found-deep);">search(5)</span></h2>
+    </div>
+    <p class="section-lead">An unsuccessful search. The recursion bottoms out at a null child — the other base case. Same four steps, different terminating condition.</p>
+
+    <div class="stage" id="ex2">
+      <div class="stage-header">
+        <div class="stage-title">Searching for key = 5</div>
+        <div class="stage-label" id="ex2-outcome">pending</div>
+      </div>
+
+      <div class="step-indicator" id="ex2-chips">
+        <div class="step-chip" data-chip="1"><span class="chip-num">01</span><span class="chip-name">break</span></div>
+        <div class="step-chip" data-chip="2"><span class="chip-num">02</span><span class="chip-name">recurse</span></div>
+        <div class="step-chip" data-chip="3"><span class="chip-num">03</span><span class="chip-name">join</span></div>
+        <div class="step-chip" data-chip="4"><span class="chip-num">04</span><span class="chip-name">stop</span></div>
+      </div>
+
+      <div class="status-bar" id="ex2-status">
+        <span class="status-dot"></span>
+        <span class="status-text">Press <b>play</b> or <b>step</b> to begin the search.</span>
+      </div>
+
+      <div class="example-body">
+        <div class="tree-canvas">
+          <svg class="tree" id="ex2-svg" viewBox="0 0 560 380" role="img" aria-label="Binary search tree, searching for 5"></svg>
+        </div>
+        <div class="stack-panel">
+          <div class="stack-header">
+            <span>call stack</span>
+            <span class="stack-depth" id="ex2-depth">depth 0</span>
+          </div>
+          <div class="stack-frames" id="ex2-stack">
+            <div class="stack-empty">empty — search hasn't started</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="op primary" id="ex2-play">▶ play</button>
+        <button class="op" id="ex2-step">→ step</button>
+        <button class="op" id="ex2-reset">↺ reset</button>
+        <div class="speed-control">
+          speed
+          <select id="ex2-speed">
+            <option value="1600">slow</option>
+            <option value="1100" selected>medium</option>
+            <option value="600">fast</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>The four steps, a binary tree, the call stack — three quiet things that together do something remarkable: turn a problem you didn't know how to solve into one you already trust yourself to solve.</p>
+  </footer>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SCRIPTS                                                              -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<script>
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  function el(tag, attrs = {}, parent = null) {
+    const n = document.createElementNS(SVG_NS, tag);
+    for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+
+  // ════════════════════════════════════════════════════════════════════
+  // BST DATA
+  // ════════════════════════════════════════════════════════════════════
+  function buildBST() {
+    return {
+      key: 8,
+      left: {
+        key: 3,
+        left: { key: 1, left: null, right: null },
+        right: {
+          key: 6,
+          left: { key: 4, left: null, right: null },
+          right: { key: 7, left: null, right: null }
+        }
+      },
+      right: {
+        key: 10,
+        left: null,
+        right: {
+          key: 14,
+          left: { key: 13, left: null, right: null },
+          right: null
+        }
+      }
+    };
+  }
+
+  // ────────────────────────────────────────────────────────────────
+  // BST layout — handles missing children with "phantom width"
+  // so singleton children render offset, not directly below parent.
+  // ────────────────────────────────────────────────────────────────
+  const MIN_NODE_SLOT = 62;
+  const LEVEL_HEIGHT = 75;
+
+  function layoutBST(root) {
+    function computeWidth(node) {
+      if (!node) return 0;
+      if (!node.left && !node.right) {
+        node._w = MIN_NODE_SLOT;
+        node._lw = 0;
+        node._rw = 0;
+        return MIN_NODE_SLOT;
+      }
+      const lw = node.left ? computeWidth(node.left) : MIN_NODE_SLOT;
+      const rw = node.right ? computeWidth(node.right) : MIN_NODE_SLOT;
+      node._lw = lw;
+      node._rw = rw;
+      node._w = Math.max(MIN_NODE_SLOT, lw + rw);
+      return node._w;
+    }
+
+    function assign(node, leftX, y) {
+      if (!node) return;
+      node._x = leftX + node._w / 2;
+      node._y = y;
+      const total = node._lw + node._rw;
+      let offset = leftX + (node._w - total) / 2;
+      if (node.left) {
+        assign(node.left, offset, y + LEVEL_HEIGHT);
+      }
+      offset += node._lw;
+      if (node.right) {
+        assign(node.right, offset, y + LEVEL_HEIGHT);
+      }
+    }
+
+    computeWidth(root);
+    assign(root, 0, 40);
+    return { width: root._w, height: 40 + maxDepth(root) * LEVEL_HEIGHT };
+  }
+
+  function maxDepth(node, d = 0) {
+    if (!node) return d;
+    return Math.max(
+      node.left ? maxDepth(node.left, d + 1) : d,
+      node.right ? maxDepth(node.right, d + 1) : d
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────────
+  // Traverse BST and collect nodes with their positions
+  // ────────────────────────────────────────────────────────────────
+  function collectNodes(root, out = []) {
+    if (!root) return out;
+    out.push(root);
+    collectNodes(root.left, out);
+    collectNodes(root.right, out);
+    return out;
+  }
+
+  function getPathFromRoot(root, key) {
+    // Returns list of node keys from root down to key (for pruning logic)
+    const path = [];
+    let cur = root;
+    while (cur) {
+      path.push(cur.key);
+      if (cur.key === key) return path;
+      cur = key < cur.key ? cur.left : cur.right;
+    }
+    return path; // doesn't include null, but path represents traversal
+  }
+
+  // ════════════════════════════════════════════════════════════════════
+  // STEP GENERATOR
+  // Walks search algorithm, emitting one visual event per meaningful action
+  // ════════════════════════════════════════════════════════════════════
+  function generateSearchSteps(root, targetKey) {
+    const steps = [];
+
+    function recurse(node, parent, side, depth) {
+      if (node === null) {
+        // Phantom null: the recursive call into a null slot
+        steps.push({
+          kind: 'enter-null',
+          parent, side, depth,
+          pseudoStep: 2,
+          chip: 2,
+          stack: 'push',
+          frameLabel: `search(node=null, key=${targetKey})`,
+          narration: `Enter <code>search(node=null, key=${targetKey})</code>. A new frame joins the stack — this is <b>step 2</b>, the recursive call landing on an empty slot.`
+        });
+        steps.push({
+          kind: 'base-null',
+          parent, side, depth,
+          pseudoStep: 4,
+          chip: 4,
+          narration: `The node is <code>null</code>. That's our <b>step 4</b> terminating condition — this frame will return <b>NOT_FOUND</b>.`
+        });
+        // Pop the null frame
+        steps.push({
+          kind: 'return',
+          nodeKey: null,
+          result: 'NOT_FOUND',
+          depth,
+          pseudoStep: 3,
+          chip: 3,
+          narration: `The null frame returns <b>NOT_FOUND</b> and pops. Result begins propagating up.`
+        });
+        return 'NOT_FOUND';
+      }
+
+      // Enter this node
+      steps.push({
+        kind: 'enter',
+        nodeKey: node.key,
+        depth,
+        pseudoStep: depth === 0 ? null : 2,
+        chip: depth === 0 ? null : 2,
+        stack: 'push',
+        frameLabel: `search(node=${node.key}, key=${targetKey})`,
+        narration: depth === 0
+          ? `Initial call: <code>search(node=${node.key}, key=${targetKey})</code>. Frame 1 pushed onto the stack.`
+          : `Enter <code>search(node=${node.key}, key=${targetKey})</code>. Frame pushed — this is <b>step 2</b> happening from the parent.`
+      });
+
+      // Check base case — match
+      if (node.key === targetKey) {
+        steps.push({
+          kind: 'base-found',
+          nodeKey: node.key,
+          depth,
+          pseudoStep: 4,
+          chip: 4,
+          narration: `<code>${node.key} === ${targetKey}</code>. <b>Step 4</b> base case hit — this frame will return FOUND.`
+        });
+        // Pop this matching frame
+        steps.push({
+          kind: 'return',
+          nodeKey: node.key,
+          result: 'FOUND',
+          depth,
+          pseudoStep: 3,
+          chip: 3,
+          isFirstReturn: true,
+          narration: `Frame <code>search(${node.key})</code> returns <b>FOUND</b> and pops. The base case's answer begins its journey back up the stack.`
+        });
+        return 'FOUND';
+      }
+
+      // Not a base case — continue
+      steps.push({
+        kind: 'check-base',
+        nodeKey: node.key,
+        depth,
+        pseudoStep: 4,
+        chip: 4,
+        narration: `Check base cases (<b>step 4</b>): <code>node</code> not null, and <code>${node.key} ≠ ${targetKey}</code>. Keep going.`
+      });
+
+      // Decide direction (step 1)
+      const goLeft = targetKey < node.key;
+      steps.push({
+        kind: 'decide',
+        nodeKey: node.key,
+        goLeft,
+        depth,
+        pseudoStep: 1,
+        chip: 1,
+        narration: goLeft
+          ? `<b>Step 1 — break</b>: <code>${targetKey} &lt; ${node.key}</code>, so the sub-problem is the LEFT subtree. Right half is discarded.`
+          : `<b>Step 1 — break</b>: <code>${targetKey} &gt; ${node.key}</code>, so the sub-problem is the RIGHT subtree. Left half is discarded.`
+      });
+
+      // Recurse
+      const child = goLeft ? node.left : node.right;
+      const childSide = goLeft ? 'left' : 'right';
+      const result = recurse(child, node, childSide, depth + 1);
+
+      // Return — step 3 (join/propagate) for THIS frame
+      steps.push({
+        kind: 'return',
+        nodeKey: node.key,
+        result,
+        depth,
+        pseudoStep: 3,
+        chip: 3,
+        narration: `<b>Step 3 — join</b>: frame <code>search(${node.key})</code> returns <code>${result === 'FOUND' ? 'FOUND' : 'NOT_FOUND'}</code> and pops. In search, "join" is just propagation.`
+      });
+
+      return result;
+    }
+
+    const finalResult = recurse(root, null, null, 0);
+
+    steps.push({
+      kind: 'done',
+      result: finalResult,
+      narration: finalResult === 'FOUND'
+        ? `Search complete. Returned <b>FOUND(${targetKey})</b>. All frames have unwound.`
+        : `Search complete. Returned <b>NOT_FOUND</b>. All frames have unwound.`
+    });
+
+    return steps;
+  }
+
+  // Fixup: the outermost "return" step should show the original caller getting the answer
+  // We want to tag the final return as a "done" state so the initial frame clears with the right color
+  // Handled in the animation by detecting last return.
+
+  // ════════════════════════════════════════════════════════════════════
+  // ANIMATION INSTANCE (factory)
+  // ════════════════════════════════════════════════════════════════════
+  function createSearchExample(config) {
+    const {
+      svgId, stackId, statusId, chipsId, outcomeId, depthId,
+      playBtnId, stepBtnId, resetBtnId, speedSelId,
+      targetKey
+    } = config;
+
+    const bst = buildBST();
+    const { width: treeW, height: treeH } = layoutBST(bst);
+    const allNodes = collectNodes(bst);
+
+    const VIEW_W = Math.max(560, treeW + 80);
+    const VIEW_H = treeH + 40;
+    const xOffset = (VIEW_W - treeW) / 2;
+    const NODE_R = 22;
+
+    const svg = document.getElementById(svgId);
+    svg.setAttribute('viewBox', `0 0 ${VIEW_W} ${VIEW_H}`);
+
+    const stackEl = document.getElementById(stackId);
+    const statusEl = document.getElementById(statusId);
+    const chipsEl = document.getElementById(chipsId);
+    const outcomeEl = document.getElementById(outcomeId);
+    const depthEl = document.getElementById(depthId);
+
+    const playBtn = document.getElementById(playBtnId);
+    const stepBtn = document.getElementById(stepBtnId);
+    const resetBtn = document.getElementById(resetBtnId);
+    const speedSel = document.getElementById(speedSelId);
+
+    // State
+    let steps = [];
+    let idx = 0;
+    let frames = []; // stack of { key, el, label }
+    let playing = false;
+    let cancelToken = { cancelled: false };
+    let phantomNull = null;
+
+    // ──────────── Initial render ────────────
+    function renderTree() {
+      svg.innerHTML = '';
+
+      // Edges first
+      function drawEdges(node) {
+        if (!node) return;
+        ['left', 'right'].forEach(side => {
+          const child = node[side];
+          if (child) {
+            const edgeId = `${node.key}-${child.key}`;
+            el('line', {
+              class: 'bst-edge',
+              'data-edge': edgeId,
+              x1: node._x + xOffset,
+              y1: node._y + NODE_R * 0.6,
+              x2: child._x + xOffset,
+              y2: child._y - NODE_R * 0.6,
+              stroke: 'var(--ink-muted)',
+              'stroke-width': 1,
+              opacity: 0.5
+            }, svg);
+            drawEdges(child);
+          }
+        });
+      }
+      drawEdges(bst);
+
+      // Nodes
+      allNodes.forEach(node => {
+        const g = el('g', {
+          class: 'bst-node',
+          'data-key': node.key,
+          transform: `translate(${node._x + xOffset}, ${node._y})`
+        }, svg);
+        el('circle', {
+          cx: 0, cy: 0, r: NODE_R,
+          fill: '#ffffff',
+          stroke: 'var(--rec)',
+          'stroke-width': 1.2
+        }, g);
+        el('text', {
+          x: 0, y: 1,
+          'text-anchor': 'middle',
+          'dominant-baseline': 'central',
+          'font-family': 'Fraunces, serif',
+          'font-size': 18,
+          'font-weight': 500,
+          fill: 'var(--rec-deep)'
+        }, g).textContent = node.key;
+      });
+    }
+
+    // ──────────── Helpers ────────────
+    function nodeEl(key) {
+      return svg.querySelector(`.bst-node[data-key="${key}"]`);
+    }
+
+    function edgeEl(parentKey, childKey) {
+      return svg.querySelector(`.bst-edge[data-edge="${parentKey}-${childKey}"]`);
+    }
+
+    function clearNodeClasses() {
+      svg.querySelectorAll('.bst-node').forEach(n => {
+        n.classList.remove('current');
+      });
+    }
+
+    function setChip(n) {
+      chipsEl.querySelectorAll('.step-chip').forEach(c => {
+        c.classList.toggle('active', n !== null && parseInt(c.dataset.chip) === n);
+      });
+    }
+
+    function setPseudoActive(n) {
+      document.querySelectorAll('#pseudocode .group').forEach(g => {
+        g.classList.toggle('active', n !== null && parseInt(g.dataset.step) === n);
+      });
+    }
+
+    function setStatus(html, cls = '') {
+      statusEl.className = 'status-bar' + (cls ? ' ' + cls : '');
+      const dot = '<span class="status-dot"></span>';
+      statusEl.innerHTML = `${dot}<span class="status-text">${html}</span>`;
+    }
+
+    function updateDepth() {
+      depthEl.textContent = `depth ${frames.length}`;
+    }
+
+    function clearStack() {
+      stackEl.innerHTML = '<div class="stack-empty">empty — search hasn\'t started</div>';
+    }
+
+    function pushFrame(label, key = null) {
+      // Clear empty state
+      const empty = stackEl.querySelector('.stack-empty');
+      if (empty) empty.remove();
+
+      // De-activate existing active frame
+      stackEl.querySelectorAll('.frame').forEach(f => f.classList.remove('active'));
+
+      const f = document.createElement('div');
+      f.className = 'frame active';
+      f.dataset.key = key !== null ? key : 'null';
+      f.innerHTML = `
+        <div class="frame-call">
+          <span class="fn-name">search</span>(<span class="fn-arg">node=<span class="fn-arg-val">${key !== null ? key : 'null'}</span></span>, <span class="fn-arg">key=<span class="fn-arg-val">${targetKey}</span></span>)
+        </div>
+        <div class="frame-status">▸ executing</div>
+      `;
+
+      // Prepend: flex column-reverse puts newest on top
+      stackEl.appendChild(f);
+      frames.push({ key, el: f, label });
+      updateDepth();
+    }
+
+    function updateFrameStatus(status, cls = '') {
+      if (frames.length === 0) return;
+      const top = frames[frames.length - 1];
+      if (cls) top.el.classList.add(cls);
+      const statusEl = top.el.querySelector('.frame-status');
+      if (statusEl) statusEl.textContent = status;
+    }
+
+    async function popFrame(result, delay = 400) {
+      if (frames.length === 0) return;
+      const top = frames.pop();
+      // Update status to show return
+      const statusEl = top.el.querySelector('.frame-status');
+      if (result === 'FOUND') {
+        top.el.classList.add('returned-found');
+        if (statusEl) statusEl.textContent = `▲ returns FOUND`;
+      } else {
+        top.el.classList.add('returned-not-found');
+        if (statusEl) statusEl.textContent = `▲ returns NOT_FOUND`;
+      }
+      await sleep(delay);
+
+      if (cancelToken.cancelled) return;
+
+      top.el.classList.add('popping');
+      updateDepth();
+      await sleep(380);
+      if (top.el.parentNode) top.el.parentNode.removeChild(top.el);
+
+      // Re-activate new top frame (if any)
+      if (frames.length > 0) {
+        const newTop = frames[frames.length - 1];
+        newTop.el.classList.add('active');
+      } else {
+        clearStack();
+      }
+    }
+
+    function addPhantomNull(parentNode, side) {
+      // Compute phantom position: offset from parent in the chosen direction
+      const offsetX = side === 'left' ? -50 : 50;
+      const x = parentNode._x + xOffset + offsetX;
+      const y = parentNode._y + LEVEL_HEIGHT;
+
+      const g = el('g', {
+        class: 'bst-node null-node phantom-null',
+        'data-key': 'null',
+        transform: `translate(${x}, ${y})`
+      }, svg);
+      el('circle', {
+        cx: 0, cy: 0, r: NODE_R * 0.85,
+        fill: 'var(--not-found-soft)',
+        stroke: 'var(--not-found)',
+        'stroke-width': 2,
+        'stroke-dasharray': '3 2'
+      }, g);
+      el('text', {
+        x: 0, y: 2,
+        'text-anchor': 'middle',
+        'dominant-baseline': 'central',
+        'font-family': 'Fraunces, serif',
+        'font-size': 20,
+        'font-weight': 500,
+        fill: 'var(--not-found-deep)'
+      }, g).textContent = '∅';
+
+      // Edge to phantom
+      el('line', {
+        class: 'bst-edge',
+        'data-edge': `${parentNode.key}-null`,
+        x1: parentNode._x + xOffset,
+        y1: parentNode._y + NODE_R * 0.6,
+        x2: x,
+        y2: y - NODE_R * 0.6,
+        stroke: 'var(--not-found)',
+        'stroke-width': 1.5,
+        opacity: 0.6,
+        'stroke-dasharray': '4 3'
+      }, svg);
+
+      phantomNull = g;
+      return g;
+    }
+
+    function removePhantomNull() {
+      if (phantomNull) {
+        phantomNull.remove();
+        const phantomEdge = svg.querySelector(`.bst-edge[data-edge*="-null"]`);
+        if (phantomEdge) phantomEdge.remove();
+        phantomNull = null;
+      }
+    }
+
+    function dimSubtree(startNode) {
+      // Mark a whole subtree as pruned (dimmed)
+      function walk(n) {
+        if (!n) return;
+        const nel = nodeEl(n.key);
+        if (nel) nel.classList.add('pruned');
+        if (n.left) {
+          const ee = edgeEl(n.key, n.left.key);
+          if (ee) ee.classList.add('pruned');
+          walk(n.left);
+        }
+        if (n.right) {
+          const ee = edgeEl(n.key, n.right.key);
+          if (ee) ee.classList.add('pruned');
+          walk(n.right);
+        }
+      }
+      walk(startNode);
+    }
+
+    function findNode(root, key) {
+      if (!root) return null;
+      if (root.key === key) return root;
+      const l = findNode(root.left, key);
+      if (l) return l;
+      return findNode(root.right, key);
+    }
+
+    // ──────────── Execute a single step ────────────
+    async function executeStep(step) {
+      if (cancelToken.cancelled) return;
+
+      // Update step chip and pseudocode highlight
+      setChip(step.chip ?? null);
+      setPseudoActive(step.pseudoStep ?? null);
+
+      switch (step.kind) {
+        case 'enter': {
+          clearNodeClasses();
+          const n = nodeEl(step.nodeKey);
+          if (n) n.classList.add('current');
+          pushFrame(step.frameLabel, step.nodeKey);
+          setStatus(step.narration);
+          break;
+        }
+        case 'enter-null': {
+          clearNodeClasses();
+          // Find the parent node in BST data
+          const parentNode = findNode(bst, step.parent.key);
+          if (parentNode) addPhantomNull(parentNode, step.side);
+          pushFrame(step.frameLabel, null);
+          setStatus(step.narration);
+          break;
+        }
+        case 'check-base': {
+          setStatus(step.narration);
+          updateFrameStatus('▸ not a base case');
+          break;
+        }
+        case 'decide': {
+          setStatus(step.narration);
+          updateFrameStatus(step.goLeft ? '▸ going left' : '▸ going right');
+          // Dim the discarded subtree
+          const node = findNode(bst, step.nodeKey);
+          if (node) {
+            const discardedSide = step.goLeft ? node.right : node.left;
+            if (discardedSide) {
+              // Dim the discarded edge and subtree
+              const ee = edgeEl(node.key, discardedSide.key);
+              if (ee) ee.classList.add('pruned');
+              dimSubtree(discardedSide);
+            }
+            // Also traverse the kept edge visually
+            const keptSide = step.goLeft ? node.left : node.right;
+            if (keptSide) {
+              const ee = edgeEl(node.key, keptSide.key);
+              if (ee) ee.classList.add('traversed');
+            }
+            // Mark current as visited
+            const n = nodeEl(node.key);
+            if (n) {
+              n.classList.remove('current');
+              n.classList.add('visited');
+            }
+          }
+          break;
+        }
+        case 'base-found': {
+          clearNodeClasses();
+          const n = nodeEl(step.nodeKey);
+          if (n) n.classList.add('found');
+          setStatus(step.narration, 'found');
+          updateFrameStatus('✓ FOUND — base case', 'returned-found');
+          outcomeEl.textContent = 'FOUND';
+          outcomeEl.style.background = 'var(--found-soft)';
+          outcomeEl.style.color = 'var(--found-deep)';
+          outcomeEl.style.borderColor = 'var(--found)';
+          break;
+        }
+        case 'base-null': {
+          // Highlight the phantom null
+          if (phantomNull) {
+            // Already styled; maybe pulse it more
+          }
+          setStatus(step.narration, 'not-found');
+          updateFrameStatus('✗ NOT_FOUND — base case', 'returned-not-found');
+          outcomeEl.textContent = 'NOT FOUND';
+          outcomeEl.style.background = 'var(--not-found-soft)';
+          outcomeEl.style.color = 'var(--not-found-deep)';
+          outcomeEl.style.borderColor = 'var(--not-found)';
+          break;
+        }
+        case 'return': {
+          setStatus(step.narration, step.result === 'FOUND' ? 'found' : 'not-found');
+          await popFrame(step.result, 300);
+          break;
+        }
+        case 'done': {
+          clearNodeClasses();
+          setChip(null);
+          setPseudoActive(null);
+          setStatus(step.narration, step.result === 'FOUND' ? 'found' : 'not-found');
+          if (phantomNull && step.result === 'NOT_FOUND') {
+            // Keep the phantom null visible as part of the final result
+          }
+          break;
+        }
+      }
+    }
+
+    function getStepDelay() {
+      return parseInt(speedSel.value) || 1100;
+    }
+
+    // ──────────── Public control functions ────────────
+    async function play() {
+      if (playing) return;
+      if (idx >= steps.length) reset();
+      playing = true;
+      cancelToken.cancelled = false;
+      setButtons(true);
+
+      while (idx < steps.length && !cancelToken.cancelled) {
+        const step = steps[idx];
+        idx++;
+        await executeStep(step);
+        if (cancelToken.cancelled) break;
+        await sleep(getStepDelay());
+      }
+
+      playing = false;
+      setButtons(false);
+      if (idx >= steps.length) {
+        playBtn.textContent = '▶ play again';
+      }
+    }
+
+    async function stepOnce() {
+      if (playing) return;
+      if (idx >= steps.length) return;
+      setButtons(true);
+      const step = steps[idx];
+      idx++;
+      await executeStep(step);
+      setButtons(false);
+      if (idx >= steps.length) {
+        playBtn.textContent = '▶ play again';
+      }
+    }
+
+    function setButtons(busy) {
+      playBtn.disabled = busy;
+      stepBtn.disabled = busy;
+    }
+
+    function reset() {
+      cancelToken.cancelled = true;
+      cancelToken = { cancelled: false };
+      playing = false;
+      idx = 0;
+      frames = [];
+      phantomNull = null;
+      renderTree();
+      clearStack();
+      setChip(null);
+      setPseudoActive(null);
+      setStatus('Press <b>play</b> or <b>step</b> to begin the search.');
+      outcomeEl.textContent = 'pending';
+      outcomeEl.style.background = '';
+      outcomeEl.style.color = '';
+      outcomeEl.style.borderColor = '';
+      updateDepth();
+      playBtn.textContent = '▶ play';
+      setButtons(false);
+    }
+
+    // ──────────── Init ────────────
+    steps = generateSearchSteps(bst, targetKey);
+    renderTree();
+    updateDepth();
+
+    playBtn.addEventListener('click', play);
+    stepBtn.addEventListener('click', stepOnce);
+    resetBtn.addEventListener('click', reset);
+
+    return { play, step: stepOnce, reset };
+  }
+
+  // ════════════════════════════════════════════════════════════════════
+  // INSTANTIATE BOTH EXAMPLES
+  // ════════════════════════════════════════════════════════════════════
+  createSearchExample({
+    svgId: 'ex1-svg',
+    stackId: 'ex1-stack',
+    statusId: 'ex1-status',
+    chipsId: 'ex1-chips',
+    outcomeId: 'ex1-outcome',
+    depthId: 'ex1-depth',
+    playBtnId: 'ex1-play',
+    stepBtnId: 'ex1-step',
+    resetBtnId: 'ex1-reset',
+    speedSelId: 'ex1-speed',
+    targetKey: 7
+  });
+
+  createSearchExample({
+    svgId: 'ex2-svg',
+    stackId: 'ex2-stack',
+    statusId: 'ex2-status',
+    chipsId: 'ex2-chips',
+    outcomeId: 'ex2-outcome',
+    depthId: 'ex2-depth',
+    playBtnId: 'ex2-play',
+    stepBtnId: 'ex2-step',
+    resetBtnId: 'ex2-reset',
+    speedSelId: 'ex2-speed',
+    targetKey: 5
+  });
+</script>
+</body>
+</html>
