@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Call Stack Walkthrough — avg_numbers(6, 10)</title>
+<style>
+  :root {
+    --bg: #faf9f5;
+    --surface: #ffffff;
+    --surface-2: #f1efe8;
+    --text: #2c2c2a;
+    --text-2: #5f5e5a;
+    --text-3: #888780;
+    --border: rgba(0,0,0,0.12);
+    --border-2: rgba(0,0,0,0.22);
+    --info-bg: #E6F1FB;
+    --info-text: #0C447C;
+    --warn-bg: #FAEEDA;
+    --warn-text: #854F0B;
+    --success-bg: #EAF3DE;
+    --success-text: #3B6D11;
+    --danger: #A32D2D;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: "SF Mono", Menlo, Consolas, "Courier New", monospace;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1915;
+      --surface: #26252220;
+      --surface-2: #2c2c2a;
+      --text: #f1efe8;
+      --text-2: #b4b2a9;
+      --text-3: #888780;
+      --border: rgba(255,255,255,0.15);
+      --border-2: rgba(255,255,255,0.25);
+      --info-bg: #042C53;
+      --info-text: #B5D4F4;
+      --warn-bg: #412402;
+      --warn-text: #FAC775;
+      --success-bg: #173404;
+      --success-text: #C0DD97;
+      --danger: #F09595;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px 20px;
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 500;
+    margin: 0 0 6px;
+  }
+  .subtitle {
+    color: var(--text-2);
+    font-size: 14px;
+    margin-bottom: 28px;
+  }
+  .intro {
+    background: var(--surface-2);
+    padding: 14px 18px;
+    border-radius: var(--radius-lg);
+    margin-bottom: 24px;
+    font-size: 14px;
+    color: var(--text-2);
+  }
+  .intro code {
+    font-family: var(--font-mono);
+    background: var(--surface);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .sf-wrap { padding: 0.25rem 0; }
+  .sf-panels { display: grid; grid-template-columns: 1fr 300px; gap: 16px; align-items: start; }
+  @media (max-width: 640px) {
+    .sf-panels { grid-template-columns: 1fr; }
+  }
+  .sf-label { font-size: 12px; color: var(--text-2); margin-bottom: 6px; font-weight: 500; }
+  .sf-code { background: var(--surface-2); border-radius: var(--radius-md); padding: 12px; font-family: var(--font-mono); font-size: 12px; }
+  .sf-fn { font-weight: 500; color: var(--text); padding: 2px 0 6px; font-family: var(--font-sans); font-size: 13px; border-bottom: 0.5px solid var(--border); margin-bottom: 4px; }
+  .sf-fn.gap { margin-top: 10px; }
+  .sf-line { display: grid; grid-template-columns: 66px 1fr; padding: 4px 6px; border-radius: 4px; margin: 1px 0; gap: 6px; }
+  .sf-line.on { background: var(--warn-bg); color: var(--warn-text); font-weight: 500; }
+  .sf-addr { color: var(--text-3); }
+  .sf-line.on .sf-addr { color: var(--warn-text); }
+  .sf-stack-box { background: var(--surface-2); border-radius: var(--radius-md); padding: 10px; }
+  .sf-stack-cap { font-size: 11px; color: var(--text-3); text-align: center; padding: 3px 0; }
+  .sf-stack { display: flex; flex-direction: column; border: 0.5px solid var(--border-2); border-radius: var(--radius-md); overflow: hidden; background: var(--surface); min-height: 180px; }
+  .sf-it { padding: 8px 12px; font-size: 12px; font-family: var(--font-mono); border-bottom: 0.5px solid var(--border); transition: background .15s; }
+  .sf-it:last-child { border-bottom: none; }
+  .sf-it.main { background: var(--surface-2); color: var(--text-2); }
+  .sf-it.param { background: var(--info-bg); color: var(--info-text); }
+  .sf-it.ret { background: var(--warn-bg); color: var(--warn-text); font-weight: 500; }
+  .sf-it.local { background: var(--success-bg); color: var(--success-text); }
+  .sf-pc { margin-top: 12px; padding: 10px 14px; background: var(--surface); border: 0.5px solid var(--border-2); border-radius: var(--radius-md); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .sf-pc-l { font-size: 12px; color: var(--text-2); }
+  .sf-pc-v { font-family: var(--font-mono); font-size: 18px; font-weight: 500; color: var(--danger); }
+  .sf-pc-n { font-size: 12px; color: var(--text-3); margin-left: auto; }
+  .sf-desc { padding: 10px 12px; background: var(--info-bg); color: var(--info-text); border-radius: var(--radius-md); font-size: 13px; margin-top: 10px; line-height: 1.55; min-height: 44px; }
+  .sf-ctrls { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+  .sf-ctrls button {
+    background: transparent;
+    border: 0.5px solid var(--border-2);
+    color: var(--text);
+    padding: 7px 14px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .15s, transform .1s;
+  }
+  .sf-ctrls button:hover:not(:disabled) { background: var(--surface-2); }
+  .sf-ctrls button:active:not(:disabled) { transform: scale(0.98); }
+  .sf-ctrls button:disabled { opacity: 0.35; cursor: not-allowed; }
+  .sf-ind { font-size: 12px; color: var(--text-2); margin-left: auto; margin-right: 8px; }
+  .legend {
+    margin-top: 28px;
+    padding: 14px 18px;
+    background: var(--surface-2);
+    border-radius: var(--radius-lg);
+    font-size: 13px;
+    color: var(--text-2);
+  }
+  .legend h3 { margin: 0 0 10px; font-size: 14px; font-weight: 500; color: var(--text); }
+  .legend-items { display: flex; flex-wrap: wrap; gap: 8px 14px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; border: 0.5px solid var(--border); }
+  .vocab {
+    margin-top: 28px;
+    padding: 20px 22px;
+    background: var(--surface-2);
+    border-radius: var(--radius-lg);
+  }
+  .vocab h2 {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0 0 4px;
+    color: var(--text);
+  }
+  .vocab-sub {
+    font-size: 13px;
+    color: var(--text-2);
+    margin: 0 0 18px;
+  }
+  .vocab dl {
+    margin: 0;
+    display: grid;
+    gap: 14px;
+  }
+  .vocab dt {
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .vocab dd {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.6;
+  }
+  .vocab dd code {
+    font-family: var(--font-mono);
+    background: var(--surface);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+    color: var(--text);
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Call stack walkthrough</h1>
+    <div class="subtitle">How <code style="font-family: var(--font-mono); background: var(--surface-2); padding: 1px 6px; border-radius: 4px; font-size: 13px;">result = avg_numbers(6, 10)</code> executes — step by step.</div>
+
+    <div class="intro">
+      Click <strong>Next</strong> to advance. Watch three things: the <strong>program counter</strong> (red, bottom), which instruction is highlighted in <strong>code memory</strong> (left), and how the <strong>call stack</strong> (right) grows and shrinks.
+    </div>
+
+    <div class="sf-wrap">
+      <div class="sf-panels">
+        <div>
+          <div class="sf-label">Code memory</div>
+          <div class="sf-code" id="sf-code">
+            <div class="sf-fn">main()</div>
+            <div class="sf-line" data-pc="0x1000"><span class="sf-addr">0x1000</span><span>int result;</span></div>
+            <div class="sf-line" data-pc="0x1004"><span class="sf-addr">0x1004</span><span>call avg_numbers(6, 10)</span></div>
+            <div class="sf-line" data-pc="0x1008"><span class="sf-addr">0x1008</span><span>result = ret_val</span></div>
+            <div class="sf-line" data-pc="0x100C"><span class="sf-addr">0x100C</span><span>...</span></div>
+            <div class="sf-fn gap">avg_numbers(int a, int b)</div>
+            <div class="sf-line" data-pc="0x2000"><span class="sf-addr">0x2000</span><span>int c;</span></div>
+            <div class="sf-line" data-pc="0x2004"><span class="sf-addr">0x2004</span><span>c = (a + b) / 2;</span></div>
+            <div class="sf-line" data-pc="0x2008"><span class="sf-addr">0x2008</span><span>return c;</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="sf-label">Call stack</div>
+          <div class="sf-stack-box">
+            <div class="sf-stack-cap">↑ top (grows upward)</div>
+            <div class="sf-stack" id="sf-stack"></div>
+            <div class="sf-stack-cap">bottom</div>
+          </div>
+        </div>
+      </div>
+      <div class="sf-pc">
+        <span class="sf-pc-l">Program Counter</span>
+        <span class="sf-pc-v" id="sf-pc">0x1004</span>
+        <span class="sf-pc-n" id="sf-pc-n"></span>
+      </div>
+      <div class="sf-desc" id="sf-desc"></div>
+      <div class="sf-ctrls">
+        <button onclick="sfPrev()" id="sf-prev">← Prev</button>
+        <button onclick="sfNext()" id="sf-next">Next →</button>
+        <span class="sf-ind" id="sf-ind">Step 1 of 6</span>
+        <button onclick="sfReset()">Reset</button>
+      </div>
+    </div>
+
+    <div class="legend">
+      <h3>Stack entry colors</h3>
+      <div class="legend-items">
+        <div class="legend-item"><span class="swatch" style="background: var(--surface-2);"></span>Caller's frame (main)</div>
+        <div class="legend-item"><span class="swatch" style="background: var(--info-bg); border-color: var(--info-text);"></span>Parameters</div>
+        <div class="legend-item"><span class="swatch" style="background: var(--warn-bg); border-color: var(--warn-text);"></span>Return address</div>
+        <div class="legend-item"><span class="swatch" style="background: var(--success-bg); border-color: var(--success-text);"></span>Local variables</div>
+      </div>
+    </div>
+
+    <div class="vocab">
+      <h2>Vocabulary</h2>
+      <p class="vocab-sub">Key terms from this walkthrough.</p>
+      <dl>
+        <div>
+          <dt>Program counter (PC)</dt>
+          <dd>A special register inside the processor that holds the memory address of the <em>next</em> instruction to execute. The CPU fetches from this address, then the PC advances. A <code>call</code> overwrites the PC with a function's address; a <code>return</code> overwrites it with the saved return address.</dd>
+        </div>
+        <div>
+          <dt>Stack frame</dt>
+          <dd>The block of memory on the call stack that belongs to one active function call. It bundles together everything that function needs: its parameters, return address, and local variables. Every call creates a new frame; every return destroys one.</dd>
+        </div>
+        <div>
+          <dt>Local variable</dt>
+          <dd>A variable declared <em>inside</em> a function. It lives in that function's stack frame and disappears when the function returns. In the example, <code>c</code> inside <code>avg_numbers</code> is a local variable.</dd>
+        </div>
+        <div>
+          <dt>Parameter variables</dt>
+          <dd>The values passed <em>into</em> a function by the caller. They are placed on the stack (or in registers) before the call, and the function reads them as if they were local variables. In <code>avg_numbers(6, 10)</code>, the values <code>6</code> and <code>10</code> become parameters <code>a</code> and <code>b</code>.</dd>
+        </div>
+        <div>
+          <dt>Function arguments</dt>
+          <dd>The actual values the <em>caller</em> supplies at the call site. Arguments and parameters are two sides of the same coin: arguments are what goes <em>in</em>, parameters are what the function sees on the <em>inside</em>. In <code>avg_numbers(6, 10)</code>, <code>6</code> and <code>10</code> are the arguments; inside the function they become the parameters <code>a</code> and <code>b</code>.</dd>
+        </div>
+        <div>
+          <dt>Return address</dt>
+          <dd>The memory address of the instruction to execute <em>after</em> the called function finishes. The <code>call</code> instruction saves this onto the stack before jumping. The <code>return</code> instruction pops it back into the PC so execution resumes in the caller.</dd>
+        </div>
+        <div>
+          <dt>Call stack</dt>
+          <dd>A region of memory that holds stack frames, one on top of another, in Last-In-First-Out order. When a function calls another, a new frame is pushed on top; when it returns, the top frame is popped off. The stack shrinks and grows as the program runs.</dd>
+        </div>
+        <div>
+          <dt>Memory address of a function</dt>
+          <dd>Every function is stored in the program's <em>code memory</em> at a specific address. This is where execution jumps on a call. In the example, <code>main</code> starts at <code>0x1000</code> and <code>avg_numbers</code> starts at <code>0x2000</code>.</dd>
+        </div>
+        <div>
+          <dt>Memory address of variables in a stack frame</dt>
+          <dd>Each parameter and local variable sits at a specific address <em>within</em> its stack frame. The CPU usually accesses them relative to a base pointer (the start of the frame) — for example, parameter <code>a</code> might be at <code>base + 4</code> and local <code>c</code> at <code>base − 8</code>. Different call = different addresses.</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+<script>
+const sfSteps = [
+  {
+    pc: '0x1004', note: 'in main, at call instruction',
+    stack: [{ t: 'main', x: "main's stack frame" }],
+    desc: "main is about to execute result = avg_numbers(6, 10). PC points at the call instruction."
+  },
+  {
+    pc: '0x2000', note: 'jumped into avg_numbers',
+    stack: [
+      { t: 'main', x: "main's stack frame" },
+      { t: 'param', x: 'b = 10   (parameter)' },
+      { t: 'param', x: 'a = 6    (parameter)' },
+      { t: 'ret',   x: 'return addr = 0x1008' }
+    ],
+    desc: "CALL executed. Parameters b=10, a=6 are pushed, then the return address 0x1008 is saved on the stack. PC jumps to avg_numbers at 0x2000."
+  },
+  {
+    pc: '0x2004', note: 'inside avg_numbers',
+    stack: [
+      { t: 'main', x: "main's stack frame" },
+      { t: 'param', x: 'b = 10   (parameter)' },
+      { t: 'param', x: 'a = 6    (parameter)' },
+      { t: 'ret',   x: 'return addr = 0x1008' },
+      { t: 'local', x: 'c = ?    (local var)' }
+    ],
+    desc: "Function prologue allocates space for local variable c on the stack. Full stack frame for avg_numbers is now set up."
+  },
+  {
+    pc: '0x2008', note: 'at return instruction',
+    stack: [
+      { t: 'main', x: "main's stack frame" },
+      { t: 'param', x: 'b = 10   (parameter)' },
+      { t: 'param', x: 'a = 6    (parameter)' },
+      { t: 'ret',   x: 'return addr = 0x1008' },
+      { t: 'local', x: 'c = 8    (result stored)' }
+    ],
+    desc: "c = (a + b) / 2 = (6 + 10) / 2 = 8. The return value is placed in a register."
+  },
+  {
+    pc: '0x1008', note: 'restored from stack → back in main',
+    stack: [{ t: 'main', x: "main's stack frame" }],
+    desc: "RETURN: entire stack frame popped — c, return addr, a, b all removed. PC restored from the saved return address → 0x1008."
+  },
+  {
+    pc: '0x100C', note: 'next instruction in main',
+    stack: [{ t: 'main', x: "main's frame  (result = 8)" }],
+    desc: "Back in main. The returned value 8 is assigned to result. Execution continues."
+  }
+];
+let sfCur = 0;
+function sfRender() {
+  const s = sfSteps[sfCur];
+  document.getElementById('sf-pc').textContent = s.pc;
+  document.getElementById('sf-pc-n').textContent = s.note;
+  document.querySelectorAll('.sf-line').forEach(el => {
+    el.classList.toggle('on', el.dataset.pc === s.pc);
+  });
+  const stk = document.getElementById('sf-stack');
+  stk.innerHTML = '';
+  [...s.stack].reverse().forEach(item => {
+    const d = document.createElement('div');
+    d.className = 'sf-it ' + item.t;
+    d.textContent = item.x;
+    stk.appendChild(d);
+  });
+  document.getElementById('sf-desc').textContent = s.desc;
+  document.getElementById('sf-ind').textContent = `Step ${sfCur + 1} of ${sfSteps.length}`;
+  document.getElementById('sf-prev').disabled = sfCur === 0;
+  document.getElementById('sf-next').disabled = sfCur === sfSteps.length - 1;
+}
+function sfNext() { if (sfCur < sfSteps.length - 1) { sfCur++; sfRender(); } }
+function sfPrev() { if (sfCur > 0) { sfCur--; sfRender(); } }
+function sfReset() { sfCur = 0; sfRender(); }
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight') sfNext();
+  else if (e.key === 'ArrowLeft') sfPrev();
+});
+sfRender();
+</script>
+</body>
+</html>
