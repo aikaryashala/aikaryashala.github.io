@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Binary Tree in C — Build & Count</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0f12;
+    --ink-2: #14171c;
+    --ink-3: #1c2026;
+    --bone: #f4ede0;
+    --bone-dim: #a8a095;
+    --bone-faint: #6c6760;
+    --amber: #e8a33a;
+    --amber-soft: #f2c066;
+    --rust: #c85a3a;
+    --moss: #7fae5b;
+    --sky: #6aa9d6;
+    --line: rgba(244,237,224,0.08);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--ink);
+    color: var(--bone);
+    font-family: 'Fraunces', Georgia, serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* Grain */
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(232,163,58,0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(200,90,58,0.04) 0%, transparent 50%);
+  }
+
+  /* HERO */
+  .hero {
+    padding: 80px 48px 48px;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+  .hero .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 28px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  .hero .meta::before {
+    content: ""; display: inline-block; width: 32px; height: 1px; background: var(--amber);
+  }
+  .hero h1 {
+    font-size: clamp(48px, 7vw, 104px);
+    font-weight: 300;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+    font-variation-settings: "opsz" 144;
+  }
+  .hero h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--amber);
+  }
+  .hero .sub {
+    font-size: 20px;
+    max-width: 640px;
+    color: var(--bone-dim);
+    font-weight: 300;
+  }
+  .hero .corner-num {
+    position: absolute;
+    top: 32px;
+    right: 48px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--bone-faint);
+    letter-spacing: 0.1em;
+  }
+
+  /* SECTION */
+  section {
+    padding: 72px 48px;
+    border-bottom: 1px solid var(--line);
+    max-width: 1400px;
+  }
+  section .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--bone-faint);
+    margin-bottom: 16px;
+  }
+  section h2 {
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+    line-height: 1.1;
+  }
+  section h2 em { font-style: italic; color: var(--amber); }
+  section .lede {
+    font-size: 18px;
+    color: var(--bone-dim);
+    max-width: 640px;
+    margin-bottom: 40px;
+  }
+
+  /* CODE */
+  .code-wrap {
+    background: var(--ink-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .code-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    background: var(--ink-3);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot.r { background: #ec5f5a; }
+  .dot.y { background: #e6a93a; }
+  .dot.g { background: #62c25a; }
+  .code-head .fname {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--bone-dim);
+    margin-left: 12px;
+  }
+  pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    padding: 24px;
+    overflow-x: auto;
+    color: var(--bone);
+  }
+  .kw { color: var(--rust); }
+  .fn { color: var(--amber); }
+  .num { color: var(--moss); }
+  .str { color: var(--moss); }
+  .cm { color: var(--bone-faint); font-style: italic; }
+  .ty { color: var(--sky); }
+
+  /* WALKTHROUGH */
+  .walk {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .walk { grid-template-columns: 1fr; }
+  }
+  .tree-stage {
+    background: var(--ink-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 26px 28px 22px;
+    position: sticky;
+    top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .tree-canvas {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+  }
+  .tree-canvas svg {
+    width: 100%;
+    max-width: 460px;
+    max-height: 340px;
+    height: auto;
+    display: block;
+  }
+
+  /* CALL STACK — sits below the tree, grows bottom-to-top */
+  .call-stack {
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    min-height: 230px;
+  }
+  .stack-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--bone-faint);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .stack-label .depth {
+    color: var(--amber);
+    font-weight: 500;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+  #frameContainer {
+    display: flex;
+    flex-direction: column-reverse;     /* grows upward: main at bottom, newest on top */
+    justify-content: flex-start;         /* anchor frames to the visual bottom */
+    gap: 4px;
+    flex: 1;
+    max-width: 340px;
+    width: 100%;
+    margin: 0 auto;
+  }
+  .frame {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 8px 12px;
+    border: 1px solid var(--bone-faint);
+    border-radius: 3px;
+    background: var(--ink-3);
+    color: var(--bone-dim);
+    opacity: 0;
+    transform: translateY(8px);          /* starts below, rises into place */
+    transition: opacity 0.35s, transform 0.35s, border-color 0.35s, background 0.35s, color 0.35s;
+    position: relative;
+  }
+  .frame.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .frame.popping {
+    opacity: 0;
+    transform: translateY(-10px);        /* popped frames lift up and fade out */
+  }
+  .frame.top {
+    border-color: var(--amber);
+    background: rgba(232,163,58,0.08);
+    color: var(--amber);
+  }
+  .frame.returning {
+    border-color: var(--moss);
+    background: rgba(127,174,91,0.10);
+    color: var(--moss);
+  }
+  .frame .frame-tag {
+    display: block;
+    font-size: 9px;
+    opacity: 0.5;
+    margin-bottom: 2px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .frame .fn-name {
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .frame .ret-val {
+    display: block;
+    font-size: 10px;
+    opacity: 0.85;
+    margin-top: 2px;
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  /* Tree nodes */
+  .node-g circle {
+    fill: var(--ink-3);
+    stroke: var(--bone-faint);
+    stroke-width: 1;
+    transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .node-g text {
+    fill: var(--bone-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 500;
+    text-anchor: middle;
+    dominant-baseline: central;
+    transition: fill 0.5s;
+  }
+  .node-g.visited circle {
+    fill: rgba(232,163,58,0.1);
+    stroke: var(--amber);
+    stroke-width: 1.5;
+  }
+  .node-g.visited text {
+    fill: var(--amber);
+  }
+  .node-g.active circle {
+    fill: var(--amber);
+    stroke: var(--amber-soft);
+    stroke-width: 2;
+    r: 24;
+  }
+  .node-g.active text {
+    fill: var(--ink);
+    font-weight: 700;
+  }
+  .node-g.returning circle {
+    fill: rgba(127,174,91,0.15);
+    stroke: var(--moss);
+  }
+  .node-g.returning text {
+    fill: var(--moss);
+  }
+  .edge {
+    stroke: var(--bone-faint);
+    stroke-width: 1;
+    fill: none;
+    transition: stroke 0.5s;
+  }
+  .edge.lit {
+    stroke: var(--amber);
+  }
+  .return-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    fill: var(--moss);
+    text-anchor: middle;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .return-label.show { opacity: 1; }
+
+  /* Right panel */
+  .step-panel h3 {
+    font-size: 24px;
+    font-weight: 400;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  .step-panel .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--amber);
+    letter-spacing: 0.2em;
+    margin-bottom: 12px;
+  }
+  .step-panel .step-body {
+    color: var(--bone-dim);
+    font-size: 15px;
+    margin-bottom: 20px;
+    min-height: 80px;
+  }
+  .step-panel .step-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--ink-2);
+    border-left: 2px solid var(--amber);
+    padding: 12px 16px;
+    color: var(--bone);
+    margin-bottom: 24px;
+    border-radius: 0 4px 4px 0;
+    white-space: pre-wrap;
+  }
+  .controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .controls button {
+    background: transparent;
+    border: 1px solid var(--bone-faint);
+    color: var(--bone);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 10px 18px;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+  .controls button:hover:not(:disabled) {
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+  .controls button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  .controls button.play {
+    background: var(--amber);
+    color: var(--ink);
+    border-color: var(--amber);
+  }
+  .controls button.play:hover:not(:disabled) {
+    background: var(--amber-soft);
+    color: var(--ink);
+  }
+  .progress {
+    flex: 1;
+    height: 2px;
+    background: var(--line);
+    overflow: hidden;
+    margin-left: 8px;
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--amber);
+    width: 0;
+    transition: width 0.3s;
+  }
+
+  /* CONCEPT CARDS */
+  .concepts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  .concept {
+    background: var(--ink);
+    padding: 32px;
+  }
+  .concept .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--amber);
+    margin-bottom: 12px;
+    letter-spacing: 0.2em;
+  }
+  .concept h4 {
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 10px;
+    font-style: italic;
+  }
+  .concept p {
+    font-size: 14px;
+    color: var(--bone-dim);
+    line-height: 1.7;
+  }
+  .concept .fm {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--amber);
+    margin-top: 10px;
+  }
+
+  /* OUTPUT */
+  .terminal {
+    background: #000;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 20px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    max-width: 620px;
+  }
+  .terminal .prompt { color: var(--moss); }
+  .terminal .out { color: var(--bone); margin-top: 4px; }
+  .terminal .cursor {
+    display: inline-block;
+    width: 8px; height: 14px;
+    background: var(--bone);
+    vertical-align: middle;
+    animation: blink 1s step-end infinite;
+    margin-left: 4px;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  footer {
+    padding: 48px;
+    text-align: center;
+    color: var(--bone-faint);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="corner-num">§ 001 / TREE IN C</div>
+  <div class="meta">A walk through three functions</div>
+  <h1>Seven numbers,<br>one <em>binary tree</em>,<br>counted in full.</h1>
+  <p class="sub">A small program in C that builds a binary tree from an array of seven integers, then recursively counts its nodes. Below: the code, the tree, and the machinery in motion.</p>
+</div>
+
+<section>
+  <div class="label">01 — The Program</div>
+  <h2>Three functions, <em>one purpose</em>.</h2>
+  <p class="lede">One function to build. One to count. One to orchestrate. Nothing else.</p>
+
+  <div class="code-wrap">
+    <div class="code-head">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="fname">tree.c</span>
+    </div>
+<pre><span class="cm">#include &lt;stdio.h&gt;</span>
+<span class="cm">#include &lt;stdlib.h&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">Node</span> {
+    <span class="kw">int</span> data;
+    <span class="kw">struct</span> <span class="ty">Node</span>* left;
+    <span class="kw">struct</span> <span class="ty">Node</span>* right;
+};
+
+<span class="kw">struct</span> <span class="ty">Node</span>* <span class="fn">create_tree</span>(<span class="kw">int</span> arr[], <span class="kw">int</span> size) {
+    <span class="kw">if</span> (size == <span class="num">0</span>) <span class="kw">return</span> NULL;
+
+    <span class="kw">struct</span> <span class="ty">Node</span>** nodes = malloc(size * <span class="kw">sizeof</span>(<span class="kw">struct</span> <span class="ty">Node</span>*));
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; size; i++) {
+        nodes[i] = malloc(<span class="kw">sizeof</span>(<span class="kw">struct</span> <span class="ty">Node</span>));
+        nodes[i]-&gt;data  = arr[i];
+        nodes[i]-&gt;left  = NULL;
+        nodes[i]-&gt;right = NULL;
+    }
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; size; i++) {
+        <span class="kw">int</span> l = <span class="num">2</span> * i + <span class="num">1</span>;
+        <span class="kw">int</span> r = <span class="num">2</span> * i + <span class="num">2</span>;
+        <span class="kw">if</span> (l &lt; size) nodes[i]-&gt;left  = nodes[l];
+        <span class="kw">if</span> (r &lt; size) nodes[i]-&gt;right = nodes[r];
+    }
+    <span class="kw">struct</span> <span class="ty">Node</span>* root = nodes[<span class="num">0</span>];
+    free(nodes);
+    <span class="kw">return</span> root;
+}
+
+<span class="kw">int</span> <span class="fn">node_count</span>(<span class="kw">struct</span> <span class="ty">Node</span>* root) {
+    <span class="kw">if</span> (root == NULL) <span class="kw">return</span> <span class="num">0</span>;
+    <span class="kw">return</span> <span class="num">1</span> + <span class="fn">node_count</span>(root-&gt;left)
+             + <span class="fn">node_count</span>(root-&gt;right);
+}
+
+<span class="kw">int</span> <span class="fn">main</span>(<span class="kw">void</span>) {
+    <span class="kw">int</span> arr[<span class="num">7</span>] = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>, <span class="num">7</span>};
+    <span class="kw">struct</span> <span class="ty">Node</span>* root = <span class="fn">create_tree</span>(arr, <span class="num">7</span>);
+    <span class="kw">int</span> count = <span class="fn">node_count</span>(root);
+    printf(<span class="str">"Number of nodes: %d\n"</span>, count);
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre>
+  </div>
+
+  <div class="terminal">
+    <div class="prompt">$ gcc tree.c -o tree &amp;&amp; ./tree</div>
+    <div class="out">Number of nodes: 7<span class="cursor"></span></div>
+  </div>
+</section>
+
+<section>
+  <div class="label">02 — The Walkthrough</div>
+  <h2>Watch the <em>recursion</em> unfold.</h2>
+  <p class="lede">Step through the program one call at a time. The tree on the left reflects what the stack is doing right now.</p>
+
+  <div class="walk">
+    <div class="tree-stage">
+      <div class="tree-canvas">
+      <svg viewBox="0 0 500 420" xmlns="http://www.w3.org/2000/svg">
+        <!-- Edges -->
+        <g id="edges">
+          <line class="edge" data-edge="1-2" x1="250" y1="70"  x2="140" y2="170"/>
+          <line class="edge" data-edge="1-3" x1="250" y1="70"  x2="360" y2="170"/>
+          <line class="edge" data-edge="2-4" x1="140" y1="170" x2="70"  y2="280"/>
+          <line class="edge" data-edge="2-5" x1="140" y1="170" x2="210" y2="280"/>
+          <line class="edge" data-edge="3-6" x1="360" y1="170" x2="290" y2="280"/>
+          <line class="edge" data-edge="3-7" x1="360" y1="170" x2="430" y2="280"/>
+        </g>
+        <!-- Nodes -->
+        <g class="node-g" data-node="1">
+          <circle cx="250" cy="70" r="22"/>
+          <text x="250" y="70">1</text>
+          <text class="return-label" data-return="1" x="250" y="38">returns 7</text>
+        </g>
+        <g class="node-g" data-node="2">
+          <circle cx="140" cy="170" r="22"/>
+          <text x="140" y="170">2</text>
+          <text class="return-label" data-return="2" x="100" y="152">returns 3</text>
+        </g>
+        <g class="node-g" data-node="3">
+          <circle cx="360" cy="170" r="22"/>
+          <text x="360" y="170">3</text>
+          <text class="return-label" data-return="3" x="400" y="152">returns 3</text>
+        </g>
+        <g class="node-g" data-node="4">
+          <circle cx="70"  cy="280" r="22"/>
+          <text x="70" y="280">4</text>
+          <text class="return-label" data-return="4" x="70" y="320">returns 1</text>
+        </g>
+        <g class="node-g" data-node="5">
+          <circle cx="210" cy="280" r="22"/>
+          <text x="210" y="280">5</text>
+          <text class="return-label" data-return="5" x="210" y="320">returns 1</text>
+        </g>
+        <g class="node-g" data-node="6">
+          <circle cx="290" cy="280" r="22"/>
+          <text x="290" y="280">6</text>
+          <text class="return-label" data-return="6" x="290" y="320">returns 1</text>
+        </g>
+        <g class="node-g" data-node="7">
+          <circle cx="430" cy="280" r="22"/>
+          <text x="430" y="280">7</text>
+          <text class="return-label" data-return="7" x="430" y="320">returns 1</text>
+        </g>
+      </svg>
+      </div>
+      <div class="call-stack">
+        <div class="stack-label">
+          <span>Call stack · grows upward</span>
+          <span class="depth" id="stackDepth">depth 0</span>
+        </div>
+        <div id="frameContainer"></div>
+      </div>
+    </div>
+
+    <div class="step-panel">
+      <div class="step-num" id="stepNum">STEP 0 / 10</div>
+      <h3 id="stepTitle">Ready to begin</h3>
+      <div class="step-body" id="stepBody">
+        main() is about to call create_tree with the array [1, 2, 3, 4, 5, 6, 7]. Press Play, or step through manually.
+      </div>
+      <div class="step-code" id="stepCode">int arr[7] = {1, 2, 3, 4, 5, 6, 7};
+struct Node* root = create_tree(arr, 7);</div>
+      <div class="controls">
+        <button id="prevBtn" disabled>← Back</button>
+        <button id="nextBtn" class="play">Play →</button>
+        <button id="resetBtn">Reset</button>
+        <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="label">03 — The Ideas</div>
+  <h2>What <em>actually happened</em>?</h2>
+  <p class="lede">Three ideas do the heavy lifting in this tiny program.</p>
+
+  <div class="concepts">
+    <div class="concept">
+      <div class="num">— I</div>
+      <h4>Array indexing as tree structure</h4>
+      <p>A flat array becomes a tree by convention: the node at index <em>i</em> has children at indices 2i+1 and 2i+2. No pointer arithmetic is needed to find relatives — just a little math.</p>
+      <div class="fm">left = 2i+1   right = 2i+2</div>
+    </div>
+    <div class="concept">
+      <div class="num">— II</div>
+      <h4>Recursion meets its own base case</h4>
+      <p>node_count calls itself on every child. The recursion stops when it hits NULL and returns 0. Every other call returns 1 plus whatever its children returned.</p>
+      <div class="fm">node_count(NULL) → 0</div>
+    </div>
+    <div class="concept">
+      <div class="num">— III</div>
+      <h4>The stack unwinds bottom-up</h4>
+      <p>Deep calls finish first. Leaves return 1, their parents sum those up and return 3, and the root assembles the final 7. The answer is built on the way back.</p>
+      <div class="fm">1 + 3 + 3 = 7</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  End of document · tree.c · 40 lines · compiles clean
+</footer>
+
+<script>
+  const steps = [
+    {
+      title: "main() starts",
+      body: "main creates the array and calls create_tree(arr, 7). The array [1,2,3,4,5,6,7] will become a binary tree.",
+      code: "int arr[7] = {1, 2, 3, 4, 5, 6, 7};\nstruct Node* root = create_tree(arr, 7);",
+      active: [], visited: [], returning: [], edges: [], returns: [],
+      stack: [{name: 'main()'}]
+    },
+    {
+      title: "create_tree builds the tree",
+      body: "All 7 nodes are allocated and linked using left=2i+1, right=2i+2. Root is node 1. create_tree returns; stack stays at just main.",
+      code: "// 7 nodes allocated, edges wired up\nreturn nodes[0];  // root = node 1",
+      active: [], visited: [1,2,3,4,5,6,7], returning: [],
+      edges: ["1-2","1-3","2-4","2-5","3-6","3-7"], returns: [],
+      stack: [{name: 'main()'}]
+    },
+    {
+      title: "PUSH node_count(1) — root call",
+      body: "main calls node_count on the root. A new frame is pushed onto the stack.",
+      code: "int count = node_count(root);",
+      active: [1], visited: [2,3,4,5,6,7], returning: [], edges: [], returns: [],
+      stack: [{name: 'main()'}, {name: 'node_count(1)'}]
+    },
+    {
+      title: "PUSH node_count(2) — left of root",
+      body: "node_count(1) needs its left subtree counted. It recurses into node 2.",
+      code: "return 1 + node_count(root->left)  // ← recurses here\n         + node_count(root->right);",
+      active: [2], visited: [1,3,4,5,6,7], returning: [], edges: ["1-2"], returns: [],
+      stack: [{name: 'main()'}, {name: 'node_count(1)'}, {name: 'node_count(2)'}]
+    },
+    {
+      title: "PUSH node_count(4) — left of 2",
+      body: "node_count(2) recurses into its left child, node 4. Stack depth is now 4.",
+      code: "return 1 + node_count(root->left)  // ← node 4\n         + node_count(root->right);",
+      active: [4], visited: [1,2,3,5,6,7], returning: [], edges: ["2-4"], returns: [],
+      stack: [{name: 'main()'}, {name: 'node_count(1)'}, {name: 'node_count(2)'}, {name: 'node_count(4)'}]
+    },
+    {
+      title: "node_count(4) returns 1",
+      body: "Node 4 is a leaf. Both recursive calls on its NULL children return 0. node_count(4) returns 1 + 0 + 0 = 1.",
+      code: "// root == NULL? No — but left, right are NULL\nreturn 1 + 0 + 0;  // = 1",
+      active: [], visited: [1,2,3,5,6,7], returning: [4],
+      edges: ["2-4"], returns: [4],
+      stack: [{name: 'main()'}, {name: 'node_count(1)'}, {name: 'node_count(2)'}, {name: 'node_count(4)', returns: 1}]
+    },
+    {
+      title: "PUSH node_count(5) — right of 2",
+      body: "node_count(4) popped. node_count(2) now recurses into its right child, node 5.",
+      code: "return 1 + node_count(root->left)    // = 1 ✓\n         + node_count(root->right); // ← node 5",
+      active: [5], visited: [1,2,3,4,6,7], returning: [4], edges: ["2-5"], returns: [4],
+      stack: [{name: 'main()'}, {name: 'node_count(1)'}, {name: 'node_count(2)'}, {name: 'node_count(5)'}]
+    },
+    {
+      title: "node_count(5) returns 1",
+      body: "Node 5 is also a leaf. Returns 1 + 0 + 0 = 1.",
+      code: "return 1 + 0 + 0;  // = 1",
+      active: [], visited: [1,2,3,4,6,7], returning: [5,4],
+      edges: ["2-5"], returns: [5,4],
+      stack: [{name: 'main()'}, {name: 'node_count(1)'}, {name: 'node_count(2)'}, {name: 'node_count(5)', returns: 1}]
+    },
+    {
+      title: "node_count(2) returns 3",
+      body: "node_count(5) popped. node_count(2) now has both child counts. Returns 1 + 1 + 1 = 3.",
+      code: "// node 2 done\nreturn 1 + 1 + 1;  // = 3",
+      active: [], visited: [1,3,6,7], returning: [2,4,5],
+      edges: ["2-4","2-5"], returns: [2,4,5],
+      stack: [{name: 'main()'}, {name: 'node_count(1)'}, {name: 'node_count(2)', returns: 3}]
+    },
+    {
+      title: "PUSH node_count(3) — right of root",
+      body: "node_count(2) popped with return value 3. node_count(1) now recurses into its right child, node 3.",
+      code: "return 1 + node_count(root->left)    // = 3 ✓\n         + node_count(root->right); // ← node 3",
+      active: [3], visited: [1,2,4,5,6,7], returning: [], edges: ["1-3"], returns: [],
+      stack: [{name: 'main()'}, {name: 'node_count(1)'}, {name: 'node_count(3)'}]
+    },
+    {
+      title: "PUSH node_count(6) — left of 3",
+      body: "node_count(3) recurses into its left child, node 6. Stack is back to depth 4.",
+      code: "return 1 + node_count(root->left)  // ← node 6\n         + node_count(root->right);",
+      active: [6], visited: [1,2,3,4,5,7], returning: [], edges: ["3-6"], returns: [],
+      stack: [{name: 'main()'}, {name: 'node_count(1)'}, {name: 'node_count(3)'}, {name: 'node_count(6)'}]
+    },
+    {
+      title: "node_count(6) returns 1",
+      body: "Node 6 is a leaf. Returns 1.",
+      code: "return 1 + 0 + 0;  // = 1",
+      active: [], visited: [1,2,3,4,5,7], returning: [6],
+      edges: ["3-6"], returns: [6],
+      stack: [{name: 'main()'}, {name: 'node_count(1)'}, {name: 'node_count(3)'}, {name: 'node_count(6)', returns: 1}]
+    },
+    {
+      title: "PUSH node_count(7) — right of 3",
+      body: "node_count(6) popped. node_count(3) now recurses into its right child, node 7.",
+      code: "return 1 + node_count(root->left)    // = 1 ✓\n         + node_count(root->right); // ← node 7",
+      active: [7], visited: [1,2,3,4,5,6], returning: [6], edges: ["3-7"], returns: [6],
+      stack: [{name: 'main()'}, {name: 'node_count(1)'}, {name: 'node_count(3)'}, {name: 'node_count(7)'}]
+    },
+    {
+      title: "node_count(7) returns 1",
+      body: "Node 7 is a leaf. Returns 1.",
+      code: "return 1 + 0 + 0;  // = 1",
+      active: [], visited: [1,2,3,4,5,6], returning: [7,6],
+      edges: ["3-7"], returns: [7,6],
+      stack: [{name: 'main()'}, {name: 'node_count(1)'}, {name: 'node_count(3)'}, {name: 'node_count(7)', returns: 1}]
+    },
+    {
+      title: "node_count(3) returns 3",
+      body: "node_count(7) popped. node_count(3) has both subtree counts. Returns 1 + 1 + 1 = 3.",
+      code: "// node 3 done\nreturn 1 + 1 + 1;  // = 3",
+      active: [], visited: [1,2,4,5], returning: [3,6,7,2,4,5],
+      edges: [], returns: [3,6,7,2,4,5],
+      stack: [{name: 'main()'}, {name: 'node_count(1)'}, {name: 'node_count(3)', returns: 3}]
+    },
+    {
+      title: "node_count(1) returns 7",
+      body: "node_count(3) popped. The root call now has both subtree counts: 1 + 3 + 3 = 7.",
+      code: "// at the root\nreturn 1 + 3 + 3;  // = 7",
+      active: [], visited: [2,3,4,5,6,7], returning: [1,2,3,4,5,6,7],
+      edges: [], returns: [1,2,3,4,5,6,7],
+      stack: [{name: 'main()'}, {name: 'node_count(1)', returns: 7}]
+    },
+    {
+      title: "main prints the result",
+      body: "node_count(1) popped, returning 7 to main. printf writes the line, main returns 0.",
+      code: 'printf("Number of nodes: %d\\n", count);\n// stdout: Number of nodes: 7',
+      active: [], visited: [1,2,3,4,5,6,7], returning: [1,2,3,4,5,6,7],
+      edges: [], returns: [1,2,3,4,5,6,7],
+      stack: [{name: 'main()'}]
+    }
+  ];
+
+  let i = 0;
+  let playing = false;
+  let playTimer = null;
+  let previousStack = [];
+
+  const stepNumEl = document.getElementById('stepNum');
+  const stepTitleEl = document.getElementById('stepTitle');
+  const stepBodyEl = document.getElementById('stepBody');
+  const stepCodeEl = document.getElementById('stepCode');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const progressBar = document.getElementById('progressBar');
+  const frameContainer = document.getElementById('frameContainer');
+  const stackDepthEl = document.getElementById('stackDepth');
+
+  function frameHTML(frame, idx, isTop) {
+    let html = '';
+    if (idx === 0) html += '<span class="frame-tag">base</span>';
+    html += '<span class="fn-name">' + frame.name + '</span>';
+    if (frame.returns !== undefined) {
+      html += '<span class="ret-val">↑ returns ' + frame.returns + '</span>';
+    } else if (isTop && idx > 0) {
+      html += '<span class="ret-val">⋯ running</span>';
+    } else if (isTop && idx === 0) {
+      html += '<span class="ret-val">⋯ running</span>';
+    }
+    return html;
+  }
+
+  function setFrameState(el, frame, idx, isTop) {
+    el.classList.remove('top', 'returning');
+    if (frame.returns !== undefined) {
+      el.classList.add('returning');
+    } else if (isTop) {
+      el.classList.add('top');
+    }
+    el.innerHTML = frameHTML(frame, idx, isTop);
+  }
+
+  function renderStack(stackData) {
+    stackDepthEl.textContent = 'depth ' + stackData.length;
+
+    // Find common prefix — frames that stay between transitions
+    let commonLen = 0;
+    while (commonLen < Math.min(previousStack.length, stackData.length)
+           && previousStack[commonLen].name === stackData[commonLen].name) {
+      commonLen++;
+    }
+
+    const currentChildren = Array.from(frameContainer.children);
+
+    // Pop: remove frames beyond the common prefix that were in the old stack
+    for (let idx = previousStack.length - 1; idx >= commonLen; idx--) {
+      const el = currentChildren[idx];
+      if (!el) continue;
+      el.classList.remove('show');
+      el.classList.add('popping');
+      // Remove after fade-out
+      const toRemove = el;
+      setTimeout(function() { if (toRemove.parentNode) toRemove.remove(); }, 340);
+    }
+
+    // Update frames that persist (common prefix) — state may have changed
+    for (let idx = 0; idx < commonLen; idx++) {
+      const el = currentChildren[idx];
+      const isTop = idx === stackData.length - 1;
+      if (el) setFrameState(el, stackData[idx], idx, isTop);
+    }
+
+    // Push: add new frames beyond the common prefix
+    for (let idx = commonLen; idx < stackData.length; idx++) {
+      const el = document.createElement('div');
+      el.className = 'frame';
+      const isTop = idx === stackData.length - 1;
+      setFrameState(el, stackData[idx], idx, isTop);
+      frameContainer.appendChild(el);
+      // Staggered fade-in
+      const staggerDelay = 60 + (idx - commonLen) * 90;
+      setTimeout(function() { el.classList.add('show'); }, staggerDelay);
+    }
+
+    // Make sure persistent frames are still "show"n
+    for (let idx = 0; idx < commonLen; idx++) {
+      const el = currentChildren[idx];
+      if (el) el.classList.add('show');
+    }
+
+    previousStack = stackData.map(f => ({name: f.name, returns: f.returns}));
+  }
+
+  function applyStep(idx) {
+    const s = steps[idx];
+    stepNumEl.textContent = `STEP ${idx} / ${steps.length - 1}`;
+    stepTitleEl.textContent = s.title;
+    stepBodyEl.textContent = s.body;
+    stepCodeEl.textContent = s.code;
+    progressBar.style.width = `${(idx / (steps.length - 1)) * 100}%`;
+
+    // Call stack animation
+    renderStack(s.stack || [{name: 'main()'}]);
+
+    // Reset all nodes
+    document.querySelectorAll('.node-g').forEach(n => {
+      n.classList.remove('active', 'visited', 'returning');
+    });
+    document.querySelectorAll('.edge').forEach(e => e.classList.remove('lit'));
+    document.querySelectorAll('.return-label').forEach(l => l.classList.remove('show'));
+
+    // Apply current state
+    s.visited.forEach(id => {
+      const n = document.querySelector(`.node-g[data-node="${id}"]`);
+      if (n) n.classList.add('visited');
+    });
+    s.returning.forEach(id => {
+      const n = document.querySelector(`.node-g[data-node="${id}"]`);
+      if (n) { n.classList.remove('visited'); n.classList.add('returning'); }
+    });
+    s.active.forEach(id => {
+      const n = document.querySelector(`.node-g[data-node="${id}"]`);
+      if (n) { n.classList.remove('visited', 'returning'); n.classList.add('active'); }
+    });
+    s.edges.forEach(ed => {
+      const e = document.querySelector(`.edge[data-edge="${ed}"]`);
+      if (e) e.classList.add('lit');
+    });
+    s.returns.forEach(id => {
+      const l = document.querySelector(`.return-label[data-return="${id}"]`);
+      if (l) l.classList.add('show');
+    });
+
+    prevBtn.disabled = idx === 0;
+    if (idx === steps.length - 1) {
+      nextBtn.textContent = 'Done';
+      nextBtn.disabled = true;
+      stopPlay();
+    } else {
+      nextBtn.textContent = playing ? 'Pause' : (idx === 0 ? 'Play →' : 'Next →');
+      nextBtn.disabled = false;
+    }
+  }
+
+  function stopPlay() {
+    playing = false;
+    if (playTimer) { clearInterval(playTimer); playTimer = null; }
+    if (i < steps.length - 1) nextBtn.textContent = (i === 0 ? 'Play →' : 'Next →');
+  }
+
+  function startPlay() {
+    playing = true;
+    nextBtn.textContent = 'Pause';
+    playTimer = setInterval(() => {
+      if (i >= steps.length - 1) { stopPlay(); return; }
+      i++;
+      applyStep(i);
+    }, 2200);
+  }
+
+  prevBtn.addEventListener('click', () => {
+    stopPlay();
+    if (i > 0) { i--; applyStep(i); }
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if (i === 0 && !playing) { startPlay(); return; }
+    if (playing) { stopPlay(); return; }
+    if (i < steps.length - 1) { i++; applyStep(i); }
+  });
+
+  resetBtn.addEventListener('click', () => {
+    stopPlay();
+    i = 0;
+    // Clear stack DOM so diffing starts fresh
+    frameContainer.innerHTML = '';
+    previousStack = [];
+    applyStep(i);
+  });
+
+  applyStep(0);
+</script>
+
+</body>
+</html>
