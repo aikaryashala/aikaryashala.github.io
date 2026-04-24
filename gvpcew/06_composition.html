@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Composition of Code</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#0a0e17;--surface:#111827;--surface2:#1a2236;--surface3:#232d44;
+    --accent:#60a5fa;--accent2:#a78bfa;--accent3:#34d399;--accent4:#fbbf24;
+    --accent5:#f472b6;--accent6:#fb923c;--accent7:#38bdf8;--accent8:#c084fc;
+    --text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+    --radius:12px;--glow:0 0 30px rgba(96,165,250,.15);
+  }
+  body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+  code,pre,.code{font-family:'JetBrains Mono',monospace}
+
+  /* Progress bar */
+  .progress-track{position:fixed;top:0;left:0;width:100%;height:4px;background:var(--surface2);z-index:100}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3));width:0%;transition:width .6s cubic-bezier(.22,1,.36,1)}
+
+  /* Step indicator */
+  .step-indicator{position:fixed;top:16px;right:24px;z-index:99;font-size:.8rem;color:var(--text2);
+    background:var(--surface);padding:6px 14px;border-radius:20px;border:1px solid var(--surface3)}
+
+  /* Main container */
+  .container{max-width:800px;margin:0 auto;padding:40px 24px 100px}
+
+  /* Header */
+  .header{text-align:center;padding:60px 0 40px;opacity:0;animation:fadeUp .8s ease forwards}
+  .header h1{font-size:clamp(2rem,5vw,3rem);font-weight:700;
+    background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.02em;margin-bottom:12px}
+  .header p{color:var(--text2);font-size:1.05rem;font-weight:300;max-width:500px;margin:0 auto}
+
+  /* Level card */
+  .level{display:none;opacity:0}
+  .level.active{display:block;animation:fadeUp .6s ease forwards}
+  .level-badge{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border-radius:20px;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:20px}
+  .level-title{font-size:1.6rem;font-weight:700;margin-bottom:8px}
+  .level-subtitle{color:var(--text2);font-size:.95rem;margin-bottom:28px;font-weight:300;line-height:1.6}
+
+  /* Animation stage */
+  .stage{background:var(--surface);border:1px solid var(--surface3);border-radius:var(--radius);padding:32px;margin-bottom:28px;position:relative;overflow:hidden;min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+  .stage::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(96,165,250,.06),transparent 70%);pointer-events:none}
+
+  /* Code pieces */
+  .piece{display:inline-flex;padding:8px 16px;border-radius:8px;font-size:.85rem;font-weight:600;opacity:0;transform:translateY(20px);transition:all .5s cubic-bezier(.22,1,.36,1)}
+  .piece.visible{opacity:1;transform:translateY(0)}
+  .piece.var{background:rgba(96,165,250,.15);color:var(--accent);border:1px solid rgba(96,165,250,.25)}
+  .piece.op{background:rgba(167,139,250,.15);color:var(--accent2);border:1px solid rgba(167,139,250,.25)}
+  .piece.expr{background:rgba(52,211,153,.12);color:var(--accent3);border:1px solid rgba(52,211,153,.25)}
+  .piece.stmt{background:rgba(251,191,36,.12);color:var(--accent4);border:1px solid rgba(251,191,36,.25)}
+  .piece.block{background:rgba(244,114,182,.12);color:var(--accent5);border:1px solid rgba(244,114,182,.25)}
+  .piece.func{background:rgba(251,146,60,.12);color:var(--accent6);border:1px solid rgba(251,146,60,.25)}
+  .piece.cls{background:rgba(56,189,248,.12);color:var(--accent7);border:1px solid rgba(56,189,248,.25)}
+  .piece.mod{background:rgba(192,132,252,.12);color:var(--accent8);border:1px solid rgba(192,132,252,.25)}
+  .piece.pkg{background:rgba(52,211,153,.12);color:var(--accent3);border:1px solid rgba(52,211,153,.25)}
+
+  .plus{font-size:1.2rem;color:var(--text3);opacity:0;transform:scale(0);transition:all .4s cubic-bezier(.22,1,.36,1)}
+  .plus.visible{opacity:1;transform:scale(1)}
+
+  .arrow-down{width:2px;height:30px;background:var(--text3);position:relative;opacity:0;transition:all .5s ease}
+  .arrow-down.visible{opacity:1}
+  .arrow-down::after{content:'▼';position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);color:var(--text3);font-size:.7rem}
+
+  .result-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
+  .equals{font-size:1.4rem;color:var(--accent3);opacity:0;transition:all .4s ease}
+  .equals.visible{opacity:1}
+
+  /* Merge animation */
+  @keyframes merge{0%{transform:scale(1)}50%{transform:scale(1.08);box-shadow:0 0 20px currentColor}100%{transform:scale(1)}}
+  .piece.merge{animation:merge .6s ease}
+
+  /* Code block examples */
+  .code-examples{display:flex;flex-direction:column;gap:8px;width:100%;margin-top:8px}
+  .code-example{background:var(--surface2);border-radius:8px;padding:12px 16px;font-size:.8rem;border-left:3px solid;opacity:0;transform:translateX(-20px);transition:all .5s cubic-bezier(.22,1,.36,1)}
+  .code-example.visible{opacity:1;transform:translateX(0)}
+  .code-example .label{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;font-family:'Sora',sans-serif}
+
+  /* Quiz section */
+  .quiz{background:var(--surface);border:1px solid var(--surface3);border-radius:var(--radius);padding:28px;margin-bottom:20px}
+  .quiz h3{font-size:.9rem;color:var(--accent);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+  .quiz h3::before{content:'?';display:inline-flex;width:24px;height:24px;border-radius:50%;background:rgba(96,165,250,.15);align-items:center;justify-content:center;font-weight:700;font-size:.75rem}
+  .question{margin-bottom:24px}
+  .question:last-child{margin-bottom:0}
+  .question p{font-size:.9rem;margin-bottom:12px;line-height:1.5}
+  .options{display:flex;flex-direction:column;gap:8px}
+  .option{padding:10px 16px;border-radius:8px;background:var(--surface2);border:1px solid var(--surface3);cursor:pointer;font-size:.82rem;transition:all .25s ease;position:relative;overflow:hidden}
+  .option:hover{border-color:var(--accent);background:rgba(96,165,250,.05)}
+  .option.correct{background:rgba(52,211,153,.12);border-color:var(--accent3);color:var(--accent3)}
+  .option.wrong{background:rgba(239,68,68,.1);border-color:#ef4444;color:#ef4444}
+  .option.disabled{pointer-events:none;opacity:.6}
+  .option .feedback{display:none;font-size:.75rem;margin-top:6px;font-weight:300}
+  .option.correct .feedback,.option.wrong .feedback{display:block}
+
+  /* Navigation */
+  .nav{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:12px}
+  .btn{padding:12px 28px;border-radius:10px;border:none;font-family:'Sora',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .3s ease;display:inline-flex;align-items:center;gap:8px}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(96,165,250,.3)}
+  .btn-secondary{background:var(--surface2);color:var(--text2);border:1px solid var(--surface3)}
+  .btn-secondary:hover{border-color:var(--text3);color:var(--text)}
+  .btn:disabled{opacity:.3;pointer-events:none}
+  .btn-start{padding:16px 40px;font-size:1rem}
+
+  /* Completion screen */
+  .complete{text-align:center;padding:60px 20px}
+  .complete h2{font-size:2rem;margin-bottom:12px;background:linear-gradient(135deg,var(--accent3),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .trophy{font-size:4rem;margin-bottom:20px;display:block;animation:float 2s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+  /* Hierarchy sidebar recap */
+  .hierarchy{display:flex;flex-direction:column;gap:4px;margin-bottom:28px}
+  .h-item{display:flex;align-items:center;gap:10px;padding:6px 12px;border-radius:6px;font-size:.75rem;transition:all .3s ease;opacity:.35}
+  .h-item.reached{opacity:1}
+  .h-item.current{opacity:1;background:var(--surface2)}
+  .h-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .h-line{width:2px;height:12px;background:var(--surface3);margin-left:4px}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+
+  /* Responsive */
+  @media(max-width:600px){
+    .container{padding:30px 16px 80px}
+    .stage{padding:20px 16px}
+    .result-row{gap:8px}
+    .piece{padding:6px 12px;font-size:.78rem}
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+<div class="step-indicator" id="stepIndicator">Step 0 / 8</div>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header" id="headerSection">
+    <h1>The Composition of Code</h1>
+    <p>How small pieces combine to build entire programs — step by step.</p>
+    <br><br>
+    <button class="btn btn-primary btn-start" onclick="startJourney()">Begin the Journey →</button>
+  </div>
+
+  <!-- Hierarchy tracker -->
+  <div class="hierarchy" id="hierarchy" style="display:none">
+    <div class="h-item" data-h="1"><div class="h-dot" style="background:var(--accent)"></div><span>Expression</span></div>
+    <div class="h-line"></div>
+    <div class="h-item" data-h="2"><div class="h-dot" style="background:var(--accent4)"></div><span>Statement</span></div>
+    <div class="h-line"></div>
+    <div class="h-item" data-h="3"><div class="h-dot" style="background:var(--accent5)"></div><span>Block</span></div>
+    <div class="h-line"></div>
+    <div class="h-item" data-h="4"><div class="h-dot" style="background:var(--accent6)"></div><span>Control Flow</span></div>
+    <div class="h-line"></div>
+    <div class="h-item" data-h="5"><div class="h-dot" style="background:var(--accent6)"></div><span>Function</span></div>
+    <div class="h-line"></div>
+    <div class="h-item" data-h="6"><div class="h-dot" style="background:var(--accent7)"></div><span>Class</span></div>
+    <div class="h-line"></div>
+    <div class="h-item" data-h="7"><div class="h-dot" style="background:var(--accent8)"></div><span>Module</span></div>
+    <div class="h-line"></div>
+    <div class="h-item" data-h="8"><div class="h-dot" style="background:var(--accent3)"></div><span>Package</span></div>
+  </div>
+
+  <!-- LEVEL 1: Expression -->
+  <div class="level" id="level1">
+    <div class="level-badge" style="background:rgba(96,165,250,.1);color:var(--accent)">Level 1</div>
+    <h2 class="level-title">Expression</h2>
+    <p class="level-subtitle">The smallest unit that produces a value. Combine <strong>variables</strong> and <strong>operators</strong> to create an expression.</p>
+
+    <div class="stage" id="stage1">
+      <div class="result-row">
+        <span class="piece var code" data-delay="0">price</span>
+        <span class="plus" data-delay="300">+</span>
+        <span class="piece op code" data-delay="500">*</span>
+        <span class="plus" data-delay="700">+</span>
+        <span class="piece var code" data-delay="900">tax</span>
+      </div>
+      <div class="arrow-down" data-delay="1200"></div>
+      <div class="result-row">
+        <span class="equals" data-delay="1400">=</span>
+        <span class="piece expr code" data-delay="1600" style="font-size:1rem">price * tax</span>
+      </div>
+    </div>
+
+    <div class="code-examples">
+      <div class="code-example visible" style="border-color:var(--accent);transition-delay:.2s">
+        <div class="label" style="color:var(--accent)">Arithmetic</div>
+        <code>a + b * 2</code>
+      </div>
+      <div class="code-example visible" style="border-color:var(--accent2);transition-delay:.4s">
+        <div class="label" style="color:var(--accent2)">Comparison</div>
+        <code>age >= 18</code>
+      </div>
+      <div class="code-example visible" style="border-color:var(--accent3);transition-delay:.6s">
+        <div class="label" style="color:var(--accent3)">Function Call</div>
+        <code>len("hello")</code>
+      </div>
+    </div>
+
+    <br>
+    <div class="quiz">
+      <h3>Check Your Understanding</h3>
+      <div class="question" data-answer="1">
+        <p>1. Which of these is an expression?</p>
+        <div class="options">
+          <div class="option" data-idx="0" onclick="checkAnswer(this)"><code>x = 10</code><div class="feedback">That's an assignment statement, not just an expression.</div></div>
+          <div class="option" data-idx="1" onclick="checkAnswer(this)"><code>x + y * 2</code><div class="feedback">Correct! It combines variables and operators to produce a value.</div></div>
+          <div class="option" data-idx="2" onclick="checkAnswer(this)"><code>if x > 5:</code><div class="feedback">That's a control flow keyword, not an expression on its own.</div></div>
+        </div>
+      </div>
+      <div class="question" data-answer="2">
+        <p>2. What does an expression always produce?</p>
+        <div class="options">
+          <div class="option" data-idx="0" onclick="checkAnswer(this)">A side effect<div class="feedback">Side effects come from statements, not expressions alone.</div></div>
+          <div class="option" data-idx="1" onclick="checkAnswer(this)">An error<div class="feedback">Expressions don't inherently produce errors.</div></div>
+          <div class="option" data-idx="2" onclick="checkAnswer(this)">A value<div class="feedback">Correct! Every expression evaluates to a value.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <span></span>
+      <button class="btn btn-primary" onclick="goToLevel(2)">Next: Statement →</button>
+    </div>
+  </div>
+
+  <!-- LEVEL 2: Statement -->
+  <div class="level" id="level2">
+    <div class="level-badge" style="background:rgba(251,191,36,.1);color:var(--accent4)">Level 2</div>
+    <h2 class="level-title">Statement</h2>
+    <p class="level-subtitle">A statement is a <strong>complete instruction</strong> that performs an action. An expression becomes a statement when it <em>does</em> something — assigns, declares, calls, or controls.</p>
+
+    <div class="stage" id="stage2">
+      <div class="result-row">
+        <span class="piece expr code" data-delay="0">expression</span>
+        <span class="plus" data-delay="300">+</span>
+        <span class="piece op code" data-delay="500">action</span>
+      </div>
+      <div class="arrow-down" data-delay="800"></div>
+      <div class="result-row">
+        <span class="equals" data-delay="1000">=</span>
+        <span class="piece stmt code" data-delay="1200" style="font-size:1rem">statement</span>
+      </div>
+    </div>
+
+    <div class="code-examples">
+      <div class="code-example visible" style="border-color:var(--accent4);transition-delay:.2s">
+        <div class="label" style="color:var(--accent4)">Assignment Statement</div>
+        <code>total = price * tax</code>
+      </div>
+      <div class="code-example visible" style="border-color:var(--accent);transition-delay:.4s">
+        <div class="label" style="color:var(--accent)">Declaration Statement</div>
+        <code>int count = 0</code>
+      </div>
+      <div class="code-example visible" style="border-color:var(--accent3);transition-delay:.6s">
+        <div class="label" style="color:var(--accent3)">Function Call Statement</div>
+        <code>print("Hello World")</code>
+      </div>
+      <div class="code-example visible" style="border-color:var(--accent2);transition-delay:.8s">
+        <div class="label" style="color:var(--accent2)">Return Statement</div>
+        <code>return result</code>
+      </div>
+      <div class="code-example visible" style="border-color:var(--accent5);transition-delay:1s">
+        <div class="label" style="color:var(--accent5)">Import Statement</div>
+        <code>import math</code>
+      </div>
+    </div>
+
+    <br>
+    <div class="quiz">
+      <h3>Check Your Understanding</h3>
+      <div class="question" data-answer="2">
+        <p>1. Which is NOT a type of statement?</p>
+        <div class="options">
+          <div class="option" data-idx="0" onclick="checkAnswer(this)"><code>x = 5</code> (assignment)<div class="feedback">Assignment is a valid statement type.</div></div>
+          <div class="option" data-idx="1" onclick="checkAnswer(this)"><code>print("hi")</code> (call)<div class="feedback">Function call is a valid statement type.</div></div>
+          <div class="option" data-idx="2" onclick="checkAnswer(this)"><code>a + b</code> (bare expression)<div class="feedback">Correct! A bare expression like <code>a + b</code> computes a value but doesn't do anything with it — it's not a useful statement.</div></div>
+        </div>
+      </div>
+      <div class="question" data-answer="1">
+        <p>2. What turns an expression into a statement?</p>
+        <div class="options">
+          <div class="option" data-idx="0" onclick="checkAnswer(this)">Adding parentheses<div class="feedback">Parentheses only group expressions, they don't create a statement.</div></div>
+          <div class="option" data-idx="1" onclick="checkAnswer(this)">Performing an action (assign, declare, call, return)<div class="feedback">Correct! A statement does something — it assigns, declares, calls, or controls flow.</div></div>
+          <div class="option" data-idx="2" onclick="checkAnswer(this)">Adding a semicolon<div class="feedback">Semicolons are syntax, not what defines a statement conceptually.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn btn-secondary" onclick="goToLevel(1)">← Back</button>
+      <button class="btn btn-primary" onclick="goToLevel(3)">Next: Block →</button>
+    </div>
+  </div>
+
+  <!-- LEVEL 3: Block -->
+  <div class="level" id="level3">
+    <div class="level-badge" style="background:rgba(244,114,182,.1);color:var(--accent5)">Level 3</div>
+    <h2 class="level-title">Block</h2>
+    <p class="level-subtitle">A block is a <strong>group of statements</strong> that execute together sequentially. Indentation or braces define a block's boundary.</p>
+
+    <div class="stage" id="stage3">
+      <div class="result-row">
+        <span class="piece stmt code" data-delay="0">stmt 1</span>
+        <span class="plus" data-delay="200">+</span>
+        <span class="piece stmt code" data-delay="400">stmt 2</span>
+        <span class="plus" data-delay="600">+</span>
+        <span class="piece stmt code" data-delay="800">stmt 3</span>
+      </div>
+      <div class="arrow-down" data-delay="1100"></div>
+      <div class="result-row">
+        <span class="equals" data-delay="1300">=</span>
+        <span class="piece block code" data-delay="1500" style="font-size:1rem">{ block }</span>
+      </div>
+    </div>
+
+    <div class="code-examples">
+      <div class="code-example visible" style="border-color:var(--accent5);transition-delay:.2s">
+        <div class="label" style="color:var(--accent5)">Python Block (indentation)</div>
+        <pre class="code">    x = 10
+    y = x * 2
+    print(y)</pre>
+      </div>
+      <div class="code-example visible" style="border-color:var(--accent6);transition-delay:.5s">
+        <div class="label" style="color:var(--accent6)">Java Block (braces)</div>
+        <pre class="code">{
+    int x = 10;
+    int y = x * 2;
+    System.out.println(y);
+}</pre>
+      </div>
+    </div>
+
+    <br>
+    <div class="quiz">
+      <h3>Check Your Understanding</h3>
+      <div class="question" data-answer="0">
+        <p>1. What defines the boundaries of a block?</p>
+        <div class="options">
+          <div class="option" data-idx="0" onclick="checkAnswer(this)">Indentation (Python) or braces (Java/C)<div class="feedback">Correct! Different languages use different syntax to mark block boundaries.</div></div>
+          <div class="option" data-idx="1" onclick="checkAnswer(this)">Blank lines between statements<div class="feedback">Blank lines don't define blocks — they're just whitespace.</div></div>
+          <div class="option" data-idx="2" onclick="checkAnswer(this)">Comments in the code<div class="feedback">Comments are ignored by the compiler. They don't define blocks.</div></div>
+        </div>
+      </div>
+      <div class="question" data-answer="1">
+        <p>2. Can a block contain just one statement?</p>
+        <div class="options">
+          <div class="option" data-idx="0" onclick="checkAnswer(this)">No, it needs at least two<div class="feedback">A block can have any number of statements, including just one.</div></div>
+          <div class="option" data-idx="1" onclick="checkAnswer(this)">Yes, even a single statement can form a block<div class="feedback">Correct! A block can have one or many statements.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn btn-secondary" onclick="goToLevel(2)">← Back</button>
+      <button class="btn btn-primary" onclick="goToLevel(4)">Next: Control Flow →</button>
+    </div>
+  </div>
+
+  <!-- LEVEL 4: Control Flow -->
+  <div class="level" id="level4">
+    <div class="level-badge" style="background:rgba(251,146,60,.1);color:var(--accent6)">Level 4</div>
+    <h2 class="level-title">Control Flow</h2>
+    <p class="level-subtitle">Control flow structures decide <strong>which blocks</strong> run and <strong>how many times</strong>. They give your code decision-making and repetition.</p>
+
+    <div class="stage" id="stage4">
+      <div class="result-row">
+        <span class="piece expr code" data-delay="0">condition</span>
+        <span class="plus" data-delay="300">+</span>
+        <span class="piece block code" data-delay="500">block</span>
+      </div>
+      <div class="arrow-down" data-delay="800"></div>
+      <div class="result-row" style="gap:8px;flex-wrap:wrap;justify-content:center">
+        <span class="piece func code" data-delay="1000">if...else</span>
+        <span class="piece func code" data-delay="1200">for</span>
+        <span class="piece func code" data-delay="1400">while</span>
+      </div>
+    </div>
+
+    <div class="code-examples">
+      <div class="code-example visible" style="border-color:var(--accent4);transition-delay:.2s">
+        <div class="label" style="color:var(--accent4)">If / Else — decision</div>
+        <pre class="code">if age >= 18:
+    print("Adult")
+else:
+    print("Minor")</pre>
+      </div>
+      <div class="code-example visible" style="border-color:var(--accent);transition-delay:.5s">
+        <div class="label" style="color:var(--accent)">For — iteration</div>
+        <pre class="code">for i in range(5):
+    print(i)</pre>
+      </div>
+      <div class="code-example visible" style="border-color:var(--accent3);transition-delay:.8s">
+        <div class="label" style="color:var(--accent3)">While — conditional loop</div>
+        <pre class="code">while count < 10:
+    count += 1</pre>
+      </div>
+    </div>
+
+    <br>
+    <div class="quiz">
+      <h3>Check Your Understanding</h3>
+      <div class="question" data-answer="2">
+        <p>1. What two things does a control flow structure need?</p>
+        <div class="options">
+          <div class="option" data-idx="0" onclick="checkAnswer(this)">A variable and operator<div class="feedback">Those make an expression, not control flow.</div></div>
+          <div class="option" data-idx="1" onclick="checkAnswer(this)">A function and a class<div class="feedback">Those are higher-level constructs.</div></div>
+          <div class="option" data-idx="2" onclick="checkAnswer(this)">A condition and a block<div class="feedback">Correct! Control flow = condition (what to check) + block (what to do).</div></div>
+        </div>
+      </div>
+      <div class="question" data-answer="1">
+        <p>2. What's the difference between <code>for</code> and <code>while</code>?</p>
+        <div class="options">
+          <div class="option" data-idx="0" onclick="checkAnswer(this)"><code>for</code> is faster than <code>while</code><div class="feedback">Speed is not the difference — it's about when you know the iteration count.</div></div>
+          <div class="option" data-idx="1" onclick="checkAnswer(this)"><code>for</code> iterates a known range; <code>while</code> runs until a condition flips<div class="feedback">Correct! Use <code>for</code> when you know how many times; <code>while</code> when you don't.</div></div>
+          <div class="option" data-idx="2" onclick="checkAnswer(this)">They are identical<div class="feedback">They serve different use cases based on whether iteration count is known.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn btn-secondary" onclick="goToLevel(3)">← Back</button>
+      <button class="btn btn-primary" onclick="goToLevel(5)">Next: Function →</button>
+    </div>
+  </div>
+
+  <!-- LEVEL 5: Function -->
+  <div class="level" id="level5">
+    <div class="level-badge" style="background:rgba(251,146,60,.1);color:var(--accent6)">Level 5</div>
+    <h2 class="level-title">Function</h2>
+    <p class="level-subtitle">A function is a <strong>named, reusable block</strong> with <strong>parameters</strong> (inputs) and a <strong>return value</strong> (output). It doesn't need read/print — many functions do pure computation.</p>
+
+    <div class="stage" id="stage5">
+      <div class="result-row" style="flex-wrap:wrap;gap:8px">
+        <span class="piece var code" data-delay="0">name</span>
+        <span class="plus" data-delay="200">+</span>
+        <span class="piece expr code" data-delay="400">params</span>
+        <span class="plus" data-delay="600">+</span>
+        <span class="piece block code" data-delay="800">block</span>
+        <span class="plus" data-delay="1000">+</span>
+        <span class="piece stmt code" data-delay="1200">return</span>
+      </div>
+      <div class="arrow-down" data-delay="1500"></div>
+      <div class="result-row">
+        <span class="equals" data-delay="1700">=</span>
+        <span class="piece func code" data-delay="1900" style="font-size:1rem">def function()</span>
+      </div>
+    </div>
+
+    <div class="code-examples">
+      <div class="code-example visible" style="border-color:var(--accent6);transition-delay:.2s">
+        <div class="label" style="color:var(--accent6)">Pure computation (no I/O)</div>
+        <pre class="code">def area(radius):
+    return 3.14 * radius ** 2</pre>
+      </div>
+      <div class="code-example visible" style="border-color:var(--accent);transition-delay:.5s">
+        <div class="label" style="color:var(--accent)">With control flow inside</div>
+        <pre class="code">def grade(score):
+    if score >= 90:
+        return "A"
+    elif score >= 80:
+        return "B"
+    else:
+        return "C"</pre>
+      </div>
+    </div>
+
+    <br>
+    <div class="quiz">
+      <h3>Check Your Understanding</h3>
+      <div class="question" data-answer="1">
+        <p>1. Does every function need <code>print()</code> or <code>input()</code>?</p>
+        <div class="options">
+          <div class="option" data-idx="0" onclick="checkAnswer(this)">Yes, that's how functions communicate<div class="feedback">Functions communicate through parameters and return values, not I/O.</div></div>
+          <div class="option" data-idx="1" onclick="checkAnswer(this)">No, many functions use only params and return<div class="feedback">Correct! Functions take input via parameters and give output via return — no print/input needed.</div></div>
+        </div>
+      </div>
+      <div class="question" data-answer="0">
+        <p>2. What makes a function different from a plain block?</p>
+        <div class="options">
+          <div class="option" data-idx="0" onclick="checkAnswer(this)">It has a name, parameters, and can be reused<div class="feedback">Correct! Name + params + return + reusability = function.</div></div>
+          <div class="option" data-idx="1" onclick="checkAnswer(this)">It runs faster<div class="feedback">Functions aren't about speed — they're about structure and reusability.</div></div>
+          <div class="option" data-idx="2" onclick="checkAnswer(this)">It must contain a loop<div class="feedback">Functions don't require loops — they can contain any statements.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn btn-secondary" onclick="goToLevel(4)">← Back</button>
+      <button class="btn btn-primary" onclick="goToLevel(6)">Next: Class →</button>
+    </div>
+  </div>
+
+  <!-- LEVEL 6: Class -->
+  <div class="level" id="level6">
+    <div class="level-badge" style="background:rgba(56,189,248,.1);color:var(--accent7)">Level 6</div>
+    <h2 class="level-title">Class</h2>
+    <p class="level-subtitle">A class bundles <strong>related functions</strong> (methods) and <strong>data</strong> (attributes) into a single blueprint. Objects are created from classes.</p>
+
+    <div class="stage" id="stage6">
+      <div class="result-row" style="flex-wrap:wrap;gap:8px">
+        <span class="piece func code" data-delay="0">methods</span>
+        <span class="plus" data-delay="300">+</span>
+        <span class="piece var code" data-delay="500">data</span>
+      </div>
+      <div class="arrow-down" data-delay="800"></div>
+      <div class="result-row">
+        <span class="equals" data-delay="1000">=</span>
+        <span class="piece cls code" data-delay="1200" style="font-size:1rem">class Blueprint</span>
+      </div>
+    </div>
+
+    <div class="code-examples">
+      <div class="code-example visible" style="border-color:var(--accent7);transition-delay:.2s">
+        <div class="label" style="color:var(--accent7)">Class Example</div>
+        <pre class="code">class BankAccount:
+    def __init__(self, owner, balance):
+        self.owner = owner      # data
+        self.balance = balance  # data
+
+    def deposit(self, amount):  # method
+        self.balance += amount
+
+    def withdraw(self, amount): # method
+        self.balance -= amount</pre>
+      </div>
+    </div>
+
+    <br>
+    <div class="quiz">
+      <h3>Check Your Understanding</h3>
+      <div class="question" data-answer="2">
+        <p>1. What two things does a class combine?</p>
+        <div class="options">
+          <div class="option" data-idx="0" onclick="checkAnswer(this)">Loops and conditions<div class="feedback">Those are control flow, not class components.</div></div>
+          <div class="option" data-idx="1" onclick="checkAnswer(this)">Files and folders<div class="feedback">That's modules and packages, not classes.</div></div>
+          <div class="option" data-idx="2" onclick="checkAnswer(this)">Data (attributes) and functions (methods)<div class="feedback">Correct! A class = related data + related methods bundled together.</div></div>
+        </div>
+      </div>
+      <div class="question" data-answer="1">
+        <p>2. What is an "object"?</p>
+        <div class="options">
+          <div class="option" data-idx="0" onclick="checkAnswer(this)">Another word for a class<div class="feedback">A class is a blueprint; an object is a specific instance of it.</div></div>
+          <div class="option" data-idx="1" onclick="checkAnswer(this)">A specific instance created from a class<div class="feedback">Correct! <code>my_acc = BankAccount("Alice", 100)</code> — <code>my_acc</code> is an object.</div></div>
+          <div class="option" data-idx="2" onclick="checkAnswer(this)">A type of variable<div class="feedback">Objects hold variables, but they're more — they have methods too.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn btn-secondary" onclick="goToLevel(5)">← Back</button>
+      <button class="btn btn-primary" onclick="goToLevel(7)">Next: Module →</button>
+    </div>
+  </div>
+
+  <!-- LEVEL 7: Module -->
+  <div class="level" id="level7">
+    <div class="level-badge" style="background:rgba(192,132,252,.1);color:var(--accent8)">Level 7</div>
+    <h2 class="level-title">Module</h2>
+    <p class="level-subtitle">A module is a <strong>single file</strong> containing related classes, functions, and variables. It organizes code by responsibility.</p>
+
+    <div class="stage" id="stage7">
+      <div class="result-row" style="flex-wrap:wrap;gap:8px">
+        <span class="piece cls code" data-delay="0">Class A</span>
+        <span class="plus" data-delay="200">+</span>
+        <span class="piece cls code" data-delay="400">Class B</span>
+        <span class="plus" data-delay="600">+</span>
+        <span class="piece func code" data-delay="800">helpers</span>
+      </div>
+      <div class="arrow-down" data-delay="1100"></div>
+      <div class="result-row">
+        <span class="equals" data-delay="1300">=</span>
+        <span class="piece mod code" data-delay="1500" style="font-size:1rem">module.py</span>
+      </div>
+    </div>
+
+    <div class="code-examples">
+      <div class="code-example visible" style="border-color:var(--accent8);transition-delay:.2s">
+        <div class="label" style="color:var(--accent8)">Module: auth.py</div>
+        <pre class="code"># auth.py — one file, one responsibility
+class User: ...
+class Admin(User): ...
+
+def hash_password(pw): ...
+def verify_token(token): ...</pre>
+      </div>
+      <div class="code-example visible" style="border-color:var(--accent);transition-delay:.5s">
+        <div class="label" style="color:var(--accent)">Importing a module</div>
+        <pre class="code">import auth
+user = auth.User("Alice")</pre>
+      </div>
+    </div>
+
+    <br>
+    <div class="quiz">
+      <h3>Check Your Understanding</h3>
+      <div class="question" data-answer="1">
+        <p>1. What is a module in most languages?</p>
+        <div class="options">
+          <div class="option" data-idx="0" onclick="checkAnswer(this)">A folder of files<div class="feedback">That's closer to a package. A module is typically a single file.</div></div>
+          <div class="option" data-idx="1" onclick="checkAnswer(this)">A single file with related code<div class="feedback">Correct! One file = one module. It groups related classes and functions.</div></div>
+          <div class="option" data-idx="2" onclick="checkAnswer(this)">A running program<div class="feedback">A program can use many modules, but a module itself is just a file.</div></div>
+        </div>
+      </div>
+      <div class="question" data-answer="0">
+        <p>2. Why organize code into modules?</p>
+        <div class="options">
+          <div class="option" data-idx="0" onclick="checkAnswer(this)">Separation of concerns — each file handles one job<div class="feedback">Correct! Modules let you organize by responsibility so code is maintainable.</div></div>
+          <div class="option" data-idx="1" onclick="checkAnswer(this)">To make the code run faster<div class="feedback">Modules don't affect performance — they're about organization.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn btn-secondary" onclick="goToLevel(6)">← Back</button>
+      <button class="btn btn-primary" onclick="goToLevel(8)">Next: Package →</button>
+    </div>
+  </div>
+
+  <!-- LEVEL 8: Package -->
+  <div class="level" id="level8">
+    <div class="level-badge" style="background:rgba(52,211,153,.1);color:var(--accent3)">Level 8</div>
+    <h2 class="level-title">Package</h2>
+    <p class="level-subtitle">A package is a <strong>collection of modules</strong> (a folder) that can be distributed and reused. Packages can contain sub-packages too!</p>
+
+    <div class="stage" id="stage8">
+      <div class="result-row" style="flex-wrap:wrap;gap:8px">
+        <span class="piece mod code" data-delay="0">auth.py</span>
+        <span class="plus" data-delay="200">+</span>
+        <span class="piece mod code" data-delay="400">models.py</span>
+        <span class="plus" data-delay="600">+</span>
+        <span class="piece mod code" data-delay="800">utils.py</span>
+      </div>
+      <div class="arrow-down" data-delay="1100"></div>
+      <div class="result-row">
+        <span class="equals" data-delay="1300">=</span>
+        <span class="piece pkg code" data-delay="1500" style="font-size:1rem">📦 mypackage/</span>
+      </div>
+    </div>
+
+    <div class="code-examples">
+      <div class="code-example visible" style="border-color:var(--accent3);transition-delay:.2s">
+        <div class="label" style="color:var(--accent3)">Package folder structure</div>
+        <pre class="code">mypackage/
+├── __init__.py
+├── auth.py        # module
+├── models.py      # module
+├── utils.py       # module
+└── payments/      # sub-package
+    ├── __init__.py
+    └── stripe.py</pre>
+      </div>
+      <div class="code-example visible" style="border-color:var(--accent4);transition-delay:.5s">
+        <div class="label" style="color:var(--accent4)">Using a package</div>
+        <pre class="code">from mypackage.auth import User
+from mypackage.payments.stripe import charge</pre>
+      </div>
+    </div>
+
+    <br>
+    <div class="quiz">
+      <h3>Check Your Understanding</h3>
+      <div class="question" data-answer="1">
+        <p>1. What is the relationship between modules and packages?</p>
+        <div class="options">
+          <div class="option" data-idx="0" onclick="checkAnswer(this)">They are the same thing<div class="feedback">A module is a file; a package is a folder of modules.</div></div>
+          <div class="option" data-idx="1" onclick="checkAnswer(this)">A package contains multiple modules<div class="feedback">Correct! Package = folder of related modules, optionally with sub-packages.</div></div>
+          <div class="option" data-idx="2" onclick="checkAnswer(this)">A module contains multiple packages<div class="feedback">It's the other way around — packages contain modules.</div></div>
+        </div>
+      </div>
+      <div class="question" data-answer="2">
+        <p>2. What real-world examples are packages?</p>
+        <div class="options">
+          <div class="option" data-idx="0" onclick="checkAnswer(this)"><code>print()</code> and <code>len()</code><div class="feedback">Those are built-in functions, not packages.</div></div>
+          <div class="option" data-idx="1" onclick="checkAnswer(this)">Variables like <code>x = 5</code><div class="feedback">Variables are the smallest unit — they're at level 1!</div></div>
+          <div class="option" data-idx="2" onclick="checkAnswer(this)"><code>numpy</code>, <code>django</code>, <code>react</code><div class="feedback">Correct! These are all real packages — collections of modules you can install and import.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn btn-secondary" onclick="goToLevel(7)">← Back</button>
+      <button class="btn btn-primary" onclick="showComplete()">See the Full Picture →</button>
+    </div>
+  </div>
+
+  <!-- Completion -->
+  <div class="level" id="levelComplete">
+    <span class="trophy">🏗️</span>
+    <div class="complete">
+      <h2>You Built the Full Picture!</h2>
+      <p style="color:var(--text2);margin-bottom:40px;font-weight:300">From the tiniest variable to a full package — every level composes the next.</p>
+    </div>
+    <div class="stage" id="stageFinal" style="padding:24px 20px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:100%"></div>
+    </div>
+    <br>
+    <div class="nav" style="justify-content:center">
+      <button class="btn btn-secondary" onclick="goToLevel(1)">↺ Start Over</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentLevel = 0;
+const totalLevels = 8;
+
+function startJourney() {
+  document.getElementById('headerSection').style.display = 'none';
+  document.getElementById('hierarchy').style.display = 'flex';
+  goToLevel(1);
+}
+
+function goToLevel(n) {
+  // hide current
+  document.querySelectorAll('.level').forEach(l => {l.classList.remove('active');l.style.display='none'});
+  currentLevel = n;
+  const lvl = document.getElementById('level' + n);
+  if (lvl) {
+    lvl.style.display = 'block';
+    // force reflow
+    void lvl.offsetWidth;
+    lvl.classList.add('active');
+    animateStage(n);
+    updateHierarchy(n);
+    updateProgress(n);
+  }
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function showComplete() {
+  document.querySelectorAll('.level').forEach(l => {l.classList.remove('active');l.style.display='none'});
+  const c = document.getElementById('levelComplete');
+  c.style.display = 'block';
+  void c.offsetWidth;
+  c.classList.add('active');
+  updateHierarchy(9);
+  updateProgress(9);
+  buildFinalDiagram();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function animateStage(n) {
+  const stage = document.getElementById('stage' + n);
+  if (!stage) return;
+  const pieces = stage.querySelectorAll('.piece');
+  const pluses = stage.querySelectorAll('.plus');
+  const arrows = stage.querySelectorAll('.arrow-down');
+  const equals = stage.querySelectorAll('.equals');
+
+  // Reset
+  pieces.forEach(p => {p.classList.remove('visible','merge')});
+  pluses.forEach(p => p.classList.remove('visible'));
+  arrows.forEach(a => a.classList.remove('visible'));
+  equals.forEach(e => e.classList.remove('visible'));
+
+  // Animate with delays
+  const all = [...pieces, ...pluses, ...arrows, ...equals];
+  all.sort((a, b) => (parseInt(a.dataset.delay)||0) - (parseInt(b.dataset.delay)||0));
+  all.forEach(el => {
+    const delay = parseInt(el.dataset.delay) || 0;
+    setTimeout(() => {
+      el.classList.add('visible');
+      if (el.classList.contains('piece') && delay > 1000) el.classList.add('merge');
+    }, delay);
+  });
+}
+
+function updateHierarchy(n) {
+  document.querySelectorAll('.h-item').forEach(h => {
+    const lvl = parseInt(h.dataset.h);
+    h.classList.remove('reached','current');
+    if (lvl < n) h.classList.add('reached');
+    if (lvl === n) h.classList.add('reached','current');
+  });
+}
+
+function updateProgress(n) {
+  const pct = Math.min((n / totalLevels) * 100, 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('stepIndicator').textContent = `Step ${Math.min(n, totalLevels)} / ${totalLevels}`;
+}
+
+function checkAnswer(el) {
+  const question = el.closest('.question');
+  if (question.classList.contains('answered')) return;
+  question.classList.add('answered');
+
+  const correct = parseInt(question.dataset.answer);
+  const chosen = parseInt(el.dataset.idx);
+  const options = question.querySelectorAll('.option');
+
+  options.forEach(o => o.classList.add('disabled'));
+
+  if (chosen === correct) {
+    el.classList.add('correct');
+  } else {
+    el.classList.add('wrong');
+    options[correct].classList.add('correct');
+  }
+}
+
+function buildFinalDiagram() {
+  const stage = document.getElementById('stageFinal');
+  const container = stage.querySelector('div');
+  const levels = [
+    {label:'Variable + Operator', cls:'var', color:'var(--accent)'},
+    {label:'Expression', cls:'expr', color:'var(--accent3)'},
+    {label:'Statement', cls:'stmt', color:'var(--accent4)'},
+    {label:'Block', cls:'block', color:'var(--accent5)'},
+    {label:'Control Flow', cls:'func', color:'var(--accent6)'},
+    {label:'Function', cls:'func', color:'var(--accent6)'},
+    {label:'Class', cls:'cls', color:'var(--accent7)'},
+    {label:'Module', cls:'mod', color:'var(--accent8)'},
+    {label:'Package', cls:'pkg', color:'var(--accent3)'},
+  ];
+  container.innerHTML = '';
+  levels.forEach((l, i) => {
+    const piece = document.createElement('span');
+    piece.className = `piece ${l.cls} code`;
+    piece.textContent = l.label;
+    piece.style.opacity = '0';
+    piece.style.transform = 'translateY(16px) scale(.9)';
+    piece.style.width = `${160 + i * 24}px`;
+    piece.style.justifyContent = 'center';
+    piece.style.textAlign = 'center';
+    container.appendChild(piece);
+
+    if (i < levels.length - 1) {
+      const arrow = document.createElement('div');
+      arrow.style.cssText = `width:2px;height:16px;background:${l.color};opacity:0;transition:all .3s ease`;
+      container.appendChild(arrow);
+    }
+
+    setTimeout(() => {
+      piece.style.transition = 'all .5s cubic-bezier(.22,1,.36,1)';
+      piece.style.opacity = '1';
+      piece.style.transform = 'translateY(0) scale(1)';
+      const prevArrow = piece.previousElementSibling;
+      if (prevArrow && prevArrow.tagName !== 'SPAN') {
+        prevArrow.style.opacity = '1';
+      }
+    }, 200 + i * 180);
+  });
+}
+</script>
+</body>
+</html>

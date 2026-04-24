@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trees — Visual Data Structure Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;600&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117;
+    --surface: #161b22;
+    --surface2: #1c2129;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --accent-tree: #3fb950;
+    --accent-tree-dim: rgba(63,185,80,0.15);
+    --accent-bt: #58a6ff;
+    --accent-bt-dim: rgba(88,166,255,0.15);
+    --accent-bst: #d2a8ff;
+    --accent-bst-dim: rgba(210,168,255,0.15);
+    --node-size: 44px;
+    --danger: #f85149;
+    --gold: #e3b341;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Source Sans 3', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 600px 400px at 30% 40%, var(--accent-tree-dim), transparent),
+      radial-gradient(ellipse 500px 350px at 70% 60%, var(--accent-bt-dim), transparent),
+      radial-gradient(ellipse 400px 300px at 50% 80%, var(--accent-bst-dim), transparent);
+    pointer-events: none;
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    letter-spacing: -1px;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+  .hero h1 span { display: inline-block; opacity: 0; animation: fadeUp .6s ease forwards; }
+  .hero h1 span:nth-child(1) { animation-delay: .1s; color: var(--accent-tree); }
+  .hero h1 span:nth-child(2) { animation-delay: .3s; }
+  .hero h1 span:nth-child(3) { animation-delay: .5s; color: var(--accent-bst); }
+  .hero p {
+    font-size: 1.15rem;
+    color: var(--text-dim);
+    max-width: 520px;
+    opacity: 0;
+    animation: fadeUp .6s ease .7s forwards;
+    position: relative;
+  }
+  .scroll-hint {
+    position: absolute;
+    bottom: 2.5rem;
+    opacity: 0;
+    animation: fadeUp .6s ease 1s forwards, bounce 2s ease-in-out 1.6s infinite;
+    font-size: .85rem;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .scroll-hint::after { content: ' ↓'; }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(24px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  @keyframes bounce {
+    0%,100% { transform:translateY(0); }
+    50%     { transform:translateY(8px); }
+  }
+
+  /* ── Sections ── */
+  section {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 5rem 1.5rem;
+  }
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .75rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: .5rem;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    margin-bottom: 1rem;
+  }
+  .section-body {
+    color: var(--text-dim);
+    font-size: 1.05rem;
+    max-width: 640px;
+    margin-bottom: 2.5rem;
+  }
+
+  /* ── Tree Canvas ── */
+  .tree-canvas {
+    position: relative;
+    width: 100%;
+    min-height: 340px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+  .tree-canvas svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .tree-canvas svg line {
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .node {
+    position: absolute;
+    width: var(--node-size);
+    height: var(--node-size);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: .9rem;
+    transition: transform .25s, box-shadow .25s, background .3s;
+    cursor: default;
+    z-index: 2;
+  }
+  .node:hover {
+    transform: scale(1.18);
+    z-index: 10;
+  }
+  .node.highlight {
+    animation: pulse .5s ease;
+  }
+  @keyframes pulse {
+    0%,100% { transform:scale(1); }
+    50% { transform:scale(1.25); }
+  }
+
+  /* ── Color Themes ── */
+  .theme-tree .section-label { color: var(--accent-tree); }
+  .theme-tree .section-title { color: var(--accent-tree); }
+  .theme-tree .node { background: var(--accent-tree-dim); border: 2px solid var(--accent-tree); color: var(--accent-tree); }
+  .theme-tree .node:hover { box-shadow: 0 0 20px rgba(63,185,80,.3); }
+  .theme-tree svg line { stroke: var(--accent-tree); opacity: .5; }
+
+  .theme-bt .section-label { color: var(--accent-bt); }
+  .theme-bt .section-title { color: var(--accent-bt); }
+  .theme-bt .node { background: var(--accent-bt-dim); border: 2px solid var(--accent-bt); color: var(--accent-bt); }
+  .theme-bt .node:hover { box-shadow: 0 0 20px rgba(88,166,255,.3); }
+  .theme-bt svg line { stroke: var(--accent-bt); opacity: .5; }
+
+  .theme-bst .section-label { color: var(--accent-bst); }
+  .theme-bst .section-title { color: var(--accent-bst); }
+  .theme-bst .node { background: var(--accent-bst-dim); border: 2px solid var(--accent-bst); color: var(--accent-bst); }
+  .theme-bst .node:hover { box-shadow: 0 0 20px rgba(210,168,255,.3); }
+  .theme-bst svg line { stroke: var(--accent-bst); opacity: .5; }
+
+  /* ── Rules ── */
+  .rules {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-bottom: 2rem;
+  }
+  .rule {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: .65rem 1rem;
+    font-size: .9rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .rule .icon { font-size: 1.1rem; }
+
+  /* ── Interactive Panel ── */
+  .interact-panel {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  .interact-panel h3 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .85rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .interact-row {
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .interact-row input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .55rem .85rem;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .9rem;
+    width: 100px;
+    outline: none;
+  }
+  .interact-row input:focus { border-color: var(--accent-bst); }
+  .btn {
+    padding: .55rem 1.1rem;
+    border-radius: 8px;
+    border: none;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s, transform .15s;
+  }
+  .btn:active { transform: scale(.96); }
+  .btn-insert { background: var(--accent-bst); color: var(--bg); }
+  .btn-insert:hover { background: #c490ff; }
+  .btn-search { background: var(--gold); color: var(--bg); }
+  .btn-search:hover { background: #d4a230; }
+  .btn-reset { background: var(--border); color: var(--text); }
+  .btn-reset:hover { background: #444c56; }
+  .log {
+    margin-top: 1rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .82rem;
+    color: var(--text-dim);
+    min-height: 1.4rem;
+  }
+  .log .step { color: var(--accent-bst); }
+
+  /* ── Venn ── */
+  .venn-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+  .venn-svg {
+    width: 100%;
+    max-width: 560px;
+  }
+  .venn-labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+  }
+  .venn-label {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .95rem;
+  }
+  .venn-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── Comparison Table ── */
+  .cmp-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+    font-size: .92rem;
+  }
+  .cmp-table th, .cmp-table td {
+    padding: .75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .cmp-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .cmp-table td:first-child { font-weight: 600; }
+  .cmp-table .c-tree { color: var(--accent-tree); }
+  .cmp-table .c-bt   { color: var(--accent-bt); }
+  .cmp-table .c-bst  { color: var(--accent-bst); }
+  .cmp-table .yes { color: var(--accent-tree); }
+  .cmp-table .no  { color: var(--danger); }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--text-dim);
+    font-size: .8rem;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .tree-canvas { min-height: 280px; }
+    :root { --node-size: 36px; }
+    .node { font-size: .75rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════ HERO ════════════ -->
+<div class="hero">
+  <h1><span>Trees&nbsp;</span><span>in&nbsp;</span><span>Computer Science</span></h1>
+  <p>A visual, interactive guide to understanding General Trees, Binary Trees, and Binary Search Trees — and how they relate to each other.</p>
+  <div class="scroll-hint">scroll to explore</div>
+</div>
+
+<!-- ════════════ 1 · GENERAL TREE ════════════ -->
+<section class="theme-tree" id="sec-tree">
+  <div class="section-label">01 — Concept</div>
+  <h2 class="section-title">General Tree</h2>
+  <p class="section-body">A tree is a hierarchical data structure made of <strong style="color:var(--accent-tree)">nodes</strong> connected by <strong style="color:var(--accent-tree)">edges</strong>. It has exactly one root, and every other node has exactly one parent. A node can have <em>any number</em> of children.</p>
+
+  <div class="rules">
+    <div class="rule"><span class="icon">🌳</span> One root node</div>
+    <div class="rule"><span class="icon">↗</span> Each node → exactly 1 parent</div>
+    <div class="rule"><span class="icon">∞</span> Unlimited children per node</div>
+    <div class="rule"><span class="icon">🚫</span> No cycles allowed</div>
+  </div>
+
+  <div class="tree-canvas" id="canvas-tree" style="height:340px;"></div>
+  <p style="color:var(--text-dim);font-size:.85rem;text-align:center;">Hover over any node. Notice: nodes can have 0, 1, 2, 3+ children — no limit!</p>
+</section>
+
+<!-- ════════════ 2 · BINARY TREE ════════════ -->
+<section class="theme-bt" id="sec-bt">
+  <div class="section-label">02 — Constraint</div>
+  <h2 class="section-title">Binary Tree</h2>
+  <p class="section-body">A Binary Tree is a <strong style="color:var(--accent-bt)">special tree</strong> where every node has <strong style="color:var(--accent-bt)">at most 2 children</strong> — called the <em>left</em> child and the <em>right</em> child. No ordering rule exists on the values.</p>
+
+  <div class="rules">
+    <div class="rule"><span class="icon">✌️</span> Max 2 children per node</div>
+    <div class="rule"><span class="icon">◀▶</span> Distinguished left &amp; right</div>
+    <div class="rule"><span class="icon">🔀</span> Values can be in any order</div>
+  </div>
+
+  <div class="tree-canvas" id="canvas-bt" style="height:340px;"></div>
+  <p style="color:var(--text-dim);font-size:.85rem;text-align:center;">Every node has ≤ 2 children. Values (7, 2, 15 …) are placed without any ordering rule.</p>
+</section>
+
+<!-- ════════════ 3 · BINARY SEARCH TREE ════════════ -->
+<section class="theme-bst" id="sec-bst">
+  <div class="section-label">03 — Ordering</div>
+  <h2 class="section-title">Binary Search Tree</h2>
+  <p class="section-body">A BST is a Binary Tree with one extra rule: for every node, <strong style="color:var(--accent-bst)">all values in the left subtree are smaller</strong> and <strong style="color:var(--accent-bst)">all values in the right subtree are larger</strong>. This enables fast O(log n) search.</p>
+
+  <div class="rules">
+    <div class="rule"><span class="icon">✌️</span> Max 2 children (binary)</div>
+    <div class="rule"><span class="icon">◀</span> Left &lt; Parent</div>
+    <div class="rule"><span class="icon">▶</span> Right &gt; Parent</div>
+    <div class="rule"><span class="icon">⚡</span> O(log n) search</div>
+  </div>
+
+  <div class="tree-canvas" id="canvas-bst" style="height:380px;"></div>
+
+  <div class="interact-panel">
+    <h3>🧪 Try it — Insert &amp; Search</h3>
+    <div class="interact-row">
+      <input type="number" id="bst-input" placeholder="value" min="1" max="99">
+      <button class="btn btn-insert" onclick="bstInsert()">Insert</button>
+      <button class="btn btn-search" onclick="bstSearch()">Search</button>
+      <button class="btn btn-reset" onclick="bstReset()">Reset</button>
+    </div>
+    <div class="log" id="bst-log">Insert a number (1–99) and watch it find its place.</div>
+  </div>
+</section>
+
+<!-- ════════════ 4 · RELATIONSHIPS ════════════ -->
+<section id="sec-rel">
+  <div class="section-label" style="color:var(--gold);">04 — Relationships</div>
+  <h2 class="section-title" style="color:var(--gold);">How They Relate</h2>
+  <p class="section-body">Every BST is a Binary Tree, and every Binary Tree is a Tree — but not the other way around. They form a strict subset chain.</p>
+
+  <div class="venn-wrap">
+    <svg class="venn-svg" viewBox="0 0 560 340" xmlns="http://www.w3.org/2000/svg">
+      <!-- General Tree -->
+      <ellipse cx="280" cy="170" rx="270" ry="160" fill="none" stroke="var(--accent-tree)" stroke-width="2.5" stroke-dasharray="8 4" opacity=".7"/>
+      <text x="280" y="32" text-anchor="middle" fill="var(--accent-tree)" font-family="IBM Plex Mono" font-size="13" font-weight="600" letter-spacing="2">TREE</text>
+
+      <!-- Binary Tree -->
+      <ellipse cx="280" cy="190" rx="200" ry="120" fill="var(--accent-bt-dim)" stroke="var(--accent-bt)" stroke-width="2" opacity=".8"/>
+      <text x="280" y="96" text-anchor="middle" fill="var(--accent-bt)" font-family="IBM Plex Mono" font-size="12" font-weight="600" letter-spacing="1.5">BINARY TREE</text>
+
+      <!-- BST -->
+      <ellipse cx="280" cy="210" rx="120" ry="72" fill="var(--accent-bst-dim)" stroke="var(--accent-bst)" stroke-width="2" opacity=".9"/>
+      <text x="280" y="200" text-anchor="middle" fill="var(--accent-bst)" font-family="DM Serif Display" font-size="16">Binary Search Tree</text>
+      <text x="280" y="222" text-anchor="middle" fill="var(--text-dim)" font-family="IBM Plex Mono" font-size="10">ordered values</text>
+
+      <!-- Arrows -->
+      <defs>
+        <marker id="arw" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="var(--gold)"/>
+        </marker>
+      </defs>
+      <line x1="180" y1="280" x2="210" y2="250" stroke="var(--gold)" stroke-width="1.5" marker-end="url(#arw)" opacity=".6"/>
+      <text x="135" y="298" fill="var(--gold)" font-family="IBM Plex Mono" font-size="10">BST ⊂ BT ⊂ Tree</text>
+    </svg>
+
+    <div class="venn-labels">
+      <div class="venn-label"><div class="venn-dot" style="background:var(--accent-tree)"></div>General Tree (superset)</div>
+      <div class="venn-label"><div class="venn-dot" style="background:var(--accent-bt)"></div>Binary Tree (subset of Tree)</div>
+      <div class="venn-label"><div class="venn-dot" style="background:var(--accent-bst)"></div>BST (subset of Binary Tree)</div>
+    </div>
+  </div>
+
+  <table class="cmp-table">
+    <thead>
+      <tr><th>Property</th><th class="c-tree">Tree</th><th class="c-bt">Binary Tree</th><th class="c-bst">BST</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Max children per node</td><td>Unlimited</td><td>2</td><td>2</td></tr>
+      <tr><td>Values ordered?</td><td class="no">No</td><td class="no">No</td><td class="yes">Yes</td></tr>
+      <tr><td>Search complexity</td><td>O(n)</td><td>O(n)</td><td>O(log n)*</td></tr>
+      <tr><td>Left / Right distinction</td><td class="no">No</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+      <tr><td>Example use</td><td>File systems, DOM</td><td>Expression trees</td><td>Databases, indexes</td></tr>
+    </tbody>
+  </table>
+  <p style="color:var(--text-dim);font-size:.8rem;margin-top:.5rem;">* O(log n) average; O(n) worst case if unbalanced.</p>
+</section>
+
+<footer>Built with care — Trees Visual Guide</footer>
+
+<!-- ════════════ SCRIPTS ════════════ -->
+<script>
+/* ── helpers ── */
+const hs = n => n / 2;
+const NS = 44; // node size
+
+function drawTree(canvasId, nodes, edges, color) {
+  const c = document.getElementById(canvasId);
+  c.innerHTML = '';
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('width','100%');
+  svg.setAttribute('height','100%');
+  edges.forEach(([a,b]) => {
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', a.x + hs(NS));
+    line.setAttribute('y1', a.y + hs(NS));
+    line.setAttribute('x2', b.x + hs(NS));
+    line.setAttribute('y2', b.y + hs(NS));
+    svg.appendChild(line);
+  });
+  c.appendChild(svg);
+  nodes.forEach(n => {
+    const d = document.createElement('div');
+    d.className = 'node';
+    d.textContent = n.v;
+    d.style.left = n.x + 'px';
+    d.style.top = n.y + 'px';
+    if(n.label){d.title = n.label;}
+    c.appendChild(d);
+  });
+}
+
+/* ── 1. General Tree ── */
+(function(){
+  const cx = 420, gapY = 90, off = 70;
+  const n = [
+    {v:'A', x:cx, y:20},
+    {v:'B', x:cx-180, y:20+gapY},
+    {v:'C', x:cx-60, y:20+gapY},
+    {v:'D', x:cx+60, y:20+gapY},
+    {v:'E', x:cx+180, y:20+gapY},
+    {v:'F', x:cx-230, y:20+gapY*2},
+    {v:'G', x:cx-180, y:20+gapY*2},
+    {v:'H', x:cx-130, y:20+gapY*2},
+    {v:'I', x:cx+30, y:20+gapY*2},
+    {v:'J', x:cx+90, y:20+gapY*2},
+    {v:'K', x:cx+160, y:20+gapY*2},
+    {v:'L', x:cx+220, y:20+gapY*2},
+  ];
+  const e = [[n[0],n[1]],[n[0],n[2]],[n[0],n[3]],[n[0],n[4]],
+             [n[1],n[5]],[n[1],n[6]],[n[1],n[7]],
+             [n[3],n[8]],[n[3],n[9]],
+             [n[4],n[10]],[n[4],n[11]]];
+  drawTree('canvas-tree', n, e);
+})();
+
+/* ── 2. Binary Tree ── */
+(function(){
+  const cx = 420, gapY = 90;
+  const n = [
+    {v:7,  x:cx, y:20},
+    {v:2,  x:cx-150, y:20+gapY},
+    {v:15, x:cx+150, y:20+gapY},
+    {v:9,  x:cx-220, y:20+gapY*2},
+    {v:4,  x:cx-80,  y:20+gapY*2},
+    {v:1,  x:cx+80,  y:20+gapY*2},
+    {v:11, x:cx+220, y:20+gapY*2},
+  ];
+  const e = [[n[0],n[1]],[n[0],n[2]],[n[1],n[3]],[n[1],n[4]],[n[2],n[5]],[n[2],n[6]]];
+  drawTree('canvas-bt', n, e);
+})();
+
+/* ── 3. BST – interactive ── */
+class BST {
+  constructor() { this.root = null; }
+  insert(v) {
+    const nn = {v, left:null, right:null};
+    if (!this.root) { this.root = nn; return []; }
+    let cur = this.root; const path = [];
+    while (true) {
+      path.push(cur.v);
+      if (v < cur.v) {
+        if (!cur.left) { cur.left = nn; return path; }
+        cur = cur.left;
+      } else if (v > cur.v) {
+        if (!cur.right) { cur.right = nn; return path; }
+        cur = cur.right;
+      } else { return path; } // duplicate
+    }
+  }
+  search(v) {
+    let cur = this.root; const path = [];
+    while (cur) {
+      path.push(cur.v);
+      if (v === cur.v) return { found:true, path };
+      cur = v < cur.v ? cur.left : cur.right;
+    }
+    return { found:false, path };
+  }
+}
+
+let bst = new BST();
+const defaultVals = [30, 15, 45, 8, 22, 38, 55];
+function bstReset() {
+  bst = new BST();
+  defaultVals.forEach(v => bst.insert(v));
+  renderBST();
+  document.getElementById('bst-log').innerHTML = 'Tree reset to default values.';
+}
+
+function renderBST(highlightSet, highlightColor) {
+  const nodes = [], edges = [];
+  const canvasW = document.getElementById('canvas-bst').clientWidth || 860;
+  function walk(node, x, y, spread) {
+    if (!node) return;
+    const isHl = highlightSet && highlightSet.has(node.v);
+    nodes.push({ v: node.v, x, y, hl: isHl });
+    if (node.left) {
+      const cx = x - spread;
+      edges.push([{x,y},{x:cx,y:y+80}]);
+      walk(node.left, cx, y+80, spread * 0.55);
+    }
+    if (node.right) {
+      const cx = x + spread;
+      edges.push([{x,y},{x:cx,y:y+80}]);
+      walk(node.right, cx, y+80, spread * 0.55);
+    }
+  }
+  walk(bst.root, canvasW/2 - hs(NS), 20, canvasW * 0.22);
+
+  const c = document.getElementById('canvas-bst');
+  c.innerHTML = '';
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('width','100%');
+  svg.setAttribute('height','100%');
+  edges.forEach(([a,b]) => {
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', a.x + hs(NS));
+    line.setAttribute('y1', a.y + hs(NS));
+    line.setAttribute('x2', b.x + hs(NS));
+    line.setAttribute('y2', b.y + hs(NS));
+    svg.appendChild(line);
+  });
+  c.appendChild(svg);
+  nodes.forEach(n => {
+    const d = document.createElement('div');
+    d.className = 'node' + (n.hl ? ' highlight' : '');
+    d.textContent = n.v;
+    d.style.left = n.x + 'px';
+    d.style.top = n.y + 'px';
+    if (n.hl && highlightColor) {
+      d.style.borderColor = highlightColor;
+      d.style.boxShadow = `0 0 16px ${highlightColor}50`;
+    }
+    c.appendChild(d);
+  });
+}
+
+function bstInsert() {
+  const inp = document.getElementById('bst-input');
+  const v = parseInt(inp.value);
+  if (isNaN(v) || v < 1 || v > 99) { document.getElementById('bst-log').textContent = 'Enter a number between 1 and 99.'; return; }
+  const path = bst.insert(v);
+  const hl = new Set([...path, v]);
+  renderBST(hl, '#d2a8ff');
+  document.getElementById('bst-log').innerHTML =
+    `Inserted <span class="step">${v}</span>. Path: ${path.length ? path.map(p=>`<span class="step">${p}</span>`).join(' → ') + ' → ' : ''}<span class="step">${v}</span>`;
+  inp.value = '';
+}
+
+function bstSearch() {
+  const inp = document.getElementById('bst-input');
+  const v = parseInt(inp.value);
+  if (isNaN(v) || v < 1 || v > 99) { document.getElementById('bst-log').textContent = 'Enter a number between 1 and 99.'; return; }
+  const {found, path} = bst.search(v);
+  const hl = new Set(path);
+  renderBST(hl, found ? '#e3b341' : '#f85149');
+  document.getElementById('bst-log').innerHTML =
+    `Search <span class="step">${v}</span>: ${path.map(p=>`<span class="step">${p}</span>`).join(' → ')} — ${found ? '✅ Found!' : '❌ Not found.'}`;
+  inp.value = '';
+}
+
+bstReset();
+window.addEventListener('resize', () => renderBST());
+</script>
+</body>
+</html>
