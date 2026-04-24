@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anatomy of a Tree — Visual Terminology Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700;9..144,900&family=JetBrains+Mono:wght@400;600;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #faf6f1;
+  --surface: #fff;
+  --surface2: #f3ede5;
+  --border: #e0d6c8;
+  --text: #2c2418;
+  --text-dim: #8a7e6f;
+  --bark: #6b4c2a;
+  --bark-light: #a67c52;
+  --leaf-green: #4a8c5c;
+  --root-amber: #c47a2a;
+  --sky: #7baccc;
+  --highlight: #e8443a;
+  --highlight-glow: rgba(232,68,58,.15);
+  --purple: #7b5ea7;
+  --purple-dim: rgba(123,94,167,.12);
+  --gold: #c49b2a;
+  --gold-dim: rgba(196,155,42,.12);
+  --teal: #3a8c8c;
+  --teal-dim: rgba(58,140,140,.12);
+
+  --ns: 48px;
+  --transition: .45s cubic-bezier(.4,0,.2,1);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito Sans', sans-serif;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+/* ── Layout Shell ── */
+.app {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+/* ── Header ── */
+header {
+  text-align: center;
+  padding: 3rem 0 2rem;
+}
+header h1 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 900;
+  color: var(--bark);
+  margin-bottom: .5rem;
+}
+header p {
+  color: var(--text-dim);
+  font-size: 1.05rem;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* ── Stepper Nav ── */
+.stepper-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+.step-dot {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all .25s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.step-dot:hover { border-color: var(--bark-light); color: var(--bark); }
+.step-dot.active {
+  background: var(--bark);
+  border-color: var(--bark);
+  color: #fff;
+  transform: scale(1.15);
+}
+.step-dot.visited {
+  border-color: var(--leaf-green);
+  color: var(--leaf-green);
+}
+.step-connector {
+  width: 18px; height: 2px;
+  background: var(--border);
+  border-radius: 1px;
+}
+
+/* ── Step Card ── */
+.step-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 4px 24px rgba(44,36,24,.06);
+  animation: cardIn .4s ease;
+}
+@keyframes cardIn {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.step-badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: .3rem .8rem;
+  border-radius: 20px;
+  margin-bottom: .75rem;
+}
+.step-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 700;
+  margin-bottom: .75rem;
+}
+.step-body {
+  color: var(--text-dim);
+  font-size: 1rem;
+  max-width: 620px;
+  margin-bottom: 2rem;
+}
+.step-body strong { color: var(--text); }
+
+/* ── Tree Viewport ── */
+.tree-viewport {
+  position: relative;
+  width: 100%;
+  height: 420px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+.tree-viewport svg.edges {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+.tree-viewport svg.edges line {
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  transition: stroke var(--transition), opacity var(--transition);
+}
+
+.tnode {
+  position: absolute;
+  width: var(--ns);
+  height: var(--ns);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: .95rem;
+  z-index: 3;
+  transition: all var(--transition);
+  cursor: default;
+}
+.tnode .label-tag {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: .15rem .45rem;
+  border-radius: 6px;
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+}
+.tnode .label-tag.show { opacity:1; }
+.tnode .sub-label {
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: .6rem;
+  font-weight: 600;
+  letter-spacing: .5px;
+  white-space: nowrap;
+  color: var(--text-dim);
+  opacity: 0;
+  transition: opacity .3s;
+}
+.tnode .sub-label.show { opacity:1; }
+
+/* Level bracket */
+.level-bracket {
+  position: absolute;
+  right: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--purple);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity .4s;
+  z-index: 5;
+}
+.level-bracket.show { opacity:1; }
+.level-line {
+  width: 2px;
+  background: var(--purple);
+  opacity: .3;
+  border-radius: 1px;
+}
+
+/* Height arrow */
+.height-arrow {
+  position: absolute;
+  left: 16px;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity .4s;
+}
+.height-arrow.show { opacity:1; }
+.height-arrow .arr-line {
+  position: absolute;
+  left: 8px;
+  width: 3px;
+  background: var(--teal);
+  border-radius: 2px;
+  opacity: .35;
+}
+.height-arrow .arr-label {
+  position: absolute;
+  left: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--teal);
+  transform: rotate(-90deg);
+  transform-origin: center;
+  white-space: nowrap;
+}
+
+/* ── Nature overlay (for inverted tree) ── */
+.nature-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity .5s;
+}
+.ground-line {
+  position: absolute;
+  bottom: 32%;
+  left: 0; right: 0;
+  height: 2px;
+  background: var(--bark-light);
+  opacity: .3;
+}
+.ground-label {
+  position: absolute;
+  bottom: calc(32% + 6px);
+  right: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  color: var(--bark-light);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.sky-label {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  color: var(--sky);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.soil-label {
+  position: absolute;
+  bottom: 16px;
+  right: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  color: var(--root-amber);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ── Key box ── */
+.key-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  margin-top: 1rem;
+}
+.key-item {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .8rem;
+  color: var(--text-dim);
+}
+.key-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Buttons ── */
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+  gap: 1rem;
+}
+.nbtn {
+  padding: .7rem 1.6rem;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition: all .2s;
+}
+.nbtn:hover { border-color: var(--bark); color: var(--bark); }
+.nbtn:active { transform: scale(.97); }
+.nbtn.primary {
+  background: var(--bark);
+  border-color: var(--bark);
+  color: #fff;
+}
+.nbtn.primary:hover { background: var(--bark-light); border-color: var(--bark-light); }
+.nbtn:disabled { opacity:.3; cursor:default; }
+
+/* ── Flip animation ── */
+.flip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .55rem 1.2rem;
+  border-radius: 10px;
+  border: 2px solid var(--bark-light);
+  background: var(--surface);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--bark);
+  cursor: pointer;
+  transition: all .2s;
+  margin-top: 1rem;
+}
+.flip-btn:hover { background: var(--bark); color:#fff; }
+
+/* ── Callout ── */
+.callout {
+  background: var(--surface2);
+  border-left: 4px solid var(--bark-light);
+  border-radius: 0 10px 10px 0;
+  padding: .8rem 1.1rem;
+  margin-top: 1.2rem;
+  font-size: .88rem;
+  color: var(--text-dim);
+}
+.callout strong { color: var(--text); }
+
+@media (max-width:600px) {
+  .step-card { padding: 1.5rem; }
+  .tree-viewport { height: 350px; }
+  :root { --ns: 40px; }
+  .tnode { font-size: .8rem; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <h1>🌿 Anatomy of a Tree</h1>
+  <p>A step-by-step visual journey through every piece of tree terminology in computer science.</p>
+</header>
+
+<div class="stepper-nav" id="stepper-nav"></div>
+
+<div id="step-container"></div>
+
+<div class="nav-buttons">
+  <button class="nbtn" id="btn-prev" onclick="goStep(currentStep-1)">← Previous</button>
+  <button class="nbtn primary" id="btn-next" onclick="goStep(currentStep+1)">Next →</button>
+</div>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   TREE DATA — same tree for every step
+   ═══════════════════════════════════════ */
+// CS positions (root at top)
+const CS = {
+  A:{v:25, cx:.5,  cy:.08},
+  B:{v:12, cx:.28, cy:.30},
+  C:{v:40, cx:.72, cy:.30},
+  D:{v:6,  cx:.14, cy:.54},
+  E:{v:18, cx:.38, cy:.54},
+  F:{v:32, cx:.58, cy:.54},
+  G:{v:55, cx:.86, cy:.54},
+  H:{v:3,  cx:.07, cy:.78},
+  I:{v:9,  cx:.21, cy:.78},
+  J:{v:28, cx:.50, cy:.78},
+  K:{v:37, cx:.66, cy:.78},
+  L:{v:60, cx:.90, cy:.78},
+};
+// Inverted (natural tree): flip cy
+const NAT = {};
+Object.keys(CS).forEach(k => {
+  NAT[k] = { ...CS[k], cy: .90 - CS[k].cy };
+});
+
+const EDGES = [
+  ['A','B'],['A','C'],
+  ['B','D'],['B','E'],
+  ['C','F'],['C','G'],
+  ['D','H'],['D','I'],
+  ['F','J'],['F','K'],
+  ['G','L'],
+];
+
+const LEVELS = {
+  0: ['A'],
+  1: ['B','C'],
+  2: ['D','E','F','G'],
+  3: ['H','I','J','K','L'],
+};
+
+/* ═══════════════════════════════════════
+   STEP DEFINITIONS
+   ═══════════════════════════════════════ */
+const steps = [
+  /* 0 — Natural (inverted) */
+  {
+    badge: 'Intuition',
+    badgeColor: '#4a8c5c',
+    badgeBg: 'rgba(74,140,92,.12)',
+    title: 'A Tree in Nature 🌳',
+    body: `Think of a <strong>real tree</strong> in a garden. Roots go <em>down</em> into the soil, the trunk rises, branches spread, and leaves reach toward the sky. This is the <strong>natural orientation</strong> — roots at bottom, leaves at top.`,
+    positions: 'NAT',
+    nodeStyle: (k) => {
+      if (k==='A') return { bg:'#c47a2a22', border:'var(--root-amber)', color:'var(--root-amber)' };
+      if ('BCDEFG'.includes(k)) return { bg:'var(--bark-light)22', border:'var(--bark-light)', color:'var(--bark-light)' };
+      return { bg:'var(--leaf-green)18', border:'var(--leaf-green)', color:'var(--leaf-green)' };
+    },
+    edgeColor: () => 'var(--bark-light)',
+    labels: (k) => {
+      if (k==='A') return { top:'Root', topColor:'var(--root-amber)' };
+      if ('HIKJL'.includes(k)) return { bottom:'leaf' };
+      return {};
+    },
+    showNature: true,
+    callout: `In nature the <strong>root</strong> is underground and <strong>leaves</strong> are at the top. Computer science flips this upside-down. Tap <strong>Next</strong> to see the flip.`,
+  },
+  /* 1 — CS orientation */
+  {
+    badge: 'Convention',
+    badgeColor: 'var(--bark)',
+    badgeBg: 'rgba(107,76,42,.1)',
+    title: 'The CS Tree — Flipped! 🔄',
+    body: `In computer science we <strong>invert the tree</strong>. The <strong>root sits at the very top</strong> and branches grow <em>downward</em>. Leaves end up at the bottom. Every concept from here on uses this orientation.`,
+    positions: 'CS',
+    nodeStyle: (k) => {
+      if (k==='A') return { bg:'var(--root-amber)22', border:'var(--root-amber)', color:'var(--root-amber)' };
+      if ('BCDEFG'.includes(k)) return { bg:'var(--bark-light)22', border:'var(--bark-light)', color:'var(--bark-light)' };
+      return { bg:'var(--leaf-green)18', border:'var(--leaf-green)', color:'var(--leaf-green)' };
+    },
+    edgeColor: () => 'var(--bark-light)',
+    labels: (k) => {
+      if (k==='A') return { top:'Root (top)', topColor:'var(--root-amber)' };
+      if ('HIKJL'.includes(k)) return { bottom:'leaf (bottom)' };
+      return {};
+    },
+    showNature: false,
+    callout: `Everything is now <strong>upside-down</strong> compared to nature. Root on top, leaves on the bottom. This is the standard way trees are drawn in CS textbooks, whiteboards, and diagrams.`,
+  },
+  /* 2 — Root node */
+  {
+    badge: 'Terminology',
+    badgeColor: 'var(--highlight)',
+    badgeBg: 'var(--highlight-glow)',
+    title: 'Root Node',
+    body: `The <strong>root</strong> is the <strong>topmost node</strong> of the tree. It has <strong>no parent</strong> — it's where everything begins. Every other node descends from it. A tree has <em>exactly one</em> root.`,
+    positions: 'CS',
+    nodeStyle: (k) => {
+      if (k==='A') return { bg:'var(--highlight)22', border:'var(--highlight)', color:'var(--highlight)', scale:1.2, glow:'0 0 24px rgba(232,68,58,.25)' };
+      return { bg:'var(--surface2)', border:'var(--border)', color:'var(--text-dim)' };
+    },
+    edgeColor: (a,b) => a==='A' ? 'var(--highlight)' : 'var(--border)',
+    labels: (k) => {
+      if (k==='A') return { top:'Root', topColor:'var(--highlight)' };
+      return {};
+    },
+    callout: `<strong>Node 25</strong> is the root. It's the entry point — every traversal starts here. In a file system, this is like the <code>/</code> directory.`,
+  },
+  /* 3 — Internal nodes */
+  {
+    badge: 'Terminology',
+    badgeColor: 'var(--purple)',
+    badgeBg: 'var(--purple-dim)',
+    title: 'Internal (Middle) Nodes',
+    body: `<strong>Internal nodes</strong> are nodes that have <strong>at least one child</strong>. They sit between the root and the leaves — the "middle layer" of the tree. The root can also be an internal node (if it has children).`,
+    positions: 'CS',
+    nodeStyle: (k) => {
+      const internal = 'ABCDFG'.split('');
+      if (internal.includes(k)) return { bg:'var(--purple-dim)', border:'var(--purple)', color:'var(--purple)' };
+      return { bg:'var(--surface2)', border:'var(--border)', color:'var(--text-dim)' };
+    },
+    edgeColor: () => 'var(--border)',
+    labels: (k) => {
+      const internal = 'ABCDFG'.split('');
+      if (internal.includes(k)) return { top:'Internal', topColor:'var(--purple)' };
+      return {};
+    },
+    callout: `Nodes <strong>25, 12, 40, 6, 32, 55</strong> are internal — each has at least one child. Notice that the root (25) counts as internal too because it has children.`,
+  },
+  /* 4 — Leaf nodes */
+  {
+    badge: 'Terminology',
+    badgeColor: 'var(--leaf-green)',
+    badgeBg: 'rgba(74,140,92,.12)',
+    title: 'Leaf Nodes',
+    body: `<strong>Leaf nodes</strong> (or <em>external nodes</em>) have <strong>no children at all</strong>. They are the endpoints of the tree — where the branches stop. In a search, hitting a leaf means there's nowhere else to go.`,
+    positions: 'CS',
+    nodeStyle: (k) => {
+      const leaves = 'EHIJKL'.split('');
+      if (leaves.includes(k)) return { bg:'rgba(74,140,92,.15)', border:'var(--leaf-green)', color:'var(--leaf-green)' };
+      return { bg:'var(--surface2)', border:'var(--border)', color:'var(--text-dim)' };
+    },
+    edgeColor: () => 'var(--border)',
+    labels: (k) => {
+      const leaves = 'EHIJKL'.split('');
+      if (leaves.includes(k)) return { top:'Leaf', topColor:'var(--leaf-green)' };
+      return {};
+    },
+    callout: `Nodes <strong>18, 3, 9, 28, 37, 60</strong> are leaves — zero children. These are at the "fringe" of the tree. Every path from root eventually ends at a leaf.`,
+  },
+  /* 5 — Parent, Child, Siblings */
+  {
+    badge: 'Terminology',
+    badgeColor: 'var(--gold)',
+    badgeBg: 'var(--gold-dim)',
+    title: 'Parent, Child & Siblings',
+    body: `Every non-root node has exactly <strong>one parent</strong> — the node directly above it. The nodes directly below are its <strong>children</strong>. Nodes sharing the same parent are <strong>siblings</strong>.`,
+    positions: 'CS',
+    nodeStyle: (k) => {
+      if (k==='C') return { bg:'rgba(196,155,42,.18)', border:'var(--gold)', color:'var(--gold)', scale:1.15, glow:'0 0 18px rgba(196,155,42,.2)' };
+      if (k==='A') return { bg:'var(--highlight-glow)', border:'var(--highlight)', color:'var(--highlight)' };
+      if (k==='F' || k==='G') return { bg:'var(--teal-dim)', border:'var(--teal)', color:'var(--teal)' };
+      if (k==='B') return { bg:'rgba(196,155,42,.1)', border:'var(--gold)', color:'var(--gold)', opacity:.6 };
+      return { bg:'var(--surface2)', border:'var(--border)', color:'var(--text-dim)' };
+    },
+    edgeColor: (a,b) => {
+      if ((a==='A'&&b==='C')||(a==='C'&&b==='F')||(a==='C'&&b==='G')) return 'var(--gold)';
+      return 'var(--border)';
+    },
+    labels: (k) => {
+      if (k==='A') return { top:'Parent of 40', topColor:'var(--highlight)' };
+      if (k==='C') return { top:'★ Focus: 40', topColor:'var(--gold)' };
+      if (k==='F') return { top:'Child', topColor:'var(--teal)' };
+      if (k==='G') return { top:'Child', topColor:'var(--teal)' };
+      if (k==='B') return { top:'Sibling', topColor:'var(--gold)' };
+      return {};
+    },
+    callout: `Focusing on node <strong>40</strong>: its parent is <strong>25</strong>, its children are <strong>32</strong> and <strong>55</strong>, and its sibling is <strong>12</strong> (they share parent 25).`,
+  },
+  /* 6 — Depth & Edge */
+  {
+    badge: 'Measurement',
+    badgeColor: 'var(--teal)',
+    badgeBg: 'var(--teal-dim)',
+    title: 'Depth of a Node',
+    body: `The <strong>depth</strong> of a node is the <strong>number of edges</strong> from the root down to that node. The root itself has depth <strong>0</strong>. Each step down adds 1.`,
+    positions: 'CS',
+    nodeStyle: (k) => {
+      const depth = {A:0,B:1,C:1,D:2,E:2,F:2,G:2,H:3,I:3,J:3,K:3,L:3};
+      const colors = ['var(--highlight)','var(--gold)','var(--purple)','var(--teal)'];
+      const bgs = ['var(--highlight-glow)','var(--gold-dim)','var(--purple-dim)','var(--teal-dim)'];
+      const d = depth[k];
+      return { bg: bgs[d], border: colors[d], color: colors[d] };
+    },
+    edgeColor: () => 'var(--text-dim)',
+    labels: (k) => {
+      const depth = {A:0,B:1,C:1,D:2,E:2,F:2,G:2,H:3,I:3,J:3,K:3,L:3};
+      return { bottom: `depth ${depth[k]}` };
+    },
+    showLevels: false,
+    callout: `<strong>Depth</strong> counts edges from root. Root=0, its children=1, grandchildren=2, and so on. Depth tells you "how far down am I?"`,
+  },
+  /* 7 — Levels */
+  {
+    badge: 'Measurement',
+    badgeColor: 'var(--purple)',
+    badgeBg: 'var(--purple-dim)',
+    title: 'Levels — Nodes at Same Depth',
+    body: `A <strong>level</strong> is the set of all nodes at the same depth. Level 0 = just the root. Level 1 = root's children. All nodes on the same level are at the <strong>same horizontal tier</strong>.`,
+    positions: 'CS',
+    nodeStyle: (k) => {
+      const depth = {A:0,B:1,C:1,D:2,E:2,F:2,G:2,H:3,I:3,J:3,K:3,L:3};
+      const colors = ['var(--highlight)','var(--gold)','var(--purple)','var(--teal)'];
+      const bgs = ['var(--highlight-glow)','var(--gold-dim)','var(--purple-dim)','var(--teal-dim)'];
+      const d = depth[k];
+      return { bg: bgs[d], border: colors[d], color: colors[d] };
+    },
+    edgeColor: () => '#ccc4',
+    labels: () => ({}),
+    showLevels: true,
+    callout: `<strong>Level 0</strong>: {25} — <strong>Level 1</strong>: {12, 40} — <strong>Level 2</strong>: {6, 18, 32, 55} — <strong>Level 3</strong>: {3, 9, 28, 37, 60}. Nodes on the same level are <em>not</em> necessarily siblings.`,
+  },
+  /* 8 — Height */
+  {
+    badge: 'Measurement',
+    badgeColor: 'var(--teal)',
+    badgeBg: 'var(--teal-dim)',
+    title: 'Height of the Tree',
+    body: `The <strong>height</strong> of a tree is the <strong>number of edges on the longest path</strong> from the root to any leaf. It tells you the "tallest" the tree gets. A single-node tree has height <strong>0</strong>.`,
+    positions: 'CS',
+    nodeStyle: (k) => {
+      // Highlight longest path: A → B → D → H
+      const path = 'ABDH'.split('');
+      if (path.includes(k)) return { bg:'var(--teal-dim)', border:'var(--teal)', color:'var(--teal)', glow:'0 0 14px rgba(58,140,140,.2)' };
+      return { bg:'var(--surface2)', border:'var(--border)', color:'var(--text-dim)' };
+    },
+    edgeColor: (a,b) => {
+      const pathEdges = [['A','B'],['B','D'],['D','H']];
+      if (pathEdges.some(([x,y])=>x===a&&y===b)) return 'var(--teal)';
+      return 'var(--border)';
+    },
+    labels: (k) => {
+      const map = {A:'edge 0→1',B:'edge 1→2',D:'edge 2→3',H:'leaf (depth 3)'};
+      if (map[k]) return { bottom: map[k] };
+      return {};
+    },
+    showHeight: true,
+    callout: `The longest path is <strong>25 → 12 → 6 → 3</strong> — that's <strong>3 edges</strong>, so the height of this tree is <strong>3</strong>. Height = max depth among all leaves.`,
+  },
+  /* 9 — Degree */
+  {
+    badge: 'Terminology',
+    badgeColor: 'var(--bark)',
+    badgeBg: 'rgba(107,76,42,.1)',
+    title: 'Degree of a Node',
+    body: `The <strong>degree</strong> of a node is simply its <strong>number of children</strong>. A leaf has degree 0. In a binary tree, the max degree is 2. The <strong>degree of the tree</strong> = max degree among all nodes.`,
+    positions: 'CS',
+    nodeStyle: (k) => {
+      const deg = {A:2,B:2,C:2,D:2,E:0,F:2,G:1,H:0,I:0,J:0,K:0,L:0};
+      const colors = {0:'var(--leaf-green)',1:'var(--gold)',2:'var(--highlight)'};
+      const bgs   = {0:'rgba(74,140,92,.12)',1:'var(--gold-dim)',2:'var(--highlight-glow)'};
+      return { bg: bgs[deg[k]], border: colors[deg[k]], color: colors[deg[k]] };
+    },
+    edgeColor: () => 'var(--border)',
+    labels: (k) => {
+      const deg = {A:2,B:2,C:2,D:2,E:0,F:2,G:1,H:0,I:0,J:0,K:0,L:0};
+      return { bottom: `degree ${deg[k]}` };
+    },
+    callout: `Node <strong>55</strong> has degree 1 (one child). Leaves have degree 0. All others here have degree 2. Tree degree = <strong>2</strong> (max), confirming this is a <em>binary</em> tree.`,
+  },
+];
+
+/* ═══════════════════════════════════════
+   RENDERING ENGINE
+   ═══════════════════════════════════════ */
+let currentStep = 0;
+
+function buildStepper() {
+  const nav = document.getElementById('stepper-nav');
+  nav.innerHTML = '';
+  steps.forEach((s,i) => {
+    if (i > 0) {
+      const c = document.createElement('div');
+      c.className = 'step-connector';
+      nav.appendChild(c);
+    }
+    const d = document.createElement('div');
+    d.className = 'step-dot' + (i===currentStep?' active':'') + (i<currentStep?' visited':'');
+    d.textContent = i+1;
+    d.onclick = () => goStep(i);
+    nav.appendChild(d);
+  });
+}
+
+function goStep(idx) {
+  if (idx < 0 || idx >= steps.length) return;
+  currentStep = idx;
+  buildStepper();
+  renderStep();
+  document.getElementById('btn-prev').disabled = idx === 0;
+  document.getElementById('btn-next').disabled = idx === steps.length - 1;
+  document.getElementById('btn-next').textContent = idx === steps.length - 1 ? 'Done ✓' : 'Next →';
+}
+
+function renderStep() {
+  const s = steps[currentStep];
+  const container = document.getElementById('step-container');
+
+  const posMap = s.positions === 'NAT' ? NAT : CS;
+
+  let html = `<div class="step-card" key="${currentStep}">`;
+  html += `<div class="step-badge" style="color:${s.badgeColor};background:${s.badgeBg};">Step ${currentStep+1} · ${s.badge}</div>`;
+  html += `<h2 class="step-title">${s.title}</h2>`;
+  html += `<div class="step-body">${s.body}</div>`;
+
+  // Tree viewport
+  html += `<div class="tree-viewport" id="tv">`;
+
+  // Nature overlay
+  if (s.showNature) {
+    html += `<div class="nature-overlay"><div class="ground-line"></div><div class="ground-label">ground level</div><div class="sky-label">☀ Sky — Leaves</div><div class="soil-label">🌱 Soil — Roots</div></div>`;
+  }
+
+  // SVG edges
+  html += `<svg class="edges" id="svg-edges"></svg>`;
+
+  // Nodes will be injected via JS (need viewport dimensions)
+  html += `</div>`;
+
+  // Key
+  if (s.showLevels) {
+    html += `<div class="key-box">`;
+    html += `<div class="key-item"><div class="key-swatch" style="background:var(--highlight)"></div>Level 0</div>`;
+    html += `<div class="key-item"><div class="key-swatch" style="background:var(--gold)"></div>Level 1</div>`;
+    html += `<div class="key-item"><div class="key-swatch" style="background:var(--purple)"></div>Level 2</div>`;
+    html += `<div class="key-item"><div class="key-swatch" style="background:var(--teal)"></div>Level 3</div>`;
+    html += `</div>`;
+  }
+
+  if (s.callout) {
+    html += `<div class="callout">${s.callout}</div>`;
+  }
+
+  html += `</div>`;
+  container.innerHTML = html;
+
+  // Now render nodes/edges with actual pixel coords
+  requestAnimationFrame(() => {
+    const tv = document.getElementById('tv');
+    if (!tv) return;
+    const W = tv.clientWidth;
+    const H = tv.clientHeight;
+    const svgEl = document.getElementById('svg-edges');
+    const ns = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--ns')) || 48;
+    const half = ns / 2;
+
+    // Compute pixel positions
+    const px = {};
+    Object.keys(posMap).forEach(k => {
+      px[k] = {
+        x: posMap[k].cx * (W - ns - 20) + 10,
+        y: posMap[k].cy * (H - ns - 20) + 10,
+      };
+    });
+
+    // Draw edges
+    let svgHTML = '';
+    EDGES.forEach(([a,b]) => {
+      const col = s.edgeColor(a, b);
+      svgHTML += `<line x1="${px[a].x+half}" y1="${px[a].y+half}" x2="${px[b].x+half}" y2="${px[b].y+half}" stroke="${col}" opacity=".55"/>`;
+    });
+    svgEl.innerHTML = svgHTML;
+
+    // Draw nodes
+    Object.keys(posMap).forEach((k, idx) => {
+      const st = s.nodeStyle(k);
+      const lab = s.labels(k);
+      const d = document.createElement('div');
+      d.className = 'tnode';
+      d.textContent = posMap[k].v;
+      d.style.left = px[k].x + 'px';
+      d.style.top = px[k].y + 'px';
+      d.style.background = st.bg;
+      d.style.border = `2.5px solid ${st.border}`;
+      d.style.color = st.color;
+      if (st.scale) d.style.transform = `scale(${st.scale})`;
+      if (st.glow) d.style.boxShadow = st.glow;
+      d.style.opacity = '0';
+      d.style.animation = `cardIn .35s ease ${idx*0.04}s forwards`;
+
+      if (lab.top) {
+        const tag = document.createElement('div');
+        tag.className = 'label-tag show';
+        tag.textContent = lab.top;
+        tag.style.background = (lab.topColor||st.color) + '18';
+        tag.style.color = lab.topColor || st.color;
+        d.appendChild(tag);
+      }
+      if (lab.bottom) {
+        const sub = document.createElement('div');
+        sub.className = 'sub-label show';
+        sub.textContent = lab.bottom;
+        d.appendChild(sub);
+      }
+
+      tv.appendChild(d);
+    });
+
+    // Level brackets
+    if (s.showLevels) {
+      const levelColors = ['var(--highlight)','var(--gold)','var(--purple)','var(--teal)'];
+      const levelNames = ['Level 0','Level 1','Level 2','Level 3'];
+      Object.keys(LEVELS).forEach(lv => {
+        const nodes = LEVELS[lv];
+        const firstKey = nodes[0];
+        const yPos = px[firstKey].y + half - 8;
+        const br = document.createElement('div');
+        br.className = 'level-bracket show';
+        br.style.top = yPos + 'px';
+        br.style.color = levelColors[lv];
+        br.innerHTML = `<div class="level-line" style="height:${ns-4}px;background:${levelColors[lv]}"></div>${levelNames[lv]}`;
+        tv.appendChild(br);
+      });
+    }
+
+    // Height arrow
+    if (s.showHeight) {
+      const topY = px['A'].y + half;
+      const botY = px['H'].y + half;
+      const arr = document.createElement('div');
+      arr.className = 'height-arrow show';
+      arr.style.top = topY + 'px';
+      arr.innerHTML = `<div class="arr-line" style="top:0;height:${botY-topY}px"></div>`;
+      const lbl = document.createElement('div');
+      lbl.className = 'arr-label';
+      lbl.style.top = ((botY-topY)/2 - 8) + 'px';
+      lbl.style.left = '-22px';
+      lbl.textContent = 'Height = 3';
+      arr.appendChild(lbl);
+      tv.appendChild(arr);
+    }
+  });
+}
+
+/* ═══════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════ */
+goStep(0);
+window.addEventListener('resize', () => renderStep());
+</script>
+</body>
+</html>
