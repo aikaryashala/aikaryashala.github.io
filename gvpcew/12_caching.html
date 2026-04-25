@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caching · The pattern that makes computers feel fast</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #faf6ef;
+    --bg-card: #f1ecde;
+    --bg-deep: #ece5d3;
+    --ink: #1a1815;
+    --ink-soft: #3a3631;
+    --ink-muted: #6e6a62;
+    --ink-faint: #97928a;
+    --line: #d8d2c1;
+    --line-soft: #e6e0cf;
+    --accent: #b8430a;
+    --accent-soft: #f3e0d0;
+    --teal: #1f6360;
+    --teal-soft: #d6e6e3;
+    --rust: #8a3f0e;
+    --rust-soft: #f0dec9;
+    --gold: #a87618;
+    --gold-soft: #f0e3c4;
+    --serif: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+    --sans: 'Inter Tight', -apple-system, system-ui, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.65;
+    font-feature-settings: 'ss01', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  /* Subtle grain texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.4;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(26, 24, 21, 0.04) 1px, transparent 0);
+    background-size: 3px 3px;
+    mix-blend-mode: multiply;
+  }
+
+  .wrap { position: relative; z-index: 2; }
+
+  .container {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 96px 0 72px;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 32px;
+    right: 32px;
+    height: 1px;
+    background: var(--ink);
+    max-width: 1116px;
+  }
+
+  .kicker {
+    font-family: var(--mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--ink-muted);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .kicker::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: var(--ink);
+  }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(3.5rem, 11vw, 9.5rem);
+    font-weight: 400;
+    line-height: 0.92;
+    letter-spacing: -0.045em;
+    color: var(--ink);
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+    font-feature-settings: 'ss01';
+  }
+
+  .hero .lede {
+    font-family: var(--serif);
+    font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--ink-soft);
+    max-width: 780px;
+    margin: 32px 0 0;
+    letter-spacing: -0.01em;
+  }
+
+  .hero .lede em {
+    font-style: italic;
+    color: var(--ink);
+  }
+
+  .hero-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 32px;
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line-soft);
+    max-width: 900px;
+  }
+
+  .hero-meta dt {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+    margin-bottom: 6px;
+  }
+
+  .hero-meta dd {
+    font-size: 15px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  /* TOC */
+  .toc {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .toc-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--ink-faint);
+    margin-bottom: 24px;
+  }
+
+  .toc-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+
+  .toc-list li {
+    background: var(--bg);
+    transition: background 0.2s;
+  }
+
+  .toc-list li:hover { background: var(--bg-card); }
+
+  .toc-list a {
+    display: block;
+    padding: 22px 24px;
+    text-decoration: none;
+    color: var(--ink);
+  }
+
+  .toc-list .num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .toc-list .title {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .toc-list a:hover .title { color: var(--accent); }
+
+  /* SECTIONS */
+  .cache-section {
+    padding: 120px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .section-meta {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 32px;
+    margin-bottom: 48px;
+    align-items: start;
+  }
+
+  .section-num {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink-faint);
+    letter-spacing: 0.12em;
+    padding-top: 20px;
+    position: relative;
+  }
+
+  .section-num::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(2.8rem, 6vw, 4.5rem);
+    font-weight: 400;
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    color: var(--ink);
+  }
+
+  .section-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .section-tagline {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.25rem;
+    color: var(--ink-muted);
+    margin-top: 16px;
+    line-height: 1.4;
+  }
+
+  /* WHY CARD */
+  .why {
+    margin: 56px 0;
+    padding: 32px 36px;
+    background: var(--bg-card);
+    border-left: 3px solid var(--accent);
+    position: relative;
+  }
+
+  .why-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .why p {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    letter-spacing: -0.005em;
+  }
+
+  .why p code {
+    font-family: var(--mono);
+    font-size: 0.92em;
+    background: var(--bg);
+    padding: 2px 7px;
+    border-radius: 3px;
+    color: var(--ink);
+  }
+
+  /* PIPELINE SVG WRAPPER */
+  .pipeline {
+    margin: 48px 0;
+    padding: 48px 24px;
+    background: #fffdf8;
+    border: 1px solid var(--line-soft);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .pipeline-corner {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-color: var(--ink-faint);
+    border-style: solid;
+    border-width: 0;
+  }
+  .pipeline-corner.tl { top: 8px; left: 8px; border-top-width: 1px; border-left-width: 1px; }
+  .pipeline-corner.tr { top: 8px; right: 8px; border-top-width: 1px; border-right-width: 1px; }
+  .pipeline-corner.bl { bottom: 8px; left: 8px; border-bottom-width: 1px; border-left-width: 1px; }
+  .pipeline-corner.br { bottom: 8px; right: 8px; border-bottom-width: 1px; border-right-width: 1px; }
+
+  .pipeline svg { display: block; width: 100%; height: auto; }
+
+  /* SVG STATES */
+  .pbox { transition: opacity 0.5s ease; }
+  .pbox.dim { opacity: 0.25; }
+  .pbox-rect { transition: stroke-width 0.4s ease, fill 0.4s ease; }
+  .pbox.pulse .pbox-rect { animation: pulse 1.8s ease-in-out infinite; }
+
+  @keyframes pulse {
+    0%, 100% { stroke-width: 1; }
+    50% { stroke-width: 2.5; }
+  }
+
+  .parr { transition: opacity 0.4s ease; opacity: 0.3; }
+  .parr.act { opacity: 1; }
+  .parr.flow { stroke-dasharray: 6 5; animation: flow 1.1s linear infinite; }
+
+  @keyframes flow { to { stroke-dashoffset: -22; } }
+
+  /* STEP CONTROLS */
+  .stepper {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 32px;
+    margin-top: 48px;
+    align-items: start;
+  }
+
+  .stepper-side {
+    padding-top: 4px;
+  }
+
+  .step-counter {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+
+  .step-counter strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .step-dots {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .step-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--line);
+    transition: background 0.3s;
+  }
+
+  .step-dot.done { background: var(--ink-faint); }
+  .step-dot.active { background: var(--accent); transform: scale(1.4); }
+
+  .step-text {
+    font-family: var(--serif);
+    font-size: 1.32rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    letter-spacing: -0.005em;
+    min-height: 140px;
+  }
+
+  .step-text strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .step-text code {
+    font-family: var(--mono);
+    font-size: 0.85em;
+    background: var(--bg-card);
+    padding: 2px 8px;
+    border-radius: 3px;
+    color: var(--accent);
+    font-style: normal;
+  }
+
+  .step-controls {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+  }
+
+  .step-controls button {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 20px;
+    background: var(--bg);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: -0.005em;
+  }
+
+  .step-controls button:hover:not(:disabled) {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+
+  .step-controls button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  /* PATTERN / CLOSING */
+  .closing {
+    padding: 140px 0 120px;
+    background: var(--ink);
+    color: var(--bg);
+    margin-top: 0;
+  }
+
+  .closing .kicker { color: rgba(250, 246, 239, 0.5); }
+  .closing .kicker::before { background: rgba(250, 246, 239, 0.5); }
+
+  .closing h2 {
+    font-family: var(--serif);
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    margin-bottom: 32px;
+  }
+
+  .closing h2 em {
+    font-style: italic;
+    color: #f5b95e;
+  }
+
+  .closing p {
+    font-family: var(--serif);
+    font-size: 1.32rem;
+    line-height: 1.6;
+    color: rgba(250, 246, 239, 0.8);
+    max-width: 720px;
+    margin-bottom: 24px;
+  }
+
+  .closing-pattern {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1px;
+    margin-top: 64px;
+    background: rgba(250, 246, 239, 0.15);
+    border: 1px solid rgba(250, 246, 239, 0.15);
+  }
+
+  .pattern-cell {
+    background: var(--ink);
+    padding: 28px 24px;
+  }
+
+  .pattern-cell .label {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: rgba(250, 246, 239, 0.5);
+    margin-bottom: 12px;
+  }
+
+  .pattern-cell .value {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    line-height: 1.3;
+    color: var(--bg);
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 48px 0;
+    text-align: center;
+    border-top: 1px solid var(--line);
+  }
+
+  footer p {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--ink-faint);
+  }
+
+  /* SVG TYPOGRAPHY */
+  .svg-title { font-family: var(--sans); font-size: 14px; font-weight: 500; fill: var(--ink); }
+  .svg-sub { font-family: var(--mono); font-size: 11px; fill: var(--ink-muted); }
+  .svg-edge { font-family: var(--mono); font-size: 10px; fill: var(--ink-faint); letter-spacing: 0.06em; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .container { padding: 0 24px; }
+    .section-meta { grid-template-columns: 1fr; gap: 12px; }
+    .section-num { padding-top: 0; }
+    .section-num::after { display: none; }
+    .stepper { grid-template-columns: 1fr; gap: 16px; }
+    .stepper-side { display: flex; align-items: center; gap: 16px; }
+    .step-dots { flex-direction: row; margin-top: 0; }
+    .why { padding: 24px 24px; }
+    .pipeline { padding: 32px 8px; }
+    .hero { padding: 72px 0 56px; }
+    .cache-section { padding: 80px 0; }
+    .closing { padding: 96px 0 80px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HERO -->
+<header class="hero">
+  <div class="container">
+    <p class="kicker">A primer · five layers</p>
+    <h1>The art of <em>not</em> asking twice.</h1>
+    <p class="lede">Every fast computer you have ever used works because somewhere, someone decided <em>not to fetch the same thing twice</em>. The pattern is called caching, and it shows up at every layer of the stack — from the silicon inside your CPU to the database in front of your application. This is a tour of five places it lives, and why each one is worth the trouble.</p>
+
+    <dl class="hero-meta">
+      <div>
+        <dt>The pattern</dt>
+        <dd>Keep a small, fast copy of frequently-needed data close to where you need it.</dd>
+      </div>
+      <div>
+        <dt>Why it works</dt>
+        <dd>Real-world access patterns are uneven. A few items are requested constantly; most are not.</dd>
+      </div>
+      <div>
+        <dt>Five examples</dt>
+        <dd>CPU caches, browser cache, browser DNS cache, OS DNS cache, Redis.</dd>
+      </div>
+    </dl>
+  </div>
+</header>
+
+<!-- TOC -->
+<nav class="toc">
+  <div class="container">
+    <p class="toc-label">Contents</p>
+    <ol class="toc-list">
+      <li><a href="#cpu"><span class="num">01 / hardware</span><span class="title">CPU L1, L2, L3</span></a></li>
+      <li><a href="#browser"><span class="num">02 / network</span><span class="title">Browser cache</span></a></li>
+      <li><a href="#dnsb"><span class="num">03 / process</span><span class="title">DNS in the browser</span></a></li>
+      <li><a href="#dnso"><span class="num">04 / system</span><span class="title">DNS in the OS</span></a></li>
+      <li><a href="#redis"><span class="num">05 / application</span><span class="title">Redis cache</span></a></li>
+    </ol>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============ CPU ============ -->
+<section class="cache-section" id="cpu">
+  <div class="container">
+    <div class="section-meta">
+      <span class="section-num">01</span>
+      <div>
+        <h2 class="section-title">CPU L1, L2, <em>L3</em>.</h2>
+        <p class="section-tagline">A hierarchy of silicon, each level closer and faster than the last.</p>
+      </div>
+    </div>
+
+    <div class="why">
+      <span class="why-label">Why it exists</span>
+      <p>A modern CPU runs at roughly 3 GHz — about <strong>100&times; faster</strong> than main memory. Without cache, the processor would idle waiting for RAM nearly every cycle. Each level trades capacity for speed: smaller and closer means faster.</p>
+    </div>
+
+    <div class="pipeline">
+      <span class="pipeline-corner tl"></span><span class="pipeline-corner tr"></span>
+      <span class="pipeline-corner bl"></span><span class="pipeline-corner br"></span>
+      <svg viewBox="0 0 1100 240" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="ar-cpu" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0L10 5L0 10z" fill="#3a3631"/>
+          </marker>
+        </defs>
+
+        <g class="pbox" data-key="cpu">
+          <rect class="pbox-rect" x="40" y="80" width="160" height="80" rx="2" fill="#fffdf8" stroke="#3a3631" stroke-width="1"/>
+          <text class="svg-title" x="120" y="118" text-anchor="middle">CPU core</text>
+          <text class="svg-sub" x="120" y="138" text-anchor="middle">3 GHz</text>
+        </g>
+        <line class="parr" data-arr="cpu-l1" x1="205" y1="120" x2="245" y2="120" stroke="#3a3631" stroke-width="1.5" marker-end="url(#ar-cpu)"/>
+
+        <g class="pbox" data-key="l1">
+          <rect class="pbox-rect" x="250" y="80" width="160" height="80" rx="2" fill="#d6e6e3" stroke="#1f6360" stroke-width="1"/>
+          <text class="svg-title" x="330" y="110" text-anchor="middle" fill="#1f6360">L1 cache</text>
+          <text class="svg-sub" x="330" y="130" text-anchor="middle" fill="#1f6360">~1 ns</text>
+          <text class="svg-sub" x="330" y="148" text-anchor="middle" fill="#1f6360" opacity="0.7">64 KB</text>
+        </g>
+        <line class="parr" data-arr="l1-l2" x1="415" y1="120" x2="455" y2="120" stroke="#3a3631" stroke-width="1.5" marker-end="url(#ar-cpu)"/>
+
+        <g class="pbox" data-key="l2">
+          <rect class="pbox-rect" x="460" y="80" width="160" height="80" rx="2" fill="#d6e6e3" stroke="#1f6360" stroke-width="1"/>
+          <text class="svg-title" x="540" y="110" text-anchor="middle" fill="#1f6360">L2 cache</text>
+          <text class="svg-sub" x="540" y="130" text-anchor="middle" fill="#1f6360">~3 ns</text>
+          <text class="svg-sub" x="540" y="148" text-anchor="middle" fill="#1f6360" opacity="0.7">1 MB</text>
+        </g>
+        <line class="parr" data-arr="l2-l3" x1="625" y1="120" x2="665" y2="120" stroke="#3a3631" stroke-width="1.5" marker-end="url(#ar-cpu)"/>
+
+        <g class="pbox" data-key="l3">
+          <rect class="pbox-rect" x="670" y="80" width="160" height="80" rx="2" fill="#d6e6e3" stroke="#1f6360" stroke-width="1"/>
+          <text class="svg-title" x="750" y="110" text-anchor="middle" fill="#1f6360">L3 cache</text>
+          <text class="svg-sub" x="750" y="130" text-anchor="middle" fill="#1f6360">~12 ns</text>
+          <text class="svg-sub" x="750" y="148" text-anchor="middle" fill="#1f6360" opacity="0.7">32 MB · shared</text>
+        </g>
+        <line class="parr" data-arr="l3-ram" x1="835" y1="120" x2="875" y2="120" stroke="#3a3631" stroke-width="1.5" marker-end="url(#ar-cpu)"/>
+
+        <g class="pbox" data-key="ram">
+          <rect class="pbox-rect" x="880" y="80" width="160" height="80" rx="2" fill="#f0dec9" stroke="#8a3f0e" stroke-width="1"/>
+          <text class="svg-title" x="960" y="110" text-anchor="middle" fill="#8a3f0e">Main memory</text>
+          <text class="svg-sub" x="960" y="130" text-anchor="middle" fill="#8a3f0e">~100 ns</text>
+          <text class="svg-sub" x="960" y="148" text-anchor="middle" fill="#8a3f0e" opacity="0.7">several GB</text>
+        </g>
+
+        <text class="svg-edge" x="40" y="200">FASTEST</text>
+        <text class="svg-edge" x="1040" y="200" text-anchor="end">SLOWEST · 100&times;</text>
+        <line x1="40" y1="210" x2="1040" y2="210" stroke="#97928a" stroke-width="0.5" stroke-dasharray="2 4"/>
+      </svg>
+    </div>
+
+    <div class="stepper">
+      <div class="stepper-side">
+        <div class="step-counter">Step <strong data-counter="cpu">1</strong> / 5</div>
+        <div class="step-dots" data-dots="cpu"></div>
+      </div>
+      <div>
+        <p class="step-text" data-text="cpu"></p>
+        <div class="step-controls">
+          <button onclick="cs.step('cpu',-1)" data-prev="cpu">← Previous</button>
+          <button onclick="cs.step('cpu',1)" data-next="cpu">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BROWSER ============ -->
+<section class="cache-section" id="browser">
+  <div class="container">
+    <div class="section-meta">
+      <span class="section-num">02</span>
+      <div>
+        <h2 class="section-title">The browser <em>remembers</em>.</h2>
+        <p class="section-tagline">Every asset you've already downloaded, kept on disk for next time.</p>
+      </div>
+    </div>
+
+    <div class="why">
+      <span class="why-label">Why it exists</span>
+      <p>A typical webpage downloads dozens of files — HTML, CSS, JavaScript, images, fonts. Re-downloading them on every visit would waste bandwidth and slow page loads to a crawl. The browser keeps a copy on disk, controlled by HTTP cache headers like <code>Cache-Control</code> and <code>ETag</code> sent by the server.</p>
+    </div>
+
+    <div class="pipeline">
+      <span class="pipeline-corner tl"></span><span class="pipeline-corner tr"></span>
+      <span class="pipeline-corner bl"></span><span class="pipeline-corner br"></span>
+      <svg viewBox="0 0 1100 240" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="ar-br" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0L10 5L0 10z" fill="#3a3631"/>
+          </marker>
+        </defs>
+
+        <g class="pbox" data-key="browser">
+          <rect class="pbox-rect" x="80" y="80" width="240" height="90" rx="2" fill="#fffdf8" stroke="#3a3631" stroke-width="1"/>
+          <text class="svg-title" x="200" y="120" text-anchor="middle">Browser</text>
+          <text class="svg-sub" x="200" y="142" text-anchor="middle">renders the page</text>
+        </g>
+        <line class="parr" data-arr="b-c" x1="325" y1="125" x2="425" y2="125" stroke="#3a3631" stroke-width="1.5" marker-end="url(#ar-br)"/>
+
+        <g class="pbox" data-key="cache">
+          <rect class="pbox-rect" x="430" y="80" width="240" height="90" rx="2" fill="#d6e6e3" stroke="#1f6360" stroke-width="1"/>
+          <text class="svg-title" x="550" y="115" text-anchor="middle" fill="#1f6360">Disk cache</text>
+          <text class="svg-sub" x="550" y="135" text-anchor="middle" fill="#1f6360">~5 ms · local SSD</text>
+          <text class="svg-sub" x="550" y="153" text-anchor="middle" fill="#1f6360" opacity="0.7">HTML · CSS · JS · images</text>
+        </g>
+        <line class="parr" data-arr="c-s" x1="675" y1="125" x2="775" y2="125" stroke="#3a3631" stroke-width="1.5" marker-end="url(#ar-br)"/>
+
+        <g class="pbox" data-key="server">
+          <rect class="pbox-rect" x="780" y="80" width="240" height="90" rx="2" fill="#f0dec9" stroke="#8a3f0e" stroke-width="1"/>
+          <text class="svg-title" x="900" y="115" text-anchor="middle" fill="#8a3f0e">Web server</text>
+          <text class="svg-sub" x="900" y="135" text-anchor="middle" fill="#8a3f0e">100–800 ms</text>
+          <text class="svg-sub" x="900" y="153" text-anchor="middle" fill="#8a3f0e" opacity="0.7">across the network</text>
+        </g>
+
+        <text class="svg-edge" x="200" y="205" text-anchor="middle">on device</text>
+        <text class="svg-edge" x="900" y="205" text-anchor="middle">across the internet</text>
+      </svg>
+    </div>
+
+    <div class="stepper">
+      <div class="stepper-side">
+        <div class="step-counter">Step <strong data-counter="browser">1</strong> / 5</div>
+        <div class="step-dots" data-dots="browser"></div>
+      </div>
+      <div>
+        <p class="step-text" data-text="browser"></p>
+        <div class="step-controls">
+          <button onclick="cs.step('browser',-1)" data-prev="browser">← Previous</button>
+          <button onclick="cs.step('browser',1)" data-next="browser">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DNS BROWSER ============ -->
+<section class="cache-section" id="dnsb">
+  <div class="container">
+    <div class="section-meta">
+      <span class="section-num">03</span>
+      <div>
+        <h2 class="section-title">DNS, <em>without leaving</em> the process.</h2>
+        <p class="section-tagline">Even a syscall is too slow when you're checking ten thousand hostnames a day.</p>
+      </div>
+    </div>
+
+    <div class="why">
+      <span class="why-label">Why it exists</span>
+      <p>Every URL like <code>example.com</code> must be turned into an IP address before any data can flow. Even a quick OS-level DNS lookup costs a system call and inter-process work. Browsers keep their own in-process DNS cache so common hostnames resolve at essentially zero cost — a hash table read in the same memory as the page itself.</p>
+    </div>
+
+    <div class="pipeline">
+      <span class="pipeline-corner tl"></span><span class="pipeline-corner tr"></span>
+      <span class="pipeline-corner bl"></span><span class="pipeline-corner br"></span>
+      <svg viewBox="0 0 1100 240" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="ar-dnsb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0L10 5L0 10z" fill="#3a3631"/>
+          </marker>
+        </defs>
+
+        <g class="pbox" data-key="proc">
+          <rect class="pbox-rect" x="80" y="80" width="240" height="90" rx="2" fill="#fffdf8" stroke="#3a3631" stroke-width="1"/>
+          <text class="svg-title" x="200" y="115" text-anchor="middle">Browser process</text>
+          <text class="svg-sub" x="200" y="135" text-anchor="middle">needs an IP</text>
+          <text class="svg-sub" x="200" y="153" text-anchor="middle" opacity="0.7">to open a connection</text>
+        </g>
+        <line class="parr" data-arr="p-c" x1="325" y1="125" x2="425" y2="125" stroke="#3a3631" stroke-width="1.5" marker-end="url(#ar-dnsb)"/>
+
+        <g class="pbox" data-key="bcache">
+          <rect class="pbox-rect" x="430" y="80" width="240" height="90" rx="2" fill="#d6e6e3" stroke="#1f6360" stroke-width="1"/>
+          <text class="svg-title" x="550" y="115" text-anchor="middle" fill="#1f6360">In-process DNS cache</text>
+          <text class="svg-sub" x="550" y="135" text-anchor="middle" fill="#1f6360">~0.01 ms</text>
+          <text class="svg-sub" x="550" y="153" text-anchor="middle" fill="#1f6360" opacity="0.7">just a hash table read</text>
+        </g>
+        <line class="parr" data-arr="c-os" x1="675" y1="125" x2="775" y2="125" stroke="#3a3631" stroke-width="1.5" marker-end="url(#ar-dnsb)"/>
+
+        <g class="pbox" data-key="os">
+          <rect class="pbox-rect" x="780" y="80" width="240" height="90" rx="2" fill="#f0dec9" stroke="#8a3f0e" stroke-width="1"/>
+          <text class="svg-title" x="900" y="115" text-anchor="middle" fill="#8a3f0e">OS resolver</text>
+          <text class="svg-sub" x="900" y="135" text-anchor="middle" fill="#8a3f0e">syscall</text>
+          <text class="svg-sub" x="900" y="153" text-anchor="middle" fill="#8a3f0e" opacity="0.7">slower, shared by all apps</text>
+        </g>
+
+        <text class="svg-edge" x="200" y="205" text-anchor="middle">same memory as the page</text>
+        <text class="svg-edge" x="900" y="205" text-anchor="middle">crosses a process boundary</text>
+      </svg>
+    </div>
+
+    <div class="stepper">
+      <div class="stepper-side">
+        <div class="step-counter">Step <strong data-counter="dnsb">1</strong> / 5</div>
+        <div class="step-dots" data-dots="dnsb"></div>
+      </div>
+      <div>
+        <p class="step-text" data-text="dnsb"></p>
+        <div class="step-controls">
+          <button onclick="cs.step('dnsb',-1)" data-prev="dnsb">← Previous</button>
+          <button onclick="cs.step('dnsb',1)" data-next="dnsb">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DNS OS ============ -->
+<section class="cache-section" id="dnso">
+  <div class="container">
+    <div class="section-meta">
+      <span class="section-num">04</span>
+      <div>
+        <h2 class="section-title">DNS, <em>before</em> the network.</h2>
+        <p class="section-tagline">A system-wide cache so every app benefits from each lookup that's already been done.</p>
+      </div>
+    </div>
+
+    <div class="why">
+      <span class="why-label">Why it exists</span>
+      <p>When a DNS lookup misses every local cache, it can take a 50–300 ms round trip through your router, your ISP, the root servers, the TLD servers, and finally the authoritative nameserver. The OS keeps a system-wide cache so a lookup done by your terminal warms the cache for your browser, your mail client, and everything else.</p>
+    </div>
+
+    <div class="pipeline">
+      <span class="pipeline-corner tl"></span><span class="pipeline-corner tr"></span>
+      <span class="pipeline-corner bl"></span><span class="pipeline-corner br"></span>
+      <svg viewBox="0 0 1100 240" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="ar-dnso" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0L10 5L0 10z" fill="#3a3631"/>
+          </marker>
+        </defs>
+
+        <g class="pbox" data-key="osres">
+          <rect class="pbox-rect" x="80" y="80" width="240" height="90" rx="2" fill="#fffdf8" stroke="#3a3631" stroke-width="1"/>
+          <text class="svg-title" x="200" y="115" text-anchor="middle">OS resolver</text>
+          <text class="svg-sub" x="200" y="135" text-anchor="middle">request from any app</text>
+          <text class="svg-sub" x="200" y="153" text-anchor="middle" opacity="0.7">browser · mail · terminal</text>
+        </g>
+        <line class="parr" data-arr="o-c" x1="325" y1="125" x2="425" y2="125" stroke="#3a3631" stroke-width="1.5" marker-end="url(#ar-dnso)"/>
+
+        <g class="pbox" data-key="oscache">
+          <rect class="pbox-rect" x="430" y="80" width="240" height="90" rx="2" fill="#d6e6e3" stroke="#1f6360" stroke-width="1"/>
+          <text class="svg-title" x="550" y="115" text-anchor="middle" fill="#1f6360">OS DNS cache</text>
+          <text class="svg-sub" x="550" y="135" text-anchor="middle" fill="#1f6360">~0.1 ms</text>
+          <text class="svg-sub" x="550" y="153" text-anchor="middle" fill="#1f6360" opacity="0.7">system-wide, shared</text>
+        </g>
+        <line class="parr" data-arr="c-net" x1="675" y1="125" x2="775" y2="125" stroke="#3a3631" stroke-width="1.5" marker-end="url(#ar-dnso)"/>
+
+        <g class="pbox" data-key="net">
+          <rect class="pbox-rect" x="780" y="80" width="240" height="90" rx="2" fill="#f0dec9" stroke="#8a3f0e" stroke-width="1"/>
+          <text class="svg-title" x="900" y="115" text-anchor="middle" fill="#8a3f0e">DNS hierarchy</text>
+          <text class="svg-sub" x="900" y="135" text-anchor="middle" fill="#8a3f0e">50–300 ms</text>
+          <text class="svg-sub" x="900" y="153" text-anchor="middle" fill="#8a3f0e" opacity="0.7">router → ISP → root → TLD</text>
+        </g>
+
+        <text class="svg-edge" x="200" y="205" text-anchor="middle">on device</text>
+        <text class="svg-edge" x="900" y="205" text-anchor="middle">over the public internet</text>
+      </svg>
+    </div>
+
+    <div class="stepper">
+      <div class="stepper-side">
+        <div class="step-counter">Step <strong data-counter="dnso">1</strong> / 5</div>
+        <div class="step-dots" data-dots="dnso"></div>
+      </div>
+      <div>
+        <p class="step-text" data-text="dnso"></p>
+        <div class="step-controls">
+          <button onclick="cs.step('dnso',-1)" data-prev="dnso">← Previous</button>
+          <button onclick="cs.step('dnso',1)" data-next="dnso">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REDIS ============ -->
+<section class="cache-section" id="redis">
+  <div class="container">
+    <div class="section-meta">
+      <span class="section-num">05</span>
+      <div>
+        <h2 class="section-title">Redis, <em>in front of</em> the database.</h2>
+        <p class="section-tagline">The same idea, scaled up to your application's read traffic.</p>
+      </div>
+    </div>
+
+    <div class="why">
+      <span class="why-label">Why it exists</span>
+      <p>Reading from a relational database means parsing SQL, planning a query, hitting disk, locking rows, and serialising results — easily 50–200 ms. Redis keeps the answers to hot queries in RAM, so repeat reads return in about a millisecond and the database is freed up to do real work.</p>
+    </div>
+
+    <div class="pipeline">
+      <span class="pipeline-corner tl"></span><span class="pipeline-corner tr"></span>
+      <span class="pipeline-corner bl"></span><span class="pipeline-corner br"></span>
+      <svg viewBox="0 0 1100 240" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="ar-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0L10 5L0 10z" fill="#3a3631"/>
+          </marker>
+        </defs>
+
+        <g class="pbox" data-key="app">
+          <rect class="pbox-rect" x="80" y="80" width="240" height="90" rx="2" fill="#fffdf8" stroke="#3a3631" stroke-width="1"/>
+          <text class="svg-title" x="200" y="115" text-anchor="middle">App server</text>
+          <text class="svg-sub" x="200" y="135" text-anchor="middle">handles request</text>
+          <text class="svg-sub" x="200" y="153" text-anchor="middle" opacity="0.7">checks Redis first</text>
+        </g>
+        <line class="parr" data-arr="a-r" x1="325" y1="125" x2="425" y2="125" stroke="#3a3631" stroke-width="1.5" marker-end="url(#ar-r)"/>
+
+        <g class="pbox" data-key="redis">
+          <rect class="pbox-rect" x="430" y="80" width="240" height="90" rx="2" fill="#d6e6e3" stroke="#1f6360" stroke-width="1"/>
+          <text class="svg-title" x="550" y="115" text-anchor="middle" fill="#1f6360">Redis</text>
+          <text class="svg-sub" x="550" y="135" text-anchor="middle" fill="#1f6360">~1 ms</text>
+          <text class="svg-sub" x="550" y="153" text-anchor="middle" fill="#1f6360" opacity="0.7">key → value, all in RAM</text>
+        </g>
+        <line class="parr" data-arr="r-d" x1="675" y1="125" x2="775" y2="125" stroke="#3a3631" stroke-width="1.5" marker-end="url(#ar-r)"/>
+
+        <g class="pbox" data-key="db">
+          <rect class="pbox-rect" x="780" y="80" width="240" height="90" rx="2" fill="#f0dec9" stroke="#8a3f0e" stroke-width="1"/>
+          <text class="svg-title" x="900" y="115" text-anchor="middle" fill="#8a3f0e">Database</text>
+          <text class="svg-sub" x="900" y="135" text-anchor="middle" fill="#8a3f0e">50–200 ms</text>
+          <text class="svg-sub" x="900" y="153" text-anchor="middle" fill="#8a3f0e" opacity="0.7">SQL · disk · locks</text>
+        </g>
+
+        <text class="svg-edge" x="200" y="205" text-anchor="middle">your application</text>
+        <text class="svg-edge" x="900" y="205" text-anchor="middle">source of truth</text>
+      </svg>
+    </div>
+
+    <div class="stepper">
+      <div class="stepper-side">
+        <div class="step-counter">Step <strong data-counter="redis">1</strong> / 5</div>
+        <div class="step-dots" data-dots="redis"></div>
+      </div>
+      <div>
+        <p class="step-text" data-text="redis"></p>
+        <div class="step-controls">
+          <button onclick="cs.step('redis',-1)" data-prev="redis">← Previous</button>
+          <button onclick="cs.step('redis',1)" data-next="redis">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- CLOSING -->
+<section class="closing">
+  <div class="container">
+    <p class="kicker">The pattern, abstracted</p>
+    <h2>Three roles, <em>repeated</em>.</h2>
+    <p>Once you've stepped through the five examples, the underlying pattern is hard to miss. There's always a <em>requester</em> that needs data. There's always a <em>cache</em> that holds a fast copy. And there's always a <em>slow source of truth</em> that has the real answer when the cache doesn't.</p>
+    <p>Two design questions show up everywhere: <em>how long is a cached value still valid</em> (TTLs, ETags, hardware coherence protocols), and <em>what gets evicted when the cache fills up</em> (LRU is the most common answer at every layer). Get those two right, and a tiny amount of fast storage in front of a slow source can absorb the vast majority of traffic.</p>
+
+    <div class="closing-pattern">
+      <div class="pattern-cell">
+        <div class="label">Role · 1</div>
+        <div class="value">The requester<br>asks for data.</div>
+      </div>
+      <div class="pattern-cell">
+        <div class="label">Role · 2</div>
+        <div class="value">The cache<br>holds a fast copy.</div>
+      </div>
+      <div class="pattern-cell">
+        <div class="label">Role · 3</div>
+        <div class="value">The source of truth<br>knows the real answer.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>End of document</p>
+  </div>
+</footer>
+
+</div>
+
+<script>
+window.cs = (function(){
+  const cfg = {
+    cpu: {
+      steps: [
+        { active: [], pulse: null, flow: [], text: 'The CPU sits at the top of a memory hierarchy. <strong>L1</strong> is tiny but extremely fast; <strong>L2</strong> is larger and slower; <strong>L3</strong> is shared across cores; <strong>RAM</strong> is huge but ~100&times; slower than L1. Each level exists to bridge the gap between the level above and the one below.' },
+        { active: ['cpu','l1'], pulse: 'l1', flow: ['cpu-l1'], text: 'The CPU needs a piece of data. It checks <strong>L1 cache</strong> first — only ~1ns access, but only ~64KB per core. If the value is here, it returns immediately and the CPU never stalls.' },
+        { active: ['l1','l2'], pulse: 'l2', flow: ['l1-l2'], text: '<strong>L1 miss.</strong> The data wasn\'t in L1, so the CPU asks <strong>L2</strong> — ~3ns and around 1MB. L2 is per-core in most modern CPUs, and it catches the values that fell out of L1 recently.' },
+        { active: ['l2','l3'], pulse: 'l3', flow: ['l2-l3'], text: '<strong>L2 miss.</strong> Falling further, the CPU checks <strong>L3</strong> — ~12ns and tens of MB, shared across all cores on the chip. L3 also lets cores share data without going to RAM.' },
+        { active: ['l3','ram'], pulse: 'ram', flow: ['l3-ram'], text: '<strong>L3 miss.</strong> Last resort: fetch from <strong>main memory</strong> at ~100ns — about <strong>100&times; slower</strong> than L1. The fetched cache line is then copied back into L3, L2, and L1 so the next access is fast. This refilling is why caches are effective: real programs reuse the same data over and over.' }
+      ]
+    },
+    browser: {
+      steps: [
+        { active: [], pulse: null, flow: [], text: 'Your browser stores a copy of every downloaded asset (HTML, CSS, JS, images, fonts) on local disk. When you revisit a page, it can use these copies instead of asking the server again.' },
+        { active: ['browser','server'], pulse: 'server', flow: ['b-c','c-s'], text: '<strong>First visit.</strong> The cache is empty, so the browser downloads everything from the <strong>web server</strong> — that\'s the round trip across the internet, 100–800ms per resource depending on size and distance.' },
+        { active: ['cache'], pulse: 'cache', flow: [], text: 'As each response comes back, the browser stores it in its <strong>disk cache</strong>, tagged with the server\'s caching rules — <code>Cache-Control: max-age=3600</code>, <code>ETag</code>, <code>Last-Modified</code>. These tell the browser how long the copy is valid.' },
+        { active: ['browser','cache'], pulse: 'cache', flow: ['b-c'], text: '<strong>Second visit (cache hit).</strong> The browser checks its disk cache first. If the asset is there and still fresh, it loads from local disk in ~5ms — no network involved. The page renders almost instantly.' },
+        { active: ['browser','cache','server'], pulse: 'server', flow: ['b-c','c-s'], text: '<strong>Cache miss or expired.</strong> If the entry is gone or stale, the browser refetches from the server — sometimes sending the old <code>ETag</code> so the server can reply with a tiny <code>304 Not Modified</code> instead of resending the whole file. Either way, the new response is cached for next time.' }
+      ]
+    },
+    dnsb: {
+      steps: [
+        { active: [], pulse: null, flow: [], text: 'Before any HTTP request can be made, the browser needs to convert <code>example.com</code> into an IP address. The browser keeps its own in-process DNS cache so this step is essentially free for hostnames it has already looked up recently.' },
+        { active: ['proc'], pulse: 'proc', flow: [], text: 'You navigate to a URL. The <strong>browser process</strong> needs an IP address to open a TCP connection. Before doing anything else, it asks its own internal DNS cache.' },
+        { active: ['proc','bcache'], pulse: 'bcache', flow: ['p-c'], text: 'The browser checks its <strong>in-memory DNS cache</strong>. This lookup costs about ~0.01ms — it\'s just a hash table read in the same process, no syscalls, no IPC.' },
+        { active: ['bcache'], pulse: 'bcache', flow: [], text: '<strong>Cache hit.</strong> The IP is found, still within its TTL, and the browser starts the TCP/TLS connection immediately. No OS lookup, no network packet sent for DNS.' },
+        { active: ['bcache','os'], pulse: 'os', flow: ['c-os'], text: '<strong>Cache miss.</strong> The browser asks the <strong>OS resolver</strong> via a system call. Even this much slower path is still cheaper than the network, because the OS has its own cache as the next layer down.' }
+      ]
+    },
+    dnso: {
+      steps: [
+        { active: [], pulse: null, flow: [], text: 'When the browser\'s own DNS cache misses, the request lands at the operating system\'s resolver. The OS keeps a single shared DNS cache that every app on the machine benefits from — looking up <code>github.com</code> in your terminal warms the cache for your browser too.' },
+        { active: ['osres'], pulse: 'osres', flow: [], text: 'Any app on the machine — browser, mail client, terminal — funnels its DNS queries through the same <strong>OS resolver</strong>. It\'s a system service that consolidates lookups so they can be cached centrally.' },
+        { active: ['osres','oscache'], pulse: 'oscache', flow: ['o-c'], text: 'The resolver checks the <strong>OS-level DNS cache</strong> first. Hits cost about ~0.1ms — a tiny bit more than the in-process browser cache because of the syscall, but still essentially free.' },
+        { active: ['oscache'], pulse: 'oscache', flow: [], text: '<strong>Cache hit.</strong> The cached IP is returned to the browser. No network packet was ever sent. The TTL the authoritative server originally set (e.g. 300 seconds) controls how long this entry stays valid.' },
+        { active: ['oscache','net'], pulse: 'net', flow: ['c-net'], text: '<strong>Cache miss.</strong> The OS now walks the public <strong>DNS hierarchy</strong>: it asks the configured resolver (your router or ISP), which may ask the root servers, then the TLD servers (<code>.com</code>), then the domain\'s authoritative server. Total time: 50–300ms, sometimes more on cold paths. The result is cached at every level on the way back so the next lookup is fast.' }
+      ]
+    },
+    redis: {
+      steps: [
+        { active: [], pulse: null, flow: [], text: 'The same caching pattern applies inside your own application. Redis is an in-memory key-value store that sits between the app server and the database, holding the answers to hot queries so repeated reads don\'t hammer the database.' },
+        { active: ['app'], pulse: 'app', flow: [], text: 'A request comes in to the <strong>app server</strong> — say, fetching a user profile, a product, or a leaderboard. Before reaching for the database, the app checks Redis using a key like <code>user:1234</code>.' },
+        { active: ['app','redis'], pulse: 'redis', flow: ['a-r'], text: 'The app does a <code>GET</code> on <strong>Redis</strong>. This is a tiny network round trip to a process that holds everything in RAM — typically about 1ms, often less on the same network.' },
+        { active: ['redis'], pulse: 'redis', flow: [], text: '<strong>Cache hit.</strong> Redis returns the serialised value (often JSON), the app deserialises it, and responds. The database wasn\'t touched at all. On a busy service, 90%+ of reads can be served this way.' },
+        { active: ['app','redis','db'], pulse: 'db', flow: ['a-r','r-d'], text: '<strong>Cache miss.</strong> The app falls through to the <strong>database</strong> (50–200ms), gets the result, then writes it back to Redis with an expiry: <code>SET user:1234 &lt;json&gt; EX 300</code>. The next request for that user will hit the cache instead. This is the classic "cache-aside" pattern.' }
+      ]
+    }
+  };
+
+  const idx = { cpu: 0, browser: 0, dnsb: 0, dnso: 0, redis: 0 };
+
+  function buildDots() {
+    Object.keys(cfg).forEach(c => {
+      const dotsEl = document.querySelector(`[data-dots="${c}"]`);
+      if (!dotsEl) return;
+      dotsEl.innerHTML = '';
+      cfg[c].steps.forEach((_, i) => {
+        const d = document.createElement('span');
+        d.className = 'step-dot';
+        dotsEl.appendChild(d);
+      });
+    });
+  }
+
+  function render(c) {
+    const section = document.getElementById(c);
+    if (!section) return;
+    const cur = cfg[c];
+    const i = idx[c];
+    const s = cur.steps[i];
+    const showAll = s.active.length === 0;
+
+    section.querySelectorAll('.pbox').forEach(b => {
+      const dim = !showAll && !s.active.includes(b.dataset.key);
+      b.classList.toggle('dim', dim);
+      b.classList.toggle('pulse', s.pulse === b.dataset.key);
+    });
+
+    section.querySelectorAll('.parr').forEach(a => {
+      const isFlow = s.flow && s.flow.includes(a.dataset.arr);
+      a.classList.toggle('act', isFlow);
+      a.classList.toggle('flow', isFlow);
+    });
+
+    section.querySelector(`[data-text="${c}"]`).innerHTML = s.text;
+    section.querySelector(`[data-counter="${c}"]`).textContent = (i + 1);
+
+    const dots = section.querySelectorAll(`[data-dots="${c}"] .step-dot`);
+    dots.forEach((d, di) => {
+      d.classList.toggle('active', di === i);
+      d.classList.toggle('done', di < i);
+    });
+
+    section.querySelector(`[data-prev="${c}"]`).disabled = (i === 0);
+    section.querySelector(`[data-next="${c}"]`).disabled = (i === cur.steps.length - 1);
+  }
+
+  function step(c, dir) {
+    const max = cfg[c].steps.length - 1;
+    idx[c] = Math.max(0, Math.min(max, idx[c] + dir));
+    render(c);
+  }
+
+  function init() {
+    buildDots();
+    Object.keys(cfg).forEach(render);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  return { step };
+})();
+</script>
+
+</body>
+</html>
