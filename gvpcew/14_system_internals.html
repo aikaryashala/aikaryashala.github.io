@@ -214,9 +214,9 @@ footer a{color:var(--accent)}
     </div>
     <div class="frame-box">
       <button class="fullscreen-btn" onclick="toggleFullscreen(this)">&#x26F6; Fullscreen</button>
-      <iframe class="iframe-slides"
+      <iframe class="iframe-slides" id="figma-slides" tabindex="0"
         src="https://www.figma.com/embed?embed_host=share&url=https://www.figma.com/proto/VRgWntdUUcOCMnhnjuYXlG/Fundamentals-of-Computing?node-id=102-3&scaling=scale-down-width&hide-ui=1"
-        allowfullscreen></iframe>
+        allow="fullscreen" allowfullscreen></iframe>
     </div>
   </div>
 
@@ -258,6 +258,14 @@ footer a{color:var(--accent)}
       document.querySelectorAll('.fullscreen-btn')
         .forEach(btn => btn.innerHTML = '&#x26F6; Fullscreen');
     }
+  });
+
+  // Give the Figma iframe keyboard focus when user clicks anywhere inside the frame-box
+  document.querySelectorAll('.frame-box').forEach(box => {
+    box.addEventListener('click', () => {
+      const iframe = box.querySelector('iframe');
+      if (iframe) iframe.focus();
+    });
   });
 </script>
 
