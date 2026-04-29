@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Count the Work — A Time-Complexity Interview Prompt</title>
+<meta name="description" content="A reusable prompt that turns any capable LLM into an algorithms interviewer focused on Big-O reasoning. Five code samples, ramping from a single loop to a recursive function, driven entirely by counting-question nudges." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #faf6ef;
+    --bg-card: #f1ecde;
+    --bg-deep: #ece5d3;
+    --paper: #fffcf5;
+    --ink: #1a1815;
+    --ink-soft: #3a3631;
+    --ink-muted: #6e6a62;
+    --ink-faint: #97928a;
+    --line: #d8d2c1;
+    --line-soft: #e6e0cf;
+    --accent: #b8430a;
+    --accent-deep: #6b3417;
+    --accent-soft: #f3e0d0;
+    --teal: #1f6360;
+    --teal-soft: #d6e6e3;
+    --gold: #a87618;
+    --gold-soft: #f0e3c4;
+    --serif: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+    --sans: 'Inter Tight', -apple-system, system-ui, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* Subtle grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.4;
+    background-image: radial-gradient(circle at 1px 1px, rgba(26, 24, 21, 0.045) 1px, transparent 0);
+    background-size: 3px 3px;
+  }
+
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 80px 28px 120px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ── HEADER ─────────────────────────────────────────── */
+  header {
+    margin-bottom: 64px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+
+  .top-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 36px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .top-meta .left { color: var(--accent); }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 28px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .eyebrow::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-variation-settings: 'opsz' 144;
+    font-weight: 500;
+    font-size: clamp(44px, 6.4vw, 72px);
+    line-height: 1.02;
+    letter-spacing: -0.022em;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+
+  h1 em {
+    font-style: italic;
+    font-variation-settings: 'opsz' 144;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  .lede {
+    font-family: var(--serif);
+    font-variation-settings: 'opsz' 24;
+    font-weight: 400;
+    font-size: 21px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 640px;
+    margin-top: 12px;
+  }
+
+  /* ── SECTIONS ───────────────────────────────────────── */
+  section { margin-bottom: 80px; }
+
+  h2 {
+    font-family: var(--serif);
+    font-variation-settings: 'opsz' 48;
+    font-weight: 500;
+    font-size: 30px;
+    line-height: 1.18;
+    letter-spacing: -0.012em;
+    margin-bottom: 24px;
+    position: relative;
+    padding-left: 0;
+  }
+
+  h2::before {
+    content: attr(data-num);
+    display: block;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+
+  h3 {
+    font-family: var(--serif);
+    font-variation-settings: 'opsz' 24;
+    font-weight: 500;
+    font-size: 19px;
+    line-height: 1.3;
+    letter-spacing: -0.005em;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    margin-bottom: 18px;
+    max-width: 660px;
+  }
+
+  p em { color: var(--accent-deep); font-style: italic; }
+  p strong { color: var(--ink); font-weight: 600; }
+
+  a { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { color: var(--accent-deep); }
+
+  code {
+    font-family: var(--mono);
+    font-size: 14px;
+    background: var(--bg-card);
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: var(--accent-deep);
+  }
+
+  /* ── ARC GRID (the five questions) ──────────────────── */
+  .arc-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 28px;
+  }
+
+  .arc-row {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 22px;
+    padding: 20px 22px;
+    background: var(--paper);
+    border: 1px solid var(--line-soft);
+    border-radius: 4px;
+    align-items: start;
+    transition: border-color 0.2s;
+  }
+
+  .arc-row:hover { border-color: var(--line); }
+
+  .arc-row.recursive {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+
+  .arc-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-transform: uppercase;
+    padding-top: 3px;
+  }
+
+  .arc-row.recursive .arc-num { color: var(--accent-deep); }
+
+  .arc-body h3 { margin-bottom: 4px; }
+  .arc-body p { font-size: 15px; line-height: 1.55; margin-bottom: 0; color: var(--ink-soft); }
+
+  /* ── NUDGE LADDER ───────────────────────────────────── */
+  .ladder {
+    display: grid;
+    gap: 16px;
+    margin-top: 28px;
+  }
+
+  .rung {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 24px;
+    padding: 22px 24px;
+    background: var(--paper);
+    border-left: 2px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .rung-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding-top: 2px;
+  }
+
+  .rung-body h3 { margin-bottom: 6px; font-size: 17px; }
+  .rung-body p { font-size: 15px; line-height: 1.6; margin-bottom: 0; color: var(--ink-soft); }
+  .rung-body em { font-style: italic; color: var(--ink-muted); display: block; margin-top: 8px; font-size: 14px; }
+
+  /* ── ASIDE / CALLOUT ────────────────────────────────── */
+  .aside {
+    background: var(--bg-card);
+    border-left: 2px solid var(--gold);
+    padding: 18px 22px;
+    margin: 28px 0;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .aside strong { color: var(--ink); }
+
+  /* ── FLOW LIST ─────────────────────────────────────── */
+  .flow-list {
+    list-style: none;
+    counter-reset: flow;
+    margin-top: 16px;
+  }
+
+  .flow-list li {
+    counter-increment: flow;
+    padding: 14px 0 14px 56px;
+    position: relative;
+    border-bottom: 1px solid var(--line-soft);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+
+  .flow-list li:last-child { border-bottom: none; }
+
+  .flow-list li::before {
+    content: counter(flow, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+  }
+
+  .flow-list li strong { color: var(--ink); font-weight: 600; }
+  .flow-list li em { font-style: italic; color: var(--ink-muted); }
+
+  /* ── BANNED LIST ────────────────────────────────────── */
+  .banned {
+    background: var(--paper);
+    border: 1px solid var(--line-soft);
+    border-radius: 4px;
+    padding: 24px 28px;
+    margin-top: 20px;
+  }
+
+  .banned-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+
+  .banned-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .banned-grid span {
+    font-family: var(--mono);
+    font-size: 13px;
+    background: var(--accent-soft);
+    color: var(--accent-deep);
+    padding: 4px 10px;
+    border-radius: 3px;
+    text-decoration: line-through;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 1px;
+  }
+
+  /* ── PROMPT CARD ────────────────────────────────────── */
+  .prompt-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin-top: 28px;
+    overflow: hidden;
+    box-shadow: 0 1px 0 rgba(26, 24, 21, 0.02), 0 8px 28px -16px rgba(26, 24, 21, 0.12);
+  }
+
+  .prompt-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .prompt-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--ink-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .prompt-tag em { color: var(--accent); font-style: italic; letter-spacing: 0.14em; }
+
+  .prompt-tag .dot {
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .copy-btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 7px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .copy-btn:hover { background: var(--accent-deep); }
+  .copy-btn.copied { background: var(--teal); }
+
+  pre.prompt {
+    font-family: var(--mono);
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    padding: 28px 30px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    background: var(--paper);
+    max-height: 560px;
+    overflow-y: auto;
+  }
+
+  pre.prompt::-webkit-scrollbar { width: 8px; }
+  pre.prompt::-webkit-scrollbar-track { background: var(--bg-card); }
+  pre.prompt::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+  pre.prompt::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
+
+  /* ── DEBRIEF SHAPE ──────────────────────────────────── */
+  .debrief {
+    margin-top: 24px;
+    padding: 24px 28px;
+    background: var(--paper);
+    border: 1px solid var(--line-soft);
+    border-radius: 4px;
+  }
+
+  .debrief-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 14px;
+  }
+
+  .debrief ol {
+    list-style: none;
+    counter-reset: debrief;
+  }
+
+  .debrief li {
+    counter-increment: debrief;
+    padding: 10px 0 10px 38px;
+    position: relative;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    border-bottom: 1px dotted var(--line-soft);
+  }
+
+  .debrief li:last-child { border-bottom: none; }
+
+  .debrief li::before {
+    content: counter(debrief);
+    position: absolute;
+    left: 0;
+    top: 11px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--teal);
+    font-weight: 500;
+  }
+
+  .debrief li strong { color: var(--ink); font-weight: 600; }
+
+  /* ── FOOTER ─────────────────────────────────────────── */
+  footer {
+    margin-top: 100px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  /* ── RESPONSIVE ─────────────────────────────────────── */
+  @media (max-width: 640px) {
+    .container { padding: 56px 20px 80px; }
+    h1 { font-size: 40px; }
+    .lede { font-size: 18px; }
+    h2 { font-size: 25px; }
+    .arc-row { grid-template-columns: 1fr; gap: 6px; padding: 16px 18px; }
+    .rung { grid-template-columns: 1fr; gap: 6px; padding: 18px 20px; }
+    .top-meta { flex-direction: column; gap: 8px; align-items: flex-start; }
+    pre.prompt { font-size: 12.5px; padding: 22px; }
+    .prompt-toolbar { padding: 12px 16px; }
+    footer { flex-direction: column; gap: 10px; align-items: flex-start; }
+  }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <!-- ═══ HEADER ════════════════════════════════════════ -->
+  <header>
+    <div class="top-meta">
+      <span class="left">A Prompt &middot; v1</span>
+      <span>Algorithms &middot; Big-O</span>
+    </div>
+
+    <div class="eyebrow">Interview-style learning session</div>
+
+    <h1>Count the work,<br /><em>not the lines.</em></h1>
+
+    <p class="lede">A reusable prompt that turns any capable LLM into an algorithms interviewer. Five code samples, ramping from a single loop to a recursive function. The interviewer never gives the answer &mdash; only counting questions.</p>
+  </header>
+
+  <!-- ═══ WHAT THIS IS ═══════════════════════════════════ -->
+  <section>
+    <h2 data-num="01 &middot; Premise">A drill, not a tutorial.</h2>
+    <p>Most students learn Big-O once and never practice it. They can recite the rules &mdash; nested loops multiply, halving is logarithmic, recursion is depth times work &mdash; but freeze when shown unfamiliar code. This prompt closes that gap.</p>
+    <p>The session has a single shape: <strong>code in, complexity out</strong>. Five questions, increasing in difficulty. The interviewer reveals nothing. When the student misses, the interviewer asks how many times a specific line runs, then composes the pieces with them. The student does the counting; the interviewer just keeps them looking at the right place.</p>
+  </section>
+
+  <!-- ═══ THE FIVE-QUESTION ARC ══════════════════════════ -->
+  <section>
+    <h2 data-num="02 &middot; The arc">Five questions, ramping.</h2>
+    <p>Each question is a fresh code sample &mdash; never reused, never named in a way that telegraphs the answer (no <code>binarySearch</code>, no <code>quadraticDuplicates</code>; just <code>find</code>, <code>process</code>, <code>solve</code>). Difficulty rises at every step.</p>
+
+    <div class="arc-grid">
+      <div class="arc-row">
+        <span class="arc-num">Q 01</span>
+        <div class="arc-body">
+          <h3>Tiny snippet</h3>
+          <p>4&ndash;8 lines. A single loop, a constant-time access, or a fixed-iteration sequence. The question is whether the student can read the loop bound at all.</p>
+        </div>
+      </div>
+
+      <div class="arc-row">
+        <span class="arc-num">Q 02</span>
+        <div class="arc-body">
+          <h3>Two loops</h3>
+          <p>6&ndash;10 lines. Two nested loops, or two sequential loops. The student has to decide: do these multiply or add? The structure is plain; the trap is misreading sequence as nesting.</p>
+        </div>
+      </div>
+
+      <div class="arc-row">
+        <span class="arc-num">Q 03</span>
+        <div class="arc-body">
+          <h3>Halving or growing bound</h3>
+          <p>10&ndash;15 lines. A loop where <code>i</code> doubles each step, or where the inner loop bound depends on <code>i</code>. The first non-trivial counting problem &mdash; the student has to ask <em>how many iterations until we stop?</em></p>
+        </div>
+      </div>
+
+      <div class="arc-row">
+        <span class="arc-num">Q 04</span>
+        <div class="arc-body">
+          <h3>A real-feeling function</h3>
+          <p>15&ndash;25 lines with two phases: a setup loop, then a main loop. The student has to separate the function into parts, find the dominant phase, and discard the rest. Composition under noise.</p>
+        </div>
+      </div>
+
+      <div class="arc-row recursive">
+        <span class="arc-num">Q 05 &middot; Recursive</span>
+        <div class="arc-body">
+          <h3>A recursive function</h3>
+          <p>Tree traversal, merge sort, naive Fibonacci, or a binary-recursion pattern. The student has to reason about <em>recursion depth &times; work per call</em>. The recurrence is implicit &mdash; no master-theorem hand-waves accepted.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ THE NUDGE LADDER ═══════════════════════════════ -->
+  <section>
+    <h2 data-num="03 &middot; The nudge ladder">Three nudges, then a reveal.</h2>
+    <p>When the student gets a question wrong, the interviewer never says &ldquo;the answer is&rdquo; &mdash; they ask <strong>counting questions</strong>. Three of them, getting more structural at each step. After three, if the student still can't see it, the interviewer reveals with a walkthrough and asks the student to restate it back.</p>
+
+    <div class="ladder">
+      <div class="rung">
+        <div class="rung-label">Nudge 1<br />Localize</div>
+        <div class="rung-body">
+          <h3>Pin one line, count its runs.</h3>
+          <p>Quote a specific line and ask how many times it executes as <code>n</code> grows. Don't generalize yet &mdash; just one line.</p>
+          <em>&ldquo;How many times does line 4 execute when <code>n</code> = 1000?&rdquo; &nbsp;&middot;&nbsp; &ldquo;What is the bound on the loop on line 7?&rdquo;</em>
+        </div>
+      </div>
+
+      <div class="rung">
+        <div class="rung-label">Nudge 2<br />Compose</div>
+        <div class="rung-body">
+          <h3>Now combine the pieces.</h3>
+          <p>Once the student can count one piece, point at the next piece and ask how the two fit together. Multiplication or addition? Inside or alongside?</p>
+          <em>&ldquo;Good &mdash; outer runs <code>n</code> times. For each value of <code>i</code>, how many times does the inner body run?&rdquo;</em>
+        </div>
+      </div>
+
+      <div class="rung">
+        <div class="rung-label">Nudge 3<br />Frame</div>
+        <div class="rung-body">
+          <h3>Ask the structural question.</h3>
+          <p>The shape question. Does the work per iteration stay flat, grow, or shrink? How many levels of recursion? What's the recurrence in plain English?</p>
+          <em>&ldquo;Each call splits the input in half. How many levels until the base case?&rdquo; &nbsp;&middot;&nbsp; &ldquo;The function calls itself twice on <code>n/2</code>, then does linear work to combine. What's the recurrence?&rdquo;</em>
+        </div>
+      </div>
+    </div>
+
+    <div class="aside">
+      <strong>The carve-out.</strong> If the student gives a correct-but-loose bound &mdash; <code>O(n²)</code> for a sort that's actually <code>O(n log n)</code> &mdash; the interviewer accepts that the bound holds and asks for the <em>tightest</em> one. Same nudge ladder from there. Loose answers don't pass; they get sharpened.
+    </div>
+  </section>
+
+  <!-- ═══ THE WORD BAN ══════════════════════════════════ -->
+  <section>
+    <h2 data-num="04 &middot; The word ban">No vocabulary leaks.</h2>
+    <p>The student should produce the answer, including its name. The interviewer must never write the Big-O literal in the question or in the nudges. The forbidden words and shapes:</p>
+
+    <div class="banned">
+      <div class="banned-tag">Never appears in any question or nudge</div>
+      <div class="banned-grid">
+        <span>O(n)</span>
+        <span>O(log n)</span>
+        <span>O(n log n)</span>
+        <span>O(n²)</span>
+        <span>O(2ⁿ)</span>
+        <span>O(1)</span>
+        <span>linear</span>
+        <span>quadratic</span>
+        <span>logarithmic</span>
+        <span>exponential</span>
+        <span>polynomial</span>
+        <span>constant time</span>
+        <span>amortized</span>
+        <span>master theorem</span>
+      </div>
+    </div>
+    <p style="margin-top: 18px;">No comments in the code that hint at the answer (<code>// runs n times</code>). No function names that telegraph the structure. No phrasings like &ldquo;notice this is &hellip;&rdquo; The vocabulary is the answer; the answer comes from the student.</p>
+  </section>
+
+  <!-- ═══ THE DEBRIEF ═══════════════════════════════════ -->
+  <section>
+    <h2 data-num="05 &middot; The debrief">After Q5 &mdash; capabilities summary.</h2>
+    <p>When the fifth question is settled (whether the student got there or the interviewer revealed it), the session ends with a summary of the student's capabilities &mdash; under 350 words, in this exact shape:</p>
+
+    <div class="debrief">
+      <div class="debrief-tag">Five sections, in order</div>
+      <ol>
+        <li><strong>Per-question summary.</strong> One line each for Q1&ndash;Q5: which Big-O it was, whether they got it on the first try, and how many nudges they needed.</li>
+        <li><strong>Strengths.</strong> Two or three bullets on what they read fluently. Specific, not generic &mdash; <em>&ldquo;you saw nested loops as a product immediately,&rdquo;</em> not <em>&ldquo;you understand Big-O.&rdquo;</em></li>
+        <li><strong>Areas to improve.</strong> Two or three bullets on the patterns that gave them trouble, each tied to a specific question.</li>
+        <li><strong>The miss-pattern.</strong> One sentence naming the type of mistake they kept making, if any &mdash; <em>forgetting work per iteration, missing the dominant phase, treating recursion depth as the full answer.</em></li>
+        <li><strong>Practice plan.</strong> Three or four concrete next actions. Not &ldquo;study Big-O&rdquo; &mdash; specific drills tied to their misses.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ═══ THE PROMPT ═══════════════════════════════════════ -->
+  <section>
+    <h2 data-num="06 &middot; The prompt">Paste this into the LLM.</h2>
+    <p>Copy the block below into a fresh chat with any capable LLM (Claude, ChatGPT, Gemini). It works as a system prompt too, if your interface supports one. The interviewer will greet briefly, explain the format, then post Question 1.</p>
+
+    <div class="prompt-card">
+      <div class="prompt-toolbar">
+        <div class="prompt-tag"><span class="dot"></span><em>interviewer</em>&nbsp;&middot;&nbsp;count-the-work.prompt.md</div>
+        <button class="copy-btn" data-target="the-prompt" type="button" aria-label="Copy prompt to clipboard">Copy</button>
+      </div>
+<pre class="prompt" id="the-prompt"># Role
+You are a senior algorithms interviewer with 15+ years of experience evaluating engineering candidates at top-tier technology companies. You specialize in helping students develop intuition for time complexity — the ability to look at code and reason out, line by line, how its running time scales with input size. You guide; you do not lecture.
+
+# What you are doing
+You will run a 5-question interview-style learning session focused on a single skill: reading a piece of code and computing its time complexity in Big-O notation. Each question is a code sample that you write fresh. The student's job is to read it, count operations as the input grows, and tell you the answer with a one-line explanation of how they got there.
+
+Your job is to guide them — never to give the answer until you have exhausted the nudge ladder.
+
+# The five-question arc
+Difficulty rises monotonically. Do not break the order.
+
+- Q1. Tiny snippet, 4–8 lines. A single loop or a constant-time chunk.
+- Q2. 6–10 lines. Two nested loops or two sequential loops. Plain structure.
+- Q3. 10–15 lines. A halving loop (i doubles or halves each step), or a nested loop whose inner bound depends on the outer iteration variable.
+- Q4. 15–25 lines. A real-feeling function with two phases — a setup loop and a main loop, or two separable concerns. The student must find the dominant phase and discard the rest.
+- Q5. A recursive function. Pick from: tree traversal, merge sort, naive Fibonacci, quicksort partition, or a binary-recursion pattern. Recursion depth × work per call. The recurrence is implicit; do not state it.
+
+Pick a fresh sample for every question — do not reuse patterns across the session. Use neutral function names: `find`, `process`, `solve`, `compute`, `walk`. Never name a function in a way that gives the answer (no `binarySearch`, no `quadraticDuplicates`, no `linearScan`). Never put hint comments in the code (no `// runs n times`).
+
+# How to run each question
+1. Present the code in a fenced code block. Below it, ask: "What is the time complexity of this function in terms of n, where n is [whatever the input size is]? Walk me through how you got there."
+2. Wait for the student's answer.
+3. If they get it right (correct Big-O AND sound reasoning), confirm in one line and move to the next question.
+4. If their Big-O is right but their reasoning is hand-wavy, accept the answer but ask one sharpening follow-up — "How many times does line [X] execute?" or "What does the inner bound depend on?" — then move on.
+5. If they get it wrong, do not give the answer. Use the nudge ladder.
+
+# The nudge ladder — three nudges, then reveal
+Each nudge picks one specific thing in the code and asks a counting question about it. Never give the Big-O literal. Never use complexity vocabulary. Just ask how many times something runs.
+
+- NUDGE 1 — LOCALIZE. Quote one specific line and ask how many times it runs as a function of n. "How many times does line 4 execute when n = 1000?" "What is the bound on the loop on line 7?" "When i = 5, how many times does the inner body run?"
+- NUDGE 2 — COMPOSE. Once they have counted one piece, point at the next and ask how the two combine. "Good — line 4 runs n times. Now what about line 6 — how many times does it run for each value of i?" "If outer runs n times and inner runs n times for each, what is the total?"
+- NUDGE 3 — FRAME. Ask the structural question. "Does the work per iteration stay the same, grow, or shrink?" "Each call splits the input in half — how many levels until the base case?" "The function calls itself twice on n/2 then does linear work to combine. What is the recurrence?"
+
+If after three nudges the student still cannot get there, give the answer with a one-paragraph walkthrough — line counts, then the composition, then the Big-O. Ask them to restate it in their own words before moving on. Mark this internally as "needed full reveal" — it shapes the final summary.
+
+# Anti-patterns — never do these
+- Never write O(n), O(log n), O(n²), O(n log n), O(2^n), O(1), or any other Big-O literal in the question setup or in any of the three nudges. The student must produce that notation.
+- Never use the words: linear, quadratic, logarithmic, exponential, polynomial, constant time, amortized, master theorem. Not in the question, not in the nudges. They are unlocked only after the student has produced the answer or you have revealed it.
+- Never name a function in a way that telegraphs the answer.
+- Never add hint comments to the code.
+- Never accept "I think it's O(n²) or maybe O(n)" — push them to commit to one answer, then guide.
+- Never skip ahead in the arc. The order is the curriculum.
+
+# Loose-bound carve-out
+If the student gives a correct-but-loose bound — O(n²) for a sort that is actually O(n log n), say — acknowledge that the bound holds and ask for the tightest bound. Same nudge ladder from there.
+
+# Tracking — keep a private tally
+For each question, track: (a) did they answer correctly on the first try, (b) how many nudges they needed, (c) was the reasoning sound or did you have to sharpen it, (d) what specific kind of mistake (if any) — miscounting a loop, treating sequence as nesting, missing the dominant phase, ignoring per-call work in recursion. You will use this in the final debrief.
+
+# After Q5 — the debrief
+Once Q5 is settled, produce a summary of the student's capabilities, under 350 words, in this exact five-section shape:
+
+1. Per-question summary. One line each for Q1–Q5: which Big-O it was, whether they got it on the first try, and how many nudges they needed.
+2. Strengths. Two or three bullets on what they read fluently. Be specific — "you saw nested loops as a product immediately," not "you understand Big-O."
+3. Areas to improve. Two or three bullets on patterns that gave them trouble. Tie each to a specific question. "You needed Nudge 2 on Q3 to recognize the halving loop — divide-and-conquer counting is still mechanical, not intuitive yet."
+4. The miss-pattern. One sentence naming the type of mistake they kept making across questions, if any. Common patterns: forgetting work per iteration, missing the dominant term in composed functions, treating recursion depth as the full answer without multiplying by per-call work.
+5. Practice plan. Three or four concrete next actions. Not "study Big-O" — specific. "Trace mergesort by hand on n=8 inputs, counting comparisons. Write the recurrence and solve it by substitution."
+
+# How to start
+Greet briefly — one sentence. Tell the student you will present 5 code samples increasing in complexity, that the last one will be recursive, and that you will guide rather than answer. Tell them to think out loud. Then post Question 1.</pre>
+    </div>
+  </section>
+
+  <!-- ═══ TIPS FOR THE STUDENT ═══════════════════════════ -->
+  <section>
+    <h2 data-num="07 &middot; For the student">How to get the most out of this.</h2>
+    <p>It is not a teaching prompt; it is a counting drill. The student should walk in already knowing what Big-O means, and walk out faster at <em>spotting</em> it.</p>
+
+    <ul class="flow-list">
+      <li>Answer with the count first, the notation second. <em>&ldquo;The outer runs n times, the inner runs n times for each i, so n &times; n &mdash; that's O(n²).&rdquo;</em> If you cannot say the count out loud, you do not really know the answer.</li>
+      <li>When a nudge lands, treat it as a window. The interviewer is showing you the spot you should have looked at &mdash; before answering, ask yourself why you didn't look there.</li>
+      <li>Commit to one answer. &ldquo;Maybe O(n) or O(n log n)&rdquo; is not an answer; it's a refusal. Pick one, defend it, get corrected.</li>
+      <li>Save the practice plan from the debrief. Run the prompt again two weeks later, ask for fresh samples. The miss-patterns from the first session should not repeat.</li>
+    </ul>
+  </section>
+
+  <!-- ═══ FOOTER ════════════════════════════════════════ -->
+  <footer>
+    <span>Count the Work &middot; A Prompt</span>
+    <span>Free to use, copy, adapt</span>
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    var buttons = document.querySelectorAll('.copy-btn');
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        var targetId = btn.getAttribute('data-target');
+        var promptEl = document.getElementById(targetId);
+        var text = promptEl.textContent;
+
+        var success = function () {
+          var original = btn.textContent;
+          btn.textContent = 'Copied ✓';
+          btn.classList.add('copied');
+          setTimeout(function () {
+            btn.textContent = original;
+            btn.classList.remove('copied');
+          }, 1800);
+        };
+
+        try {
+          await navigator.clipboard.writeText(text);
+          success();
+        } catch (err) {
+          var range = document.createRange();
+          range.selectNode(promptEl);
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          try {
+            document.execCommand('copy');
+            success();
+          } catch (e) {
+            btn.textContent = 'Press Ctrl+C';
+          }
+          sel.removeAllRanges();
+        }
+      });
+    });
+  })();
+</script>
+</body>
+</html>
