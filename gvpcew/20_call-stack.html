@@ -151,18 +151,37 @@ footer a{color:var(--accent)}
   </div>
 </section>
 
-<!-- PLAYER -->
+<!-- PLAYER 1 -->
 <section style="padding-top:0">
-  <h3 class="section-title">Terminal Recording</h3>
+  <h3 class="section-title">Terminal Recording — Demo 1</h3>
   <div class="player-wrapper">
     <div class="player-header">
       <div class="player-dot" style="background:#ff5f57"></div>
       <div class="player-dot" style="background:#febc2e"></div>
       <div class="player-dot" style="background:#28c840"></div>
-      <span style="margin-left:8px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--text2)">call-stack-demo</span>
+      <span style="margin-left:8px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--text2)">call-stack-demo-1</span>
     </div>
     <div class="player-body">
-      <div id="player"></div>
+      <div id="player1"></div>
+    </div>
+  </div>
+  <p style="color:var(--text2);font-size:0.88rem;margin-top:-8px">
+    Use the play button to start. You can pause, seek, and adjust playback speed using the controls at the bottom of the player.
+  </p>
+</section>
+
+<!-- PLAYER 2 -->
+<section style="padding-top:0">
+  <h3 class="section-title">Terminal Recording — Demo 2</h3>
+  <div class="player-wrapper">
+    <div class="player-header">
+      <div class="player-dot" style="background:#ff5f57"></div>
+      <div class="player-dot" style="background:#febc2e"></div>
+      <div class="player-dot" style="background:#28c840"></div>
+      <span style="margin-left:8px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--text2)">call-stack-demo-2</span>
+    </div>
+    <div class="player-body">
+      <div id="player2"></div>
     </div>
   </div>
   <p style="color:var(--text2);font-size:0.88rem;margin-top:-8px">
@@ -203,17 +222,9 @@ footer a{color:var(--accent)}
 
 <script src="https://cdn.jsdelivr.net/npm/asciinema-player@3/dist/bundle/asciinema-player.min.js"></script>
 <script>
-  AsciinemaPlayer.create(
-    'https://asciinema.org/a/u37JuropCrRPksuT.cast',
-    document.getElementById('player'),
-    {
-      cols: 100,
-      rows: 30,
-      autoPlay: false,
-      theme: 'monokai',
-      fit: 'width'
-    }
-  );
+  const opts = { cols: 100, rows: 30, autoPlay: false, theme: 'monokai', fit: 'width' };
+  AsciinemaPlayer.create('https://asciinema.org/a/u37JuropCrRPksuT.cast', document.getElementById('player1'), opts);
+  AsciinemaPlayer.create('https://asciinema.org/a/t3dxQKdloSgd6JKu.cast', document.getElementById('player2'), opts);
 </script>
 </body>
 </html>
