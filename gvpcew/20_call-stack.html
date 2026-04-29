@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Call Stack — Live Terminal Demo | AI Karyashala × GVPCEW</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/asciinema-player@3/dist/bundle/asciinema-player.min.css"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f1117;--bg2:#161b27;--bg3:#1d2333;
+  --text:#e2e8f0;--text2:#94a3b8;--accent:#38bdf8;--accent2:#a78bfa;
+  --green:#34d399;--link:#60a5fa;--card:#1a2036;--border:#2a3450;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+a{color:var(--link);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ── NAV ── */
+.topnav{
+  padding:16px 32px;display:flex;align-items:center;gap:16px;
+  border-bottom:1px solid var(--border);background:var(--bg2);
+}
+.topnav a{font-size:0.9rem;color:var(--text2)}
+.topnav a:hover{color:var(--accent);text-decoration:none}
+.topnav .sep{color:var(--border)}
+
+/* ── HERO ── */
+.hero{
+  padding:64px 24px 48px;text-align:center;
+  background:linear-gradient(160deg,#080c14 0%,#0e1628 45%,#121e38 100%);
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 600px 400px at 50% 30%,rgba(56,189,248,0.07),transparent);
+}
+.hero-inner{position:relative;z-index:1;max-width:700px;margin:0 auto}
+.hero-badge{
+  display:inline-block;padding:6px 20px;border:1px solid var(--accent);
+  border-radius:20px;font-size:12px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--accent);margin-bottom:24px;
+}
+.hero h1{
+  font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,5vw,3.2rem);
+  letter-spacing:1px;color:#fff;margin-bottom:12px;line-height:1.2;
+}
+.hero .subtitle{font-size:1.05rem;color:var(--text2);font-style:italic}
+
+/* ── CONTENT ── */
+.content{max-width:900px;margin:0 auto;padding:0 24px}
+section{padding:48px 0}
+.section-title{
+  font-family:'Space Grotesk',sans-serif;font-size:1.4rem;color:var(--accent);
+  margin-bottom:24px;position:relative;padding-left:20px;
+}
+.section-title::before{
+  content:'';position:absolute;left:0;top:4px;width:4px;height:26px;
+  background:var(--accent);border-radius:2px;
+}
+
+/* ── NOTE BLOCK ── */
+.note-block{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:20px 24px;margin-bottom:16px;
+}
+.note-block p{color:var(--text);margin-bottom:8px}
+.note-block p:last-child{margin-bottom:0}
+.note-highlight{
+  border-left:3px solid var(--green);padding-left:16px;
+  color:var(--green);font-weight:500;
+}
+
+/* ── PLAYER WRAPPER ── */
+.player-wrapper{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;margin-bottom:24px;
+}
+.player-header{
+  padding:14px 20px;background:rgba(56,189,248,0.06);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.player-dot{width:10px;height:10px;border-radius:50%}
+.player-body{padding:20px}
+
+/* ── CONCEPTS ── */
+.concept-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;
+  margin-top:8px;
+}
+.concept-card{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:18px 20px;
+}
+.concept-card h4{
+  font-family:'Space Grotesk',sans-serif;font-size:1rem;color:var(--accent2);
+  margin-bottom:8px;
+}
+.concept-card p{color:var(--text2);font-size:0.9rem;line-height:1.65}
+
+/* ── FOOTER ── */
+footer{
+  text-align:center;padding:40px 24px;border-top:1px solid var(--border);
+  color:var(--text2);font-size:14px;
+}
+footer .brand{font-size:1.2rem;font-weight:700;color:var(--accent);margin-bottom:8px}
+footer a{color:var(--accent)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .topnav{padding:12px 16px}
+  .hero{padding:48px 16px 36px}
+  .content{padding:0 16px}
+  section{padding:32px 0}
+  .player-body{padding:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="topnav">
+  <a href="index.html">← Back to All Sessions</a>
+  <span class="sep">|</span>
+  <span style="color:var(--text2);font-size:0.9rem">Session 20</span>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">Session 20</div>
+    <h1>Call Stack<br>Live Terminal Demo</h1>
+    <p class="subtitle">Watch the call stack grow and unwind — in real time, in the terminal.</p>
+  </div>
+</header>
+
+<div class="content">
+
+<!-- ABOUT -->
+<section>
+  <h3 class="section-title">What This Is</h3>
+  <div class="note-block">
+    <p>This is a live terminal recording of a call stack demonstration. Watch function calls stack up frame by frame, and observe how the stack unwinds as each function returns — exactly as your program's runtime manages it.</p>
+  </div>
+  <div class="note-block">
+    <p class="note-highlight">Key idea: every function call pushes a new frame onto the stack. Every return pops it off. The call stack is just a bookkeeping mechanism — it remembers where to go back.</p>
+  </div>
+</section>
+
+<!-- PLAYER -->
+<section style="padding-top:0">
+  <h3 class="section-title">Terminal Recording</h3>
+  <div class="player-wrapper">
+    <div class="player-header">
+      <div class="player-dot" style="background:#ff5f57"></div>
+      <div class="player-dot" style="background:#febc2e"></div>
+      <div class="player-dot" style="background:#28c840"></div>
+      <span style="margin-left:8px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--text2)">call-stack-demo</span>
+    </div>
+    <div class="player-body">
+      <div id="player"></div>
+    </div>
+  </div>
+  <p style="color:var(--text2);font-size:0.88rem;margin-top:-8px">
+    Use the play button to start. You can pause, seek, and adjust playback speed using the controls at the bottom of the player.
+  </p>
+</section>
+
+<!-- CONCEPTS -->
+<section>
+  <h3 class="section-title">Key Concepts</h3>
+  <div class="concept-grid">
+    <div class="concept-card">
+      <h4>Stack Frame</h4>
+      <p>Each function call creates a frame on the stack containing local variables, parameters, and the return address — everything the function needs to run.</p>
+    </div>
+    <div class="concept-card">
+      <h4>LIFO Order</h4>
+      <p>The call stack follows Last In, First Out. The most recent function call is always resolved first before control returns to the caller.</p>
+    </div>
+    <div class="concept-card">
+      <h4>Stack Overflow</h4>
+      <p>When recursion goes too deep without a proper base case, frames keep piling up until the stack runs out of space — a stack overflow.</p>
+    </div>
+    <div class="concept-card">
+      <h4>Return Address</h4>
+      <p>When a function finishes, the CPU reads the return address stored in the frame and jumps back to that exact instruction in the caller.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <div class="brand">AI Karyashala</div>
+  <p>Training &amp; Research · <a href="https://aikaryashala.com" target="_blank">aikaryashala.com</a></p>
+  <p style="margin-top:8px;font-size:13px">DSA Session · Gayatri Vidya Parishad College of Engineering for Women</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/asciinema-player@3/dist/bundle/asciinema-player.min.js"></script>
+<script>
+  AsciinemaPlayer.create(
+    'https://asciinema.org/a/u37JuropCrRPksuT.cast',
+    document.getElementById('player'),
+    {
+      cols: 100,
+      rows: 30,
+      autoPlay: false,
+      theme: 'monokai',
+      fit: 'width'
+    }
+  );
+</script>
+</body>
+</html>
