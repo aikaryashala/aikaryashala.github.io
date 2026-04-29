@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamic Programming, Visualized</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #f3ecdf;
+  --paper-2: #ebe2d0;
+  --paper-3: #ddd0b3;
+  --ink: #1c1612;
+  --ink-soft: #4a4137;
+  --ink-fade: #8a8074;
+  --rule: #c7baa0;
+  --rule-soft: #d8cbb1;
+  --crimson: #ad3019;
+  --crimson-deep: #851f0d;
+  --crimson-tint: #ecbab0;
+  --teal: #1f5752;
+  --teal-deep: #143d39;
+  --teal-tint: #b3cdca;
+  --gold: #b88517;
+  --gold-tint: #ecd690;
+  --sage: #6b7d4f;
+  --sage-tint: #c5cdaf;
+  --plum: #6b3d5f;
+  --plum-tint: #cdb4c4;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Fraunces', Georgia, serif;
+  font-feature-settings: "ss01", "ss02";
+  font-weight: 400;
+  line-height: 1.65;
+  font-size: 18px;
+  background-image:
+    radial-gradient(circle at 8% 0%, rgba(173, 48, 25, 0.05) 0%, transparent 38%),
+    radial-gradient(circle at 92% 100%, rgba(31, 87, 82, 0.05) 0%, transparent 38%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+.grain {
+  position: fixed; inset: 0; pointer-events: none;
+  opacity: 0.5; z-index: 1; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 0.4 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.page {
+  max-width: 980px; margin: 0 auto;
+  padding: 72px 48px 120px;
+  position: relative; z-index: 2;
+}
+
+/* ===== Masthead ===== */
+header.masthead {
+  border-top: 4px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: 24px 0 40px;
+  margin-bottom: 64px;
+}
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.eyebrow .dot { color: var(--crimson); }
+h1.title {
+  font-size: clamp(56px, 9.5vw, 124px);
+  font-weight: 300; font-style: italic;
+  line-height: 0.93; letter-spacing: -0.035em;
+  margin-bottom: 22px;
+  font-variation-settings: "opsz" 144, "SOFT" 100;
+}
+h1.title em {
+  font-style: normal; font-weight: 700;
+  color: var(--crimson);
+  font-variation-settings: "opsz" 144;
+}
+.subtitle {
+  font-size: 22px;
+  color: var(--ink-soft);
+  font-style: italic;
+  max-width: 620px;
+  font-variation-settings: "opsz" 30;
+}
+
+/* ===== Sections ===== */
+section { margin-bottom: 96px; }
+
+h2 {
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+  font-variation-settings: "opsz" 96;
+}
+h3 {
+  font-size: 26px;
+  font-weight: 500;
+  font-style: italic;
+  margin: 48px 0 14px;
+  color: var(--ink);
+  font-variation-settings: "opsz" 60;
+}
+p { margin-bottom: 16px; max-width: 68ch; }
+p.lead {
+  font-size: 22px;
+  line-height: 1.55;
+  color: var(--ink);
+  margin-bottom: 22px;
+}
+p.lead em {
+  font-style: italic;
+  color: var(--crimson);
+}
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85em;
+  background: var(--paper-2);
+  padding: 2px 7px;
+  border-radius: 2px;
+  color: var(--ink);
+  border: 1px solid var(--rule-soft);
+}
+
+/* ===== Pillars ===== */
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  margin: 36px 0 24px;
+}
+.pillar {
+  background: var(--paper);
+  padding: 26px 24px 28px;
+}
+.pillar-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--crimson);
+  margin-bottom: 14px;
+  display: block;
+}
+.pillar h4 {
+  font-size: 21px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-style: italic;
+  font-variation-settings: "opsz" 36;
+}
+.pillar p {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin: 0;
+}
+@media (max-width: 720px) {
+  .pillars { grid-template-columns: 1fr; }
+}
+
+/* ===== Example label ===== */
+.ex-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--crimson);
+  margin-bottom: 16px;
+  position: relative;
+  padding-left: 36px;
+}
+.ex-num::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  width: 28px; height: 1px;
+  background: var(--crimson);
+}
+#example-grid .ex-num { color: var(--teal); }
+#example-grid .ex-num::before { background: var(--teal); }
+
+/* ===== Visualization frame ===== */
+.viz {
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  margin: 32px 0 14px;
+  padding: 28px;
+  position: relative;
+}
+.viz-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-fade);
+  position: absolute;
+  top: 12px;
+  right: 16px;
+}
+
+/* ===== Controls ===== */
+.controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--rule);
+}
+button {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  padding: 11px 18px;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.12s;
+  border-radius: 0;
+  font-weight: 500;
+}
+button:hover { background: var(--crimson); }
+button:active { transform: translateY(1px); }
+button.secondary {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+}
+button.secondary:hover { background: var(--ink); color: var(--paper); }
+button.accent2 { background: var(--teal); }
+button.accent2:hover { background: var(--teal-deep); }
+
+.stat {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-soft);
+  letter-spacing: 0.06em;
+  margin-left: auto;
+}
+.stat strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.caption {
+  font-size: 14.5px;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin: 8px 0 22px;
+  padding-left: 16px;
+  border-left: 2px solid var(--rule);
+  max-width: 68ch;
+  font-variation-settings: "opsz" 14;
+}
+
+/* ===== Fibonacci tree ===== */
+.fib-tree-wrap {
+  overflow-x: auto;
+  margin: 0 -8px;
+}
+#fib-tree {
+  display: block;
+  min-width: 700px;
+  width: 100%;
+  height: auto;
+  font-family: 'JetBrains Mono', monospace;
+}
+.fib-edge {
+  stroke: var(--ink-fade);
+  stroke-width: 1.3;
+  fill: none;
+  transition: opacity 0.4s, stroke-dasharray 0.4s;
+}
+.fib-tree.memo .memo-edge {
+  opacity: 0.28;
+  stroke-dasharray: 3 3;
+}
+.fib-node circle {
+  stroke: var(--ink);
+  stroke-width: 1.6;
+  transition: fill 0.4s, stroke 0.4s, stroke-dasharray 0.4s;
+}
+.fib-node text {
+  font-size: 12px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--ink);
+  pointer-events: none;
+  transition: fill 0.4s;
+}
+/* node colors by value of n */
+.fib-n-0 circle { fill: var(--gold-tint); }
+.fib-n-1 circle { fill: var(--gold-tint); }
+.fib-n-2 circle { fill: var(--teal-tint); }
+.fib-n-3 circle { fill: var(--crimson-tint); }
+.fib-n-4 circle { fill: var(--sage-tint); }
+.fib-n-5 circle { fill: var(--plum-tint); }
+
+.fib-tree.memo .memoized circle {
+  fill: var(--paper-2);
+  stroke: var(--rule);
+  stroke-dasharray: 3 3;
+}
+.fib-tree.memo .memoized text { fill: var(--ink-fade); }
+.fib-tree.memo .memoized.subtree { opacity: 0.18; }
+.fib-tree.memo .memoizedRoot circle {
+  stroke: var(--crimson);
+  stroke-width: 2;
+}
+
+.memo-stamp {
+  opacity: 0;
+  transition: opacity 0.5s;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  fill: var(--crimson);
+  letter-spacing: 0.14em;
+  text-anchor: middle;
+}
+.fib-tree.memo .memo-stamp { opacity: 1; }
+
+/* legend */
+.legend {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-soft);
+  letter-spacing: 0.04em;
+}
+.legend-item { display: flex; align-items: center; gap: 7px; }
+.legend-swatch {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 1.2px solid var(--ink);
+}
+
+/* ===== Big stat callout ===== */
+.callout {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  margin: 28px 0 8px;
+  padding: 20px 26px;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  border-left: 4px solid var(--crimson);
+  flex-wrap: wrap;
+}
+.callout-num {
+  font-size: 64px;
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1;
+  color: var(--crimson);
+  font-variation-settings: "opsz" 144;
+  transition: color 0.3s;
+  min-width: 90px;
+}
+.callout-text {
+  font-size: 17px;
+  color: var(--ink-soft);
+  font-style: italic;
+  flex: 1;
+  max-width: 50ch;
+}
+.callout-text strong {
+  font-style: normal;
+  color: var(--ink);
+  font-weight: 600;
+}
+.callout.green { border-left-color: var(--teal); }
+.callout.green .callout-num { color: var(--teal); }
+
+/* ===== DP table ===== */
+.dp-table {
+  display: flex;
+  margin: 24px 0;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  overflow-x: auto;
+}
+.dp-cell {
+  flex: 1;
+  min-width: 78px;
+  padding: 18px 12px;
+  border-right: 1px solid var(--rule);
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+}
+.dp-cell:last-child { border-right: none; }
+.dp-idx {
+  font-size: 10px;
+  color: var(--ink-fade);
+  letter-spacing: 0.12em;
+  display: block;
+  margin-bottom: 6px;
+}
+.dp-val {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* ===== Code blocks ===== */
+pre.code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--ink);
+  color: #ede4cf;
+  padding: 24px 28px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  margin: 24px 0;
+  overflow-x: auto;
+  position: relative;
+}
+pre.code::before {
+  content: attr(data-lang);
+  position: absolute;
+  top: 10px; right: 18px;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: #8a8074;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+pre.code .kw { color: #e8a37b; }
+pre.code .num { color: #b8d49b; }
+pre.code .com { color: #6f6557; font-style: italic; }
+pre.code .fn { color: #ecd690; }
+
+/* ===== Grid visualization ===== */
+.grid-wrap { overflow-x: auto; padding: 4px 0; }
+.grid-board {
+  display: grid;
+  gap: 4px;
+  margin: 0 auto;
+  width: fit-content;
+  background: var(--rule);
+  padding: 4px;
+  border: 1px solid var(--ink);
+}
+.gcell {
+  width: 78px; height: 78px;
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  position: relative;
+  transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+}
+.gcell-val {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.4s, transform 0.4s, color 0.3s;
+}
+.gcell.filled .gcell-val {
+  opacity: 1;
+  transform: translateY(0);
+}
+.gcell-coord {
+  position: absolute;
+  top: 5px; left: 7px;
+  font-size: 9px;
+  color: var(--ink-fade);
+  letter-spacing: 0.05em;
+}
+.gcell.start { background: var(--gold-tint); }
+.gcell.end { outline: 2px solid var(--crimson); outline-offset: -2px; }
+.gcell.source {
+  background: var(--gold-tint);
+  box-shadow: inset 0 0 0 2px var(--gold);
+}
+.gcell.current {
+  background: var(--teal);
+  z-index: 2;
+  box-shadow: 0 8px 22px rgba(31, 87, 82, 0.32);
+  transform: scale(1.06);
+}
+.gcell.current .gcell-val { color: var(--paper); }
+.gcell.current .gcell-coord { color: var(--paper); opacity: 0.7; }
+@media (max-width: 720px) {
+  .gcell { width: 58px; height: 58px; }
+  .gcell-val { font-size: 18px; }
+  .gcell-coord { font-size: 8px; }
+}
+
+.formula {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  background: var(--paper-2);
+  padding: 18px 26px;
+  border-left: 3px solid var(--teal);
+  margin: 24px 0;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+.formula strong { color: var(--teal); font-weight: 700; }
+
+/* progress */
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-top: 18px;
+  letter-spacing: 0.06em;
+}
+.progress-track {
+  flex: 1;
+  height: 2px;
+  background: var(--rule);
+  position: relative;
+  max-width: 220px;
+}
+.progress-bar {
+  height: 100%;
+  background: var(--teal);
+  width: 0%;
+  transition: width 0.3s;
+}
+
+/* ===== Aside ===== */
+.aside {
+  background: var(--paper);
+  border: 1px dashed var(--rule);
+  padding: 18px 24px 18px 24px;
+  margin: 28px 0;
+  position: relative;
+  font-size: 15.5px;
+  font-style: italic;
+  color: var(--ink-soft);
+  max-width: 70ch;
+  line-height: 1.6;
+  font-variation-settings: "opsz" 16;
+}
+.aside::before {
+  content: 'NOTE';
+  position: absolute;
+  top: -8px; left: 18px;
+  background: var(--paper);
+  padding: 0 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--ink-fade);
+  font-weight: 600;
+}
+
+/* ===== Footer ===== */
+footer.endnote {
+  border-top: 4px solid var(--ink);
+  padding-top: 36px;
+  margin-top: 80px;
+}
+footer.endnote h4 {
+  font-size: 26px;
+  color: var(--ink);
+  font-style: italic;
+  font-weight: 500;
+  margin-bottom: 14px;
+  font-variation-settings: "opsz" 36;
+}
+footer.endnote p {
+  color: var(--ink-soft);
+  font-size: 16px;
+}
+footer.endnote .colophon {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--ink-fade);
+  margin-top: 36px;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+@media (max-width: 720px) {
+  .page { padding: 48px 22px 80px; }
+  body { font-size: 17px; }
+  p.lead { font-size: 19px; }
+  .callout-num { font-size: 48px; min-width: 70px; }
+}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="page">
+
+  <header class="masthead">
+    <div class="eyebrow">
+      <span><span class="dot">●</span> Visual Notes № 01</span>
+      <span>Algorithms / Dynamic Programming</span>
+    </div>
+    <h1 class="title">Dynamic <em>Programming</em>,<br>visualized.</h1>
+    <p class="subtitle">A handful of ideas. Two examples. Many drawings.</p>
+  </header>
+
+  <section id="core">
+    <h2>The whole idea, in one breath.</h2>
+    <p class="lead">Dynamic programming is what you do when a recursion <em>repeats itself</em>. Instead of solving the same subproblem ten thousand times, you solve it once, write the answer down, and look it up next time it appears.</p>
+
+    <p>That's the entire trick. The hard part is just two things: noticing that subproblems overlap, and figuring out the recurrence that ties them together. Everything else — top-down memoization, bottom-up tables, optimizing space — is implementation detail.</p>
+
+    <div class="pillars">
+      <div class="pillar">
+        <span class="pillar-num">01 / The setup</span>
+        <h4>Overlapping subproblems</h4>
+        <p>The same smaller question gets asked over and over. Without memory, you re-derive its answer every time.</p>
+      </div>
+      <div class="pillar">
+        <span class="pillar-num">02 / The hinge</span>
+        <h4>Optimal substructure</h4>
+        <p>The answer to a problem is built from the answers to smaller versions of itself. A clean recurrence exists.</p>
+      </div>
+      <div class="pillar">
+        <span class="pillar-num">03 / The move</span>
+        <h4>Remember answers</h4>
+        <p>Compute each subproblem once. Cache it (memoize) or fill a table bottom-up (tabulate). Done.</p>
+      </div>
+    </div>
+
+    <p>The two examples below are the cleanest illustrations of these ideas. The first shows you the <em>waste</em> that DP eliminates. The second shows you the <em>table</em> that DP fills.</p>
+  </section>
+
+  <!-- ============= EXAMPLE I ============= -->
+  <section class="example" id="example-fib">
+    <div class="ex-num">Example I.</div>
+    <h2>Fibonacci numbers.</h2>
+    <p class="lead">F(n) = F(n−1) + F(n−2), with F(0) = 0 and F(1) = 1. The most innocent recursion in computer science — and a complete disaster if you actually run it that way.</p>
+
+    <p>Below is the call tree for F(5). Same color = same value. Notice how often the colors repeat. Each repeat is a subproblem you computed from scratch when you didn't have to.</p>
+
+    <div class="viz">
+      <span class="viz-label">Fig. 1 — Recursion tree, F(5)</span>
+      <div class="fib-tree-wrap">
+        <svg id="fib-tree" class="fib-tree" viewBox="0 0 800 410" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+
+      <div class="legend" id="fib-legend"></div>
+
+      <div class="controls">
+        <button id="fib-toggle">With memoization →</button>
+        <span class="stat" id="fib-stat">Total calls: <strong>15</strong></span>
+      </div>
+    </div>
+    <div class="caption">F(3) is computed twice. F(2) three times. F(1), five times. The naive call count grows like F(n+1) itself — exponentially. With memoization, every value is computed exactly once, and the redundant subtrees collapse into cache lookups.</div>
+
+    <div class="callout" id="fib-callout">
+      <span class="callout-num" id="fib-callout-num">15</span>
+      <span class="callout-text"><strong>function calls</strong> for naive F(5). With memoization, this drops to <strong>9</strong> — a ~40% saving on a tiny tree. The gap explodes as <em>n</em> grows.</span>
+    </div>
+
+    <h3>The fix is a table.</h3>
+    <p>Once you see the duplicates, the patch is obvious: write each answer down the first time. Even cleaner — build the table from the bottom up, so you never need to recurse at all.</p>
+
+    <div class="dp-table" id="fib-table"></div>
+    <div class="caption">The bottom-up DP table. Each cell is filled once, reading two cells to its left. Linear time, constant space if you keep only the last two values.</div>
+
+    <pre class="code" data-lang="js"><span class="kw">function</span> <span class="fn">fib</span>(n) {
+  <span class="kw">const</span> dp = [<span class="num">0</span>, <span class="num">1</span>];
+  <span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">2</span>; i &lt;= n; i++) {
+    dp[i] = dp[i - <span class="num">1</span>] + dp[i - <span class="num">2</span>];
+  }
+  <span class="kw">return</span> dp[n];
+}</pre>
+
+    <div class="aside">The exponential tree collapsed into a linear walk. That's what DP buys you on this problem — and the savings only get more dramatic as <code>n</code> grows. F(50) goes from ~25 billion calls down to 51.</div>
+  </section>
+
+  <!-- ============= EXAMPLE II ============= -->
+  <section class="example" id="example-grid">
+    <div class="ex-num">Example II.</div>
+    <h2>Counting paths in a grid.</h2>
+    <p class="lead">Stand in the top-left of a grid. You may step <em>right</em> or <em>down</em> only. How many distinct paths reach the bottom-right corner?</p>
+
+    <p>The recurrence almost writes itself. To reach any cell, you must have arrived from the cell directly above it or directly to its left. So the number of paths to a cell is the sum of paths to those two predecessors.</p>
+
+    <div class="formula"><strong>paths(i,j)</strong>  =  paths(i−1, j)  +  paths(i, j−1)</div>
+
+    <p>Edge cells — the top row and left column — have exactly one path to them, straight along the edge. Those are your base cases. Now fill the table, row by row.</p>
+
+    <div class="viz">
+      <span class="viz-label">Fig. 2 — Paths in a 4×5 grid</span>
+      <div class="grid-wrap">
+        <div class="grid-board" id="path-grid"></div>
+      </div>
+
+      <div class="progress">
+        <span id="grid-step-label">Step 0 / 20</span>
+        <div class="progress-track"><div class="progress-bar" id="grid-progress"></div></div>
+      </div>
+
+      <div class="controls">
+        <button id="step-btn">Step →</button>
+        <button id="play-btn" class="accent2">Auto-play</button>
+        <button id="reset-btn" class="secondary">Reset</button>
+        <span class="stat" id="grid-stat">Answer: <strong>—</strong></span>
+      </div>
+    </div>
+    <div class="caption">Watch the gold cells (sources) feed the teal cell (current). Each new value is the sum of the two it points back to. The bottom-right cell holds the final count: every distinct path through the grid, tallied exactly once.</div>
+
+    <pre class="code" data-lang="js"><span class="kw">function</span> <span class="fn">uniquePaths</span>(rows, cols) {
+  <span class="kw">const</span> dp = Array.from({length: rows}, () =&gt; Array(cols).fill(<span class="num">1</span>));
+  <span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">1</span>; i &lt; rows; i++) {
+    <span class="kw">for</span> (<span class="kw">let</span> j = <span class="num">1</span>; j &lt; cols; j++) {
+      dp[i][j] = dp[i - <span class="num">1</span>][j] + dp[i][j - <span class="num">1</span>];
+    }
+  }
+  <span class="kw">return</span> dp[rows - <span class="num">1</span>][cols - <span class="num">1</span>];
+}</pre>
+
+    <div class="aside">This is tabulation in its purest form. We never recurse — we just walk the table in an order that guarantees every dependency is already computed. Fill, look back, sum, advance.</div>
+  </section>
+
+  <footer class="endnote">
+    <h4>The pattern.</h4>
+    <p>Spot the overlapping subproblems. Write the recurrence. Decide whether to memoize top-down or tabulate bottom-up. That's basically every dynamic programming problem you'll ever meet — knapsack, edit distance, longest common subsequence, matrix chain multiplication, all of them. The visuals change. The trick doesn't.</p>
+    <div class="colophon">
+      <span>End of Notes № 01</span>
+      <span>Set in Fraunces &amp; JetBrains Mono</span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+'use strict';
+
+// ============================================================
+// EXAMPLE I — Fibonacci recursion tree
+// ============================================================
+
+function buildFibTree(n) {
+  if (n <= 1) return { n: n, children: [], leaf: true };
+  return { n: n, children: [buildFibTree(n - 1), buildFibTree(n - 2)], leaf: false };
+}
+
+function countLeaves(node) {
+  if (node.leaf) return 1;
+  return node.children.reduce((s, c) => s + countLeaves(c), 0);
+}
+
+function maxDepth(node, d) {
+  if (node.leaf) return d;
+  return Math.max(...node.children.map(c => maxDepth(c, d + 1)));
+}
+
+function layoutFibTree(root, width, height, padding) {
+  const totalLeaves = countLeaves(root);
+  const usableW = width - 2 * padding;
+  const leafGap = totalLeaves > 1 ? usableW / (totalLeaves - 1) : 0;
+  const depth = maxDepth(root, 0);
+  const usableH = height - 2 * padding;
+  const levelGap = depth > 0 ? usableH / depth : 0;
+
+  let leafIdx = 0;
+  function place(node, d) {
+    node.depth = d;
+    node.y = padding + d * levelGap;
+    if (node.leaf) {
+      node.x = padding + leafIdx * leafGap;
+      leafIdx++;
+      return;
+    }
+    for (const c of node.children) place(c, d + 1);
+    node.x = (node.children[0].x + node.children[node.children.length - 1].x) / 2;
+  }
+  place(root, 0);
+  return root;
+}
+
+function markMemoization(root) {
+  const seen = new Set();
+  function markSub(nd, isRoot) {
+    nd.memoized = true;
+    if (isRoot) nd.memoizedRoot = true;
+    for (const c of nd.children || []) markSub(c, false);
+  }
+  function visit(node) {
+    if (seen.has(node.n)) {
+      markSub(node, true);
+      return;
+    }
+    seen.add(node.n);
+    if (!node.leaf) for (const c of node.children) visit(c);
+  }
+  visit(root);
+}
+
+function deepClone(node) {
+  return {
+    n: node.n,
+    leaf: node.leaf,
+    children: node.children.map(deepClone)
+  };
+}
+
+function renderFibTree(root, svgEl) {
+  svgEl.innerHTML = '';
+  const ns = 'http://www.w3.org/2000/svg';
+
+  const nodes = [];
+  const edges = [];
+  function collect(node, parent) {
+    nodes.push(node);
+    if (parent) edges.push({ from: parent, to: node });
+    for (const c of node.children) collect(c, node);
+  }
+  collect(root, null);
+
+  // edges
+  const edgesG = document.createElementNS(ns, 'g');
+  for (const e of edges) {
+    const path = document.createElementNS(ns, 'path');
+    const x1 = e.from.x, y1 = e.from.y, x2 = e.to.x, y2 = e.to.y;
+    const my = (y1 + y2) / 2;
+    path.setAttribute('d', `M ${x1} ${y1 + 18} C ${x1} ${my}, ${x2} ${my}, ${x2} ${y2 - 18}`);
+    let cls = 'fib-edge';
+    if (e.to.memoized) cls += ' memo-edge';
+    path.setAttribute('class', cls);
+    edgesG.appendChild(path);
+  }
+  svgEl.appendChild(edgesG);
+
+  // nodes
+  for (const node of nodes) {
+    const g = document.createElementNS(ns, 'g');
+    let cls = `fib-node fib-n-${node.n}`;
+    if (node.memoized) cls += ' memoized';
+    if (node.memoizedRoot) cls += ' memoizedRoot';
+    if (node.memoized && !node.memoizedRoot) cls += ' subtree';
+    g.setAttribute('class', cls);
+    g.setAttribute('transform', `translate(${node.x}, ${node.y})`);
+
+    const circle = document.createElementNS(ns, 'circle');
+    circle.setAttribute('r', '18');
+    g.appendChild(circle);
+
+    const text = document.createElementNS(ns, 'text');
+    text.textContent = `F(${node.n})`;
+    g.appendChild(text);
+
+    if (node.memoizedRoot) {
+      const stamp = document.createElementNS(ns, 'text');
+      stamp.setAttribute('class', 'memo-stamp');
+      stamp.setAttribute('y', '-26');
+      stamp.textContent = 'CACHED';
+      g.appendChild(stamp);
+    }
+
+    svgEl.appendChild(g);
+  }
+}
+
+function renderFibLegend() {
+  const legend = document.getElementById('fib-legend');
+  const items = [
+    { label: 'F(5)', cssVar: '--plum-tint' },
+    { label: 'F(4)', cssVar: '--sage-tint' },
+    { label: 'F(3) ×2', cssVar: '--crimson-tint' },
+    { label: 'F(2) ×3', cssVar: '--teal-tint' },
+    { label: 'F(0), F(1) — base', cssVar: '--gold-tint' }
+  ];
+  legend.innerHTML = items.map(i =>
+    `<span class="legend-item"><span class="legend-swatch" style="background: var(${i.cssVar})"></span>${i.label}</span>`
+  ).join('');
+}
+
+const fibSvg = document.getElementById('fib-tree');
+const fibTreeNaive = buildFibTree(5);
+const fibTreeMemo = deepClone(fibTreeNaive);
+markMemoization(fibTreeMemo);
+layoutFibTree(fibTreeNaive, 800, 410, 36);
+layoutFibTree(fibTreeMemo, 800, 410, 36);
+
+let memoMode = false;
+renderFibTree(fibTreeNaive, fibSvg);
+renderFibLegend();
+
+document.getElementById('fib-toggle').addEventListener('click', () => {
+  memoMode = !memoMode;
+  if (memoMode) {
+    renderFibTree(fibTreeMemo, fibSvg);
+    fibSvg.classList.add('memo');
+    document.getElementById('fib-toggle').textContent = '← Without memoization';
+    document.getElementById('fib-stat').innerHTML = 'Total calls: <strong>9</strong> · cached: <strong>3</strong>';
+    document.getElementById('fib-callout-num').textContent = '9';
+    document.getElementById('fib-callout').classList.add('green');
+  } else {
+    renderFibTree(fibTreeNaive, fibSvg);
+    fibSvg.classList.remove('memo');
+    document.getElementById('fib-toggle').textContent = 'With memoization →';
+    document.getElementById('fib-stat').innerHTML = 'Total calls: <strong>15</strong>';
+    document.getElementById('fib-callout-num').textContent = '15';
+    document.getElementById('fib-callout').classList.remove('green');
+  }
+});
+
+// Fibonacci DP table
+(function renderFibTable() {
+  const table = document.getElementById('fib-table');
+  const dp = [0, 1];
+  for (let i = 2; i <= 9; i++) dp[i] = dp[i - 1] + dp[i - 2];
+  table.innerHTML = dp.map((v, i) =>
+    `<div class="dp-cell"><span class="dp-idx">F(${i})</span><span class="dp-val">${v}</span></div>`
+  ).join('');
+})();
+
+// ============================================================
+// EXAMPLE II — Grid Path Counting
+// ============================================================
+
+const ROWS = 4;
+const COLS = 5;
+const TOTAL_STEPS = ROWS * COLS;
+let cursor = 0;
+let playing = false;
+let playTimer = null;
+const grid = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+
+function setupGrid() {
+  const board = document.getElementById('path-grid');
+  board.style.gridTemplateColumns = `repeat(${COLS}, 1fr)`;
+  board.innerHTML = '';
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'gcell';
+      cell.id = `cell-${r}-${c}`;
+      if (r === 0 && c === 0) cell.classList.add('start');
+      if (r === ROWS - 1 && c === COLS - 1) cell.classList.add('end');
+      cell.innerHTML = `<span class="gcell-coord">${r},${c}</span><span class="gcell-val">·</span>`;
+      board.appendChild(cell);
+    }
+  }
+}
+
+function clearHighlights() {
+  document.querySelectorAll('.gcell').forEach(c => {
+    c.classList.remove('current', 'source');
+  });
+}
+
+function step() {
+  if (cursor >= TOTAL_STEPS) { stopPlay(); return; }
+  clearHighlights();
+  const r = Math.floor(cursor / COLS);
+  const c = cursor % COLS;
+
+  let value;
+  const sources = [];
+  if (r === 0 || c === 0) {
+    value = 1;
+  } else {
+    value = grid[r - 1][c] + grid[r][c - 1];
+    sources.push([r - 1, c], [r, c - 1]);
+  }
+  grid[r][c] = value;
+
+  for (const [sr, sc] of sources) {
+    document.getElementById(`cell-${sr}-${sc}`).classList.add('source');
+  }
+  const cell = document.getElementById(`cell-${r}-${c}`);
+  cell.classList.add('current', 'filled');
+  cell.querySelector('.gcell-val').textContent = value;
+
+  cursor++;
+  updateProgress();
+  if (cursor >= TOTAL_STEPS) {
+    document.getElementById('grid-stat').innerHTML = `Answer: <strong>${grid[ROWS-1][COLS-1]}</strong>`;
+    stopPlay();
+  }
+}
+
+function updateProgress() {
+  document.getElementById('grid-step-label').textContent = `Step ${cursor} / ${TOTAL_STEPS}`;
+  document.getElementById('grid-progress').style.width = (cursor / TOTAL_STEPS * 100) + '%';
+}
+
+function reset() {
+  stopPlay();
+  cursor = 0;
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) grid[r][c] = null;
+  setupGrid();
+  updateProgress();
+  document.getElementById('grid-stat').innerHTML = 'Answer: <strong>—</strong>';
+}
+
+function startPlay() {
+  if (playing) return;
+  if (cursor >= TOTAL_STEPS) reset();
+  playing = true;
+  document.getElementById('play-btn').textContent = 'Pause';
+  playTimer = setInterval(step, 650);
+}
+function stopPlay() {
+  playing = false;
+  document.getElementById('play-btn').textContent = 'Auto-play';
+  if (playTimer) { clearInterval(playTimer); playTimer = null; }
+}
+
+document.getElementById('step-btn').addEventListener('click', () => { stopPlay(); step(); });
+document.getElementById('play-btn').addEventListener('click', () => {
+  if (playing) stopPlay(); else startPlay();
+});
+document.getElementById('reset-btn').addEventListener('click', reset);
+
+setupGrid();
+updateProgress();
+</script>
+</body>
+</html>
