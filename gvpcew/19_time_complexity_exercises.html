@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Time Complexity — Practice Set</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #f5efe1;
+    --paper-soft: #ede5d3;
+    --ink: #1c1812;
+    --ink-soft: #4a3f2f;
+    --rule: #c9b994;
+    --accent: #7a2c2c;
+    --accent-soft: #a85050;
+    --code-bg: #1f1b15;
+    --code-fg: #ede5d3;
+    --code-keyword: #d18b6b;
+    --code-comment: #8a7a5e;
+    --code-num: #c9a86a;
+    --code-str: #a7b48c;
+    --code-fn: #e6c97a;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 19px;
+    line-height: 1.6;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(122, 44, 44, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(74, 63, 47, 0.05) 0%, transparent 40%);
+    background-attachment: fixed;
+  }
+
+  /* Subtle paper grain */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.4;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.08  0 0 0 0 0.05  0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    z-index: 1;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 2;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 80px 32px 120px;
+  }
+
+  /* ---------- Masthead ---------- */
+  header.masthead {
+    border-top: 4px double var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding: 18px 0 22px;
+    margin-bottom: 56px;
+    position: relative;
+  }
+  header.masthead::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0;
+    bottom: -6px;
+    height: 1px;
+    background: var(--ink);
+  }
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+  h1.title {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(44px, 7vw, 80px);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin: 0;
+    color: var(--ink);
+  }
+  h1.title .amp {
+    font-variation-settings: "SOFT" 100;
+    color: var(--accent);
+    font-style: italic;
+  }
+  .subtitle {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    margin-top: 14px;
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
+  }
+
+  /* ---------- Intro card ---------- */
+  .intro {
+    margin: 48px 0 72px;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 32px;
+    align-items: start;
+  }
+  .intro .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border-top: 1px solid var(--accent);
+    padding-top: 8px;
+  }
+  .intro p {
+    margin: 0 0 14px 0;
+    font-size: 19px;
+  }
+  .intro p:last-child { margin-bottom: 0; }
+  .intro em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  /* ---------- Section / level headings ---------- */
+  .level {
+    margin: 90px 0 40px;
+  }
+  .level-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .level h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: clamp(32px, 4.5vw, 46px);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin: 0 0 8px 0;
+  }
+  .level h2 .roman {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--accent);
+    margin-right: 12px;
+  }
+  .level-blurb {
+    font-style: italic;
+    color: var(--ink-soft);
+    font-size: 18px;
+    max-width: 640px;
+    margin: 0 0 0 0;
+  }
+  .level-rule {
+    height: 1px;
+    background: var(--rule);
+    margin: 24px 0 40px;
+    position: relative;
+  }
+  .level-rule::after {
+    content: "❦";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--paper);
+    padding: 0 14px;
+    color: var(--rule);
+    font-size: 16px;
+  }
+
+  /* ---------- Problem cards ---------- */
+  .problem {
+    margin-bottom: 48px;
+    border: 1px solid var(--ink);
+    background: var(--paper-soft);
+    box-shadow:
+      4px 4px 0 var(--ink),
+      4px 4px 0 1px var(--ink);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .problem:hover {
+    transform: translate(-2px, -2px);
+    box-shadow:
+      6px 6px 0 var(--ink),
+      6px 6px 0 1px var(--ink);
+  }
+  .problem-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 22px;
+    border-bottom: 1px solid var(--ink);
+    background: var(--paper);
+  }
+  .problem-num {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--ink);
+  }
+  .problem-num .n {
+    font-family: 'JetBrains Mono', monospace;
+    font-style: normal;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    margin-right: 8px;
+    text-transform: uppercase;
+  }
+  .lang-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    border: 1px solid var(--ink-soft);
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+
+  /* Code block */
+  pre.code {
+    margin: 0;
+    padding: 22px 26px;
+    background: var(--code-bg);
+    color: var(--code-fg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14.5px;
+    line-height: 1.7;
+    overflow-x: auto;
+    tab-size: 2;
+  }
+  pre.code .kw  { color: var(--code-keyword); font-weight: 500; }
+  pre.code .cm  { color: var(--code-comment); font-style: italic; }
+  pre.code .nm  { color: var(--code-num); }
+  pre.code .st  { color: var(--code-str); }
+  pre.code .fn  { color: var(--code-fn); }
+
+  /* Footer of problem: button + answer */
+  .problem-foot {
+    border-top: 1px dashed var(--ink-soft);
+    padding: 18px 22px 22px;
+  }
+  .reveal-btn {
+    appearance: none;
+    background: transparent;
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    position: relative;
+  }
+  .reveal-btn:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .reveal-btn.revealed {
+    background: var(--accent);
+    color: var(--paper);
+    border-color: var(--accent);
+  }
+  .reveal-btn .arrow {
+    display: inline-block;
+    margin-left: 6px;
+    transition: transform 0.3s;
+  }
+  .reveal-btn.revealed .arrow { transform: rotate(90deg); }
+
+  .answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, margin-top 0.4s ease, opacity 0.3s ease;
+    opacity: 0;
+  }
+  .answer.show {
+    max-height: 800px;
+    margin-top: 22px;
+    opacity: 1;
+  }
+  .answer-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 20px 28px;
+    align-items: start;
+    padding: 22px 24px;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    position: relative;
+  }
+  .answer-grid::before {
+    content: "✶";
+    position: absolute;
+    top: -12px; left: 22px;
+    background: var(--paper-soft);
+    color: var(--accent);
+    padding: 0 10px;
+    font-size: 16px;
+  }
+  .big-o {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 36px;
+    line-height: 1;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .big-o sub, .big-o sup {
+    font-size: 16px;
+    font-style: normal;
+  }
+  .why {
+    font-family: 'EB Garamond', serif;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+  .why strong {
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .why .term {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    background: var(--paper-soft);
+    padding: 1px 6px;
+    border-radius: 2px;
+  }
+
+  /* ---------- Footer ---------- */
+  footer {
+    margin-top: 120px;
+    padding-top: 24px;
+    border-top: 1px solid var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* Reveal-all bar */
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--paper);
+    border-bottom: 1px solid var(--ink);
+    margin: 0 -32px 56px;
+    padding: 12px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .toolbar .progress {
+    color: var(--ink-soft);
+  }
+  .toolbar .progress span {
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .toolbar button {
+    appearance: none;
+    background: transparent;
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  .toolbar button:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 50px 18px 80px; }
+    .intro { grid-template-columns: 1fr; gap: 12px; }
+    pre.code { font-size: 13px; padding: 18px; }
+    .problem-head { padding: 12px 16px; }
+    .problem-foot { padding: 16px; }
+    .answer-grid { grid-template-columns: 1fr; padding: 18px; }
+    .big-o { font-size: 30px; }
+    .toolbar { font-size: 10px; padding: 10px 18px; margin: 0 -18px 40px; }
+  }
+
+  @media print {
+    body::before { display: none; }
+    .toolbar, .reveal-btn { display: none; }
+    .answer { max-height: none; opacity: 1; margin-top: 18px; }
+    .problem { box-shadow: none; page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="meta-row">
+      <span>Vol. I &nbsp;·&nbsp; Algorithms &amp; Analysis</span>
+      <span>Practice Set № 03</span>
+    </div>
+    <h1 class="title">Time Complexity <span class="amp">&amp;</span> the<br/>Art of Counting Steps</h1>
+    <div class="subtitle">A graduated set of exercises — from the simple to the recursive — for the sincere student of algorithms.</div>
+  </header>
+
+  <section class="intro">
+    <div class="label">Instructions for the<br/>Reader</div>
+    <div>
+      <p>Below you will find <em>seventeen</em> short programs, arranged in four levels of difficulty. For each one, your task is to determine the <em>worst-case time complexity</em> in Big-O notation.</p>
+      <p>Read carefully. Count the loops. Watch what changes — and how quickly — between iterations. Recursive functions ask you to think in terms of recurrence relations: <span style="font-family:'JetBrains Mono', monospace; font-size:15px;">T(n) = aT(n/b) + f(n)</span>.</p>
+      <p>Resist the temptation to peek. Form your answer first; only then click <em>Reveal</em>.</p>
+    </div>
+  </section>
+
+  <div class="toolbar">
+    <span class="progress">Solved <span id="progress">0</span> / 17</span>
+    <button id="reveal-all" type="button">Reveal All</button>
+  </div>
+
+  <!-- ============================================================
+       LEVEL I — FOUNDATIONS
+       ============================================================ -->
+  <section class="level">
+    <div class="level-tag">Level I</div>
+    <h2><span class="roman">i.</span>Foundations</h2>
+    <p class="level-blurb">Begin here. Single statements, single loops, simple nesting — the alphabet of analysis.</p>
+    <div class="level-rule"></div>
+
+    <!-- Problem 1 -->
+    <article class="problem">
+      <div class="problem-head">
+        <div class="problem-num"><span class="n">P. 01</span>The lone statement</div>
+        <span class="lang-tag">C-like</span>
+      </div>
+<pre class="code"><span class="kw">int</span> <span class="fn">sum</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) {
+  <span class="kw">int</span> result = a + b;
+  <span class="kw">return</span> result;
+}</pre>
+      <div class="problem-foot">
+        <button class="reveal-btn" type="button">Reveal Answer <span class="arrow">›</span></button>
+        <div class="answer">
+          <div class="answer-grid">
+            <div class="big-o">O(1)</div>
+            <div class="why"><strong>Constant time.</strong> The function performs a fixed number of operations regardless of the size of the inputs. No loops, no recursion — the cost is bounded by a constant.</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Problem 2 -->
+    <article class="problem">
+      <div class="problem-head">
+        <div class="problem-num"><span class="n">P. 02</span>A single sweep</div>
+        <span class="lang-tag">C-like</span>
+      </div>
+<pre class="code"><span class="kw">int</span> <span class="fn">total</span>(<span class="kw">int</span> arr[], <span class="kw">int</span> n) {
+  <span class="kw">int</span> sum = <span class="nm">0</span>;
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n; i++) {
+    sum += arr[i];
+  }
+  <span class="kw">return</span> sum;
+}</pre>
+      <div class="problem-foot">
+        <button class="reveal-btn" type="button">Reveal Answer <span class="arrow">›</span></button>
+        <div class="answer">
+          <div class="answer-grid">
+            <div class="big-o">O(n)</div>
+            <div class="why"><strong>Linear time.</strong> The loop runs exactly <span class="term">n</span> times, doing constant work in each iteration. Total work is proportional to the size of the input array.</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Problem 3 -->
+    <article class="problem">
+      <div class="problem-head">
+        <div class="problem-num"><span class="n">P. 03</span>Loop within a loop</div>
+        <span class="lang-tag">C-like</span>
+      </div>
+<pre class="code"><span class="kw">void</span> <span class="fn">printPairs</span>(<span class="kw">int</span> n) {
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n; i++) {
+    <span class="kw">for</span> (<span class="kw">int</span> j = <span class="nm">0</span>; j &lt; n; j++) {
+      printf(<span class="st">"(%d,%d) "</span>, i, j);
+    }
+  }
+}</pre>
+      <div class="problem-foot">
+        <button class="reveal-btn" type="button">Reveal Answer <span class="arrow">›</span></button>
+        <div class="answer">
+          <div class="answer-grid">
+            <div class="big-o">O(n<sup>2</sup>)</div>
+            <div class="why"><strong>Quadratic time.</strong> For each of the <span class="term">n</span> iterations of the outer loop, the inner loop runs <span class="term">n</span> times — yielding <span class="term">n × n = n²</span> total operations.</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Problem 4 -->
+    <article class="problem">
+      <div class="problem-head">
+        <div class="problem-num"><span class="n">P. 04</span>Constants do not matter</div>
+        <span class="lang-tag">C-like</span>
+      </div>
+<pre class="code"><span class="kw">void</span> <span class="fn">process</span>(<span class="kw">int</span> arr[], <span class="kw">int</span> n) {
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n; i++) {
+    arr[i] *= <span class="nm">2</span>;
+  }
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n; i++) {
+    arr[i] += <span class="nm">1</span>;
+  }
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n; i++) {
+    printf(<span class="st">"%d "</span>, arr[i]);
+  }
+}</pre>
+      <div class="problem-foot">
+        <button class="reveal-btn" type="button">Reveal Answer <span class="arrow">›</span></button>
+        <div class="answer">
+          <div class="answer-grid">
+            <div class="big-o">O(n)</div>
+            <div class="why"><strong>Still linear.</strong> Three sequential loops give <span class="term">3n</span> operations — but Big-O drops constant factors. Sequential work adds; it does not multiply.</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- ============================================================
+       LEVEL II — PATTERNS
+       ============================================================ -->
+  <section class="level">
+    <div class="level-tag">Level II</div>
+    <h2><span class="roman">ii.</span>Patterns of Growth</h2>
+    <p class="level-blurb">Logarithms, triangles, and cubes. The same loop wears many faces, depending on how its index moves.</p>
+    <div class="level-rule"></div>
+
+    <!-- Problem 5 -->
+    <article class="problem">
+      <div class="problem-head">
+        <div class="problem-num"><span class="n">P. 05</span>Halving the index</div>
+        <span class="lang-tag">C-like</span>
+      </div>
+<pre class="code"><span class="kw">void</span> <span class="fn">doubler</span>(<span class="kw">int</span> n) {
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">1</span>; i &lt; n; i = i * <span class="nm">2</span>) {
+    printf(<span class="st">"%d "</span>, i);
+  }
+}</pre>
+      <div class="problem-foot">
+        <button class="reveal-btn" type="button">Reveal Answer <span class="arrow">›</span></button>
+        <div class="answer">
+          <div class="answer-grid">
+            <div class="big-o">O(log n)</div>
+            <div class="why"><strong>Logarithmic.</strong> Because <span class="term">i</span> doubles each iteration, the loop terminates after roughly <span class="term">log₂ n</span> steps. Multiplying (or dividing) the loop variable yields logarithmic behavior.</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Problem 6 -->
+    <article class="problem">
+      <div class="problem-head">
+        <div class="problem-num"><span class="n">P. 06</span>The triangle loop</div>
+        <span class="lang-tag">C-like</span>
+      </div>
+<pre class="code"><span class="kw">void</span> <span class="fn">upperTriangle</span>(<span class="kw">int</span> n) {
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n; i++) {
+    <span class="kw">for</span> (<span class="kw">int</span> j = i; j &lt; n; j++) {
+      printf(<span class="st">"*"</span>);
+    }
+    printf(<span class="st">"\n"</span>);
+  }
+}</pre>
+      <div class="problem-foot">
+        <button class="reveal-btn" type="button">Reveal Answer <span class="arrow">›</span></button>
+        <div class="answer">
+          <div class="answer-grid">
+            <div class="big-o">O(n<sup>2</sup>)</div>
+            <div class="why"><strong>Quadratic, even when triangular.</strong> The inner loop runs <span class="term">n + (n-1) + (n-2) + … + 1 = n(n+1)/2</span> times. Dropping constants and lower-order terms, this is <span class="term">O(n²)</span>.</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Problem 7 -->
+    <article class="problem">
+      <div class="problem-head">
+        <div class="problem-num"><span class="n">P. 07</span>Three deep</div>
+        <span class="lang-tag">C-like</span>
+      </div>
+<pre class="code"><span class="kw">void</span> <span class="fn">tripleLoop</span>(<span class="kw">int</span> n) {
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n; i++) {
+    <span class="kw">for</span> (<span class="kw">int</span> j = <span class="nm">0</span>; j &lt; n; j++) {
+      <span class="kw">for</span> (<span class="kw">int</span> k = <span class="nm">0</span>; k &lt; n; k++) {
+        printf(<span class="st">"."</span>);
+      }
+    }
+  }
+}</pre>
+      <div class="problem-foot">
+        <button class="reveal-btn" type="button">Reveal Answer <span class="arrow">›</span></button>
+        <div class="answer">
+          <div class="answer-grid">
+            <div class="big-o">O(n<sup>3</sup>)</div>
+            <div class="why"><strong>Cubic.</strong> Three nested loops, each running <span class="term">n</span> times, multiply: <span class="term">n × n × n = n³</span>.</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Problem 8 -->
+    <article class="problem">
+      <div class="problem-head">
+        <div class="problem-num"><span class="n">P. 08</span>Square root in disguise</div>
+        <span class="lang-tag">C-like</span>
+      </div>
+<pre class="code"><span class="kw">void</span> <span class="fn">mystery</span>(<span class="kw">int</span> n) {
+  <span class="kw">int</span> i = <span class="nm">1</span>;
+  <span class="kw">while</span> (i * i &lt;= n) {
+    printf(<span class="st">"%d "</span>, i);
+    i++;
+  }
+}</pre>
+      <div class="problem-foot">
+        <button class="reveal-btn" type="button">Reveal Answer <span class="arrow">›</span></button>
+        <div class="answer">
+          <div class="answer-grid">
+            <div class="big-o">O(√n)</div>
+            <div class="why"><strong>Square-root time.</strong> The loop continues while <span class="term">i² ≤ n</span>, i.e., until <span class="term">i ≈ √n</span>. So it runs approximately <span class="term">√n</span> times.</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- ============================================================
+       LEVEL III — MIXED CONSTRUCTS
+       ============================================================ -->
+  <section class="level">
+    <div class="level-tag">Level III</div>
+    <h2><span class="roman">iii.</span>Mixed Constructs</h2>
+    <p class="level-blurb">Now the loops cohabit. An outer linear march paired with an inner logarithmic stride; conditions that bend the bound. Think carefully about what dominates.</p>
+    <div class="level-rule"></div>
+
+    <!-- Problem 9 -->
+    <article class="problem">
+      <div class="problem-head">
+        <div class="problem-num"><span class="n">P. 09</span>Linear meets logarithmic</div>
+        <span class="lang-tag">C-like</span>
+      </div>
+<pre class="code"><span class="kw">void</span> <span class="fn">analyze</span>(<span class="kw">int</span> n) {
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n; i++) {
+    <span class="kw">for</span> (<span class="kw">int</span> j = <span class="nm">1</span>; j &lt; n; j = j * <span class="nm">2</span>) {
+      printf(<span class="st">"%d %d\n"</span>, i, j);
+    }
+  }
+}</pre>
+      <div class="problem-foot">
+        <button class="reveal-btn" type="button">Reveal Answer <span class="arrow">›</span></button>
+        <div class="answer">
+          <div class="answer-grid">
+            <div class="big-o">O(n log n)</div>
+            <div class="why"><strong>Linearithmic.</strong> The outer loop runs <span class="term">n</span> times. For each, the inner loop runs <span class="term">log₂ n</span> times because <span class="term">j</span> doubles. Multiply: <span class="term">n · log n</span>.</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Problem 10 -->
+    <article class="problem">
+      <div class="problem-head">
+        <div class="problem-num"><span class="n">P. 10</span>Two paths, one bound</div>
+        <span class="lang-tag">C-like</span>
+      </div>
+<pre class="code"><span class="kw">void</span> <span class="fn">twoLoops</span>(<span class="kw">int</span> n) {
+  <span class="cm">// First: nested quadratic</span>
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n; i++) {
+    <span class="kw">for</span> (<span class="kw">int</span> j = <span class="nm">0</span>; j &lt; n; j++) {
+      printf(<span class="st">"."</span>);
+    }
+  }
+
+  <span class="cm">// Then: a single linear sweep</span>
+  <span class="kw">for</span> (<span class="kw">int</span> k = <span class="nm">0</span>; k &lt; n; k++) {
+    printf(<span class="st">"!"</span>);
+  }
+}</pre>
+      <div class="problem-foot">
+        <button class="reveal-btn" type="button">Reveal Answer <span class="arrow">›</span></button>
+        <div class="answer">
+          <div class="answer-grid">
+            <div class="big-o">O(n<sup>2</sup>)</div>
+            <div class="why"><strong>The dominant term wins.</strong> Total work is <span class="term">n² + n</span>. Big-O keeps only the fastest-growing term, so the bound is <span class="term">O(n²)</span>.</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Problem 11 -->
+    <article class="problem">
+      <div class="problem-head">
+        <div class="problem-num"><span class="n">P. 11</span>The harmonic surprise</div>
+        <span class="lang-tag">C-like</span>
+      </div>
+<pre class="code"><span class="kw">void</span> <span class="fn">harmonic</span>(<span class="kw">int</span> n) {
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">1</span>; i &lt;= n; i++) {
+    <span class="kw">for</span> (<span class="kw">int</span> j = <span class="nm">1</span>; j &lt;= n; j = j + i) {
+      printf(<span class="st">"*"</span>);
+    }
+  }
+}</pre>
+      <div class="problem-foot">
+        <button class="reveal-btn" type="button">Reveal Answer <span class="arrow">›</span></button>
+        <div class="answer">
+          <div class="answer-grid">
+            <div class="big-o">O(n log n)</div>
+            <div class="why"><strong>The harmonic series in disguise.</strong> For each <span class="term">i</span>, the inner loop runs about <span class="term">n/i</span> times. Summing: <span class="term">n/1 + n/2 + … + n/n = n · H<sub>n</sub> ≈ n · ln n</span>.</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Problem 12 -->
+    <article class="problem">
+      <div class="problem-head">
+        <div class="problem-num"><span class="n">P. 12</span>Conditional cost</div>
+        <span class="lang-tag">C-like</span>
+      </div>
+<pre class="code"><span class="kw">void</span> <span class="fn">conditional</span>(<span class="kw">int</span> n) {
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n; i++) {
+    <span class="kw">if</span> (i % <span class="nm">2</span> == <span class="nm">0</span>) {
+      <span class="kw">for</span> (<span class="kw">int</span> j = <span class="nm">0</span>; j &lt; n; j++) {
+        printf(<span class="st">"."</span>);
+      }
+    } <span class="kw">else</span> {
+      printf(<span class="st">"!"</span>);
+    }
+  }
+}</pre>
+      <div class="problem-foot">
+        <button class="reveal-btn" type="button">Reveal Answer <span class="arrow">›</span></button>
+        <div class="answer">
+          <div class="answer-grid">
+            <div class="big-o">O(n<sup>2</sup>)</div>
+            <div class="why"><strong>Worst case dominates.</strong> Half the iterations cost <span class="term">n</span> work, the other half cost constant. Total: <span class="term">(n/2) · n + (n/2) · 1 = n²/2 + n/2 → O(n²)</span>.</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- ============================================================
+       LEVEL IV — RECURSION
+       ============================================================ -->
+  <section class="level">
+    <div class="level-tag">Level IV</div>
+    <h2><span class="roman">iv.</span>Recursive Reasoning</h2>
+    <p class="level-blurb">Here the function calls itself, and the analysis becomes a recurrence. Write down <span style="font-family:'JetBrains Mono', monospace; font-size:14px;">T(n)</span>, then solve.</p>
+    <div class="level-rule"></div>
+
+    <!-- Problem 13 -->
+    <article class="problem">
+      <div class="problem-head">
+        <div class="problem-num"><span class="n">P. 13</span>The factorial</div>
+        <span class="lang-tag">C-like</span>
+      </div>
+<pre class="code"><span class="kw">int</span> <span class="fn">factorial</span>(<span class="kw">int</span> n) {
+  <span class="kw">if</span> (n &lt;= <span class="nm">1</span>) <span class="kw">return</span> <span class="nm">1</span>;
+  <span class="kw">return</span> n * <span class="fn">factorial</span>(n - <span class="nm">1</span>);
+}</pre>
+      <div class="problem-foot">
+        <button class="reveal-btn" type="button">Reveal Answer <span class="arrow">›</span></button>
+        <div class="answer">
+          <div class="answer-grid">
+            <div class="big-o">O(n)</div>
+            <div class="why"><strong>Linear recursion.</strong> Recurrence: <span class="term">T(n) = T(n-1) + O(1)</span>. Each call reduces <span class="term">n</span> by 1, giving a chain of <span class="term">n</span> calls.</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Problem 14 -->
+    <article class="problem">
+      <div class="problem-head">
+        <div class="problem-num"><span class="n">P. 14</span>Halve and conquer</div>
+        <span class="lang-tag">C-like</span>
+      </div>
+<pre class="code"><span class="kw">int</span> <span class="fn">binarySearch</span>(<span class="kw">int</span> arr[], <span class="kw">int</span> lo, <span class="kw">int</span> hi, <span class="kw">int</span> key) {
+  <span class="kw">if</span> (lo &gt; hi) <span class="kw">return</span> -<span class="nm">1</span>;
+  <span class="kw">int</span> mid = (lo + hi) / <span class="nm">2</span>;
+  <span class="kw">if</span> (arr[mid] == key) <span class="kw">return</span> mid;
+  <span class="kw">if</span> (arr[mid] &lt; key)
+    <span class="kw">return</span> <span class="fn">binarySearch</span>(arr, mid + <span class="nm">1</span>, hi, key);
+  <span class="kw">else</span>
+    <span class="kw">return</span> <span class="fn">binarySearch</span>(arr, lo, mid - <span class="nm">1</span>, key);
+}</pre>
+      <div class="problem-foot">
+        <button class="reveal-btn" type="button">Reveal Answer <span class="arrow">›</span></button>
+        <div class="answer">
+          <div class="answer-grid">
+            <div class="big-o">O(log n)</div>
+            <div class="why"><strong>Logarithmic divide-and-conquer.</strong> Recurrence: <span class="term">T(n) = T(n/2) + O(1)</span>. Each call halves the search space, so depth is <span class="term">log₂ n</span>.</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Problem 15 -->
+    <article class="problem">
+      <div class="problem-head">
+        <div class="problem-num"><span class="n">P. 15</span>Naive Fibonacci</div>
+        <span class="lang-tag">C-like</span>
+      </div>
+<pre class="code"><span class="kw">int</span> <span class="fn">fib</span>(<span class="kw">int</span> n) {
+  <span class="kw">if</span> (n &lt;= <span class="nm">1</span>) <span class="kw">return</span> n;
+  <span class="kw">return</span> <span class="fn">fib</span>(n - <span class="nm">1</span>) + <span class="fn">fib</span>(n - <span class="nm">2</span>);
+}</pre>
+      <div class="problem-foot">
+        <button class="reveal-btn" type="button">Reveal Answer <span class="arrow">›</span></button>
+        <div class="answer">
+          <div class="answer-grid">
+            <div class="big-o">O(2<sup>n</sup>)</div>
+            <div class="why"><strong>Exponential.</strong> Recurrence: <span class="term">T(n) = T(n-1) + T(n-2) + O(1)</span>. The call tree branches twice at each level, giving roughly <span class="term">2ⁿ</span> calls (more precisely, <span class="term">O(φⁿ)</span> where φ is the golden ratio).</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Problem 16 -->
+    <article class="problem">
+      <div class="problem-head">
+        <div class="problem-num"><span class="n">P. 16</span>Merge sort</div>
+        <span class="lang-tag">C-like</span>
+      </div>
+<pre class="code"><span class="kw">void</span> <span class="fn">mergeSort</span>(<span class="kw">int</span> arr[], <span class="kw">int</span> lo, <span class="kw">int</span> hi) {
+  <span class="kw">if</span> (lo &gt;= hi) <span class="kw">return</span>;
+  <span class="kw">int</span> mid = (lo + hi) / <span class="nm">2</span>;
+
+  <span class="fn">mergeSort</span>(arr, lo, mid);          <span class="cm">// T(n/2)</span>
+  <span class="fn">mergeSort</span>(arr, mid + <span class="nm">1</span>, hi);      <span class="cm">// T(n/2)</span>
+  <span class="fn">merge</span>(arr, lo, mid, hi);          <span class="cm">// O(n)</span>
+}</pre>
+      <div class="problem-foot">
+        <button class="reveal-btn" type="button">Reveal Answer <span class="arrow">›</span></button>
+        <div class="answer">
+          <div class="answer-grid">
+            <div class="big-o">O(n log n)</div>
+            <div class="why"><strong>Master Theorem, Case 2.</strong> Recurrence: <span class="term">T(n) = 2T(n/2) + O(n)</span>. With <span class="term">a = 2, b = 2</span>, we have <span class="term">log<sub>b</sub>a = 1</span> and <span class="term">f(n) = n = Θ(n¹)</span>, giving <span class="term">T(n) = Θ(n log n)</span>.</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Problem 17 -->
+    <article class="problem">
+      <div class="problem-head">
+        <div class="problem-num"><span class="n">P. 17</span>The Tower of Hanoi</div>
+        <span class="lang-tag">C-like</span>
+      </div>
+<pre class="code"><span class="kw">void</span> <span class="fn">hanoi</span>(<span class="kw">int</span> n, <span class="kw">char</span> from, <span class="kw">char</span> via, <span class="kw">char</span> to) {
+  <span class="kw">if</span> (n == <span class="nm">0</span>) <span class="kw">return</span>;
+  <span class="fn">hanoi</span>(n - <span class="nm">1</span>, from, to, via);
+  printf(<span class="st">"Move disk %d: %c -&gt; %c\n"</span>, n, from, to);
+  <span class="fn">hanoi</span>(n - <span class="nm">1</span>, via, from, to);
+}</pre>
+      <div class="problem-foot">
+        <button class="reveal-btn" type="button">Reveal Answer <span class="arrow">›</span></button>
+        <div class="answer">
+          <div class="answer-grid">
+            <div class="big-o">O(2<sup>n</sup>)</div>
+            <div class="why"><strong>Exponential — and provably so.</strong> Recurrence: <span class="term">T(n) = 2T(n-1) + O(1)</span>. Solving: <span class="term">T(n) = 2ⁿ - 1</span>. The number of disk moves doubles with each additional disk, which is why this puzzle becomes intractable quickly.</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+  </section>
+
+  <footer>
+    <span>End of Practice Set № 03</span>
+    <span>Print-friendly · Self-contained · No tracking</span>
+  </footer>
+
+</div>
+
+<script>
+  // Reveal logic
+  const buttons = document.querySelectorAll('.reveal-btn');
+  const progressEl = document.getElementById('progress');
+  const total = buttons.length;
+  let revealed = new Set();
+
+  function updateProgress() {
+    progressEl.textContent = revealed.size;
+  }
+
+  buttons.forEach((btn, idx) => {
+    btn.addEventListener('click', () => {
+      const answer = btn.parentElement.querySelector('.answer');
+      const isOpen = answer.classList.toggle('show');
+      btn.classList.toggle('revealed', isOpen);
+      btn.firstChild.textContent = isOpen ? 'Hide Answer ' : 'Reveal Answer ';
+      if (isOpen) revealed.add(idx);
+      else revealed.delete(idx);
+      updateProgress();
+    });
+  });
+
+  // Reveal-all toggle
+  const revealAllBtn = document.getElementById('reveal-all');
+  let allShown = false;
+  revealAllBtn.addEventListener('click', () => {
+    allShown = !allShown;
+    buttons.forEach((btn, idx) => {
+      const answer = btn.parentElement.querySelector('.answer');
+      answer.classList.toggle('show', allShown);
+      btn.classList.toggle('revealed', allShown);
+      btn.firstChild.textContent = allShown ? 'Hide Answer ' : 'Reveal Answer ';
+      if (allShown) revealed.add(idx);
+      else revealed.delete(idx);
+    });
+    revealAllBtn.textContent = allShown ? 'Hide All' : 'Reveal All';
+    updateProgress();
+  });
+</script>
+</body>
+</html>
