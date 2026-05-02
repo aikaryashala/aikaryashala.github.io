@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Pointer — visually</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500;1,9..144,600&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper:        #f1ece1;
+  --paper-deep:   #e8e1d1;
+  --paper-dark:   #ddd4be;
+  --ink:          #1a1815;
+  --ink-soft:     #4a4640;
+  --ink-faint:    #8a857b;
+  --rule:         #c9c1ae;
+  --accent:       #b8442e;
+  --accent-deep:  #8a2c1e;
+  --accent-soft:  #f4d4c8;
+  --highlight:    #ffd9a8;
+  --cell-bg:      #faf6ec;
+  --cell-active:  #fff1c9;
+  --cell-target:  #ffd4c0;
+  --serif: 'Fraunces', Georgia, serif;
+  --mono:  'JetBrains Mono', 'SF Mono', Menlo, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-feature-settings: "ss01", "kern";
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  line-height: 1.55;
+}
+
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 1;
+  background-image:
+    radial-gradient(rgba(0,0,0,0.025) 1px, transparent 1px),
+    radial-gradient(rgba(0,0,0,0.018) 1px, transparent 1px);
+  background-size: 3px 3px, 7px 7px;
+  background-position: 0 0, 1px 1px;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+
+main {
+  position: relative; z-index: 2;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 56px 48px 100px;
+}
+
+/* ============ HERO ============ */
+.hero {
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: 44px 0 52px;
+  margin-bottom: 72px;
+  position: relative;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.eyebrow span:last-child { color: var(--accent); }
+
+h1 {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(48px, 8vw, 112px);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  margin-bottom: 28px;
+  font-variation-settings: "opsz" 144;
+}
+
+h1 em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+}
+
+.hero-lede {
+  font-size: clamp(18px, 1.6vw, 22px);
+  line-height: 1.55;
+  max-width: 660px;
+  color: var(--ink-soft);
+}
+
+.hero-lede strong { color: var(--ink); font-weight: 500; }
+
+/* ============ SECTION ============ */
+.section {
+  margin-bottom: 96px;
+}
+
+.section-head {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 24px;
+  align-items: baseline;
+  margin-bottom: 36px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.section-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.section-title {
+  font-family: var(--serif);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+.section-title em {
+  font-style: italic;
+  color: var(--ink-soft);
+  font-weight: 300;
+}
+
+.section-sub {
+  grid-column: 2;
+  font-size: 16px;
+  color: var(--ink-soft);
+  margin-top: 8px;
+  font-style: italic;
+}
+
+.prose {
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  max-width: 700px;
+  margin-bottom: 28px;
+}
+
+.prose strong { color: var(--ink); font-weight: 600; }
+.prose code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--paper-deep);
+  padding: 2px 7px;
+  border: 1px solid var(--rule);
+  color: var(--ink);
+}
+
+/* ============ FIGURE / DEMO BOXES ============ */
+.figure {
+  border: 1px solid var(--ink);
+  background: var(--paper-deep);
+  padding: 32px 28px 36px;
+  position: relative;
+  margin-bottom: 32px;
+}
+
+.figure::before {
+  content: attr(data-label);
+  position: absolute;
+  top: -8px; left: 22px;
+  background: var(--paper);
+  padding: 0 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--accent);
+}
+
+.figure-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 500;
+  font-style: italic;
+  margin-bottom: 6px;
+}
+
+.figure-sub {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin-bottom: 22px;
+}
+
+/* controls */
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 9px 16px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-weight: 500;
+}
+
+.btn:hover { background: var(--ink); color: var(--paper); }
+
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--paper);
+}
+
+.btn.primary:hover {
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
+}
+
+.btn.ghost {
+  border-color: var(--rule);
+  color: var(--ink-soft);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* status bar */
+.status {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 14px 16px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin-top: 18px;
+  min-height: 50px;
+}
+
+.status .acc { color: var(--accent); font-weight: 600; }
+.status .warn { color: var(--accent-deep); font-weight: 600; }
+.status strong { color: var(--ink); font-weight: 600; }
+
+/* SVG wrapper */
+.svg-wrap {
+  width: 100%;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.svg-wrap svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  min-width: 480px;
+}
+
+/* ============ TWO-UP CARDS ============ */
+.twoup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.card {
+  border: 1px solid var(--rule);
+  background: var(--paper-deep);
+  padding: 24px 22px;
+}
+
+.card-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-label::before {
+  content: "";
+  width: 20px; height: 1px;
+  background: var(--accent);
+}
+
+.card-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 500;
+  font-style: italic;
+  margin-bottom: 12px;
+}
+
+.card-body {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.card-body code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--paper);
+  padding: 1px 6px;
+  border: 1px solid var(--rule);
+}
+
+.card-body strong { color: var(--ink); font-weight: 600; }
+
+/* ============ COLOPHON ============ */
+.colophon {
+  margin-top: 80px;
+  padding-top: 28px;
+  border-top: 1px solid var(--ink);
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 760px) {
+  main { padding: 36px 22px 72px; }
+  .section-head { grid-template-columns: 56px 1fr; gap: 14px; }
+  .twoup { grid-template-columns: 1fr; }
+  .figure { padding: 24px 18px 28px; }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 44px; }
+  .controls { gap: 6px; }
+  .btn { padding: 8px 12px; font-size: 11px; }
+}
+
+/* SVG element transitions handled inline via JS animation, but provide CSS transitions for smoothness */
+.smooth { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+</style>
+</head>
+<body>
+<main>
+
+<!-- ============= HERO ============= -->
+<section class="hero">
+  <div class="eyebrow">
+    <span>Field Notes № 03 · Memory</span>
+    <span>An Interactive Visual</span>
+  </div>
+  <h1>The <em>Pointer</em>,<br>visually.</h1>
+  <p class="hero-lede">
+    A pointer is not magic. It is a small variable — eight bytes, on most machines — whose only
+    job is to <strong>hold an address</strong>. Watch one come to life, move, dereference,
+    and (occasionally) misbehave. No abstractions, no metaphors. Just memory.
+  </p>
+</section>
+
+<!-- ============= 01 · WHAT IS A POINTER ============= -->
+<section class="section">
+  <div class="section-head">
+    <div class="section-num">01 ——</div>
+    <div>
+      <h2 class="section-title">What it actually <em>is.</em></h2>
+      <p class="section-sub">A box that holds a number. The number is an address.</p>
+    </div>
+  </div>
+
+  <p class="prose">
+    Every variable in your program lives at some address in memory. <code>int x = 42;</code>
+    might place <code>x</code> at <code>0x1000</code>. A pointer to <code>x</code> — written
+    <code>int *p = &amp;x;</code> — is itself a variable, living at its own address (say
+    <code>0xFF20</code>), and the <strong>value stored inside it is 0x1000</strong>.
+    That's the entire idea. Two boxes, one holding 42, the other holding the address of the first.
+  </p>
+
+  <div class="figure" data-label="FIG. 1 · ANATOMY">
+    <h3 class="figure-title">A pointer is just a box that holds an address.</h3>
+    <p class="figure-sub">Hover the highlighted parts to see what each piece is.</p>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+          </marker>
+        </defs>
+
+        <!-- LEFT BOX: pointer p -->
+        <g>
+          <text x="80" y="50" font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)" text-anchor="middle">lives at</text>
+          <text x="80" y="64" font-family="JetBrains Mono" font-size="11" fill="var(--ink)" text-anchor="middle" font-weight="600">0xFF20</text>
+          <rect x="30" y="80" width="100" height="60" fill="var(--paper)" stroke="var(--accent)" stroke-width="2"/>
+          <text x="80" y="115" font-family="JetBrains Mono" font-size="14" fill="var(--accent)" text-anchor="middle" font-weight="600">0x1000</text>
+          <text x="80" y="160" font-family="Fraunces" font-size="20" font-style="italic" fill="var(--accent)" text-anchor="middle" font-weight="500">p</text>
+          <text x="80" y="180" font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)" text-anchor="middle">the pointer</text>
+          <text x="80" y="196" font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)" text-anchor="middle">8 bytes</text>
+        </g>
+
+        <!-- ARROW -->
+        <path d="M 135 110 Q 250 110 365 110" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#a1)"/>
+        <text x="250" y="98" font-family="Fraunces" font-size="14" font-style="italic" fill="var(--ink-soft)" text-anchor="middle">points to</text>
+
+        <!-- RIGHT BOX: int x -->
+        <g>
+          <text x="420" y="50" font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)" text-anchor="middle">lives at</text>
+          <text x="420" y="64" font-family="JetBrains Mono" font-size="11" fill="var(--ink)" text-anchor="middle" font-weight="600">0x1000</text>
+          <rect x="370" y="80" width="100" height="60" fill="var(--cell-bg)" stroke="var(--ink)" stroke-width="1.5"/>
+          <text x="420" y="118" font-family="JetBrains Mono" font-size="20" fill="var(--ink)" text-anchor="middle" font-weight="700">42</text>
+          <text x="420" y="160" font-family="Fraunces" font-size="20" font-style="italic" fill="var(--ink)" text-anchor="middle" font-weight="500">x</text>
+          <text x="420" y="180" font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)" text-anchor="middle">int</text>
+          <text x="420" y="196" font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)" text-anchor="middle">4 bytes</text>
+        </g>
+
+        <!-- SOURCE CODE on right -->
+        <g transform="translate(510, 80)">
+          <rect width="170" height="100" fill="var(--paper)" stroke="var(--rule)"/>
+          <text x="14" y="22" font-family="JetBrains Mono" font-size="11" fill="var(--ink-faint)">// in your code</text>
+          <text x="14" y="44" font-family="JetBrains Mono" font-size="12" fill="var(--ink)"><tspan fill="var(--accent)" font-weight="600">int</tspan> x = 42;</text>
+          <text x="14" y="64" font-family="JetBrains Mono" font-size="12" fill="var(--ink)"><tspan fill="var(--accent)" font-weight="600">int</tspan> *p = &amp;x;</text>
+          <text x="14" y="86" font-family="JetBrains Mono" font-size="11" fill="var(--ink-faint)">// p holds 0x1000</text>
+        </g>
+
+        <!-- FOOTER -->
+        <line x1="30" y1="232" x2="670" y2="232" stroke="var(--rule)" stroke-dasharray="2 3"/>
+        <text x="30" y="254" font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)">two variables · two addresses · one points at the other</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="twoup">
+    <div class="card">
+      <div class="card-label">The address-of operator</div>
+      <h3 class="card-title">&amp;x</h3>
+      <p class="card-body">
+        Reads "<strong>address of x</strong>." Returns the location where <code>x</code> lives.
+        Type is <code>int*</code> if x is an int. This is how you put a real address
+        into a pointer — there's no other way.
+      </p>
+    </div>
+    <div class="card">
+      <div class="card-label">The dereference operator</div>
+      <h3 class="card-title">*p</h3>
+      <p class="card-body">
+        Reads "<strong>the thing p points to</strong>." Goes to the address stored in p,
+        loads whatever is there. <code>*p</code> on the left side <em>writes</em>;
+        <code>*p</code> on the right side <em>reads</em>.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============= 02 · DEREFERENCE DEMO ============= -->
+<section class="section">
+  <div class="section-head">
+    <div class="section-num">02 ——</div>
+    <div>
+      <h2 class="section-title">Dereferencing, <em>animated.</em></h2>
+      <p class="section-sub">Watch the pointer fetch a value, then write a new one.</p>
+    </div>
+  </div>
+
+  <p class="prose">
+    The two operations every pointer ever performs: <strong>read through</strong>
+    (load the value at the address it holds) and <strong>write through</strong>
+    (store a new value at that address). Both follow the arrow.
+  </p>
+
+  <div class="figure" data-label="DEMO · DEREFERENCE">
+    <h3 class="figure-title">Read and write, through the arrow.</h3>
+    <p class="figure-sub">Click the buttons to perform each operation.</p>
+
+    <div class="controls">
+      <button class="btn primary" id="d-read">Read · int v = *p;</button>
+      <button class="btn primary" id="d-write">Write · *p = 99;</button>
+      <button class="btn ghost" id="d-reset">Reset</button>
+    </div>
+
+    <div class="svg-wrap">
+      <svg id="deref-svg" viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+          </marker>
+          <marker id="a2b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--ink-soft)"/>
+          </marker>
+        </defs>
+
+        <!-- pointer box -->
+        <text x="80" y="50" font-family="Fraunces" font-size="18" font-style="italic" fill="var(--accent)" text-anchor="middle" font-weight="500">p</text>
+        <rect x="30" y="60" width="100" height="50" fill="var(--paper)" stroke="var(--accent)" stroke-width="2"/>
+        <text x="80" y="92" font-family="JetBrains Mono" font-size="13" fill="var(--accent)" text-anchor="middle" font-weight="600">0x1000</text>
+        <text x="80" y="130" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)" text-anchor="middle">at 0xFF20</text>
+
+        <!-- arrow (static) -->
+        <path d="M 135 85 Q 240 85 345 85" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#a2)"/>
+
+        <!-- target box -->
+        <text x="400" y="50" font-family="Fraunces" font-size="18" font-style="italic" fill="var(--ink)" text-anchor="middle" font-weight="500">x</text>
+        <rect id="d-target" x="350" y="60" width="100" height="50" fill="var(--cell-bg)" stroke="var(--ink)" stroke-width="1.5"/>
+        <text id="d-target-val" x="400" y="92" font-family="JetBrains Mono" font-size="18" fill="var(--ink)" text-anchor="middle" font-weight="700">42</text>
+        <text x="400" y="130" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)" text-anchor="middle">at 0x1000</text>
+
+        <!-- destination v box -->
+        <text x="600" y="50" font-family="Fraunces" font-size="18" font-style="italic" fill="var(--ink)" text-anchor="middle" font-weight="500">v</text>
+        <rect id="d-v" x="550" y="60" width="100" height="50" fill="var(--paper-dark)" stroke="var(--rule)" stroke-width="1.5" stroke-dasharray="3 2"/>
+        <text id="d-v-val" x="600" y="92" font-family="JetBrains Mono" font-size="18" fill="var(--ink-faint)" text-anchor="middle" font-weight="700">—</text>
+        <text x="600" y="130" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)" text-anchor="middle">int v;</text>
+
+        <!-- moving value packet -->
+        <g id="d-packet" opacity="0">
+          <circle id="d-packet-bg" cx="0" cy="0" r="20" fill="var(--accent)" opacity="0.25"/>
+          <text id="d-packet-text" x="0" y="5" font-family="JetBrains Mono" font-size="14" fill="var(--accent-deep)" text-anchor="middle" font-weight="700">42</text>
+        </g>
+
+        <!-- footer instruction -->
+        <text x="30" y="190" font-family="JetBrains Mono" font-size="11" fill="var(--ink-faint)" id="d-instr">// pick an operation above</text>
+      </svg>
+    </div>
+    <div class="status" id="d-status">
+      <span class="acc">Ready.</span> The pointer <strong>p</strong> currently holds <strong>0x1000</strong> — the address of <strong>x</strong>.
+    </div>
+  </div>
+</section>
+
+<!-- ============= 03 · POINTER ARITHMETIC ============= -->
+<section class="section">
+  <div class="section-head">
+    <div class="section-num">03 ——</div>
+    <div>
+      <h2 class="section-title">Pointer arithmetic.</h2>
+      <p class="section-sub">When p++ moves four bytes, not one.</p>
+    </div>
+  </div>
+
+  <p class="prose">
+    Adding 1 to a pointer doesn't add 1 byte — it adds <strong>one element-size</strong>.
+    For an <code>int*</code> on a typical machine, that's 4 bytes. For a <code>double*</code>,
+    8 bytes. The compiler knows the element type and silently scales the offset. This is
+    why <code>arr[i]</code> and <code>*(arr + i)</code> land on the same cell:
+    <code>arr + i</code> means "advance i × sizeof(element) bytes."
+  </p>
+
+  <div class="figure" data-label="DEMO · ARITHMETIC">
+    <h3 class="figure-title">Move the pointer along an int array.</h3>
+    <p class="figure-sub">Each <code style="font-family:var(--mono);font-size:0.85em;background:var(--paper);padding:1px 6px;border:1px solid var(--rule);">p++</code> jumps four bytes — exactly one int.</p>
+
+    <div class="controls">
+      <button class="btn primary" id="pa-inc">p++</button>
+      <button class="btn primary" id="pa-dec">p--</button>
+      <button class="btn primary" id="pa-add2">p += 2</button>
+      <button class="btn ghost" id="pa-reset">Reset</button>
+    </div>
+
+    <div class="svg-wrap">
+      <svg id="pa-svg" viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+          </marker>
+        </defs>
+
+        <!-- address column -->
+        <g font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)" text-anchor="end">
+          <text x="76" y="56">0x1000</text>
+          <text x="76" y="96">0x1004</text>
+          <text x="76" y="136">0x1008</text>
+          <text x="76" y="176">0x100C</text>
+          <text x="76" y="216">0x1010</text>
+        </g>
+
+        <!-- cells -->
+        <g>
+          <rect x="90" y="40" width="160" height="32" fill="var(--cell-bg)" stroke="var(--ink)"/>
+          <rect x="90" y="80" width="160" height="32" fill="var(--cell-bg)" stroke="var(--ink)"/>
+          <rect x="90" y="120" width="160" height="32" fill="var(--cell-bg)" stroke="var(--ink)"/>
+          <rect x="90" y="160" width="160" height="32" fill="var(--cell-bg)" stroke="var(--ink)"/>
+          <rect x="90" y="200" width="160" height="32" fill="var(--cell-bg)" stroke="var(--ink)"/>
+        </g>
+
+        <!-- values -->
+        <g font-family="JetBrains Mono" font-size="14" fill="var(--ink)" text-anchor="middle" font-weight="700">
+          <text x="170" y="62">10</text>
+          <text x="170" y="102">20</text>
+          <text x="170" y="142">30</text>
+          <text x="170" y="182">40</text>
+          <text x="170" y="222">50</text>
+        </g>
+
+        <!-- index labels -->
+        <g font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)">
+          <text x="260" y="62">arr[0]</text>
+          <text x="260" y="102">arr[1]</text>
+          <text x="260" y="142">arr[2]</text>
+          <text x="260" y="182">arr[3]</text>
+          <text x="260" y="222">arr[4]</text>
+        </g>
+
+        <!-- pointer (right side, animated) -->
+        <g id="pa-ptr">
+          <rect id="pa-ptr-rect" x="450" y="40" width="120" height="32" fill="var(--paper)" stroke="var(--accent)" stroke-width="2"/>
+          <text id="pa-ptr-val" x="510" y="62" font-family="JetBrains Mono" font-size="13" fill="var(--accent)" text-anchor="middle" font-weight="600">0x1000</text>
+          <text id="pa-ptr-label" x="600" y="62" font-family="Fraunces" font-size="20" font-style="italic" fill="var(--accent)" font-weight="500">p</text>
+          <!-- arrow from pointer to current cell -->
+          <path id="pa-arrow" d="M 450 56 Q 380 56 252 56" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#a3)"/>
+        </g>
+
+        <!-- step labels at bottom -->
+        <text id="pa-status-svg" x="90" y="270" font-family="JetBrains Mono" font-size="11" fill="var(--ink-soft)">p = 0x1000 → arr[0] = 10</text>
+        <text x="90" y="290" font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)">int *p = arr;  // sizeof(int) = 4 bytes per step</text>
+      </svg>
+    </div>
+    <div class="status" id="pa-status">
+      <span class="acc">Step 0.</span> Pointer initialized to <strong>arr</strong>, equivalent to <strong>&amp;arr[0]</strong>. Currently points to <strong>10</strong>.
+    </div>
+  </div>
+</section>
+
+<!-- ============= 04 · POINTER TO POINTER ============= -->
+<section class="section">
+  <div class="section-head">
+    <div class="section-num">04 ——</div>
+    <div>
+      <h2 class="section-title">Pointer to pointer.</h2>
+      <p class="section-sub">Indirection, taken one level further.</p>
+    </div>
+  </div>
+
+  <p class="prose">
+    If a pointer holds the address of an int, then a <strong>pointer to a pointer</strong>
+    holds the address of an int-pointer. Written <code>int **pp</code>. Three boxes,
+    two arrows. Used everywhere: when a function needs to <em>change</em> a pointer the
+    caller passed in (think <code>argv</code>, or how <code>realloc</code> lets you
+    swap a buffer), or to build a 2D array of strings.
+  </p>
+
+  <div class="figure" data-label="DEMO · DOUBLE INDIRECTION">
+    <h3 class="figure-title">Two arrows. One value.</h3>
+    <p class="figure-sub">Click each step to see what <code style="font-family:var(--mono);font-size:0.85em;background:var(--paper);padding:1px 6px;border:1px solid var(--rule);">**pp</code> resolves to.</p>
+
+    <div class="controls">
+      <button class="btn primary" id="pp-step">Step ▸</button>
+      <button class="btn ghost" id="pp-reset">Reset</button>
+    </div>
+
+    <div class="svg-wrap">
+      <svg id="pp-svg" viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+          </marker>
+        </defs>
+
+        <!-- pp box -->
+        <text x="80" y="50" font-family="Fraunces" font-size="18" font-style="italic" fill="var(--accent)" text-anchor="middle" font-weight="500">pp</text>
+        <rect id="pp-box" x="30" y="60" width="100" height="50" fill="var(--paper)" stroke="var(--rule)" stroke-width="1.5"/>
+        <text x="80" y="92" font-family="JetBrains Mono" font-size="13" fill="var(--ink-soft)" text-anchor="middle" font-weight="600">0xFF20</text>
+        <text x="80" y="130" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)" text-anchor="middle">int **</text>
+
+        <!-- arrow 1 -->
+        <path id="pp-arrow1" d="M 135 85 Q 220 85 305 85" fill="none" stroke="var(--rule)" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#a4)"/>
+
+        <!-- p box -->
+        <text x="360" y="50" font-family="Fraunces" font-size="18" font-style="italic" fill="var(--accent)" text-anchor="middle" font-weight="500">p</text>
+        <rect id="pp-mid" x="310" y="60" width="100" height="50" fill="var(--paper)" stroke="var(--rule)" stroke-width="1.5"/>
+        <text x="360" y="92" font-family="JetBrains Mono" font-size="13" fill="var(--ink-soft)" text-anchor="middle" font-weight="600">0x1000</text>
+        <text x="360" y="130" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)" text-anchor="middle">at 0xFF20</text>
+
+        <!-- arrow 2 -->
+        <path id="pp-arrow2" d="M 415 85 Q 500 85 585 85" fill="none" stroke="var(--rule)" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#a4)"/>
+
+        <!-- x box -->
+        <text x="640" y="50" font-family="Fraunces" font-size="18" font-style="italic" fill="var(--ink)" text-anchor="middle" font-weight="500">x</text>
+        <rect id="pp-target" x="590" y="60" width="100" height="50" fill="var(--cell-bg)" stroke="var(--rule)" stroke-width="1.5"/>
+        <text id="pp-target-val" x="640" y="94" font-family="JetBrains Mono" font-size="20" fill="var(--ink)" text-anchor="middle" font-weight="700">42</text>
+        <text x="640" y="130" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)" text-anchor="middle">at 0x1000</text>
+
+        <!-- expression bar -->
+        <text id="pp-expr" x="360" y="180" font-family="JetBrains Mono" font-size="16" fill="var(--ink-faint)" text-anchor="middle" font-weight="600">—</text>
+        <text id="pp-expr-result" x="360" y="206" font-family="Fraunces" font-size="14" font-style="italic" fill="var(--ink-soft)" text-anchor="middle">click step to begin</text>
+      </svg>
+    </div>
+    <div class="status" id="pp-status">
+      <span class="acc">Ready.</span> Three variables: <strong>x = 42</strong>, pointer <strong>p</strong> holds the address of x, pointer-to-pointer <strong>pp</strong> holds the address of p.
+    </div>
+  </div>
+</section>
+
+<!-- ============= 05 · NULL & DANGLING ============= -->
+<section class="section">
+  <div class="section-head">
+    <div class="section-num">05 ——</div>
+    <div>
+      <h2 class="section-title">When pointers <em>lie.</em></h2>
+      <p class="section-sub">NULL, dangling, wild — three kinds of trouble.</p>
+    </div>
+  </div>
+
+  <p class="prose">
+    A pointer is just bytes. Nothing in those bytes guarantees they form a <em>valid</em>
+    address. Three failure modes show up again and again, and recognizing them on sight
+    is half the battle.
+  </p>
+
+  <div class="figure" data-label="DEMO · BAD POINTERS">
+    <h3 class="figure-title">Three ways pointers go wrong.</h3>
+    <p class="figure-sub">Click each kind to see what's actually in memory.</p>
+
+    <div class="controls">
+      <button class="btn primary" id="bad-null">NULL pointer</button>
+      <button class="btn primary" id="bad-dangle">Dangling pointer</button>
+      <button class="btn primary" id="bad-wild">Wild pointer</button>
+      <button class="btn ghost" id="bad-reset">Reset to valid</button>
+    </div>
+
+    <div class="svg-wrap">
+      <svg id="bad-svg" viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="a5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+            <path id="bad-arrow-head" d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+          </marker>
+        </defs>
+
+        <!-- pointer -->
+        <text x="100" y="40" font-family="Fraunces" font-size="18" font-style="italic" fill="var(--accent)" text-anchor="middle" font-weight="500">p</text>
+        <rect id="bad-ptr" x="40" y="50" width="120" height="50" fill="var(--paper)" stroke="var(--accent)" stroke-width="2"/>
+        <text id="bad-ptr-val" x="100" y="82" font-family="JetBrains Mono" font-size="13" fill="var(--accent)" text-anchor="middle" font-weight="600">0x1000</text>
+
+        <!-- arrow -->
+        <path id="bad-arrow" d="M 165 75 Q 280 75 395 75" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#a5)"/>
+
+        <!-- target zone -->
+        <rect id="bad-target" x="400" y="50" width="120" height="50" fill="var(--cell-bg)" stroke="var(--ink)" stroke-width="1.5"/>
+        <text id="bad-target-val" x="460" y="82" font-family="JetBrains Mono" font-size="18" fill="var(--ink)" text-anchor="middle" font-weight="700">42</text>
+        <text id="bad-target-label" x="460" y="120" font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)" text-anchor="middle">valid · int x</text>
+
+        <!-- diagnosis label -->
+        <text id="bad-diag" x="350" y="180" font-family="Fraunces" font-size="16" font-style="italic" fill="var(--ink-soft)" text-anchor="middle">all good · the pointer is valid and the target lives</text>
+      </svg>
+    </div>
+    <div class="status" id="bad-status">
+      <span class="acc">Healthy.</span> The pointer holds a valid address. Dereferencing returns 42.
+    </div>
+  </div>
+</section>
+
+<!-- ============= 06 · CHEAT SHEET ============= -->
+<section class="section">
+  <div class="section-head">
+    <div class="section-num">06 ——</div>
+    <div>
+      <h2 class="section-title">Five lines, <em>memorized.</em></h2>
+      <p class="section-sub">If these read fluently, you understand pointers.</p>
+    </div>
+  </div>
+
+  <p class="prose">
+    Once these stop looking strange, everything in C/C++ that involves pointers
+    is just composition of these five primitives.
+  </p>
+
+  <div class="twoup">
+    <div class="card">
+      <div class="card-label">Declare</div>
+      <h3 class="card-title">int *p;</h3>
+      <p class="card-body">
+        Reserves an 8-byte slot to hold an address. Currently holds <strong>garbage</strong>
+        — declaring a pointer does not initialize it. Always assign before dereferencing.
+      </p>
+    </div>
+    <div class="card">
+      <div class="card-label">Take address</div>
+      <h3 class="card-title">p = &amp;x;</h3>
+      <p class="card-body">
+        Stores the address of <code>x</code> into <code>p</code>. Now <code>p</code>
+        and <code>&amp;x</code> hold the same value. The arrow is drawn.
+      </p>
+    </div>
+    <div class="card">
+      <div class="card-label">Read through</div>
+      <h3 class="card-title">int v = *p;</h3>
+      <p class="card-body">
+        Follows the arrow. Loads whatever int lives at the address in <code>p</code>
+        and copies it into <code>v</code>. <code>x</code> itself is untouched.
+      </p>
+    </div>
+    <div class="card">
+      <div class="card-label">Write through</div>
+      <h3 class="card-title">*p = 99;</h3>
+      <p class="card-body">
+        Follows the arrow. Stores 99 at the address in <code>p</code> — which means
+        <code>x</code> is now 99. <strong>The original variable changed</strong>,
+        through the pointer.
+      </p>
+    </div>
+    <div class="card" style="grid-column: 1 / -1;">
+      <div class="card-label">Step forward</div>
+      <h3 class="card-title">p++;</h3>
+      <p class="card-body">
+        Adds <code>sizeof(*p)</code> bytes to <code>p</code>. For <code>int*</code>, four bytes.
+        For <code>double*</code>, eight. The compiler scales the step by the element size,
+        which is why arrays and pointers feel interchangeable when you write <code>arr[i]</code>
+        — that's just <code>*(arr + i)</code> with the scaling already done.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="colophon">
+  <span>Field Notes № 03</span>
+  <span>Set in Fraunces &amp; JetBrains Mono</span>
+  <span>Pointers, visually · 2026</span>
+</div>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+/* ============================================================
+ * SECTION 02 · DEREFERENCE DEMO
+ * ============================================================ */
+(function() {
+  const targetVal = $('d-target-val');
+  const target = $('d-target');
+  const vBox = $('d-v');
+  const vVal = $('d-v-val');
+  const packet = $('d-packet');
+  const packetText = $('d-packet-text');
+  const packetBg = $('d-packet-bg');
+  const status = $('d-status');
+  const instr = $('d-instr');
+
+  let busy = false;
+
+  async function animatePacket(fromX, fromY, toX, toY, value, color) {
+    packet.setAttribute('opacity', '1');
+    packet.setAttribute('transform', `translate(${fromX}, ${fromY})`);
+    packetText.textContent = value;
+    packetBg.setAttribute('fill', color);
+
+    // animate movement
+    const steps = 30;
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const ease = t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2;
+      const x = fromX + (toX - fromX) * ease;
+      const y = fromY + (toY - fromY) * ease;
+      packet.setAttribute('transform', `translate(${x}, ${y})`);
+      await wait(20);
+    }
+    await wait(150);
+    packet.setAttribute('opacity', '0');
+  }
+
+  async function readOp() {
+    if (busy) return; busy = true;
+    instr.textContent = '// int v = *p;  →  follow the arrow, load the value';
+    status.innerHTML = `<span class="acc">→</span> Following <strong>p</strong> to address <strong>0x1000</strong>…`;
+    target.setAttribute('fill', 'var(--cell-active)');
+    await wait(300);
+    const currentVal = targetVal.textContent;
+    await animatePacket(400, 85, 600, 85, currentVal, 'var(--accent)');
+    vVal.textContent = currentVal;
+    vVal.setAttribute('fill', 'var(--ink)');
+    vBox.setAttribute('fill', 'var(--cell-active)');
+    vBox.setAttribute('stroke', 'var(--ink)');
+    vBox.setAttribute('stroke-width', '1.5');
+    vBox.setAttribute('stroke-dasharray', '');
+    target.setAttribute('fill', 'var(--cell-bg)');
+    status.innerHTML = `<span class="acc">✓ Read.</span> Loaded <strong>${currentVal}</strong> from address 0x1000 into <strong>v</strong>. The original <strong>x</strong> is unchanged.`;
+    busy = false;
+  }
+
+  async function writeOp() {
+    if (busy) return; busy = true;
+    instr.textContent = '// *p = 99;  →  follow the arrow, store the value';
+    status.innerHTML = `<span class="acc">→</span> Following <strong>p</strong> to write 99 at address <strong>0x1000</strong>…`;
+    await wait(300);
+    await animatePacket(80, 60, 400, 85, '99', 'var(--accent)');
+    targetVal.textContent = '99';
+    target.setAttribute('fill', 'var(--cell-target)');
+    await wait(400);
+    target.setAttribute('fill', 'var(--cell-bg)');
+    status.innerHTML = `<span class="acc">✓ Wrote.</span> Stored <strong>99</strong> at 0x1000. <strong>x is now 99</strong> — the original variable was modified through the pointer.`;
+    busy = false;
+  }
+
+  function reset() {
+    if (busy) return;
+    targetVal.textContent = '42';
+    vVal.textContent = '—';
+    vVal.setAttribute('fill', 'var(--ink-faint)');
+    vBox.setAttribute('fill', 'var(--paper-dark)');
+    vBox.setAttribute('stroke', 'var(--rule)');
+    vBox.setAttribute('stroke-dasharray', '3 2');
+    target.setAttribute('fill', 'var(--cell-bg)');
+    instr.textContent = '// pick an operation above';
+    status.innerHTML = `<span class="acc">Ready.</span> The pointer <strong>p</strong> currently holds <strong>0x1000</strong> — the address of <strong>x</strong>.`;
+  }
+
+  $('d-read').onclick = readOp;
+  $('d-write').onclick = writeOp;
+  $('d-reset').onclick = reset;
+})();
+
+/* ============================================================
+ * SECTION 03 · POINTER ARITHMETIC
+ * ============================================================ */
+(function() {
+  const ptrRect = $('pa-ptr-rect');
+  const ptrVal = $('pa-ptr-val');
+  const ptrLabel = $('pa-ptr-label');
+  const arrow = $('pa-arrow');
+  const statusSvg = $('pa-status-svg');
+  const status = $('pa-status');
+
+  // cell y centers (from SVG) for index 0..4
+  const cellY = [56, 96, 136, 176, 216];
+  const values = [10, 20, 30, 40, 50];
+  // pointer cell y for each index (mirror in right column)
+  const ptrYStart = [40, 80, 120, 160, 200];
+  let idx = 0;
+
+  function move(newIdx) {
+    if (newIdx < 0 || newIdx > 4) {
+      // out of range — flash warning
+      status.innerHTML = `<span class="warn">⚠ Out of bounds.</span> Moving p to index <strong>${newIdx}</strong> takes it outside the array. The pointer arithmetic itself is allowed (one past the end is even legal in C), but <strong>dereferencing</strong> there is undefined behavior.`;
+      return;
+    }
+    idx = newIdx;
+    const addr = '0x' + (0x1000 + idx * 4).toString(16).toUpperCase();
+    // animate pointer rectangle to new vertical position
+    const newY = ptrYStart[idx];
+    ptrRect.setAttribute('class', 'smooth');
+    ptrRect.setAttribute('y', newY);
+    // ptr label / value follow
+    const cy = cellY[idx];
+    ptrVal.setAttribute('class', 'smooth');
+    ptrVal.setAttribute('y', cy + 6);
+    ptrLabel.setAttribute('class', 'smooth');
+    ptrLabel.setAttribute('y', cy + 6);
+    // arrow path: from left side of pointer rect to right side of cell
+    arrow.setAttribute('class', 'smooth');
+    arrow.setAttribute('d', `M 450 ${cy} Q 380 ${cy} 252 ${cy}`);
+    // svg status line
+    statusSvg.textContent = `p = ${addr} → arr[${idx}] = ${values[idx]}`;
+    status.innerHTML = `<span class="acc">Step.</span> p now holds <strong>${addr}</strong>, pointing at <strong>arr[${idx}] = ${values[idx]}</strong>. Each step moves <strong>4 bytes</strong> because sizeof(int) is 4.`;
+  }
+
+  $('pa-inc').onclick = () => move(idx + 1);
+  $('pa-dec').onclick = () => move(idx - 1);
+  $('pa-add2').onclick = () => move(idx + 2);
+  $('pa-reset').onclick = () => { idx = -1; move(0); status.innerHTML = `<span class="acc">Reset.</span> Pointer back to <strong>arr[0]</strong> = 10.`; };
+})();
+
+/* ============================================================
+ * SECTION 04 · POINTER TO POINTER
+ * ============================================================ */
+(function() {
+  const arrow1 = $('pp-arrow1');
+  const arrow2 = $('pp-arrow2');
+  const ppBox = $('pp-box');
+  const midBox = $('pp-mid');
+  const targetBox = $('pp-target');
+  const targetVal = $('pp-target-val');
+  const expr = $('pp-expr');
+  const exprResult = $('pp-expr-result');
+  const status = $('pp-status');
+
+  const steps = [
+    {
+      expr: 'pp',
+      result: '0xFF20  (the address of p)',
+      msg: '<span class="acc">Step 1.</span> Just the value of <strong>pp</strong> itself — it holds the <strong>address of p</strong>, which is 0xFF20.',
+      highlight: 'pp',
+    },
+    {
+      expr: '*pp',
+      result: '0x1000  (the address of x — i.e., p)',
+      msg: '<span class="acc">Step 2.</span> One dereference. Follow the first arrow. <strong>*pp</strong> means "the thing at the address pp holds" — that\'s <strong>p</strong>, which is 0x1000.',
+      highlight: 'p',
+    },
+    {
+      expr: '**pp',
+      result: '42  (the actual int)',
+      msg: '<span class="acc">Step 3.</span> Two dereferences. Follow both arrows. <strong>**pp</strong> reaches the int <strong>x = 42</strong>. Same result as <strong>*p</strong>, same as <strong>x</strong>.',
+      highlight: 'x',
+    },
+    {
+      expr: '**pp = 100;',
+      result: 'x is now 100',
+      msg: '<span class="acc">Step 4.</span> Write through both arrows. <strong>**pp = 100</strong> stores 100 at x\'s address. The original variable was modified — through two layers of indirection.',
+      highlight: 'write',
+    },
+  ];
+
+  let i = -1;
+
+  function reset() {
+    i = -1;
+    arrow1.setAttribute('stroke', 'var(--rule)');
+    arrow2.setAttribute('stroke', 'var(--rule)');
+    ppBox.setAttribute('stroke', 'var(--rule)');
+    midBox.setAttribute('stroke', 'var(--rule)');
+    targetBox.setAttribute('stroke', 'var(--rule)');
+    targetBox.setAttribute('fill', 'var(--cell-bg)');
+    targetVal.textContent = '42';
+    expr.textContent = '—';
+    expr.setAttribute('fill', 'var(--ink-faint)');
+    exprResult.textContent = 'click step to begin';
+    status.innerHTML = `<span class="acc">Ready.</span> Three variables: <strong>x = 42</strong>, pointer <strong>p</strong> holds the address of x, pointer-to-pointer <strong>pp</strong> holds the address of p.`;
+  }
+
+  function step() {
+    i++;
+    if (i >= steps.length) i = 0;
+    const s = steps[i];
+    expr.textContent = s.expr;
+    expr.setAttribute('fill', 'var(--accent)');
+    exprResult.textContent = '= ' + s.result;
+    status.innerHTML = s.msg;
+
+    // highlight progression
+    arrow1.setAttribute('stroke', 'var(--rule)');
+    arrow2.setAttribute('stroke', 'var(--rule)');
+    ppBox.setAttribute('stroke', 'var(--rule)');
+    midBox.setAttribute('stroke', 'var(--rule)');
+    targetBox.setAttribute('stroke', 'var(--rule)');
+    targetBox.setAttribute('fill', 'var(--cell-bg)');
+
+    if (s.highlight === 'pp') {
+      ppBox.setAttribute('stroke', 'var(--accent)');
+      ppBox.setAttribute('stroke-width', '2');
+    } else if (s.highlight === 'p') {
+      arrow1.setAttribute('stroke', 'var(--accent)');
+      midBox.setAttribute('stroke', 'var(--accent)');
+      midBox.setAttribute('stroke-width', '2');
+    } else if (s.highlight === 'x') {
+      arrow1.setAttribute('stroke', 'var(--accent)');
+      arrow2.setAttribute('stroke', 'var(--accent)');
+      targetBox.setAttribute('stroke', 'var(--accent)');
+      targetBox.setAttribute('stroke-width', '2');
+      targetBox.setAttribute('fill', 'var(--cell-active)');
+    } else if (s.highlight === 'write') {
+      arrow1.setAttribute('stroke', 'var(--accent)');
+      arrow2.setAttribute('stroke', 'var(--accent)');
+      targetBox.setAttribute('stroke', 'var(--accent)');
+      targetBox.setAttribute('stroke-width', '2');
+      targetBox.setAttribute('fill', 'var(--cell-target)');
+      targetVal.textContent = '100';
+    }
+  }
+
+  $('pp-step').onclick = step;
+  $('pp-reset').onclick = reset;
+})();
+
+/* ============================================================
+ * SECTION 05 · NULL / DANGLING / WILD
+ * ============================================================ */
+(function() {
+  const ptrVal = $('bad-ptr-val');
+  const ptr = $('bad-ptr');
+  const arrow = $('bad-arrow');
+  const target = $('bad-target');
+  const targetVal = $('bad-target-val');
+  const targetLabel = $('bad-target-label');
+  const diag = $('bad-diag');
+  const status = $('bad-status');
+
+  function reset() {
+    ptrVal.textContent = '0x1000';
+    ptrVal.setAttribute('fill', 'var(--accent)');
+    ptr.setAttribute('stroke', 'var(--accent)');
+    arrow.setAttribute('opacity', '1');
+    arrow.setAttribute('stroke', 'var(--accent)');
+    arrow.setAttribute('stroke-dasharray', '5 3');
+    target.setAttribute('fill', 'var(--cell-bg)');
+    target.setAttribute('stroke', 'var(--ink)');
+    target.setAttribute('stroke-width', '1.5');
+    target.setAttribute('stroke-dasharray', '');
+    targetVal.textContent = '42';
+    targetVal.setAttribute('fill', 'var(--ink)');
+    targetLabel.textContent = 'valid · int x';
+    targetLabel.setAttribute('fill', 'var(--ink-faint)');
+    diag.textContent = 'all good · the pointer is valid and the target lives';
+    diag.setAttribute('fill', 'var(--ink-soft)');
+    status.innerHTML = `<span class="acc">Healthy.</span> The pointer holds a valid address. Dereferencing returns 42.`;
+  }
+
+  function showNull() {
+    reset();
+    ptrVal.textContent = '0x0';
+    arrow.setAttribute('opacity', '0.2');
+    arrow.setAttribute('stroke-dasharray', '2 4');
+    target.setAttribute('fill', 'var(--paper-dark)');
+    target.setAttribute('stroke-dasharray', '3 3');
+    targetVal.textContent = '∅';
+    targetVal.setAttribute('fill', 'var(--ink-faint)');
+    targetLabel.textContent = 'address 0 · forbidden zone';
+    diag.textContent = 'NULL · explicitly points nowhere';
+    diag.setAttribute('fill', 'var(--accent-deep)');
+    status.innerHTML = `<span class="warn">NULL pointer.</span> The address <strong>0x0</strong> is reserved by the OS — usually unmapped, so dereferencing crashes the program with a <strong>segfault</strong>. NULL is a sentinel: a pointer that explicitly says "I point to nothing." Always check before dereferencing — <code>if (p) ...</code>.`;
+  }
+
+  function showDangling() {
+    reset();
+    ptrVal.textContent = '0x1000';
+    target.setAttribute('fill', '#e8a098');
+    target.setAttribute('stroke', 'var(--accent-deep)');
+    target.setAttribute('stroke-dasharray', '4 2');
+    targetVal.textContent = '???';
+    targetVal.setAttribute('fill', 'var(--accent-deep)');
+    targetLabel.textContent = 'freed · memory recycled';
+    targetLabel.setAttribute('fill', 'var(--accent-deep)');
+    diag.textContent = 'dangling · the pointer survived its target';
+    diag.setAttribute('fill', 'var(--accent-deep)');
+    status.innerHTML = `<span class="warn">Dangling pointer.</span> The address <strong>0x1000</strong> was valid once, but the object there has been freed (or the stack frame has returned). The pointer still holds the old address — <strong>the bytes might still look right</strong> for a while, then suddenly not. The #1 source of memory-corruption CVEs in C codebases.`;
+  }
+
+  function showWild() {
+    reset();
+    ptrVal.textContent = '0x7F3A...';
+    target.setAttribute('fill', 'var(--paper-dark)');
+    target.setAttribute('stroke', 'var(--ink-faint)');
+    target.setAttribute('stroke-dasharray', '2 3');
+    targetVal.textContent = '?!?';
+    targetVal.setAttribute('fill', 'var(--ink-faint)');
+    targetLabel.textContent = 'uninitialized · garbage address';
+    targetLabel.setAttribute('fill', 'var(--accent-deep)');
+    diag.textContent = 'wild · never assigned, never initialized';
+    diag.setAttribute('fill', 'var(--accent-deep)');
+    status.innerHTML = `<span class="warn">Wild pointer.</span> Declared with <code>int *p;</code> and never assigned. Its bytes are <strong>whatever junk happened to be on the stack</strong>. Dereferencing reads from a random address — could segfault, could return data from a totally unrelated variable. Modern compilers warn loudly; older ones won't. Always initialize: <code>int *p = NULL;</code>.`;
+  }
+
+  $('bad-null').onclick = showNull;
+  $('bad-dangle').onclick = showDangling;
+  $('bad-wild').onclick = showWild;
+  $('bad-reset').onclick = reset;
+})();
+</script>
+
+</body>
+</html>
