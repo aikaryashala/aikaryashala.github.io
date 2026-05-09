@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TCP Three-Way Handshake — Interactive Visualizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e0d;
+    --bg-deep: #060808;
+    --panel: #0f1413;
+    --panel-light: #161c1b;
+    --line: #1f2826;
+    --line-bright: #2d3a37;
+    --ink: #d8e3df;
+    --ink-dim: #7a8985;
+    --ink-faint: #4a5754;
+    --phosphor: #5dffb4;
+    --phosphor-dim: #3da77a;
+    --amber: #ffb648;
+    --amber-dim: #b8823a;
+    --crimson: #ff6b6b;
+    --cyan: #5fd1ff;
+    --magenta: #ff7ad9;
+    --syn: #5fd1ff;
+    --syn-ack: #ffb648;
+    --ack: #5dffb4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1.55;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Background grid + scan effect */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: 0.25;
+    pointer-events: none;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 90%);
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 3px,
+      rgba(93, 255, 180, 0.012) 3px,
+      rgba(93, 255, 180, 0.012) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .app {
+    position: relative;
+    z-index: 2;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 32px 28px 64px;
+  }
+
+  /* Header */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--line-bright);
+    padding-bottom: 16px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .brand-mark {
+    width: 36px; height: 36px;
+    border: 1px solid var(--phosphor);
+    color: var(--phosphor);
+    display: grid; place-items: center;
+    font-weight: 800;
+    font-size: 16px;
+    box-shadow: 0 0 24px rgba(93,255,180,0.25), inset 0 0 12px rgba(93,255,180,0.1);
+    position: relative;
+  }
+  .brand-mark::after {
+    content:''; position:absolute; inset:-4px;
+    border:1px solid var(--phosphor-dim);
+    opacity: 0.4;
+  }
+
+  .brand-text { letter-spacing: 0.02em; }
+  .brand-text small {
+    display: block;
+    font-size: 10px;
+    color: var(--ink-dim);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+  .brand-text strong {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+  }
+
+  .status {
+    display: flex;
+    gap: 18px;
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    align-items: center;
+  }
+  .status-dot {
+    width: 8px; height: 8px;
+    background: var(--phosphor);
+    box-shadow: 0 0 12px var(--phosphor);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* Hero */
+  .hero {
+    margin-bottom: 36px;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 48px;
+    align-items: end;
+  }
+  @media (max-width: 900px) { .hero { grid-template-columns: 1fr; gap: 24px;} }
+
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-size: clamp(38px, 6vw, 72px);
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--phosphor);
+    font-weight: 400;
+  }
+  .hero h1 span {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-dim);
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .hero p {
+    color: var(--ink-dim);
+    font-size: 14px;
+    max-width: 36ch;
+    border-left: 2px solid var(--phosphor-dim);
+    padding-left: 16px;
+  }
+
+  /* Console panel */
+  .console {
+    border: 1px solid var(--line-bright);
+    background: linear-gradient(180deg, var(--panel) 0%, var(--bg-deep) 100%);
+    position: relative;
+  }
+  .console::before {
+    content:''; position: absolute; top:0; left:0; right:0; height: 32px;
+    background: var(--panel-light);
+    border-bottom: 1px solid var(--line-bright);
+  }
+  .console-head {
+    position: relative; z-index: 2;
+    display: flex; align-items: center; gap: 12px;
+    height: 32px;
+    padding: 0 14px;
+    font-size: 10px;
+    color: var(--ink-dim);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+  }
+  .console-head .dots { display:flex; gap:6px; }
+  .console-head .dots i {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--line-bright);
+    display: block;
+  }
+  .console-head .dots i:nth-child(1) { background: var(--crimson); }
+  .console-head .dots i:nth-child(2) { background: var(--amber); }
+  .console-head .dots i:nth-child(3) { background: var(--phosphor); }
+
+  /* Diagram */
+  .diagram-wrap {
+    position: relative;
+    padding: 36px 28px 28px;
+  }
+
+  .nodes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    position: relative;
+  }
+
+  .node {
+    border: 1px solid var(--line-bright);
+    background: var(--bg-deep);
+    padding: 22px 22px 18px;
+    position: relative;
+    transition: border-color 0.4s, box-shadow 0.4s;
+  }
+  .node.client { margin-right: -1px; }
+  .node[data-state="ESTABLISHED"] {
+    border-color: var(--phosphor);
+    box-shadow: 0 0 0 1px var(--phosphor), 0 0 30px rgba(93,255,180,0.15) inset;
+  }
+
+  .node-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .node-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  .node-icon {
+    width: 28px; height: 28px;
+    border: 1px solid var(--line-bright);
+    display: grid; place-items: center;
+    color: var(--phosphor);
+    font-size: 14px;
+  }
+  .node.server .node-icon { color: var(--amber); border-color: var(--amber-dim); }
+  .node-ip {
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+  }
+  .node-state {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 26px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin-bottom: 6px;
+    transition: color 0.3s;
+  }
+  .node[data-state="ESTABLISHED"] .node-state { color: var(--phosphor); }
+  .node[data-state="LISTEN"] .node-state { color: var(--amber); }
+  .node-state-desc {
+    font-size: 11px;
+    color: var(--ink-dim);
+    min-height: 36px;
+  }
+
+  .node-meta {
+    margin-top: 14px;
+    border-top: 1px dashed var(--line-bright);
+    padding-top: 12px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 14px;
+    font-size: 11px;
+  }
+  .node-meta .k { color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.15em; font-size: 9px; }
+  .node-meta .v { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .node-meta .v.hl { color: var(--phosphor); }
+
+  /* Wire / Channel */
+  .wire {
+    position: relative;
+    height: 220px;
+    margin: 4px 0;
+    background:
+      repeating-linear-gradient(90deg, var(--line-bright) 0 8px, transparent 8px 16px) center / 100% 1px no-repeat;
+    overflow: hidden;
+  }
+  .wire-label {
+    position: absolute;
+    top: 8px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    background: var(--bg);
+    padding: 2px 10px;
+  }
+
+  .packet {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 1px solid;
+    background: var(--bg-deep);
+    padding: 8px 12px;
+    min-width: 130px;
+    font-size: 10px;
+    opacity: 0;
+    transition: left 1.4s cubic-bezier(0.5, 0, 0.5, 1), right 1.4s cubic-bezier(0.5,0,0.5,1), opacity 0.3s;
+    pointer-events: none;
+    box-shadow: 0 0 30px rgba(0,0,0,0.6);
+  }
+  .packet.show { opacity: 1; }
+  .packet .flags {
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    margin-bottom: 4px;
+  }
+  .packet .seq {
+    color: var(--ink-dim);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.3;
+  }
+  .packet .seq span { color: var(--ink); }
+
+  .packet.syn { border-color: var(--syn); color: var(--syn); }
+  .packet.syn .flags { color: var(--syn); text-shadow: 0 0 12px rgba(95,209,255,0.6); }
+  .packet.syn-ack { border-color: var(--syn-ack); color: var(--syn-ack); }
+  .packet.syn-ack .flags { color: var(--syn-ack); text-shadow: 0 0 12px rgba(255,182,72,0.6); }
+  .packet.ack { border-color: var(--ack); color: var(--ack); }
+  .packet.ack .flags { color: var(--ack); text-shadow: 0 0 12px rgba(93,255,180,0.6); }
+
+  .packet .arrow {
+    position: absolute;
+    top: 50%;
+    width: 0; height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    transform: translateY(-50%);
+  }
+  .packet.dir-right .arrow {
+    right: -8px;
+    border-left: 8px solid currentColor;
+  }
+  .packet.dir-left .arrow {
+    left: -8px;
+    border-right: 8px solid currentColor;
+  }
+
+  /* Trail */
+  .trail {
+    position: absolute;
+    top: 50%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, currentColor, transparent);
+    transform: translateY(-50%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Step indicator */
+  .stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 28px 0 8px;
+    flex-wrap: wrap;
+  }
+  .step-dot {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 8px 4px;
+    border: none;
+    background: transparent;
+    color: var(--ink-faint);
+    font-family: inherit;
+    transition: color 0.25s;
+  }
+  .step-dot:hover { color: var(--ink); }
+  .step-dot .num {
+    width: 32px; height: 32px;
+    border: 1px solid var(--line-bright);
+    display: grid; place-items: center;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.3s;
+  }
+  .step-dot .lbl {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+  }
+  .step-dot.active { color: var(--phosphor); }
+  .step-dot.active .num {
+    border-color: var(--phosphor);
+    color: var(--phosphor);
+    background: rgba(93,255,180,0.06);
+    box-shadow: 0 0 16px rgba(93,255,180,0.3);
+  }
+  .step-dot.done { color: var(--phosphor-dim); }
+  .step-dot.done .num {
+    border-color: var(--phosphor-dim);
+    color: var(--phosphor-dim);
+  }
+  .step-line {
+    width: 60px; height: 1px;
+    background: var(--line-bright);
+    margin: 0 4px;
+    align-self: flex-start;
+    margin-top: 24px;
+  }
+  .step-line.lit { background: var(--phosphor-dim); }
+
+  /* Controls */
+  .controls {
+    margin-top: 18px;
+    padding: 18px 22px;
+    border: 1px solid var(--line-bright);
+    background: var(--panel);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    background: transparent;
+    border: 1px solid var(--line-bright);
+    color: var(--ink);
+    padding: 10px 18px;
+    font-family: inherit;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn:hover {
+    border-color: var(--phosphor);
+    color: var(--phosphor);
+    background: rgba(93,255,180,0.04);
+  }
+  .btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .btn:disabled:hover {
+    border-color: var(--line-bright);
+    color: var(--ink);
+    background: transparent;
+  }
+  .btn.primary {
+    border-color: var(--phosphor);
+    color: var(--phosphor);
+    background: rgba(93,255,180,0.06);
+  }
+  .btn.primary:hover {
+    background: var(--phosphor);
+    color: var(--bg);
+    box-shadow: 0 0 24px rgba(93,255,180,0.4);
+  }
+  .btn .ico {
+    display: inline-block;
+    width: 0; height: 0;
+  }
+  .btn.primary .ico-play {
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 7px solid currentColor;
+  }
+  .btn.primary .ico-pause {
+    width: 8px; height: 9px;
+    border: 0;
+    border-left: 2px solid currentColor;
+    border-right: 2px solid currentColor;
+  }
+
+  .speed-ctrl {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  .speed-ctrl .seg {
+    display: flex;
+    border: 1px solid var(--line-bright);
+  }
+  .speed-ctrl button {
+    background: transparent;
+    border: 0;
+    color: var(--ink-dim);
+    padding: 6px 12px;
+    font-family: inherit;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .speed-ctrl button + button { border-left: 1px solid var(--line-bright); }
+  .speed-ctrl button.active {
+    background: var(--phosphor);
+    color: var(--bg);
+  }
+
+  /* Explanation panel */
+  .explainer {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 900px) { .explainer { grid-template-columns: 1fr; } }
+
+  .panel {
+    border: 1px solid var(--line-bright);
+    background: var(--panel);
+    padding: 24px 26px;
+  }
+  .panel-title {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .panel-title::before {
+    content:''; width: 10px; height: 1px;
+    background: var(--phosphor);
+  }
+
+  .step-info h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 28px;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    margin-bottom: 12px;
+  }
+  .step-info h3 b {
+    color: var(--phosphor);
+    font-weight: 500;
+  }
+  .step-info p {
+    color: var(--ink-dim);
+    margin-bottom: 14px;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+  .step-info code {
+    color: var(--phosphor);
+    background: rgba(93,255,180,0.08);
+    padding: 1px 6px;
+    border: 1px solid rgba(93,255,180,0.2);
+    font-size: 11px;
+  }
+  .step-info .pkt-summary {
+    margin-top: 14px;
+    padding: 14px;
+    border: 1px solid var(--line-bright);
+    background: var(--bg-deep);
+    font-size: 11px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 14px;
+  }
+  .step-info .pkt-summary .k {
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-size: 9px;
+    align-self: center;
+  }
+  .step-info .pkt-summary .v {
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Glossary cards */
+  .gloss { display: grid; gap: 12px; }
+  .gloss-item {
+    border-left: 2px solid var(--line-bright);
+    padding: 6px 0 6px 14px;
+    transition: border-color 0.2s;
+  }
+  .gloss-item:hover { border-left-color: var(--phosphor); }
+  .gloss-item .term {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+  .gloss-item .term .badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border: 1px solid;
+    font-size: 9px;
+    margin-right: 6px;
+    letter-spacing: 0.1em;
+    vertical-align: middle;
+  }
+  .gloss-item .term .badge.b-syn { color: var(--syn); border-color: var(--syn); }
+  .gloss-item .term .badge.b-ack { color: var(--ack); border-color: var(--ack); }
+  .gloss-item .term .badge.b-amber { color: var(--amber); border-color: var(--amber); }
+  .gloss-item .desc {
+    font-size: 11px;
+    color: var(--ink-dim);
+    line-height: 1.5;
+  }
+
+  /* Quiz */
+  .quiz {
+    margin-top: 28px;
+    border: 1px solid var(--line-bright);
+    background: var(--panel);
+    padding: 28px 30px;
+  }
+  .quiz h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 24px;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+  .quiz h2 em { color: var(--phosphor); font-style: italic; }
+  .quiz-sub {
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 22px;
+  }
+  .q-block { margin-bottom: 24px; }
+  .q-block:last-child { margin-bottom: 0; }
+  .q-num {
+    font-size: 10px;
+    color: var(--phosphor);
+    letter-spacing: 0.3em;
+    margin-bottom: 6px;
+  }
+  .q-text {
+    font-size: 14px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .q-opts { display: grid; gap: 8px; }
+  .q-opt {
+    border: 1px solid var(--line-bright);
+    padding: 10px 14px;
+    background: var(--bg-deep);
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--ink);
+    text-align: left;
+    font-size: 12px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .q-opt:hover { border-color: var(--ink-dim); }
+  .q-opt .marker {
+    width: 18px; height: 18px;
+    border: 1px solid var(--line-bright);
+    flex-shrink: 0;
+    display: grid; place-items: center;
+    font-size: 10px;
+    color: var(--ink-faint);
+  }
+  .q-opt.correct {
+    border-color: var(--phosphor);
+    background: rgba(93,255,180,0.06);
+    color: var(--phosphor);
+  }
+  .q-opt.correct .marker {
+    border-color: var(--phosphor);
+    color: var(--phosphor);
+    background: rgba(93,255,180,0.1);
+  }
+  .q-opt.wrong {
+    border-color: var(--crimson);
+    background: rgba(255,107,107,0.05);
+    color: var(--crimson);
+  }
+  .q-opt.wrong .marker {
+    border-color: var(--crimson);
+    color: var(--crimson);
+  }
+  .q-feedback {
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--ink-dim);
+    padding-left: 30px;
+    line-height: 1.6;
+    min-height: 1px;
+  }
+  .q-feedback.show { color: var(--phosphor-dim); }
+
+  /* Footer */
+  .foot {
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line-bright);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  /* Highlight glow when packet arrives */
+  @keyframes flash {
+    0%, 100% { box-shadow: 0 0 0 1px var(--phosphor), 0 0 0px rgba(93,255,180,0); }
+    50% { box-shadow: 0 0 0 1px var(--phosphor), 0 0 40px rgba(93,255,180,0.5); }
+  }
+  .node.flash { animation: flash 0.6s ease-out; }
+  .node.flash.amber { animation: flash-amber 0.6s ease-out; }
+  @keyframes flash-amber {
+    0%, 100% { box-shadow: 0 0 0 1px var(--amber-dim); }
+    50% { box-shadow: 0 0 0 1px var(--amber), 0 0 40px rgba(255,182,72,0.5); }
+  }
+
+  /* Mobile */
+  @media (max-width: 700px) {
+    .app { padding: 20px 14px 40px; }
+    .nodes { grid-template-columns: 1fr; }
+    .node.client { margin-right: 0; margin-bottom: -1px; }
+    .wire { height: 140px; }
+    .speed-ctrl { margin-left: 0; width: 100%; justify-content: flex-end; }
+    .step-line { width: 24px; }
+    .stepper { gap: 0; }
+    .step-dot .lbl { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">⌗</div>
+      <div class="brand-text">
+        <small>Network Protocols · Lab 01</small>
+        <strong>Transmission Control Protocol</strong>
+      </div>
+    </div>
+    <div class="status">
+      <span><span class="status-dot"></span> Live Simulation</span>
+      <span>RFC 793</span>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div>
+      <h1>
+        <span>The Three-Way Handshake</span>
+        Two strangers <em>agreeing</em><br/>to talk.
+      </h1>
+    </div>
+    <p>Before any data flows, both ends must synchronise sequence numbers and confirm they can hear each other. Three packets — that's all it takes.</p>
+  </section>
+
+  <!-- Console -->
+  <section class="console">
+    <div class="console-head">
+      <div class="dots"><i></i><i></i><i></i></div>
+      <span>tcpdump · port 443 · handshake.pcap</span>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="nodes">
+        <!-- Client -->
+        <div class="node client" id="nodeClient" data-state="CLOSED">
+          <div class="node-head">
+            <div class="node-label">
+              <span class="node-icon">◉</span>
+              Client
+            </div>
+            <div class="node-ip">192.168.1.42 : 51234</div>
+          </div>
+          <div class="node-state" id="clientState">CLOSED</div>
+          <div class="node-state-desc" id="clientDesc">Awaiting connect() from application.</div>
+          <div class="node-meta">
+            <div><div class="k">Seq (x)</div><div class="v" id="clientSeq">—</div></div>
+            <div><div class="k">Ack</div><div class="v" id="clientAck">—</div></div>
+            <div><div class="k">Window</div><div class="v">65535</div></div>
+            <div><div class="k">Flags</div><div class="v" id="clientFlags">—</div></div>
+          </div>
+        </div>
+
+        <!-- Server -->
+        <div class="node server" id="nodeServer" data-state="LISTEN">
+          <div class="node-head">
+            <div class="node-label">
+              <span class="node-icon">▦</span>
+              Server
+            </div>
+            <div class="node-ip">93.184.216.34 : 443</div>
+          </div>
+          <div class="node-state" id="serverState">LISTEN</div>
+          <div class="node-state-desc" id="serverDesc">Bound to port 443. Awaiting incoming SYN.</div>
+          <div class="node-meta">
+            <div><div class="k">Seq (y)</div><div class="v" id="serverSeq">—</div></div>
+            <div><div class="k">Ack</div><div class="v" id="serverAck">—</div></div>
+            <div><div class="k">Window</div><div class="v">65535</div></div>
+            <div><div class="k">Flags</div><div class="v" id="serverFlags">—</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wire -->
+      <div class="wire" id="wire">
+        <span class="wire-label">— TCP Channel —</span>
+        <!-- packets injected via JS -->
+      </div>
+
+      <!-- Stepper -->
+      <div class="stepper" id="stepper">
+        <button class="step-dot active" data-step="0"><span class="num">0</span><span class="lbl">Idle</span></button>
+        <span class="step-line"></span>
+        <button class="step-dot" data-step="1"><span class="num">1</span><span class="lbl">SYN</span></button>
+        <span class="step-line"></span>
+        <button class="step-dot" data-step="2"><span class="num">2</span><span class="lbl">SYN-ACK</span></button>
+        <span class="step-line"></span>
+        <button class="step-dot" data-step="3"><span class="num">3</span><span class="lbl">ACK</span></button>
+        <span class="step-line"></span>
+        <button class="step-dot" data-step="4"><span class="num">✓</span><span class="lbl">Established</span></button>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <button class="btn primary" id="btnPlay">
+          <span class="ico ico-play"></span>
+          <span id="playLabel">Run Handshake</span>
+        </button>
+        <button class="btn" id="btnStep">Next Step →</button>
+        <button class="btn" id="btnReset">↺ Reset</button>
+
+        <div class="speed-ctrl">
+          <span>Speed</span>
+          <div class="seg">
+            <button data-speed="0.5">0.5×</button>
+            <button data-speed="1" class="active">1×</button>
+            <button data-speed="2">2×</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Explanation -->
+  <section class="explainer">
+    <div class="panel step-info" id="stepInfo">
+      <div class="panel-title">Step Briefing</div>
+      <h3 id="stepTitle">Idle — connection <b>not yet open</b></h3>
+      <p id="stepBody">Press <code>Run Handshake</code> to start the simulation, or use <code>Next Step</code> to walk through one packet at a time. The client wants to talk to the server, but neither has agreed to a conversation yet.</p>
+      <div class="pkt-summary" id="pktSummary" style="display:none;">
+        <div class="k">Direction</div><div class="v" id="psDir">—</div>
+        <div class="k">Flags</div><div class="v" id="psFlags">—</div>
+        <div class="k">Seq</div><div class="v" id="psSeq">—</div>
+        <div class="k">Ack</div><div class="v" id="psAck">—</div>
+        <div class="k">Why</div><div class="v" id="psWhy">—</div>
+      </div>
+    </div>
+
+    <aside class="panel">
+      <div class="panel-title">Glossary</div>
+      <div class="gloss">
+        <div class="gloss-item">
+          <div class="term"><span class="badge b-syn">SYN</span>Synchronize</div>
+          <div class="desc">"I want to start a conversation. Here's my initial sequence number."</div>
+        </div>
+        <div class="gloss-item">
+          <div class="term"><span class="badge b-ack">ACK</span>Acknowledge</div>
+          <div class="desc">"I received your byte up to N. Send me the next one."</div>
+        </div>
+        <div class="gloss-item">
+          <div class="term">Sequence Number</div>
+          <div class="desc">A number labelling each byte. Starts random (the ISN) so old packets can't confuse a new connection.</div>
+        </div>
+        <div class="gloss-item">
+          <div class="term"><span class="badge b-amber">ISN</span>Initial Seq Number</div>
+          <div class="desc">Picked randomly at session start. Different on each side: client (x) and server (y).</div>
+        </div>
+        <div class="gloss-item">
+          <div class="term">Why three packets?</div>
+          <div class="desc">Each side must prove it can both <strong>send</strong> and <strong>receive</strong>. Two packets aren't enough — the client wouldn't know its own SYN was received.</div>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- Quiz -->
+  <section class="quiz" id="quiz">
+    <h2>Check your <em>understanding</em></h2>
+    <div class="quiz-sub">Three quick questions</div>
+
+    <div class="q-block" data-q="0">
+      <div class="q-num">QUESTION 01</div>
+      <div class="q-text">In the second segment (SYN-ACK), what is the value of the acknowledgement number?</div>
+      <div class="q-opts">
+        <button class="q-opt" data-correct="false"><span class="marker">A</span>The server's own ISN</button>
+        <button class="q-opt" data-correct="true"><span class="marker">B</span>The client's ISN + 1</button>
+        <button class="q-opt" data-correct="false"><span class="marker">C</span>Always zero until data starts flowing</button>
+        <button class="q-opt" data-correct="false"><span class="marker">D</span>The MSS (maximum segment size)</button>
+      </div>
+      <div class="q-feedback"></div>
+    </div>
+
+    <div class="q-block" data-q="1">
+      <div class="q-num">QUESTION 02</div>
+      <div class="q-text">Why can't TCP get away with a two-way handshake instead of three?</div>
+      <div class="q-opts">
+        <button class="q-opt" data-correct="false"><span class="marker">A</span>To negotiate encryption keys.</button>
+        <button class="q-opt" data-correct="false"><span class="marker">B</span>So the OS can allocate buffers in time.</button>
+        <button class="q-opt" data-correct="true"><span class="marker">C</span>The client must confirm to the server that the server's SYN was received.</button>
+        <button class="q-opt" data-correct="false"><span class="marker">D</span>RFC 793 mandates three for legal reasons.</button>
+      </div>
+      <div class="q-feedback"></div>
+    </div>
+
+    <div class="q-block" data-q="2">
+      <div class="q-num">QUESTION 03</div>
+      <div class="q-text">A server sits in <code style="color:var(--amber)">LISTEN</code>. A SYN arrives. Which state does it enter next?</div>
+      <div class="q-opts">
+        <button class="q-opt" data-correct="false"><span class="marker">A</span>ESTABLISHED</button>
+        <button class="q-opt" data-correct="false"><span class="marker">B</span>SYN-SENT</button>
+        <button class="q-opt" data-correct="true"><span class="marker">C</span>SYN-RECEIVED</button>
+        <button class="q-opt" data-correct="false"><span class="marker">D</span>FIN-WAIT-1</button>
+      </div>
+      <div class="q-feedback"></div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span>// End of trace</span>
+    <span>Built for curious students · Inspect, replay, learn.</span>
+  </footer>
+</div>
+
+<script>
+(() => {
+  // ----- ISN generation (random, but consistent per run) -----
+  let X = 0, Y = 0;
+  function rollISNs() {
+    X = Math.floor(Math.random() * 4_000_000_000);
+    Y = Math.floor(Math.random() * 4_000_000_000);
+  }
+  rollISNs();
+
+  // ----- Step content -----
+  const STEPS = [
+    {
+      title: 'Idle — connection <b>not yet open</b>',
+      body: 'Press <code>Run Handshake</code> to start, or use <code>Next Step</code> to walk through one packet at a time. The client has data to send (an HTTP request, perhaps), but no channel exists yet.',
+      summary: null,
+      client: { state: 'CLOSED', desc: 'Awaiting connect() from application.', seq: '—', ack: '—', flags: '—' },
+      server: { state: 'LISTEN', desc: 'Bound to port 443. Awaiting incoming SYN.', seq: '—', ack: '—', flags: '—' }
+    },
+    {
+      title: 'Step 01 — Client sends <b>SYN</b>',
+      body: 'The client picks a random Initial Sequence Number <code>x</code> and fires a segment with the SYN flag set. This is essentially: <em>"hello, I exist, here is the number I will count my bytes from."</em> The client now waits for a reply.',
+      summary: () => ({
+        dir: 'Client → Server',
+        flags: 'SYN',
+        seq: `x = ${X.toLocaleString()}`,
+        ack: '— (no ack yet)',
+        why: 'Announces presence and proposes a starting sequence number.'
+      }),
+      client: () => ({ state: 'SYN-SENT', desc: 'Sent SYN. Waiting for server\'s acknowledgement.', seq: X.toLocaleString(), ack: '—', flags: 'SYN' }),
+      server: { state: 'LISTEN', desc: 'Receiving incoming SYN…', seq: '—', ack: '—', flags: '—' },
+      packet: { type: 'syn', dir: 'right', flags: 'SYN', getSeq: () => `Seq=<span>${X.toLocaleString()}</span>` }
+    },
+    {
+      title: 'Step 02 — Server replies <b>SYN-ACK</b>',
+      body: 'The server agrees to talk. It sends back a single segment with <strong>both</strong> flags set: a SYN announcing its own random ISN <code>y</code>, and an ACK confirming it got the client\'s SYN by setting <code>ack = x + 1</code>.',
+      summary: () => ({
+        dir: 'Server → Client',
+        flags: 'SYN, ACK',
+        seq: `y = ${Y.toLocaleString()}`,
+        ack: `x + 1 = ${(X + 1).toLocaleString()}`,
+        why: 'Acknowledges client\'s SYN and proposes server\'s own sequence number.'
+      }),
+      client: () => ({ state: 'SYN-SENT', desc: 'SYN-ACK arriving from server…', seq: X.toLocaleString(), ack: '—', flags: 'SYN' }),
+      server: () => ({ state: 'SYN-RECEIVED', desc: 'Sent SYN-ACK. Awaiting final ACK from client.', seq: Y.toLocaleString(), ack: (X + 1).toLocaleString(), flags: 'SYN, ACK' }),
+      packet: { type: 'syn-ack', dir: 'left', flags: 'SYN · ACK', getSeq: () => `Seq=<span>${Y.toLocaleString()}</span><br/>Ack=<span>${(X+1).toLocaleString()}</span>` }
+    },
+    {
+      title: 'Step 03 — Client confirms with <b>ACK</b>',
+      body: 'The client acknowledges the server\'s SYN by sending one final ACK: <code>ack = y + 1</code>. The connection is now half-established from both perspectives — the client believes it\'s open. Importantly, this ACK can already carry application data.',
+      summary: () => ({
+        dir: 'Client → Server',
+        flags: 'ACK',
+        seq: `x + 1 = ${(X + 1).toLocaleString()}`,
+        ack: `y + 1 = ${(Y + 1).toLocaleString()}`,
+        why: 'Confirms receipt of server\'s SYN. Channel is now bi-directionally synchronised.'
+      }),
+      client: () => ({ state: 'ESTABLISHED', desc: 'Connection open. Ready to send/receive data.', seq: (X + 1).toLocaleString(), ack: (Y + 1).toLocaleString(), flags: 'ACK' }),
+      server: () => ({ state: 'SYN-RECEIVED', desc: 'Final ACK arriving…', seq: Y.toLocaleString(), ack: (X + 1).toLocaleString(), flags: 'SYN, ACK' }),
+      packet: { type: 'ack', dir: 'right', flags: 'ACK', getSeq: () => `Seq=<span>${(X+1).toLocaleString()}</span><br/>Ack=<span>${(Y+1).toLocaleString()}</span>` }
+    },
+    {
+      title: 'Connection <b>ESTABLISHED</b>',
+      body: 'Both ends are synchronised. Application data can now flow in either direction. Each byte will carry an incrementing sequence number, and every received byte will be acknowledged. The handshake cost just three packets and one round-trip.',
+      summary: () => ({
+        dir: 'Bidirectional',
+        flags: '— (data segments now)',
+        seq: `Client from ${(X+1).toLocaleString()}, Server from ${(Y+1).toLocaleString()}`,
+        ack: 'Cumulative — updated as bytes arrive',
+        why: 'Sequence numbers agreed; both sides have proven they can send and receive.'
+      }),
+      client: () => ({ state: 'ESTABLISHED', desc: 'Connection open. Ready to send/receive data.', seq: (X + 1).toLocaleString(), ack: (Y + 1).toLocaleString(), flags: '—' }),
+      server: () => ({ state: 'ESTABLISHED', desc: 'Connection open. Ready to send/receive data.', seq: (Y + 1).toLocaleString(), ack: (X + 1).toLocaleString(), flags: '—' })
+    }
+  ];
+
+  // ----- DOM refs -----
+  const $ = id => document.getElementById(id);
+  const wire = $('wire');
+  const stepDots = document.querySelectorAll('.step-dot');
+  const stepLines = document.querySelectorAll('.step-line');
+  const btnPlay = $('btnPlay');
+  const btnStep = $('btnStep');
+  const btnReset = $('btnReset');
+  const playLabel = $('playLabel');
+  const speedBtns = document.querySelectorAll('.speed-ctrl button');
+
+  // ----- State -----
+  let currentStep = 0;
+  let speedMul = 1;
+  let isPlaying = false;
+  let autoTimer = null;
+
+  // ----- Render helpers -----
+  function applyNodeState(side, data) {
+    const node = $(side === 'client' ? 'nodeClient' : 'nodeServer');
+    const d = typeof data === 'function' ? data() : data;
+    node.dataset.state = d.state;
+    $(side + 'State').textContent = d.state;
+    $(side + 'Desc').textContent = d.desc;
+    $(side + 'Seq').textContent = d.seq;
+    $(side + 'Ack').textContent = d.ack;
+    $(side + 'Flags').textContent = d.flags;
+  }
+
+  function flashNode(side, color = 'phosphor') {
+    const node = $(side === 'client' ? 'nodeClient' : 'nodeServer');
+    node.classList.remove('flash', 'amber');
+    void node.offsetWidth;
+    node.classList.add('flash');
+    if (color === 'amber') node.classList.add('amber');
+    setTimeout(() => node.classList.remove('flash', 'amber'), 700);
+  }
+
+  function clearWire() {
+    [...wire.querySelectorAll('.packet')].forEach(p => p.remove());
+  }
+
+  function injectPacket(pkt) {
+    return new Promise(resolve => {
+      const el = document.createElement('div');
+      el.className = `packet ${pkt.type} dir-${pkt.dir}`;
+      el.innerHTML = `
+        <div class="flags">${pkt.flags}</div>
+        <div class="seq">${pkt.getSeq()}</div>
+        <div class="arrow"></div>
+      `;
+      // Starting position
+      if (pkt.dir === 'right') {
+        el.style.left = '0%';
+      } else {
+        el.style.left = 'auto';
+        el.style.right = '0%';
+      }
+      wire.appendChild(el);
+
+      // Set transition duration based on speed
+      const dur = 1.4 / speedMul;
+      el.style.transition = `left ${dur}s cubic-bezier(0.5, 0, 0.5, 1), right ${dur}s cubic-bezier(0.5, 0, 0.5, 1), opacity 0.3s`;
+
+      requestAnimationFrame(() => {
+        el.classList.add('show');
+        requestAnimationFrame(() => {
+          if (pkt.dir === 'right') {
+            el.style.left = 'calc(100% - 150px)';
+          } else {
+            el.style.right = 'calc(100% - 150px)';
+          }
+        });
+      });
+
+      const totalMs = dur * 1000;
+      setTimeout(() => {
+        // Flash receiving side
+        const receiver = pkt.dir === 'right' ? 'server' : 'client';
+        flashNode(receiver, receiver === 'server' ? 'amber' : 'phosphor');
+        el.classList.remove('show');
+        setTimeout(() => { el.remove(); resolve(); }, 250);
+      }, totalMs);
+    });
+  }
+
+  function updateStepperUI() {
+    stepDots.forEach((d, i) => {
+      d.classList.remove('active', 'done');
+      if (i < currentStep) d.classList.add('done');
+      if (i === currentStep) d.classList.add('active');
+    });
+    stepLines.forEach((l, i) => {
+      l.classList.toggle('lit', i < currentStep);
+    });
+  }
+
+  function renderStep(i, animate = false) {
+    const step = STEPS[i];
+    // Update step text
+    $('stepTitle').innerHTML = step.title;
+    $('stepBody').innerHTML = step.body;
+    const summary = step.summary && step.summary();
+    if (summary) {
+      $('pktSummary').style.display = 'grid';
+      $('psDir').textContent = summary.dir;
+      $('psFlags').textContent = summary.flags;
+      $('psSeq').textContent = summary.seq;
+      $('psAck').textContent = summary.ack;
+      $('psWhy').textContent = summary.why;
+    } else {
+      $('pktSummary').style.display = 'none';
+    }
+
+    // Apply node states (animation handles partial states for receiving)
+    applyNodeState('client', step.client);
+    applyNodeState('server', step.server);
+    updateStepperUI();
+  }
+
+  async function goToStep(i, withAnimation = true) {
+    if (i < 0 || i >= STEPS.length) return;
+    currentStep = i;
+
+    // Clear in-flight packets
+    clearWire();
+
+    // If step has a packet and we're animating, fly it
+    const step = STEPS[i];
+    if (step.packet && withAnimation) {
+      // Render text first
+      renderStep(i, true);
+      // Show pre-state on receiver while packet flies
+      // Then after arrival the renderStep above already set final states.
+      // We want: while flying, receiver shows previous state; after, final state.
+      // Quick approach: re-apply prior state for receiver, fly, then re-apply final state.
+      const prevStep = STEPS[i - 1] || STEPS[0];
+      const receiver = step.packet.dir === 'right' ? 'server' : 'client';
+      applyNodeState(receiver, prevStep[receiver]);
+      // Sender should reflect new state already (it just sent the packet)
+      const sender = step.packet.dir === 'right' ? 'client' : 'server';
+      applyNodeState(sender, step[sender]);
+
+      await injectPacket(step.packet);
+      // Now apply final receiver state
+      applyNodeState(receiver, step[receiver]);
+    } else {
+      renderStep(i, false);
+    }
+  }
+
+  // ----- Auto play -----
+  async function play() {
+    if (isPlaying) return;
+    if (currentStep >= STEPS.length - 1) {
+      reset();
+      // small breath
+      await new Promise(r => setTimeout(r, 300));
+    }
+    isPlaying = true;
+    btnPlay.querySelector('.ico').classList.remove('ico-play');
+    btnPlay.querySelector('.ico').classList.add('ico-pause');
+    playLabel.textContent = 'Pause';
+
+    while (isPlaying && currentStep < STEPS.length - 1) {
+      await goToStep(currentStep + 1, true);
+      if (!isPlaying) break;
+      // Pause between steps
+      await new Promise(r => {
+        autoTimer = setTimeout(r, 1100 / speedMul);
+      });
+    }
+    pause();
+  }
+
+  function pause() {
+    isPlaying = false;
+    if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+    btnPlay.querySelector('.ico').classList.remove('ico-pause');
+    btnPlay.querySelector('.ico').classList.add('ico-play');
+    playLabel.textContent = currentStep >= STEPS.length - 1 ? 'Replay' : 'Resume';
+  }
+
+  function reset() {
+    pause();
+    rollISNs();
+    currentStep = 0;
+    clearWire();
+    renderStep(0, false);
+    playLabel.textContent = 'Run Handshake';
+  }
+
+  // ----- Wire up -----
+  btnPlay.addEventListener('click', () => {
+    if (isPlaying) pause();
+    else play();
+  });
+  btnStep.addEventListener('click', async () => {
+    if (isPlaying) pause();
+    if (currentStep >= STEPS.length - 1) {
+      reset();
+      await new Promise(r => setTimeout(r, 200));
+    }
+    await goToStep(currentStep + 1, true);
+    if (currentStep >= STEPS.length - 1) {
+      playLabel.textContent = 'Replay';
+    }
+  });
+  btnReset.addEventListener('click', reset);
+
+  stepDots.forEach(dot => {
+    dot.addEventListener('click', async () => {
+      if (isPlaying) pause();
+      const target = parseInt(dot.dataset.step, 10);
+      // Jump without animation if going backward, animate the last hop if forward
+      if (target <= currentStep) {
+        currentStep = target;
+        clearWire();
+        renderStep(target, false);
+      } else {
+        // Step through quickly
+        for (let i = currentStep + 1; i <= target; i++) {
+          await goToStep(i, i === target);
+        }
+      }
+    });
+  });
+
+  speedBtns.forEach(b => {
+    b.addEventListener('click', () => {
+      speedBtns.forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      speedMul = parseFloat(b.dataset.speed);
+    });
+  });
+
+  // ----- Quiz -----
+  document.querySelectorAll('.q-block').forEach(block => {
+    const opts = block.querySelectorAll('.q-opt');
+    const fb = block.querySelector('.q-feedback');
+    const explanations = [
+      'Right — the ACK number always points to the next byte expected. Since the client used <code>x</code> as its SYN, the server expects <code>x+1</code> next.',
+      'Right — three packets are needed because the third one is the client\'s confirmation that it received the server\'s SYN. Without it, the server can\'t be sure the client is still listening.',
+      'Right — receiving a SYN while in LISTEN moves the server into SYN-RECEIVED, where it sits until the final ACK arrives.'
+    ];
+    opts.forEach(opt => {
+      opt.addEventListener('click', () => {
+        if (block.classList.contains('answered')) return;
+        const correct = opt.dataset.correct === 'true';
+        opts.forEach(o => {
+          if (o.dataset.correct === 'true') o.classList.add('correct');
+        });
+        if (!correct) opt.classList.add('wrong');
+        block.classList.add('answered');
+        fb.classList.add('show');
+        const idx = parseInt(block.dataset.q, 10);
+        fb.innerHTML = explanations[idx];
+      });
+    });
+  });
+
+  // Initial render
+  renderStep(0, false);
+})();
+</script>
+</body>
+</html>

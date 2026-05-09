@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Packet Sniffer — Interactive Visualization</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&family=Major+Mono+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-0: #07090a;
+    --bg-1: #0c1112;
+    --bg-2: #121a1c;
+    --line: #1d2a2c;
+    --green: #00ff9f;
+    --green-dim: #00b372;
+    --amber: #ffb000;
+    --red: #ff3b5c;
+    --cyan: #4de2ff;
+    --violet: #c490ff;
+    --text: #d6e6e0;
+    --muted: #6b8682;
+    --grid: rgba(0, 255, 159, 0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg-0);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* CRT grid + scanline overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0) 0,
+      rgba(0,0,0,0) 2px,
+      rgba(0,255,159,0.015) 3px,
+      rgba(0,0,0,0) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+    mix-blend-mode: screen;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 2;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 28px 60px;
+  }
+
+  /* ---------- HEADER ---------- */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 18px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .brand {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .brand .tag {
+    color: var(--green);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    text-shadow: 0 0 8px rgba(0,255,159,0.4);
+  }
+  .brand h1 {
+    font-family: 'Major Mono Display', monospace;
+    font-size: clamp(28px, 4vw, 44px);
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1;
+  }
+  .brand h1 span { color: var(--green); }
+  .brand .sub {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 4px;
+  }
+  .status {
+    display: flex;
+    gap: 18px;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+  .status .dot {
+    display: inline-block; width: 8px; height: 8px;
+    background: var(--green); border-radius: 50%;
+    margin-right: 6px;
+    box-shadow: 0 0 10px var(--green);
+    animation: blink 1.4s infinite;
+  }
+  .status .dot.red { background: var(--red); box-shadow: 0 0 10px var(--red); }
+  @keyframes blink { 50% { opacity: 0.35; } }
+
+  /* ---------- LAYOUT ---------- */
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 22px;
+  }
+  @media (max-width: 1100px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- STAGE (the network diagram) ---------- */
+  .stage {
+    background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 100%);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stage-label {
+    position: absolute;
+    top: 12px; left: 14px;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+  .stage-coords {
+    position: absolute;
+    top: 12px; right: 14px;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+  }
+
+  .scene {
+    position: relative;
+    height: 460px;
+    margin-top: 24px;
+  }
+
+  /* Nodes */
+  .node {
+    position: absolute;
+    width: 180px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    padding: 14px;
+    border-radius: 2px;
+    font-size: 11px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .node.active {
+    border-color: var(--green);
+    box-shadow: 0 0 24px rgba(0,255,159,0.25), inset 0 0 12px rgba(0,255,159,0.05);
+  }
+  .node-icon {
+    font-family: 'Major Mono Display', monospace;
+    font-size: 28px;
+    color: var(--green);
+    margin-bottom: 8px;
+    letter-spacing: -0.04em;
+  }
+  .node-title {
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 2px;
+    letter-spacing: 0.05em;
+  }
+  .node-meta {
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.6;
+  }
+  .node-meta b { color: var(--cyan); font-weight: 400; }
+
+  .node.client { left: 0; top: 180px; }
+  .node.server { right: 0; top: 180px; }
+  .node.sniffer {
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    border-color: rgba(255, 59, 92, 0.3);
+    background: linear-gradient(180deg, rgba(255,59,92,0.06), var(--bg-2));
+  }
+  .node.sniffer .node-icon { color: var(--red); }
+  .node.sniffer.active {
+    border-color: var(--red);
+    box-shadow: 0 0 24px rgba(255,59,92,0.35);
+  }
+  .node.sniffer .node-meta b { color: var(--red); }
+
+  /* The wire (svg) */
+  .wire-svg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  /* Packet token */
+  .packet {
+    position: absolute;
+    width: 56px; height: 30px;
+    background: var(--bg-2);
+    border: 1px solid var(--green);
+    border-radius: 2px;
+    font-size: 9px;
+    color: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.1em;
+    box-shadow: 0 0 16px rgba(0,255,159,0.35);
+    transition: top 0.2s, left 0.2s;
+    z-index: 5;
+  }
+  .packet.encrypted {
+    border-color: var(--violet);
+    color: var(--violet);
+    box-shadow: 0 0 16px rgba(196,144,255,0.4);
+  }
+  .packet::before, .packet::after {
+    content: '';
+    position: absolute;
+    width: 6px; height: 100%;
+    top: 0;
+    background: inherit;
+    border-top: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+  }
+  .packet::before { left: -7px; border-left: 1px solid currentColor; border-radius: 1px 0 0 1px;}
+  .packet::after { right: -7px; border-right: 1px solid currentColor; border-radius: 0 1px 1px 0;}
+
+  /* Tap-line pulse from wire to sniffer */
+  @keyframes tapPulse {
+    0% { stroke-dashoffset: 100; opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { stroke-dashoffset: 0; opacity: 0; }
+  }
+  .tap-pulse {
+    stroke-dasharray: 4 4;
+    animation: tapPulse 0.6s ease-out;
+  }
+
+  /* Stage controls */
+  .controls {
+    margin-top: 22px;
+    padding-top: 22px;
+    border-top: 1px dashed var(--line);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: flex-end;
+  }
+  .ctrl-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .ctrl-group label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+  }
+  select, button {
+    font-family: inherit;
+    background: var(--bg-2);
+    color: var(--text);
+    border: 1px solid var(--line);
+    padding: 10px 14px;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-radius: 2px;
+  }
+  select:hover, button:hover {
+    border-color: var(--green);
+    color: var(--green);
+  }
+  button.primary {
+    background: var(--green);
+    color: var(--bg-0);
+    border-color: var(--green);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  button.primary:hover {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--bg-0);
+    box-shadow: 0 0 20px rgba(0,255,159,0.5);
+  }
+  button.ghost { color: var(--muted); }
+  button.ghost:hover { color: var(--amber); border-color: var(--amber); }
+
+  /* ---------- SIDE PANEL ---------- */
+  .side {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .panel {
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .panel-head {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-2);
+  }
+  .panel-head .name {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: var(--green);
+  }
+  .panel-head .name.red { color: var(--red); }
+  .panel-head .count {
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .panel-body { padding: 14px 16px; }
+
+  /* Capture log */
+  .log {
+    max-height: 260px;
+    overflow-y: auto;
+    font-size: 11px;
+  }
+  .log::-webkit-scrollbar { width: 6px; }
+  .log::-webkit-scrollbar-track { background: var(--bg-2); }
+  .log::-webkit-scrollbar-thumb { background: var(--line); }
+
+  .log-entry {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: center;
+    transition: background 0.12s;
+    line-height: 1.4;
+  }
+  .log-entry:hover { background: var(--bg-2); }
+  .log-entry.selected {
+    background: rgba(0,255,159,0.06);
+    border-left: 2px solid var(--green);
+    padding-left: 12px;
+  }
+  .log-entry .num {
+    color: var(--muted);
+    font-size: 10px;
+  }
+  .log-entry .summary {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .log-entry .src { color: var(--cyan); }
+  .log-entry .dst { color: var(--amber); }
+  .log-entry .proto { color: var(--green); }
+  .log-entry .proto.tls { color: var(--violet); }
+  .log-entry .time {
+    color: var(--muted);
+    font-size: 10px;
+  }
+  .log-empty {
+    padding: 28px 16px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 11px;
+  }
+
+  /* Inspector */
+  .inspector { font-size: 11px; }
+  .layer {
+    border: 1px solid var(--line);
+    margin-bottom: 8px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .layer-head {
+    padding: 8px 12px;
+    background: var(--bg-2);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+    transition: background 0.1s;
+  }
+  .layer-head:hover { background: #1a2426; }
+  .layer-head .lname {
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    font-size: 10px;
+  }
+  .layer.l2 .lname { color: var(--cyan); }
+  .layer.l3 .lname { color: var(--amber); }
+  .layer.l4 .lname { color: var(--green); }
+  .layer.l7 .lname { color: var(--violet); }
+  .layer-head .lhint {
+    color: var(--muted);
+    font-size: 10px;
+  }
+  .layer-head .chev {
+    color: var(--muted);
+    transition: transform 0.2s;
+  }
+  .layer.open .chev { transform: rotate(90deg); }
+
+  .layer-body {
+    display: none;
+    padding: 10px 12px;
+    background: var(--bg-1);
+    line-height: 1.7;
+  }
+  .layer.open .layer-body { display: block; }
+
+  .field {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 8px;
+    padding: 2px 0;
+  }
+  .field .k { color: var(--muted); }
+  .field .v { color: var(--text); word-break: break-all; }
+  .field .v.hi { color: var(--green); }
+  .field .v.warn { color: var(--red); }
+
+  .payload {
+    margin-top: 8px;
+    padding: 10px;
+    background: var(--bg-0);
+    border: 1px dashed var(--line);
+    border-radius: 2px;
+    font-size: 11px;
+    color: var(--text);
+    word-break: break-all;
+    white-space: pre-wrap;
+  }
+  .payload.encrypted {
+    color: var(--violet);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+    line-height: 1.5;
+  }
+  .payload .leak {
+    color: var(--red);
+    background: rgba(255,59,92,0.12);
+    padding: 1px 4px;
+  }
+
+  .inspector-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.7;
+  }
+  .inspector-empty .arrow {
+    font-size: 24px;
+    color: var(--green);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  /* Bottom info section */
+  .info {
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 800px) {
+    .info { grid-template-columns: 1fr; }
+  }
+  .info-card {
+    padding: 16px;
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-left: 2px solid var(--green);
+    font-size: 11px;
+    line-height: 1.7;
+  }
+  .info-card.amber { border-left-color: var(--amber); }
+  .info-card.red { border-left-color: var(--red); }
+  .info-card h4 {
+    font-size: 11px;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .info-card.amber h4 { color: var(--amber); }
+  .info-card.red h4 { color: var(--red); }
+  .info-card p { color: var(--muted); }
+  .info-card b { color: var(--text); font-weight: 500; }
+
+  /* Footnote */
+  .foot {
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  /* Decorative corner ticks */
+  .stage::before, .stage::after {
+    content: '';
+    position: absolute;
+    width: 12px; height: 12px;
+    border: 1px solid var(--green);
+  }
+  .stage::before { top: 6px; left: 6px; border-right: none; border-bottom: none; }
+  .stage::after { bottom: 6px; right: 6px; border-left: none; border-top: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <span class="tag">CYS-407 // Network Security Lab</span>
+      <h1>packet <span>sniffer</span> 0x01</h1>
+      <span class="sub">An interactive look at how data crosses a network — and who else can see it.</span>
+    </div>
+    <div class="status">
+      <span><span class="dot"></span>LINK UP</span>
+      <span><span class="dot red"></span>PROMISC. MODE</span>
+      <span id="clock">--:--:--</span>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- LEFT: STAGE -->
+    <section class="stage">
+      <span class="stage-label">// network topology</span>
+      <span class="stage-coords">eth0 · 1000Mbps · MTU 1500</span>
+
+      <div class="scene" id="scene">
+
+        <svg class="wire-svg" id="wireSvg" viewBox="0 0 800 460" preserveAspectRatio="none">
+          <!-- Main horizontal wire client <-> server -->
+          <line x1="180" y1="225" x2="620" y2="225" stroke="#1d2a2c" stroke-width="2"/>
+          <line x1="180" y1="225" x2="620" y2="225" stroke="#00ff9f" stroke-width="1" stroke-dasharray="3 6" opacity="0.4"/>
+          <!-- Tap branch from wire to sniffer (T-junction) -->
+          <line x1="400" y1="225" x2="400" y2="100" stroke="#1d2a2c" stroke-width="2"/>
+          <line x1="400" y1="225" x2="400" y2="100" stroke="#ff3b5c" stroke-width="1" stroke-dasharray="2 4" opacity="0.3"/>
+          <!-- T-junction marker -->
+          <circle cx="400" cy="225" r="4" fill="#0c1112" stroke="#ff3b5c" stroke-width="1.5"/>
+          <!-- Tap pulse path (animated) -->
+          <line id="tapLine" x1="400" y1="225" x2="400" y2="100" stroke="#ff3b5c" stroke-width="2" opacity="0"/>
+        </svg>
+
+        <!-- Sniffer node (top center) -->
+        <div class="node sniffer" id="snifferNode" style="width: 220px;">
+          <div class="node-icon">⌬</div>
+          <div class="node-title">SNIFFER · eve</div>
+          <div class="node-meta">
+            <b>10.0.0.66</b> · NIC promisc.<br>
+            wireshark / tcpdump<br>
+            <span style="color:var(--red)">listening on tap</span>
+          </div>
+        </div>
+
+        <!-- Client node -->
+        <div class="node client" id="clientNode">
+          <div class="node-icon">◐</div>
+          <div class="node-title">CLIENT · alice</div>
+          <div class="node-meta">
+            <b>10.0.0.12</b> :49231<br>
+            MAC: aa:bb:cc:11:22:33<br>
+            Browser / FTP / SSH
+          </div>
+        </div>
+
+        <!-- Server node -->
+        <div class="node server" id="serverNode">
+          <div class="node-icon">◑</div>
+          <div class="node-title">SERVER · bob</div>
+          <div class="node-meta">
+            <b>10.0.0.50</b> :80/443<br>
+            MAC: ff:ee:dd:44:55:66<br>
+            HTTP / HTTPS / FTP
+          </div>
+        </div>
+
+        <!-- Packet token -->
+        <div class="packet" id="packet" style="display:none;">PKT</div>
+
+      </div>
+
+      <div class="controls">
+        <div class="ctrl-group">
+          <label>Protocol</label>
+          <select id="protoSel">
+            <option value="http">HTTP — Login Form (cleartext)</option>
+            <option value="https">HTTPS — Login Form (TLS)</option>
+            <option value="dns">DNS — Domain Lookup</option>
+            <option value="ftp">FTP — File Transfer (cleartext)</option>
+            <option value="ssh">SSH — Remote Shell (encrypted)</option>
+          </select>
+        </div>
+        <div class="ctrl-group">
+          <label>Direction</label>
+          <select id="dirSel">
+            <option value="c2s">Client → Server</option>
+            <option value="s2c">Server → Client</option>
+          </select>
+        </div>
+        <div class="ctrl-group">
+          <label>Speed</label>
+          <select id="spdSel">
+            <option value="2200">Slow</option>
+            <option value="1400" selected>Normal</option>
+            <option value="700">Fast</option>
+          </select>
+        </div>
+        <button class="primary" id="sendBtn">▶ Transmit Packet</button>
+        <button class="ghost" id="autoBtn">◉ Auto-Traffic</button>
+        <button class="ghost" id="clearBtn">⌫ Clear Log</button>
+      </div>
+    </section>
+
+    <!-- RIGHT: SIDE PANEL -->
+    <aside class="side">
+
+      <!-- Capture Log -->
+      <div class="panel">
+        <div class="panel-head">
+          <span class="name red">▣ Captured Frames</span>
+          <span class="count" id="logCount">0 packets</span>
+        </div>
+        <div class="log" id="log">
+          <div class="log-empty">No traffic captured.<br>Transmit a packet to begin.</div>
+        </div>
+      </div>
+
+      <!-- Packet Inspector -->
+      <div class="panel">
+        <div class="panel-head">
+          <span class="name">⌖ Packet Inspector</span>
+          <span class="count" id="inspectMeta">—</span>
+        </div>
+        <div class="panel-body">
+          <div class="inspector" id="inspector">
+            <div class="inspector-empty">
+              <span class="arrow">↑</span>
+              Click any captured frame above to dissect its layers.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+
+  <!-- Educational info cards -->
+  <div class="info">
+    <div class="info-card">
+      <h4>① The Wire is Shared</h4>
+      <p>On a hub, Wi-Fi, or via ARP-spoofing on a switch, every NIC on the segment <b>physically receives every frame</b>. Normally, NICs drop frames not addressed to them. In <b>promiscuous mode</b>, they keep them all.</p>
+    </div>
+    <div class="info-card amber">
+      <h4>② Layers, Layers, Layers</h4>
+      <p>Each packet is a stack of headers: <b>Ethernet → IP → TCP → Application</b>. A sniffer reads them top-to-bottom. Click a captured frame and expand each layer to see what's in the headers.</p>
+    </div>
+    <div class="info-card red">
+      <h4>③ Encryption is the Defense</h4>
+      <p>HTTP, FTP, Telnet send passwords in <b>plaintext</b> — Eve reads them instantly. HTTPS, SSH, SFTP wrap the payload in TLS/SSH; Eve still sees the headers, but the data is <b>cipher-gibberish</b>.</p>
+    </div>
+  </div>
+
+  <div class="foot">> end_of_transmission · built for classroom use · v1.0</div>
+</div>
+
+<script>
+/* ============================================================
+   PACKET SNIFFER — INTERACTIVE VISUALIZATION
+   ============================================================ */
+
+const $ = id => document.getElementById(id);
+const scene = $('scene'), packet = $('packet');
+const clientNode = $('clientNode'), serverNode = $('serverNode'), snifferNode = $('snifferNode');
+const log = $('log'), logCount = $('logCount');
+const inspector = $('inspector'), inspectMeta = $('inspectMeta');
+const tapLine = $('tapLine');
+
+let captured = [];
+let selectedId = null;
+let autoTimer = null;
+let inFlight = false;
+
+/* ---------- CLOCK ---------- */
+function tickClock() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  $('clock').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+setInterval(tickClock, 1000); tickClock();
+
+/* ---------- PROTOCOL TEMPLATES ---------- */
+const TEMPLATES = {
+  http: {
+    label: 'HTTP', proto: 'TCP', dport: 80, sport: 49231,
+    encrypted: false,
+    flags: 'PSH, ACK',
+    summary: () => `POST /login.php HTTP/1.1`,
+    payload: () => ({
+      text:
+`POST /login.php HTTP/1.1
+Host: shop.example.com
+User-Agent: Mozilla/5.0
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 38
+
+username=alice&password=hunter2`,
+      leaks: ['username=alice', 'password=hunter2']
+    })
+  },
+  https: {
+    label: 'TLSv1.3', proto: 'TCP', dport: 443, sport: 49231,
+    encrypted: true,
+    flags: 'PSH, ACK',
+    summary: () => `Application Data [encrypted]`,
+    payload: () => ({
+      text: 'a3 c1 7f e2 9d 4b 88 0a  6e 11 fc 2d 55 91 b3 4e\n5c 7a 02 db 8f 91 ee 17  44 a8 6c bd 33 cd 50 7f\n9a 21 4d 86 b0 18 c5 e3  77 02 ab 5e 12 d9 30 ff\n[ 1287 bytes of TLS-encrypted application data ]',
+      encrypted: true
+    })
+  },
+  dns: {
+    label: 'DNS', proto: 'UDP', dport: 53, sport: 51022,
+    encrypted: false,
+    flags: '',
+    summary: () => `Standard query A shop.example.com`,
+    payload: () => ({
+      text:
+`Transaction ID: 0x4f2a
+Flags: 0x0100 Standard query
+Questions: 1
+Queries:
+  shop.example.com: type A, class IN`
+    })
+  },
+  ftp: {
+    label: 'FTP', proto: 'TCP', dport: 21, sport: 49500,
+    encrypted: false,
+    flags: 'PSH, ACK',
+    summary: () => `Request: USER alice / PASS hunter2`,
+    payload: () => ({
+      text:
+`USER alice
+PASS hunter2
+TYPE I
+RETR /home/alice/secrets.zip`,
+      leaks: ['USER alice', 'PASS hunter2']
+    })
+  },
+  ssh: {
+    label: 'SSHv2', proto: 'TCP', dport: 22, sport: 49600,
+    encrypted: true,
+    flags: 'PSH, ACK',
+    summary: () => `Encrypted packet (len=128)`,
+    payload: () => ({
+      text: 'd2 17 4a 9c  ff 03 88 b1   6a 5e 2d 70  19 cc fa 84\n0c 91 e6 22  bb 4d 17 5f   80 a3 18 cd  6e 47 0b f2\n[ 96 bytes of SSH-encrypted shell traffic ]',
+      encrypted: true
+    })
+  }
+};
+
+/* ---------- PACKET CONSTRUCTION ---------- */
+function buildPacket(protoKey, dir) {
+  const t = TEMPLATES[protoKey];
+  const c2s = dir === 'c2s';
+  const srcIp = c2s ? '10.0.0.12' : '10.0.0.50';
+  const dstIp = c2s ? '10.0.0.50' : '10.0.0.12';
+  const srcMac = c2s ? 'aa:bb:cc:11:22:33' : 'ff:ee:dd:44:55:66';
+  const dstMac = c2s ? 'ff:ee:dd:44:55:66' : 'aa:bb:cc:11:22:33';
+  const sport = c2s ? t.sport : t.dport;
+  const dport = c2s ? t.dport : t.sport;
+  const payload = t.payload();
+  const id = Date.now() + Math.floor(Math.random() * 999);
+  return {
+    id,
+    proto: t.label,
+    transport: t.proto,
+    encrypted: t.encrypted,
+    direction: dir,
+    srcIp, dstIp, srcMac, dstMac, sport, dport,
+    flags: t.flags,
+    seq: Math.floor(Math.random() * 0xffffffff),
+    ack: Math.floor(Math.random() * 0xffffffff),
+    ttl: 64,
+    length: 54 + (payload.text ? payload.text.length : 0),
+    summary: t.summary(),
+    payload,
+    timestamp: new Date()
+  };
+}
+
+/* ---------- ANIMATION ---------- */
+function animatePacket(pkt, speedMs) {
+  return new Promise(resolve => {
+    inFlight = true;
+    const sceneRect = scene.getBoundingClientRect();
+    const cRect = clientNode.getBoundingClientRect();
+    const sRect = serverNode.getBoundingClientRect();
+    const startX = (cRect.right - sceneRect.left) - 28;
+    const endX = (sRect.left - sceneRect.left) - 28;
+    const y = 225 - 15;
+    const c2s = pkt.direction === 'c2s';
+    const fromX = c2s ? startX : endX;
+    const toX = c2s ? endX : startX;
+
+    packet.style.display = 'flex';
+    packet.classList.toggle('encrypted', pkt.encrypted);
+    packet.textContent = pkt.proto;
+    packet.style.left = fromX + 'px';
+    packet.style.top = y + 'px';
+
+    // highlight source
+    (c2s ? clientNode : serverNode).classList.add('active');
+
+    let halfDone = false;
+    const totalFrames = 60;
+    let frame = 0;
+    const startTime = performance.now();
+
+    function step(now) {
+      const elapsed = now - startTime;
+      const t = Math.min(elapsed / speedMs, 1);
+      const x = fromX + (toX - fromX) * t;
+      packet.style.left = x + 'px';
+
+      // When we cross the T-junction (~ middle), trigger the tap
+      if (!halfDone && t >= 0.5) {
+        halfDone = true;
+        triggerTap();
+      }
+
+      if (t < 1) {
+        requestAnimationFrame(step);
+      } else {
+        // arrived
+        (c2s ? serverNode : clientNode).classList.add('active');
+        setTimeout(() => {
+          packet.style.display = 'none';
+          clientNode.classList.remove('active');
+          serverNode.classList.remove('active');
+          inFlight = false;
+          resolve();
+        }, 240);
+      }
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+function triggerTap() {
+  // animate the red tap line going up to sniffer
+  tapLine.style.transition = 'none';
+  tapLine.setAttribute('y2', '225');
+  tapLine.style.opacity = '1';
+  tapLine.style.strokeDasharray = '4 4';
+  tapLine.style.strokeWidth = '2';
+  tapLine.getBoundingClientRect(); // force reflow
+  tapLine.style.transition = 'all 0.5s ease-out';
+  tapLine.setAttribute('y2', '100');
+  setTimeout(() => {
+    tapLine.style.opacity = '0';
+  }, 500);
+  // flash sniffer
+  snifferNode.classList.add('active');
+  setTimeout(() => snifferNode.classList.remove('active'), 700);
+}
+
+/* ---------- LOG ---------- */
+function fmtTime(d) {
+  const pad = n => String(n).padStart(2, '0');
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${String(d.getMilliseconds()).padStart(3,'0')}`;
+}
+
+function addToLog(pkt) {
+  captured.push(pkt);
+  renderLog();
+  logCount.textContent = `${captured.length} packet${captured.length===1?'':'s'}`;
+}
+
+function renderLog() {
+  if (captured.length === 0) {
+    log.innerHTML = '<div class="log-empty">No traffic captured.<br>Transmit a packet to begin.</div>';
+    return;
+  }
+  log.innerHTML = captured.map((p, i) => {
+    const cls = p.id === selectedId ? 'log-entry selected' : 'log-entry';
+    const protoCls = p.encrypted ? 'proto tls' : 'proto';
+    return `
+      <div class="${cls}" data-id="${p.id}">
+        <span class="num">#${String(i+1).padStart(3,'0')}</span>
+        <span class="summary">
+          <span class="src">${p.srcIp}</span> → <span class="dst">${p.dstIp}</span>
+          <span class="${protoCls}">[${p.proto}]</span>
+          ${p.summary}
+        </span>
+        <span class="time">${fmtTime(p.timestamp)}</span>
+      </div>
+    `;
+  }).join('');
+  // bind clicks
+  log.querySelectorAll('.log-entry').forEach(el => {
+    el.addEventListener('click', () => {
+      const id = Number(el.dataset.id);
+      selectedId = id;
+      const pkt = captured.find(p => p.id === id);
+      if (pkt) renderInspector(pkt);
+      renderLog();
+    });
+  });
+  // auto-scroll
+  log.scrollTop = log.scrollHeight;
+}
+
+/* ---------- INSPECTOR ---------- */
+function highlightLeaks(text, leaks) {
+  if (!leaks || !leaks.length) return escapeHtml(text);
+  let out = escapeHtml(text);
+  leaks.forEach(leak => {
+    const safe = escapeHtml(leak);
+    out = out.split(safe).join(`<span class="leak">${safe}</span>`);
+  });
+  return out;
+}
+function escapeHtml(s) {
+  return s.replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+}
+
+function renderInspector(pkt) {
+  inspectMeta.textContent = `frame · ${pkt.length} bytes`;
+  const payloadHtml = pkt.payload.encrypted
+    ? `<div class="payload encrypted">${escapeHtml(pkt.payload.text)}</div>
+       <div class="field" style="margin-top:8px;">
+         <span class="k">visible to eve</span>
+         <span class="v warn">cipher-text only — payload is unreadable</span>
+       </div>`
+    : `<div class="payload">${highlightLeaks(pkt.payload.text, pkt.payload.leaks || [])}</div>
+       ${pkt.payload.leaks ? `<div class="field" style="margin-top:8px;">
+         <span class="k">visible to eve</span>
+         <span class="v warn">credentials exposed in plaintext ⚠</span>
+       </div>` : `<div class="field" style="margin-top:8px;">
+         <span class="k">visible to eve</span>
+         <span class="v warn">full message body readable</span>
+       </div>`}`;
+
+  inspector.innerHTML = `
+    <div class="layer l2 open">
+      <div class="layer-head">
+        <span class="lname">▸ LAYER 2 · ETHERNET</span>
+        <span class="lhint">link-layer frame <span class="chev">›</span></span>
+      </div>
+      <div class="layer-body">
+        <div class="field"><span class="k">src mac</span><span class="v hi">${pkt.srcMac}</span></div>
+        <div class="field"><span class="k">dst mac</span><span class="v hi">${pkt.dstMac}</span></div>
+        <div class="field"><span class="k">ethertype</span><span class="v">0x0800 (IPv4)</span></div>
+      </div>
+    </div>
+
+    <div class="layer l3 open">
+      <div class="layer-head">
+        <span class="lname">▸ LAYER 3 · IPv4</span>
+        <span class="lhint">routing <span class="chev">›</span></span>
+      </div>
+      <div class="layer-body">
+        <div class="field"><span class="k">version</span><span class="v">4 · IHL 5</span></div>
+        <div class="field"><span class="k">src ip</span><span class="v hi">${pkt.srcIp}</span></div>
+        <div class="field"><span class="k">dst ip</span><span class="v hi">${pkt.dstIp}</span></div>
+        <div class="field"><span class="k">protocol</span><span class="v">${pkt.transport==='TCP'?'6 (TCP)':'17 (UDP)'}</span></div>
+        <div class="field"><span class="k">ttl</span><span class="v">${pkt.ttl}</span></div>
+        <div class="field"><span class="k">total len</span><span class="v">${pkt.length}</span></div>
+      </div>
+    </div>
+
+    <div class="layer l4 open">
+      <div class="layer-head">
+        <span class="lname">▸ LAYER 4 · ${pkt.transport}</span>
+        <span class="lhint">transport <span class="chev">›</span></span>
+      </div>
+      <div class="layer-body">
+        <div class="field"><span class="k">src port</span><span class="v hi">${pkt.sport}</span></div>
+        <div class="field"><span class="k">dst port</span><span class="v hi">${pkt.dport}</span></div>
+        ${pkt.transport==='TCP' ? `
+          <div class="field"><span class="k">seq</span><span class="v">${pkt.seq}</span></div>
+          <div class="field"><span class="k">ack</span><span class="v">${pkt.ack}</span></div>
+          <div class="field"><span class="k">flags</span><span class="v">${pkt.flags}</span></div>
+          <div class="field"><span class="k">window</span><span class="v">64240</span></div>
+        ` : `
+          <div class="field"><span class="k">length</span><span class="v">${pkt.length - 34}</span></div>
+          <div class="field"><span class="k">checksum</span><span class="v">0x${Math.floor(Math.random()*0xffff).toString(16).padStart(4,'0')}</span></div>
+        `}
+      </div>
+    </div>
+
+    <div class="layer l7 open">
+      <div class="layer-head">
+        <span class="lname">▸ LAYER 7 · ${pkt.proto}${pkt.encrypted ? ' (encrypted)' : ''}</span>
+        <span class="lhint">application <span class="chev">›</span></span>
+      </div>
+      <div class="layer-body">
+        ${payloadHtml}
+      </div>
+    </div>
+  `;
+
+  // bind expand/collapse
+  inspector.querySelectorAll('.layer-head').forEach(head => {
+    head.addEventListener('click', () => head.parentElement.classList.toggle('open'));
+  });
+}
+
+/* ---------- ACTIONS ---------- */
+async function sendPacket() {
+  if (inFlight) return;
+  const proto = $('protoSel').value;
+  const dir = $('dirSel').value;
+  const speed = Number($('spdSel').value);
+  const pkt = buildPacket(proto, dir);
+  await animatePacket(pkt, speed);
+  addToLog(pkt);
+  // auto-select if nothing selected yet
+  if (selectedId === null) {
+    selectedId = pkt.id;
+    renderInspector(pkt);
+    renderLog();
+  }
+}
+
+function clearLog() {
+  captured = [];
+  selectedId = null;
+  renderLog();
+  logCount.textContent = '0 packets';
+  inspectMeta.textContent = '—';
+  inspector.innerHTML = `
+    <div class="inspector-empty">
+      <span class="arrow">↑</span>
+      Click any captured frame above to dissect its layers.
+    </div>`;
+}
+
+const AUTO_PROTOS = ['http','https','dns','ftp','ssh'];
+const AUTO_DIRS = ['c2s','s2c'];
+function toggleAuto() {
+  if (autoTimer) {
+    clearInterval(autoTimer);
+    autoTimer = null;
+    $('autoBtn').textContent = '◉ Auto-Traffic';
+    $('autoBtn').style.color = '';
+    $('autoBtn').style.borderColor = '';
+    return;
+  }
+  $('autoBtn').textContent = '◼ Stop Auto';
+  $('autoBtn').style.color = 'var(--amber)';
+  $('autoBtn').style.borderColor = 'var(--amber)';
+  autoTimer = setInterval(() => {
+    if (inFlight) return;
+    const p = AUTO_PROTOS[Math.floor(Math.random()*AUTO_PROTOS.length)];
+    const d = AUTO_DIRS[Math.floor(Math.random()*AUTO_DIRS.length)];
+    $('protoSel').value = p;
+    $('dirSel').value = d;
+    sendPacket();
+  }, 1700);
+}
+
+$('sendBtn').addEventListener('click', sendPacket);
+$('clearBtn').addEventListener('click', clearLog);
+$('autoBtn').addEventListener('click', toggleAuto);
+
+// Keyboard: spacebar = send
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' && document.activeElement.tagName !== 'SELECT') {
+    e.preventDefault();
+    sendPacket();
+  }
+});
+</script>
+</body>
+</html>

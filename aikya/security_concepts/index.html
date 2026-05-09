@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Packet Sniffing — Fundamentals & Interactive Lessons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=JetBrains+Mono:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e0d;
+    --bg-deep:#060808;
+    --panel:#0f1413;
+    --panel-light:#161c1b;
+    --line:#1f2826;
+    --line-bright:#2d3a37;
+    --ink:#d8e3df;
+    --ink-dim:#7a8985;
+    --ink-faint:#4a5754;
+
+    --phosphor:#5dffb4;
+    --phosphor-dim:#3da77a;
+    --cyan:#5fd1ff;
+    --amber:#ffb648;
+    --magenta:#ff7ad9;
+    --crimson:#ff6b6b;
+
+    --display:'Fraunces', serif;
+    --mono:'JetBrains Mono', ui-monospace, monospace;
+    --body:'Outfit', system-ui, sans-serif;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:var(--body);font-weight:400;line-height:1.6;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh;
+  }
+
+  /* atmospheric grid + scan-line */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:48px 48px;opacity:.25;
+    mask-image:radial-gradient(ellipse at center, black 30%, transparent 90%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:1;pointer-events:none;
+    background:repeating-linear-gradient(0deg, transparent 0 3px, rgba(93,255,180,.012) 3px 4px);
+  }
+
+  .app{position:relative;z-index:2;max-width:1280px;margin:0 auto;padding:32px 28px 96px}
+
+  /* TOP BAR */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    border-bottom:1px solid var(--line-bright);padding-bottom:16px;margin-bottom:48px;
+    flex-wrap:wrap;gap:16px;
+  }
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand-mark{
+    width:36px;height:36px;border:1px solid var(--phosphor);color:var(--phosphor);
+    display:grid;place-items:center;font-family:var(--mono);font-weight:800;font-size:14px;
+    box-shadow:0 0 24px rgba(93,255,180,.25), inset 0 0 12px rgba(93,255,180,.1);
+    position:relative;
+  }
+  .brand-mark::after{
+    content:'';position:absolute;inset:-4px;border:1px solid var(--phosphor-dim);opacity:.4;
+  }
+  .brand-text small{
+    display:block;font-family:var(--mono);font-size:10px;color:var(--ink-dim);
+    letter-spacing:.3em;text-transform:uppercase;
+  }
+  .brand-text strong{
+    font-family:var(--display);font-weight:500;font-size:22px;letter-spacing:-.01em;
+  }
+  .status{
+    display:flex;gap:18px;align-items:center;font-family:var(--mono);
+    font-size:11px;color:var(--ink-dim);letter-spacing:.15em;text-transform:uppercase;
+  }
+  .status-dot{
+    width:8px;height:8px;background:var(--phosphor);
+    box-shadow:0 0 12px var(--phosphor);animation:pulse 2s infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+  /* HERO */
+  .hero{
+    display:grid;grid-template-columns:1.6fr 1fr;gap:56px;align-items:end;
+    margin-bottom:72px;
+  }
+  @media(max-width:900px){.hero{grid-template-columns:1fr;gap:32px}}
+
+  .eyebrow{
+    font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.4em;
+    text-transform:uppercase;color:var(--ink-dim);margin-bottom:18px;
+    display:inline-flex;align-items:center;gap:10px;
+  }
+  .eyebrow .pip{width:6px;height:6px;background:var(--phosphor);box-shadow:0 0 10px var(--phosphor)}
+
+  .hero h1{
+    font-family:var(--display);font-weight:300;
+    font-size:clamp(40px,6.5vw,84px);line-height:.95;letter-spacing:-.025em;
+  }
+  .hero h1 em{font-style:italic;color:var(--phosphor);font-weight:400}
+
+  .hero-side p{
+    color:var(--ink-dim);font-size:14px;line-height:1.7;
+    border-left:2px solid var(--phosphor-dim);padding-left:16px;max-width:38ch;
+  }
+  .hero-side p + p{margin-top:14px}
+
+  /* CONSOLE - definition */
+  .console{
+    margin-bottom:80px;border:1px solid var(--line-bright);
+    background:linear-gradient(180deg, var(--panel) 0%, var(--bg-deep) 100%);
+    position:relative;
+  }
+  .console-head{
+    display:flex;align-items:center;gap:12px;height:32px;padding:0 14px;
+    background:var(--panel-light);border-bottom:1px solid var(--line-bright);
+    font-family:var(--mono);font-size:10px;color:var(--ink-dim);
+    letter-spacing:.25em;text-transform:uppercase;
+  }
+  .console-head .dots{display:flex;gap:6px}
+  .console-head .dots i{
+    width:8px;height:8px;border-radius:50%;background:var(--line-bright);display:block;
+  }
+  .console-head .dots i:first-child{background:var(--crimson)}
+  .console-head .dots i:nth-child(2){background:var(--amber)}
+  .console-head .dots i:nth-child(3){background:var(--phosphor)}
+  .console-body{padding:32px 36px;font-family:var(--mono);font-size:13px;color:var(--ink)}
+  .console-body .prompt{color:var(--phosphor)}
+  .console-body .comment{color:var(--ink-faint)}
+  .console-body .key{color:var(--cyan)}
+  .console-body .val{color:var(--amber)}
+  .console-body p{color:var(--ink-dim);margin-top:10px;font-family:var(--body);font-size:14px}
+
+  /* SECTION */
+  .section{margin-bottom:96px}
+  .section-title{
+    display:flex;align-items:baseline;gap:18px;margin-bottom:8px;flex-wrap:wrap;
+    border-bottom:1px solid var(--line);padding-bottom:14px;
+  }
+  .section-num{
+    font-family:var(--mono);font-size:11px;color:var(--ink-faint);
+    letter-spacing:.25em;text-transform:uppercase;
+  }
+  .section-title h2{
+    font-family:var(--display);font-weight:400;font-size:36px;letter-spacing:-.02em;
+  }
+  .section-title h2 em{color:var(--phosphor);font-style:italic}
+  .section-desc{
+    color:var(--ink-dim);font-size:15px;max-width:62ch;margin:18px 0 36px;line-height:1.7;
+  }
+
+  /* FUNDAMENTAL CARDS */
+  .fundamentals{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  @media(max-width:880px){.fundamentals{grid-template-columns:1fr}}
+
+  .fcard{
+    position:relative;border:1px solid var(--line-bright);
+    background:linear-gradient(180deg, var(--panel) 0%, var(--bg-deep) 100%);
+    padding:32px 30px;text-decoration:none;color:inherit;
+    transition:transform .35s ease, border-color .35s ease, box-shadow .35s ease;
+    display:flex;flex-direction:column;gap:18px;overflow:hidden;
+  }
+  .fcard::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:2px;
+    background:var(--accent, var(--phosphor));
+  }
+  .fcard::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(600px 200px at 100% 0%, color-mix(in srgb, var(--accent, var(--phosphor)) 8%, transparent), transparent 60%);
+    opacity:0;transition:opacity .35s ease;
+  }
+  .fcard:hover{
+    transform:translateY(-4px);border-color:var(--accent, var(--phosphor));
+    box-shadow:0 18px 48px -16px color-mix(in srgb, var(--accent, var(--phosphor)) 35%, transparent);
+  }
+  .fcard:hover::after{opacity:1}
+
+  .fcard .step{
+    display:flex;align-items:center;justify-content:space-between;
+    font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .fcard .step .badge{color:var(--accent, var(--phosphor))}
+  .fcard h3{
+    font-family:var(--display);font-weight:400;font-size:32px;line-height:1.05;
+    letter-spacing:-.015em;color:var(--ink);
+  }
+  .fcard h3 em{color:var(--accent, var(--phosphor));font-style:italic}
+  .fcard .why{color:var(--ink-dim);font-size:14px;line-height:1.65}
+  .fcard .why strong{color:var(--ink);font-weight:500}
+
+  .fcard .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .chip{
+    font-family:var(--mono);font-size:10px;letter-spacing:.05em;padding:4px 9px;
+    border:1px solid var(--line-bright);background:rgba(255,255,255,.02);color:var(--ink-dim);
+  }
+
+  .fcard .open{
+    margin-top:auto;display:inline-flex;align-items:center;gap:10px;
+    font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--accent, var(--phosphor));
+    padding-top:14px;border-top:1px dashed var(--line-bright);
+  }
+  .fcard .open .arrow{transition:transform .25s ease}
+  .fcard:hover .open .arrow{transform:translateX(6px)}
+
+  /* WHAT IS PACKET SNIFFING — diagram */
+  .diagram{
+    border:1px solid var(--line-bright);background:var(--panel);
+    padding:36px;display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center;
+  }
+  @media(max-width:820px){.diagram{grid-template-columns:1fr}}
+  .diagram-text h3{
+    font-family:var(--display);font-weight:400;font-size:26px;
+    letter-spacing:-.015em;margin-bottom:14px;
+  }
+  .diagram-text p{color:var(--ink-dim);font-size:14px;line-height:1.7;margin-bottom:14px}
+  .diagram-text strong{color:var(--phosphor);font-weight:500}
+  .diagram-visual svg{width:100%;height:auto;display:block}
+
+  /* CONCEPT GRID */
+  .concept-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:18px}
+  @media(max-width:900px){.concept-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:600px){.concept-grid{grid-template-columns:1fr}}
+  .concept{
+    border:1px solid var(--line-bright);padding:22px;background:var(--panel);
+    position:relative;transition:border-color .25s ease, transform .25s ease;
+  }
+  .concept:hover{border-color:var(--phosphor-dim);transform:translateY(-2px)}
+  .concept .num{
+    font-family:var(--mono);font-size:11px;color:var(--phosphor);letter-spacing:.15em;margin-bottom:10px;
+  }
+  .concept h4{
+    font-family:var(--display);font-weight:500;font-size:20px;
+    letter-spacing:-.01em;margin-bottom:10px;
+  }
+  .concept p{color:var(--ink-dim);font-size:13px;line-height:1.6}
+  .concept code{
+    font-family:var(--mono);font-size:12px;color:var(--cyan);
+    background:rgba(95,209,255,.06);padding:1px 6px;
+  }
+
+  /* TOOLS */
+  .tool-list{display:flex;flex-direction:column;gap:10px}
+  .tool{
+    display:grid;grid-template-columns:120px 1fr auto;gap:24px;align-items:center;
+    padding:18px 22px;border:1px solid var(--line);background:var(--panel);
+    transition:border-color .25s ease, background .25s ease;
+  }
+  @media(max-width:680px){.tool{grid-template-columns:1fr;gap:8px}}
+  .tool:hover{border-color:var(--line-bright);background:var(--panel-light)}
+  .tool .name{
+    font-family:var(--mono);font-size:14px;font-weight:600;color:var(--phosphor);
+  }
+  .tool .desc{color:var(--ink-dim);font-size:13px}
+  .tool .tag{
+    font-family:var(--mono);font-size:10px;color:var(--ink-faint);
+    letter-spacing:.15em;text-transform:uppercase;text-align:right;
+  }
+  @media(max-width:680px){.tool .tag{text-align:left}}
+
+  /* WARNING */
+  .warning{
+    margin-top:32px;padding:24px 28px;border:1px solid var(--amber);
+    background:linear-gradient(90deg, rgba(255,182,72,.08), transparent);
+    display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;
+  }
+  .warning .icon{
+    width:44px;height:44px;border:1px solid var(--amber);color:var(--amber);
+    display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:20px;
+    box-shadow:0 0 18px rgba(255,182,72,.2);
+  }
+  .warning h4{
+    font-family:var(--display);font-weight:500;font-size:18px;color:var(--amber);margin-bottom:4px;
+  }
+  .warning p{color:var(--ink-dim);font-size:13px;line-height:1.6}
+
+  /* FOOTER */
+  footer{
+    margin-top:96px;padding-top:28px;border-top:1px solid var(--line-bright);
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;
+    font-family:var(--mono);font-size:11px;color:var(--ink-faint);
+    letter-spacing:.1em;text-transform:uppercase;
+  }
+  footer a{color:var(--phosphor-dim);text-decoration:none}
+  footer a:hover{color:var(--phosphor)}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">PS</div>
+      <div class="brand-text">
+        <small>Security Concepts · 03</small>
+        <strong>Packet Sniffing</strong>
+      </div>
+    </div>
+    <div class="status">
+      <span><span class="status-dot" style="display:inline-block;vertical-align:middle;margin-right:8px"></span>Lesson Online</span>
+      <span>Difficulty: Intermediate</span>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <div class="eyebrow"><span class="pip"></span>Network Security · Hands-on Lesson</div>
+      <h1>Reading the wire,<br/><em>one frame at a time.</em></h1>
+    </div>
+    <div class="hero-side">
+      <p>Packet sniffing is the art of capturing the raw conversations flowing across a network — the same bits your browser, OS, and apps quietly exchange every second.</p>
+      <p>Before you can sniff, you must understand <em style="color:var(--phosphor);font-style:italic">how</em> data moves. Two foundations make everything else possible.</p>
+    </div>
+  </section>
+
+  <!-- CONSOLE -->
+  <div class="console">
+    <div class="console-head">
+      <div class="dots"><i></i><i></i><i></i></div>
+      <span>~/lesson — packet-sniffing.intro</span>
+    </div>
+    <div class="console-body">
+      <div><span class="prompt">$</span> what is <span class="key">packet sniffing</span>?</div>
+      <p style="margin-top:14px">A <strong style="color:var(--phosphor)">packet sniffer</strong> is a program (or device) that intercepts and logs network traffic passing through a network interface. It can read every protocol header — Ethernet, IP, TCP, HTTP — and reveal what is being sent, by whom, to whom, and when.</p>
+      <p>Sniffers power <span class="val">debugging</span>, <span class="val">performance analysis</span>, <span class="val">security auditing</span>, <span class="val">incident response</span>, and <span class="val">protocol learning</span>. The same techniques used by attackers are used by defenders — understanding both is the goal of this lesson.</p>
+      <div style="margin-top:18px"><span class="prompt">$</span> <span class="comment"># to read packets, you must first understand the layers they travel through ↓</span></div>
+    </div>
+  </div>
+
+  <!-- FUNDAMENTALS -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">01 / Fundamentals</span>
+      <h2>Two things you must know <em>first</em>.</h2>
+    </div>
+    <p class="section-desc">
+      A packet sniffer shows you frames, packets, and segments — the building blocks defined by the OSI model — and conversations that almost always begin with a TCP handshake. Master these two ideas and the output of Wireshark stops looking like noise and starts telling a story.
+    </p>
+
+    <div class="fundamentals">
+
+      <!-- OSI MODEL CARD -->
+      <a class="fcard" href="osi-model-interactive.html" style="--accent:var(--cyan)">
+        <div class="step">
+          <span>Foundation 01</span>
+          <span class="badge">Required</span>
+        </div>
+        <h3>The <em>OSI Model</em> — 7 layers of cooperation.</h3>
+        <p class="why">
+          Every captured packet is a <strong>stack of headers</strong>: Ethernet wraps IP wraps TCP wraps HTTP. A sniffer simply un-stacks them. Without the OSI model, you cannot explain what each header means or where in the stack a problem lives.
+        </p>
+        <div class="chips">
+          <span class="chip">Layer 2 · Ethernet</span>
+          <span class="chip">Layer 3 · IP</span>
+          <span class="chip">Layer 4 · TCP/UDP</span>
+          <span class="chip">Layer 7 · HTTP</span>
+          <span class="chip">Encapsulation</span>
+        </div>
+        <span class="open">Open interactive lesson <span class="arrow">→</span></span>
+      </a>
+
+      <!-- TCP HANDSHAKE CARD -->
+      <a class="fcard" href="tcp-handshake.html" style="--accent:var(--phosphor)">
+        <div class="step">
+          <span>Foundation 02</span>
+          <span class="badge">Required</span>
+        </div>
+        <h3>The <em>TCP Handshake</em> — how a connection begins.</h3>
+        <p class="why">
+          The <strong>SYN → SYN-ACK → ACK</strong> exchange is the first thing you see in nearly every TCP capture. Recognising it lets you spot the start of a session, detect failed connections, and understand sequence numbers — the same numbers an attacker manipulates in spoofing and hijacking.
+        </p>
+        <div class="chips">
+          <span class="chip">SYN</span>
+          <span class="chip">SYN-ACK</span>
+          <span class="chip">ACK</span>
+          <span class="chip">Seq / Ack numbers</span>
+          <span class="chip">Ports</span>
+        </div>
+        <span class="open">Open interactive lesson <span class="arrow">→</span></span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- THE MAIN LESSON -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">02 / Hands-on</span>
+      <h2>The <em>main lesson</em> — see a sniffer at work.</h2>
+    </div>
+    <p class="section-desc">
+      Once the OSI and TCP fundamentals click, jump into the interactive packet sniffer visualization. Watch frames being lifted off the wire, headers peeled back layer by layer, and a live capture appear on screen.
+    </p>
+
+    <a class="fcard" href="../network-packet-sniffer.html" style="--accent:var(--amber);display:flex">
+      <div class="step">
+        <span>Hands-on Lab</span>
+        <span class="badge">Recommended next</span>
+      </div>
+      <h3>Network <em>Packet Sniffer</em> — interactive visualization.</h3>
+      <p class="why">
+        A live, animated view of how a sniffer captures, dissects, and displays traffic. Brings together everything you learned in the OSI and TCP lessons — and shows it the way <strong>Wireshark</strong> and <strong>tcpdump</strong> show it in the real world.
+      </p>
+      <div class="chips">
+        <span class="chip">Live capture</span>
+        <span class="chip">Header decode</span>
+        <span class="chip">Protocol stack</span>
+        <span class="chip">Visualization</span>
+      </div>
+      <span class="open">Launch the sniffer <span class="arrow">→</span></span>
+    </a>
+  </section>
+
+  <!-- WHAT IS PACKET SNIFFING -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">03 / Concept</span>
+      <h2>How does a sniffer <em>see</em> traffic?</h2>
+    </div>
+    <p class="section-desc">
+      Normally, a network card discards any frame that is not addressed to it. A sniffer flips that behaviour by putting the card into <strong style="color:var(--phosphor)">promiscuous mode</strong> (wired) or <strong style="color:var(--phosphor)">monitor mode</strong> (Wi-Fi), so it accepts every frame it can hear — then hands the raw bytes to a capture library like libpcap.
+    </p>
+
+    <div class="diagram">
+      <div class="diagram-text">
+        <h3>From wire to readable packet.</h3>
+        <p>The NIC receives raw bits from the cable or radio. In promiscuous mode it accepts <strong>all</strong> frames, not just those addressed to your MAC. The OS kernel hands them to <strong>libpcap / WinPcap / Npcap</strong>, which delivers them to a tool like Wireshark.</p>
+        <p>Wireshark then walks the layers — Ethernet → IP → TCP → HTTP — exactly the way the OSI model describes, and shows you each header in plain text.</p>
+      </div>
+      <div class="diagram-visual">
+        <svg viewBox="0 0 460 280" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="wireGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#5dffb4" stop-opacity="0"/>
+              <stop offset="0.5" stop-color="#5dffb4" stop-opacity="0.9"/>
+              <stop offset="1" stop-color="#5dffb4" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+
+          <!-- wire / network -->
+          <line x1="20" y1="50" x2="440" y2="50" stroke="#2d3a37" stroke-width="1" stroke-dasharray="4,4"/>
+          <text x="230" y="40" fill="#7a8985" font-family="JetBrains Mono" font-size="9" text-anchor="middle" letter-spacing="2">NETWORK</text>
+
+          <!-- packets flying past -->
+          <g>
+            <rect x="50" y="44" width="22" height="12" fill="#5fd1ff" opacity="0.7"/>
+            <rect x="120" y="44" width="22" height="12" fill="#ffb648" opacity="0.7"/>
+            <rect x="200" y="44" width="22" height="12" fill="#ff7ad9" opacity="0.7"/>
+            <rect x="290" y="44" width="22" height="12" fill="#5dffb4" opacity="0.9"/>
+            <rect x="370" y="44" width="22" height="12" fill="#5fd1ff" opacity="0.7"/>
+          </g>
+
+          <!-- NIC -->
+          <rect x="160" y="100" width="140" height="50" fill="none" stroke="#5dffb4" stroke-width="1.2"/>
+          <text x="230" y="124" fill="#5dffb4" font-family="JetBrains Mono" font-size="11" text-anchor="middle" font-weight="600">NIC</text>
+          <text x="230" y="140" fill="#7a8985" font-family="JetBrains Mono" font-size="9" text-anchor="middle">promiscuous mode</text>
+
+          <!-- arrow down from one packet -->
+          <line x1="300" y1="56" x2="230" y2="100" stroke="#5dffb4" stroke-width="1" stroke-dasharray="2,3"/>
+          <polygon points="225,98 234,103 230,108" fill="#5dffb4"/>
+
+          <!-- libpcap -->
+          <rect x="160" y="170" width="140" height="36" fill="none" stroke="#5fd1ff" stroke-width="1.2"/>
+          <text x="230" y="193" fill="#5fd1ff" font-family="JetBrains Mono" font-size="11" text-anchor="middle">libpcap / Npcap</text>
+
+          <line x1="230" y1="150" x2="230" y2="170" stroke="#5fd1ff" stroke-width="1"/>
+
+          <!-- analyser -->
+          <rect x="160" y="226" width="140" height="36" fill="none" stroke="#ffb648" stroke-width="1.2"/>
+          <text x="230" y="249" fill="#ffb648" font-family="JetBrains Mono" font-size="11" text-anchor="middle">Wireshark / tcpdump</text>
+
+          <line x1="230" y1="206" x2="230" y2="226" stroke="#ffb648" stroke-width="1"/>
+
+          <!-- decode labels -->
+          <text x="320" y="244" fill="#7a8985" font-family="JetBrains Mono" font-size="9">decoded ↑</text>
+          <text x="320" y="186" fill="#7a8985" font-family="JetBrains Mono" font-size="9">raw bytes ↑</text>
+          <text x="320" y="124" fill="#7a8985" font-family="JetBrains Mono" font-size="9">all frames ↑</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- KEY CONCEPTS -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">04 / Vocabulary</span>
+      <h2>Words you will <em>see</em> everywhere.</h2>
+    </div>
+    <p class="section-desc">
+      Capture tools assume you know this language. Each term ties back to a layer of the OSI model — knowing which one helps you filter and read traffic with precision.
+    </p>
+
+    <div class="concept-grid">
+      <div class="concept">
+        <div class="num">01 · L2</div>
+        <h4>Frame</h4>
+        <p>A unit of data at the Data Link layer, wrapped in an Ethernet header containing source &amp; destination <code>MAC</code> addresses.</p>
+      </div>
+      <div class="concept">
+        <div class="num">02 · L3</div>
+        <h4>Packet</h4>
+        <p>An IP-layer unit carrying source &amp; destination <code>IP</code> addresses, allowing routing across networks.</p>
+      </div>
+      <div class="concept">
+        <div class="num">03 · L4</div>
+        <h4>Segment</h4>
+        <p>A TCP-layer unit with <code>port</code> numbers, sequence numbers, and flags like <code>SYN</code>, <code>ACK</code>, <code>FIN</code>.</p>
+      </div>
+      <div class="concept">
+        <div class="num">04</div>
+        <h4>Promiscuous Mode</h4>
+        <p>NIC setting that accepts <strong>every</strong> frame on the wire, not just frames addressed to its own MAC.</p>
+      </div>
+      <div class="concept">
+        <div class="num">05</div>
+        <h4>BPF Filter</h4>
+        <p>Berkeley Packet Filter expressions like <code>tcp port 443</code> or <code>host 8.8.8.8</code> that narrow what you capture.</p>
+      </div>
+      <div class="concept">
+        <div class="num">06</div>
+        <h4>PCAP</h4>
+        <p>The standard file format (<code>.pcap</code>, <code>.pcapng</code>) for storing captured traffic so it can be replayed or analysed later.</p>
+      </div>
+      <div class="concept">
+        <div class="num">07</div>
+        <h4>Port Mirroring (SPAN)</h4>
+        <p>A switch feature that copies traffic from one port to another, so a sniffer attached to the mirror port can see all conversations.</p>
+      </div>
+      <div class="concept">
+        <div class="num">08</div>
+        <h4>ARP Spoofing</h4>
+        <p>An active attack that tricks a switch into forwarding traffic to the attacker — used to enable sniffing on a switched LAN.</p>
+      </div>
+      <div class="concept">
+        <div class="num">09</div>
+        <h4>TLS / Encryption</h4>
+        <p>Above TCP, payloads are typically encrypted. A sniffer still sees the metadata (IPs, ports, SNI) but not the message body.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOOLS -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">05 / Toolbox</span>
+      <h2>Tools of the <em>trade</em>.</h2>
+    </div>
+    <p class="section-desc">
+      Once the fundamentals click, these are the tools you will use to actually capture and dissect traffic. Start with Wireshark for the visual experience, then graduate to tcpdump on a remote server.
+    </p>
+
+    <div class="tool-list">
+      <div class="tool">
+        <span class="name">Wireshark</span>
+        <span class="desc">Cross-platform GUI analyser. Decodes thousands of protocols, colour-codes conversations, and lets you follow a TCP stream end-to-end.</span>
+        <span class="tag">GUI · Cross-platform</span>
+      </div>
+      <div class="tool">
+        <span class="name">tcpdump</span>
+        <span class="desc">The classic command-line sniffer for Unix/Linux. Lightweight, scriptable, perfect for capturing on remote servers and writing to <code style="font-family:var(--mono);color:var(--cyan)">.pcap</code>.</span>
+        <span class="tag">CLI · *nix</span>
+      </div>
+      <div class="tool">
+        <span class="name">tshark</span>
+        <span class="desc">The terminal version of Wireshark. Same powerful dissectors, scriptable output — great for automation pipelines.</span>
+        <span class="tag">CLI</span>
+      </div>
+      <div class="tool">
+        <span class="name">Scapy</span>
+        <span class="desc">Python library to capture, craft, and replay packets. The bridge from learning to building your own tools.</span>
+        <span class="tag">Python · Library</span>
+      </div>
+      <div class="tool">
+        <span class="name">ngrep</span>
+        <span class="desc">grep, but for network traffic. Search live captures for strings or regex patterns. Handy for quick text-level inspection.</span>
+        <span class="tag">CLI · *nix</span>
+      </div>
+    </div>
+
+    <div class="warning">
+      <div class="icon">!</div>
+      <div>
+        <h4>Use these powers responsibly.</h4>
+        <p>Sniffing traffic on a network you do not own — or do not have explicit permission to monitor — is illegal in most jurisdictions. Practise on your own lab, on virtual machines, or on networks where you have written authorisation. The goal of this lesson is <strong style="color:var(--ink)">defence and understanding</strong>, not intrusion.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEARNING PATH -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">06 / Path</span>
+      <h2>Suggested <em>learning order</em>.</h2>
+    </div>
+    <p class="section-desc">
+      If you are brand new to networking, walk through the fundamentals in this order. Each step builds the mental model required for the next.
+    </p>
+
+    <div class="concept-grid" style="grid-template-columns:1fr">
+      <div class="concept" style="display:grid;grid-template-columns:60px 1fr auto;gap:24px;align-items:center">
+        <div style="font-family:var(--display);font-size:36px;font-weight:300;color:var(--phosphor);line-height:1">01</div>
+        <div>
+          <h4 style="margin-bottom:4px">Walk the OSI model</h4>
+          <p>See what each of the 7 layers does, and how data is wrapped on the way down and unwrapped on the way up.</p>
+        </div>
+        <a href="osi-model-interactive.html" style="font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan);text-decoration:none;border:1px solid var(--cyan);padding:10px 16px">Open →</a>
+      </div>
+
+      <div class="concept" style="display:grid;grid-template-columns:60px 1fr auto;gap:24px;align-items:center">
+        <div style="font-family:var(--display);font-size:36px;font-weight:300;color:var(--phosphor);line-height:1">02</div>
+        <div>
+          <h4 style="margin-bottom:4px">See a TCP handshake form</h4>
+          <p>Watch SYN, SYN-ACK, and ACK travel between two endpoints — the same three packets you will spot at the start of every TCP capture.</p>
+        </div>
+        <a href="tcp-handshake.html" style="font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--phosphor);text-decoration:none;border:1px solid var(--phosphor);padding:10px 16px">Open →</a>
+      </div>
+
+      <div class="concept" style="display:grid;grid-template-columns:60px 1fr auto;gap:24px;align-items:center">
+        <div style="font-family:var(--display);font-size:36px;font-weight:300;color:var(--amber);line-height:1">03</div>
+        <div>
+          <h4 style="margin-bottom:4px">Watch a sniffer in action</h4>
+          <p>An interactive visualization of a packet sniffer — see frames being captured off the wire, headers being decoded, and a live stream of traffic appearing on screen, exactly the way Wireshark would render it.</p>
+        </div>
+        <a href="../network-packet-sniffer.html" style="font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--amber);text-decoration:none;border:1px solid var(--amber);padding:10px 16px">Open →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>Packet Sniffing · Security Concepts · AIKYA</p>
+    <p>Lessons: <a href="osi-model-interactive.html">OSI</a> · <a href="tcp-handshake.html">TCP Handshake</a> · <a href="../network-packet-sniffer.html">Packet Sniffer</a></p>
+  </footer>
+
+</div>
+
+</body>
+</html>

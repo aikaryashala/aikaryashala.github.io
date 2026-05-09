@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OSI Model — An Interactive Journey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e1a;
+    --bg-2:#0f1424;
+    --panel:#141b2e;
+    --panel-2:#1a2238;
+    --line:rgba(255,255,255,0.08);
+    --line-2:rgba(255,255,255,0.14);
+    --text:#e8ecf5;
+    --text-dim:#8a92a8;
+    --text-faint:#5a6275;
+    --accent:#7df9ff;
+
+    /* Layer colors (1 → 7) */
+    --c1:#22d3ee;  /* Physical    - cyan */
+    --c2:#34d399;  /* Data Link   - emerald */
+    --c3:#fbbf24;  /* Network     - amber */
+    --c4:#fb923c;  /* Transport   - orange */
+    --c5:#f472b6;  /* Session     - pink */
+    --c6:#a78bfa;  /* Presentation- violet */
+    --c7:#818cf8;  /* Application - indigo */
+
+    --display:'Bricolage Grotesque', system-ui, sans-serif;
+    --mono:'JetBrains Mono', ui-monospace, monospace;
+    --body:'Outfit', system-ui, sans-serif;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font-family:var(--body);font-weight:400;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+  /* Background atmosphere */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(800px 500px at 15% -5%, rgba(129,140,248,0.12), transparent 60%),
+      radial-gradient(700px 400px at 95% 20%, rgba(34,211,238,0.10), transparent 60%),
+      radial-gradient(900px 600px at 50% 110%, rgba(244,114,182,0.08), transparent 60%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size:48px 48px;
+    mask-image:radial-gradient(ellipse 100% 80% at 50% 30%, #000 20%, transparent 80%);
+  }
+
+  main{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:48px 32px 96px}
+
+  /* HEADER */
+  header{margin-bottom:64px}
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:0.2em;text-transform:uppercase;
+    color:var(--text-dim);display:inline-flex;align-items:center;gap:10px;margin-bottom:20px;
+  }
+  .eyebrow .dot{width:8px;height:8px;background:var(--c1);border-radius:50%;box-shadow:0 0 12px var(--c1)}
+  h1{
+    font-family:var(--display);font-weight:500;font-size:clamp(40px,6vw,76px);
+    line-height:0.98;letter-spacing:-0.025em;margin-bottom:18px;
+  }
+  h1 .accent{
+    font-style:italic;font-weight:400;
+    background:linear-gradient(110deg,var(--c1),var(--c5),var(--c7));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .lede{font-size:18px;color:var(--text-dim);max-width:680px;line-height:1.6}
+
+  /* HERO — the journey visual */
+  .hero{
+    margin-top:48px;padding:36px;border:1px solid var(--line);border-radius:24px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+    position:relative;overflow:hidden;
+  }
+  .hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center}
+  .hero-text h2{font-family:var(--display);font-weight:500;font-size:26px;letter-spacing:-0.015em;margin-bottom:12px}
+  .hero-text p{color:var(--text-dim);font-size:15px;margin-bottom:20px}
+  .send-btn{
+    font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:0.05em;
+    background:var(--text);color:var(--bg);border:none;padding:14px 22px;border-radius:999px;
+    cursor:pointer;display:inline-flex;align-items:center;gap:10px;transition:all .25s ease;
+  }
+  .send-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(125,249,255,0.25)}
+  .send-btn .arrow{transition:transform .25s ease}
+  .send-btn:hover .arrow{transform:translateX(4px)}
+
+  .hero-visual{position:relative;height:280px}
+  .hero-visual svg{width:100%;height:100%;overflow:visible}
+
+  @media(max-width:780px){.hero-grid{grid-template-columns:1fr}.hero-visual{height:220px}}
+
+  /* SECTION HEADINGS */
+  .section{margin-top:96px}
+  .section-title{display:flex;align-items:baseline;gap:16px;margin-bottom:32px;flex-wrap:wrap}
+  .section-num{font-family:var(--mono);font-size:13px;color:var(--text-faint);letter-spacing:0.1em}
+  .section-title h2{font-family:var(--display);font-weight:500;font-size:36px;letter-spacing:-0.02em}
+  .section-title .desc{color:var(--text-dim);font-size:15px;margin-left:auto;max-width:380px}
+
+  /* LAYER EXPLORER */
+  .explorer{display:grid;grid-template-columns:380px 1fr;gap:24px}
+  @media(max-width:900px){.explorer{grid-template-columns:1fr}}
+
+  .stack{display:flex;flex-direction:column;gap:8px}
+  .layer{
+    position:relative;border:1px solid var(--line);border-radius:14px;padding:18px 20px;
+    background:var(--panel);cursor:pointer;transition:all .25s ease;
+    display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;
+  }
+  .layer:hover{transform:translateX(4px);border-color:var(--line-2);background:var(--panel-2)}
+  .layer.active{
+    background:var(--panel-2);border-color:transparent;
+    box-shadow:0 0 0 1px var(--layer-color), 0 8px 32px -8px var(--layer-color);
+  }
+  .layer .num{
+    font-family:var(--mono);font-size:11px;font-weight:500;
+    width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,0.04);color:var(--layer-color);border:1px solid var(--line);
+  }
+  .layer.active .num{background:var(--layer-color);color:var(--bg);border-color:var(--layer-color)}
+  .layer .label{display:flex;flex-direction:column;gap:3px}
+  .layer .name{font-family:var(--display);font-size:17px;font-weight:500;letter-spacing:-0.01em}
+  .layer .analogy{font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:0.03em}
+  .layer .chevron{color:var(--text-faint);transition:transform .25s ease;font-size:18px}
+  .layer.active .chevron{transform:rotate(90deg);color:var(--layer-color)}
+
+  /* DETAIL PANEL */
+  .detail{
+    border:1px solid var(--line);border-radius:24px;padding:36px;
+    background:linear-gradient(180deg,var(--panel),var(--bg-2));
+    position:relative;overflow:hidden;min-height:560px;
+  }
+  .detail::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:2px;
+    background:var(--detail-color, var(--accent));
+  }
+  .detail-head{display:flex;align-items:flex-start;gap:24px;margin-bottom:28px;flex-wrap:wrap}
+  .detail-num{
+    font-family:var(--display);font-weight:300;font-size:84px;line-height:0.85;letter-spacing:-0.04em;
+    color:var(--detail-color);
+  }
+  .detail-title-block{flex:1;min-width:200px}
+  .detail-kicker{font-family:var(--mono);font-size:11px;color:var(--text-faint);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:6px}
+  .detail-name{font-family:var(--display);font-weight:500;font-size:38px;letter-spacing:-0.02em;line-height:1.05;margin-bottom:8px}
+  .detail-tag{
+    display:inline-block;padding:5px 12px;border-radius:999px;font-family:var(--mono);font-size:11px;
+    background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--text-dim);letter-spacing:0.05em;
+  }
+
+  .analogy-card{
+    margin-bottom:28px;padding:24px;border-radius:16px;
+    background:rgba(255,255,255,0.02);border:1px dashed var(--line-2);
+    display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;
+  }
+  .analogy-icon{
+    width:64px;height:64px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,0.03);border:1px solid var(--line);color:var(--detail-color);
+  }
+  .analogy-text .label{font-family:var(--mono);font-size:11px;color:var(--text-faint);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:6px}
+  .analogy-text .body{font-family:var(--display);font-size:20px;font-weight:500;letter-spacing:-0.01em;line-height:1.3}
+
+  .detail-body{font-size:15px;color:var(--text);line-height:1.7;margin-bottom:24px}
+  .detail-body strong{color:var(--detail-color);font-weight:600}
+
+  .detail-meta{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px}
+  @media(max-width:600px){.detail-meta{grid-template-columns:1fr}}
+  .meta-block{padding:18px;border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,0.2)}
+  .meta-block .meta-label{font-family:var(--mono);font-size:10px;color:var(--text-faint);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px}
+  .meta-block .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{
+    font-family:var(--mono);font-size:11px;padding:4px 10px;border-radius:6px;
+    background:rgba(255,255,255,0.04);color:var(--text);border:1px solid var(--line);
+  }
+
+  /* PACKET JOURNEY */
+  .journey{
+    border:1px solid var(--line);border-radius:24px;padding:36px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+  }
+  .journey-controls{display:flex;align-items:center;gap:16px;margin-bottom:32px;flex-wrap:wrap}
+  .play-btn{
+    font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;
+    background:transparent;color:var(--text);border:1px solid var(--line-2);padding:10px 18px;border-radius:999px;
+    cursor:pointer;display:inline-flex;align-items:center;gap:10px;transition:all .2s ease;
+  }
+  .play-btn:hover{background:rgba(255,255,255,0.04);border-color:var(--text)}
+  .play-btn.primary{background:var(--text);color:var(--bg);border-color:var(--text)}
+  .play-btn.primary:hover{background:var(--c1);color:var(--bg);border-color:var(--c1);box-shadow:0 8px 24px rgba(34,211,238,0.3)}
+  .journey-status{font-family:var(--mono);font-size:12px;color:var(--text-dim);margin-left:auto}
+  .journey-status .live{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--text-faint);margin-right:8px;vertical-align:middle}
+  .journey-status.active .live{background:var(--c2);box-shadow:0 0 10px var(--c2);animation:pulse 1.2s ease-in-out infinite}
+  @keyframes pulse{50%{opacity:0.4}}
+
+  .journey-stage{position:relative;height:520px;display:grid;grid-template-columns:1fr 1fr;gap:0}
+  @media(max-width:780px){.journey-stage{height:auto;grid-template-columns:1fr;gap:32px}}
+
+  .endpoint{
+    position:relative;padding:24px;border-radius:16px;border:1px solid var(--line);
+    background:var(--panel);display:flex;flex-direction:column;justify-content:space-between;
+  }
+  .endpoint .head{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .endpoint .head .badge{font-family:var(--mono);font-size:10px;letter-spacing:0.15em;color:var(--text-faint);text-transform:uppercase}
+  .endpoint .head .name{font-family:var(--display);font-size:18px;font-weight:500}
+
+  .mini-stack{display:flex;flex-direction:column;gap:4px;flex:1;justify-content:center}
+  .mini-layer{
+    padding:9px 12px;border-radius:8px;font-family:var(--mono);font-size:11px;letter-spacing:0.03em;
+    border:1px solid var(--line);background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:space-between;
+    transition:all .35s ease;
+  }
+  .mini-layer .ml-num{color:var(--text-faint);width:18px}
+  .mini-layer .ml-name{flex:1;color:var(--text-dim)}
+  .mini-layer .ml-header{font-size:10px;color:var(--text-faint);font-style:italic;opacity:0;transition:opacity .3s ease}
+  .mini-layer.lit{
+    border-color:var(--ml-color);background:color-mix(in srgb, var(--ml-color) 10%, transparent);
+    box-shadow:0 0 20px -4px var(--ml-color);
+  }
+  .mini-layer.lit .ml-num{color:var(--ml-color)}
+  .mini-layer.lit .ml-name{color:var(--text)}
+  .mini-layer.lit .ml-header{opacity:1;color:var(--ml-color)}
+
+  .wire{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
+  @media(max-width:780px){.wire{display:none}}
+  .wire svg{display:block}
+
+  .packet{
+    position:absolute;width:auto;padding:6px 12px;border-radius:8px;font-family:var(--mono);font-size:11px;
+    background:var(--c1);color:var(--bg);font-weight:600;letter-spacing:0.03em;
+    box-shadow:0 0 30px var(--c1);
+    transition:all .55s cubic-bezier(.65,.05,.36,1);opacity:0;pointer-events:none;
+    white-space:nowrap;
+  }
+  .packet.visible{opacity:1}
+
+  /* QUIZ */
+  .quiz{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+  @media(max-width:820px){.quiz{grid-template-columns:1fr}}
+  .quiz-col{display:flex;flex-direction:column;gap:10px}
+  .quiz-col h3{font-family:var(--mono);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px}
+  .quiz-card{
+    padding:16px 18px;border:1px solid var(--line);border-radius:12px;background:var(--panel);
+    cursor:pointer;transition:all .2s ease;display:flex;align-items:center;gap:14px;
+    user-select:none;
+  }
+  .quiz-card:hover{border-color:var(--line-2);background:var(--panel-2)}
+  .quiz-card.selected{border-color:var(--c1);background:rgba(34,211,238,0.06);box-shadow:0 0 0 1px var(--c1)}
+  .quiz-card.matched{
+    border-color:var(--qc, var(--c2));background:color-mix(in srgb, var(--qc, var(--c2)) 8%, transparent);
+    cursor:default;opacity:0.85;
+  }
+  .quiz-card.wrong{animation:shake .4s ease;border-color:#f87171}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .quiz-card .qc-icon{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--qc, var(--text-dim))}
+  .quiz-card.matched .qc-icon{color:var(--qc)}
+  .quiz-card .qc-text{font-size:14px}
+  .quiz-card .qc-sub{font-family:var(--mono);font-size:10px;color:var(--text-faint);letter-spacing:0.05em;margin-top:2px}
+  .quiz-score{
+    margin-top:24px;padding:16px 20px;border-radius:12px;font-family:var(--mono);font-size:13px;
+    background:rgba(255,255,255,0.03);border:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;
+  }
+  .quiz-score .reset{font-family:var(--mono);font-size:11px;color:var(--text-dim);background:none;border:none;cursor:pointer;text-decoration:underline}
+  .quiz-score .reset:hover{color:var(--text)}
+
+  /* FOOTER */
+  footer{margin-top:96px;padding-top:32px;border-top:1px solid var(--line);
+         display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+  footer p{font-family:var(--mono);font-size:11px;color:var(--text-faint);letter-spacing:0.05em}
+
+  /* Animation utilities */
+  .fade-in{animation:fadeIn .5s ease both}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<main>
+
+<!-- HEADER -->
+<header>
+  <div class="eyebrow"><span class="dot"></span>Networking · 7-Layer Reference Model</div>
+  <h1>The OSI model,<br/><span class="accent">told as a story.</span></h1>
+  <p class="lede">Every time you load a webpage, your data travels through seven layers of cooperation — from the browser on your screen, all the way down to electrical signals on a copper wire. Click around. Watch the packet move. Learn by doing.</p>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <h2>What happens when you visit <code style="font-family:var(--mono);background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:6px;font-size:0.9em">google.com</code>?</h2>
+        <p>Seven invisible layers spring into action — each one with a job, a vocabulary, and a real-world piece of hardware (or software) doing the work. Press the button to watch one packet's complete round trip.</p>
+        <button class="send-btn" id="heroSend">
+          <span>Trace a request</span>
+          <span class="arrow">→</span>
+        </button>
+      </div>
+      <div class="hero-visual">
+        <svg viewBox="0 0 500 280" preserveAspectRatio="xMidYMid meet">
+          <!-- Laptop -->
+          <g transform="translate(40,90)">
+            <rect x="0" y="0" width="120" height="76" rx="6" fill="none" stroke="#34d399" stroke-width="1.5" opacity="0.7"/>
+            <rect x="8" y="8" width="104" height="58" rx="2" fill="rgba(52,211,153,0.06)" stroke="#34d399" stroke-width="0.8" opacity="0.5"/>
+            <rect x="-10" y="76" width="140" height="6" rx="2" fill="none" stroke="#34d399" stroke-width="1.5" opacity="0.7"/>
+            <text x="60" y="42" font-family="JetBrains Mono" font-size="10" fill="#34d399" text-anchor="middle" opacity="0.85">YOU</text>
+            <text x="60" y="100" font-family="JetBrains Mono" font-size="9" fill="#8a92a8" text-anchor="middle" letter-spacing="1">CLIENT</text>
+          </g>
+
+          <!-- Server -->
+          <g transform="translate(360,84)">
+            <rect x="0" y="0" width="100" height="20" rx="3" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity="0.7"/>
+            <rect x="0" y="26" width="100" height="20" rx="3" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity="0.7"/>
+            <rect x="0" y="52" width="100" height="20" rx="3" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity="0.7"/>
+            <circle cx="10" cy="10" r="2" fill="#34d399"/>
+            <circle cx="10" cy="36" r="2" fill="#34d399"/>
+            <circle cx="10" cy="62" r="2" fill="#fbbf24"/>
+            <text x="50" y="92" font-family="JetBrains Mono" font-size="9" fill="#8a92a8" text-anchor="middle" letter-spacing="1">SERVER</text>
+          </g>
+
+          <!-- Switch -->
+          <g transform="translate(180,130)">
+            <rect x="0" y="0" width="50" height="22" rx="3" fill="rgba(251,191,36,0.05)" stroke="#fbbf24" stroke-width="1.2"/>
+            <circle cx="10" cy="11" r="1.5" fill="#fbbf24"/>
+            <circle cx="20" cy="11" r="1.5" fill="#fbbf24" opacity="0.5"/>
+            <circle cx="30" cy="11" r="1.5" fill="#fbbf24" opacity="0.5"/>
+            <circle cx="40" cy="11" r="1.5" fill="#fbbf24"/>
+            <text x="25" y="38" font-family="JetBrains Mono" font-size="8" fill="#fbbf24" text-anchor="middle">SWITCH</text>
+          </g>
+
+          <!-- Router -->
+          <g transform="translate(280,130)">
+            <circle cx="14" cy="11" r="13" fill="rgba(251,146,60,0.05)" stroke="#fb923c" stroke-width="1.2"/>
+            <path d="M 8 11 L 20 11 M 14 5 L 14 17 M 9 6 L 19 16 M 19 6 L 9 16" stroke="#fb923c" stroke-width="0.8" opacity="0.7"/>
+            <text x="14" y="38" font-family="JetBrains Mono" font-size="8" fill="#fb923c" text-anchor="middle">ROUTER</text>
+          </g>
+
+          <!-- Connecting lines -->
+          <path d="M 160 128 L 180 141" stroke="#5a6275" stroke-width="1" stroke-dasharray="3,3" fill="none"/>
+          <path d="M 230 141 L 280 141" stroke="#5a6275" stroke-width="1" stroke-dasharray="3,3" fill="none"/>
+          <path d="M 308 141 L 360 120" stroke="#5a6275" stroke-width="1" stroke-dasharray="3,3" fill="none"/>
+
+          <!-- Animated packet -->
+          <g id="heroPacket" opacity="0">
+            <rect x="-14" y="-8" width="28" height="16" rx="3" fill="#22d3ee"/>
+            <text x="0" y="3" font-family="JetBrains Mono" font-size="8" fill="#0a0e1a" text-anchor="middle" font-weight="700">GET</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- LAYER EXPLORER -->
+<section class="section">
+  <div class="section-title">
+    <span class="section-num">01 / Explore</span>
+    <h2>Click a layer.</h2>
+    <p class="desc">Each layer has a job, a real-world analogy, and tools it speaks with. Tap to inspect.</p>
+  </div>
+
+  <div class="explorer">
+    <div class="stack" id="stack"></div>
+    <div class="detail" id="detail"></div>
+  </div>
+</section>
+
+<!-- PACKET JOURNEY -->
+<section class="section">
+  <div class="section-title">
+    <span class="section-num">02 / Simulate</span>
+    <h2>Watch a packet travel.</h2>
+    <p class="desc">Press play. Your data is wrapped layer by layer (encapsulation), sent across, then unwrapped on the other side.</p>
+  </div>
+
+  <div class="journey">
+    <div class="journey-controls">
+      <button class="play-btn primary" id="playBtn">▶ Send packet</button>
+      <button class="play-btn" id="resetBtn">↺ Reset</button>
+      <div class="journey-status" id="journeyStatus"><span class="live"></span>Idle</div>
+    </div>
+
+    <div class="journey-stage" id="stage">
+      <!-- CLIENT -->
+      <div class="endpoint">
+        <div class="head">
+          <span class="badge">Client</span>
+          <span class="name">Your Laptop</span>
+        </div>
+        <div class="mini-stack" id="clientStack"></div>
+      </div>
+
+      <!-- WIRE -->
+      <div class="wire">
+        <svg width="120" height="60" viewBox="0 0 120 60">
+          <line x1="0" y1="30" x2="120" y2="30" stroke="#5a6275" stroke-width="1" stroke-dasharray="4,4"/>
+          <text x="60" y="20" font-family="JetBrains Mono" font-size="9" fill="#5a6275" text-anchor="middle" letter-spacing="1">NETWORK</text>
+        </svg>
+      </div>
+
+      <!-- SERVER -->
+      <div class="endpoint">
+        <div class="head">
+          <span class="badge">Server</span>
+          <span class="name">google.com</span>
+        </div>
+        <div class="mini-stack" id="serverStack"></div>
+      </div>
+
+      <!-- The travelling packet -->
+      <div class="packet" id="packet">DATA</div>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section class="section">
+  <div class="section-title">
+    <span class="section-num">03 / Test yourself</span>
+    <h2>Match analogy → layer.</h2>
+    <p class="desc">Click an item on the left, then click the layer on the right. Match all seven.</p>
+  </div>
+
+  <div class="journey">
+    <div class="quiz">
+      <div class="quiz-col">
+        <h3>Real-world thing</h3>
+        <div id="quizLeft"></div>
+      </div>
+      <div class="quiz-col">
+        <h3>OSI Layer</h3>
+        <div id="quizRight"></div>
+      </div>
+    </div>
+    <div class="quiz-score" id="quizScore">
+      <span>Matches: <span id="scoreNum">0</span> / 7</span>
+      <button class="reset" id="quizReset">Reset quiz</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>OSI MODEL · INTERACTIVE LESSON · BUILT FOR LEARNERS</p>
+  <p>Layers 1 → 7 · Encapsulate · Decapsulate · Repeat</p>
+</footer>
+
+</main>
+
+<script>
+/* =======================================================================
+   DATA — the seven layers, with the user's analogy
+   ======================================================================= */
+const LAYERS = [
+  {
+    n:7, name:'Application', tag:'Layer 7', color:'var(--c7)',
+    analogy:'The Browser',
+    analogyDetail:'Your web browser (Chrome, Firefox, Safari) — where you type the URL and see the result.',
+    body:'The layer <strong>you actually see</strong>. Applications speak human-friendly protocols here. When you type a URL and hit Enter, the browser uses <strong>HTTP</strong> to ask for a page. It is the <em>door</em> through which all the magic begins.',
+    examples:['HTTP','HTTPS','DNS','SMTP','FTP','SSH'],
+    devices:['Browser','Email client','Curl','Postman'],
+    miniHeader:'HTTP',
+    icon:`<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg>`
+  },
+  {
+    n:6, name:'Presentation', tag:'Layer 6', color:'var(--c6)',
+    analogy:'The Browser (rendering & encryption)',
+    analogyDetail:'The browser again — but the part that decrypts HTTPS, decodes images, parses HTML/CSS, handles character sets.',
+    body:'The <strong>translator</strong>. Data arrives encoded, compressed, or encrypted — this layer turns it into something the application can use. It handles <strong>SSL/TLS encryption</strong>, image formats (JPEG/PNG), and character encoding (UTF-8). Same browser, different job.',
+    examples:['TLS','SSL','JPEG','PNG','UTF-8','GZIP'],
+    devices:['Browser engine','TLS library','Codecs'],
+    miniHeader:'TLS',
+    icon:`<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>`
+  },
+  {
+    n:5, name:'Session', tag:'Layer 5', color:'var(--c5)',
+    analogy:'The browser session',
+    analogyDetail:'The conversation itself — staying logged in, keeping cookies alive, starting and ending the dialogue.',
+    body:'Manages the <strong>conversation</strong> between two devices. It opens, maintains, and closes <strong>sessions</strong> — like keeping you logged in across multiple page loads. Cookies and session tokens live around here.',
+    examples:['NetBIOS','RPC','PPTP','SOCKS'],
+    devices:['Session cookies','Auth tokens','API gateways'],
+    miniHeader:'SES',
+    icon:`<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`
+  },
+  {
+    n:4, name:'Transport', tag:'Layer 4', color:'var(--c4)',
+    analogy:'Connection establishment (TCP)',
+    analogyDetail:'The famous 3-way handshake — SYN, SYN-ACK, ACK — that sets up a reliable, ordered pipe between two computers.',
+    body:'Decides <strong>how</strong> data is delivered. <strong>TCP</strong> sets up a reliable connection (3-way handshake), checks every packet, and re-sends what is lost. <strong>UDP</strong> just fires data and forgets — faster, but no guarantees. Ports live here too: <code style="color:var(--detail-color);font-family:var(--mono)">:80</code>, <code style="color:var(--detail-color);font-family:var(--mono)">:443</code>.',
+    examples:['TCP','UDP','SCTP','QUIC'],
+    devices:['Firewalls (L4)','Load balancers'],
+    miniHeader:'TCP',
+    icon:`<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17l-4-4 4-4M17 7l4 4-4 4M14 3l-4 18"/></svg>`
+  },
+  {
+    n:3, name:'Network', tag:'Layer 3', color:'var(--c3)',
+    analogy:'Routers',
+    analogyDetail:'Routers — the devices that read IP addresses and decide which network to forward your packet to next.',
+    body:'The <strong>map and the postal service</strong>. This layer adds <strong>IP addresses</strong> to your packet and lets <strong>routers</strong> figure out the best path across networks. Without this layer, your data could not leave your home network.',
+    examples:['IP','ICMP','OSPF','BGP'],
+    devices:['Routers','Layer-3 switches'],
+    miniHeader:'IP',
+    icon:`<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"/></svg>`
+  },
+  {
+    n:2, name:'Data Link', tag:'Layer 2', color:'var(--c2)',
+    analogy:'Switch',
+    analogyDetail:'A network switch — moves frames between devices on the same local network using MAC addresses.',
+    body:'The <strong>local neighborhood</strong>. Inside one network (your home Wi-Fi, an office LAN), a <strong>switch</strong> uses <strong>MAC addresses</strong> to forward frames to the right device. It only cares about the local hop, not the wider internet.',
+    examples:['Ethernet','Wi-Fi (802.11)','PPP','ARP'],
+    devices:['Switches','Wi-Fi access points','Bridges'],
+    miniHeader:'MAC',
+    icon:`<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="9" width="20" height="6" rx="1"/><circle cx="6" cy="12" r="1"/><circle cx="10" cy="12" r="1"/><circle cx="14" cy="12" r="1"/><circle cx="18" cy="12" r="1"/></svg>`
+  },
+  {
+    n:1, name:'Physical', tag:'Layer 1', color:'var(--c1)',
+    analogy:'Laptop hardware',
+    analogyDetail:'Your laptop\'s network card, the Ethernet cable, the radio waves of Wi-Fi — actual electrical and electromagnetic signals.',
+    body:'The <strong>real, physical world</strong>. Bits become <strong>electrical pulses, light flashes, or radio waves</strong>. Cables, connectors, NIC chips, and antennas — everything you can actually touch lives here. Without this layer, every other layer is just an idea.',
+    examples:['Ethernet cable','Fiber optic','Wi-Fi radio','Bluetooth'],
+    devices:['NIC','Hubs','Repeaters','Cables'],
+    miniHeader:'BITS',
+    icon:`<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 14h2M10 14h6"/></svg>`
+  }
+];
+
+/* =======================================================================
+   LAYER EXPLORER
+   ======================================================================= */
+const stackEl = document.getElementById('stack');
+const detailEl = document.getElementById('detail');
+
+function renderStack(){
+  stackEl.innerHTML = LAYERS.map((L,i)=>`
+    <div class="layer" data-i="${i}" style="--layer-color:${L.color}">
+      <div class="num">${L.n}</div>
+      <div class="label">
+        <span class="name">${L.name}</span>
+        <span class="analogy">${L.analogy}</span>
+      </div>
+      <div class="chevron">›</div>
+    </div>
+  `).join('');
+  stackEl.querySelectorAll('.layer').forEach(el=>{
+    el.addEventListener('click',()=>selectLayer(parseInt(el.dataset.i)));
+  });
+}
+
+function selectLayer(i){
+  const L = LAYERS[i];
+  stackEl.querySelectorAll('.layer').forEach(el=>el.classList.toggle('active', parseInt(el.dataset.i)===i));
+  detailEl.style.setProperty('--detail-color', L.color);
+  detailEl.innerHTML = `
+    <div class="fade-in">
+      <div class="detail-head">
+        <div class="detail-num">${L.n}</div>
+        <div class="detail-title-block">
+          <div class="detail-kicker">${L.tag}</div>
+          <div class="detail-name">${L.name} Layer</div>
+          <span class="detail-tag">${L.miniHeader} header</span>
+        </div>
+      </div>
+
+      <div class="analogy-card">
+        <div class="analogy-icon">${L.icon}</div>
+        <div class="analogy-text">
+          <div class="label">In our analogy</div>
+          <div class="body">${L.analogy}</div>
+          <p style="font-size:13px;color:var(--text-dim);margin-top:8px;line-height:1.55">${L.analogyDetail}</p>
+        </div>
+      </div>
+
+      <p class="detail-body">${L.body}</p>
+
+      <div class="detail-meta">
+        <div class="meta-block">
+          <div class="meta-label">Protocols / Standards</div>
+          <div class="chips">${L.examples.map(e=>`<span class="chip">${e}</span>`).join('')}</div>
+        </div>
+        <div class="meta-block">
+          <div class="meta-label">Devices / Tools</div>
+          <div class="chips">${L.devices.map(e=>`<span class="chip">${e}</span>`).join('')}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+renderStack();
+selectLayer(0); // start with Application
+
+/* =======================================================================
+   PACKET JOURNEY
+   ======================================================================= */
+const clientStackEl = document.getElementById('clientStack');
+const serverStackEl = document.getElementById('serverStack');
+const packetEl = document.getElementById('packet');
+const playBtn = document.getElementById('playBtn');
+const resetBtn = document.getElementById('resetBtn');
+const statusEl = document.getElementById('journeyStatus');
+const stageEl = document.getElementById('stage');
+
+function renderMiniStacks(){
+  const html = LAYERS.map(L=>`
+    <div class="mini-layer" data-n="${L.n}" style="--ml-color:${L.color}">
+      <span class="ml-num">${L.n}</span>
+      <span class="ml-name">${L.name}</span>
+      <span class="ml-header">+${L.miniHeader}</span>
+    </div>
+  `).join('');
+  clientStackEl.innerHTML = html;
+  serverStackEl.innerHTML = html;
+}
+renderMiniStacks();
+
+function setStatus(text, active=true){
+  statusEl.textContent = '';
+  const live = document.createElement('span');
+  live.className = 'live';
+  statusEl.appendChild(live);
+  statusEl.append(text);
+  statusEl.classList.toggle('active', active);
+}
+
+function clearLit(){
+  document.querySelectorAll('.mini-layer').forEach(e=>e.classList.remove('lit'));
+}
+
+function placePacket(side, layerN, headers, label){
+  // Find the target mini-layer element
+  const stackContainer = side==='client' ? clientStackEl : serverStackEl;
+  const target = stackContainer.querySelector(`.mini-layer[data-n="${layerN}"]`);
+  if(!target) return;
+  const stageRect = stageEl.getBoundingClientRect();
+  const tRect = target.getBoundingClientRect();
+  const x = tRect.left - stageRect.left + tRect.width/2;
+  const y = tRect.top - stageRect.top + tRect.height/2;
+
+  // Build packet text with headers
+  packetEl.innerHTML = (headers.length ?
+    headers.map(h=>`<span style="background:rgba(0,0,0,0.2);padding:1px 4px;border-radius:3px;margin-right:3px">${h}</span>`).join('')
+    : '') + (label || 'DATA');
+
+  // First-time positioning — make visible
+  packetEl.classList.add('visible');
+  packetEl.style.left = (x - packetEl.offsetWidth/2) + 'px';
+  packetEl.style.top  = (y - packetEl.offsetHeight/2) + 'px';
+}
+
+function placePacketInWire(progress=0.5){
+  const stageRect = stageEl.getBoundingClientRect();
+  const x = stageRect.width * progress;
+  const y = stageRect.height / 2;
+  packetEl.innerHTML = `<span style="background:rgba(0,0,0,0.2);padding:1px 4px;border-radius:3px;margin-right:3px">L2</span><span style="background:rgba(0,0,0,0.2);padding:1px 4px;border-radius:3px;margin-right:3px">L3</span><span style="background:rgba(0,0,0,0.2);padding:1px 4px;border-radius:3px;margin-right:3px">L4</span>DATA`;
+  packetEl.classList.add('visible');
+  packetEl.style.left = (x - packetEl.offsetWidth/2) + 'px';
+  packetEl.style.top = (y - packetEl.offsetHeight/2) + 'px';
+}
+
+function lit(side, n){
+  const container = side==='client' ? clientStackEl : serverStackEl;
+  container.querySelector(`.mini-layer[data-n="${n}"]`)?.classList.add('lit');
+}
+
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+let playing = false;
+
+async function runJourney(){
+  if(playing) return;
+  playing = true;
+  playBtn.disabled = true;
+  playBtn.textContent = '● Sending...';
+  clearLit();
+
+  // Going DOWN the client stack (encapsulation)
+  const headerSequence = ['HTTP','TLS','SES','TCP','IP','MAC'];
+  for(let i=0;i<7;i++){
+    const L = LAYERS[i]; // top-down: 7 → 1
+    setStatus(`Client · L${L.n} ${L.name} encapsulating`);
+    lit('client', L.n);
+    const headers = headerSequence.slice(0, i);
+    placePacket('client', L.n, headers, 'DATA');
+    await sleep(620);
+  }
+
+  // Cross the wire
+  setStatus('Travelling across the network');
+  for(let p=0; p<=10; p++){
+    placePacketInWire(p/10);
+    await sleep(70);
+  }
+
+  // Going UP the server stack (decapsulation)
+  for(let i=6;i>=0;i--){
+    const L = LAYERS[i]; // bottom-up: 1 → 7
+    setStatus(`Server · L${L.n} ${L.name} decapsulating`);
+    lit('server', L.n);
+    const headers = headerSequence.slice(0, i);
+    placePacket('server', L.n, headers, 'DATA');
+    await sleep(620);
+  }
+
+  setStatus('Delivered ✓ Browser receives the response', false);
+  playBtn.disabled = false;
+  playBtn.textContent = '▶ Send again';
+  playing = false;
+}
+
+playBtn.addEventListener('click', runJourney);
+resetBtn.addEventListener('click', ()=>{
+  if(playing) return;
+  clearLit();
+  packetEl.classList.remove('visible');
+  setStatus('Idle', false);
+  playBtn.textContent = '▶ Send packet';
+});
+
+// Hero "Trace a request" button: scroll to journey + auto-play
+document.getElementById('heroSend').addEventListener('click', ()=>{
+  document.getElementById('stage').scrollIntoView({behavior:'smooth', block:'center'});
+  setTimeout(runJourney, 700);
+});
+
+/* =======================================================================
+   QUIZ — match analogies to layers
+   ======================================================================= */
+const QUIZ_ITEMS = [
+  {id:'browser',  text:'Browser (HTTP request)',         sub:'You type & see the page', layer:7, color:'var(--c7)'},
+  {id:'tls',      text:'HTTPS encryption / decoding',    sub:'TLS, JPEG, UTF-8',         layer:6, color:'var(--c6)'},
+  {id:'cookie',   text:'Login session / cookie',          sub:'Conversation state',        layer:5, color:'var(--c5)'},
+  {id:'tcp',      text:'TCP 3-way handshake',             sub:'SYN · SYN-ACK · ACK',       layer:4, color:'var(--c4)'},
+  {id:'router',   text:'Router',                          sub:'IP addressing',             layer:3, color:'var(--c3)'},
+  {id:'switch',   text:'Switch',                          sub:'MAC addresses',             layer:2, color:'var(--c2)'},
+  {id:'hardware', text:'Laptop NIC & Ethernet cable',     sub:'Physical signals',          layer:1, color:'var(--c1)'},
+];
+const ICONS = {
+  browser:'🌐', tls:'🔒', cookie:'🍪', tcp:'🤝', router:'🧭', switch:'🔀', hardware:'🔌'
+};
+
+const quizLeftEl = document.getElementById('quizLeft');
+const quizRightEl = document.getElementById('quizRight');
+const scoreNumEl = document.getElementById('scoreNum');
+const quizResetEl = document.getElementById('quizReset');
+
+let leftItems = [];
+let rightItems = [];
+let leftSel = null;
+let matched = new Set();
+
+function shuffle(a){
+  const arr = [...a];
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function renderQuiz(){
+  leftItems = shuffle(QUIZ_ITEMS);
+  rightItems = shuffle(QUIZ_ITEMS);
+  leftSel = null;
+  matched = new Set();
+
+  quizLeftEl.innerHTML = leftItems.map(it=>`
+    <div class="quiz-card" data-id="${it.id}" data-side="left" style="--qc:${it.color}">
+      <div class="qc-icon">${ICONS[it.id] || '·'}</div>
+      <div>
+        <div class="qc-text">${it.text}</div>
+        <div class="qc-sub">${it.sub}</div>
+      </div>
+    </div>
+  `).join('');
+
+  quizRightEl.innerHTML = rightItems.map(it=>`
+    <div class="quiz-card" data-id="${it.id}" data-side="right" style="--qc:${it.color}">
+      <div class="qc-icon">L${it.layer}</div>
+      <div>
+        <div class="qc-text">${LAYERS.find(L=>L.n===it.layer).name}</div>
+        <div class="qc-sub">Layer ${it.layer}</div>
+      </div>
+    </div>
+  `).join('');
+
+  document.querySelectorAll('.quiz-card').forEach(el=>{
+    el.addEventListener('click', ()=>handleQuizClick(el));
+  });
+  scoreNumEl.textContent = '0';
+}
+
+function handleQuizClick(el){
+  if(el.classList.contains('matched')) return;
+  const side = el.dataset.side;
+  const id = el.dataset.id;
+
+  if(side === 'left'){
+    document.querySelectorAll('.quiz-card[data-side="left"]').forEach(e=>e.classList.remove('selected'));
+    el.classList.add('selected');
+    leftSel = id;
+  } else {
+    if(!leftSel){
+      el.classList.add('wrong');
+      setTimeout(()=>el.classList.remove('wrong'), 400);
+      return;
+    }
+    if(leftSel === id){
+      // Match!
+      const leftEl = document.querySelector(`.quiz-card[data-side="left"][data-id="${id}"]`);
+      leftEl.classList.remove('selected');
+      leftEl.classList.add('matched');
+      el.classList.add('matched');
+      matched.add(id);
+      scoreNumEl.textContent = matched.size;
+      leftSel = null;
+      if(matched.size === 7){
+        setTimeout(()=>{
+          scoreNumEl.parentElement.innerHTML = '🎉 All 7 layers matched! You\'ve got this.';
+        }, 200);
+      }
+    } else {
+      el.classList.add('wrong');
+      setTimeout(()=>el.classList.remove('wrong'), 400);
+    }
+  }
+}
+
+quizResetEl.addEventListener('click', renderQuiz);
+renderQuiz();
+
+/* =======================================================================
+   HERO PACKET ANIMATION (small SVG)
+   ======================================================================= */
+const heroPacket = document.getElementById('heroPacket');
+const heroPath = [
+  {x:100, y:128}, // laptop
+  {x:205, y:141}, // switch
+  {x:294, y:141}, // router
+  {x:410, y:120}, // server
+];
+let heroAnimating = false;
+
+async function animateHeroPacket(){
+  if(heroAnimating) return;
+  heroAnimating = true;
+  heroPacket.style.transition = 'none';
+  heroPacket.setAttribute('transform', `translate(${heroPath[0].x},${heroPath[0].y})`);
+  heroPacket.setAttribute('opacity','1');
+  await sleep(50);
+  for(let i=1;i<heroPath.length;i++){
+    heroPacket.style.transition = 'transform 0.7s cubic-bezier(.65,.05,.36,1)';
+    heroPacket.setAttribute('transform', `translate(${heroPath[i].x},${heroPath[i].y})`);
+    await sleep(720);
+  }
+  await sleep(300);
+  heroPacket.setAttribute('opacity','0');
+  heroAnimating = false;
+}
+
+document.getElementById('heroSend').addEventListener('click', animateHeroPacket);
+// also auto-run once on load for delight
+setTimeout(animateHeroPacket, 1000);
+
+</script>
+</body>
+</html>
