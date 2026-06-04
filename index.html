@@ -3,127 +3,467 @@
 <head>
   <meta charset="UTF-8">
   <title>AI Karyashala</title>
-  <link rel="stylesheet" href="style.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --accent-blue: #3b82f6;
+      --accent-green: #10b981;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box;
+        font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif; }
+
+    body { background:#0b1020; color:#fff; overflow-x:hidden; }
+
+    /* ── Reveal ── */
+    body.js .reveal, body.js .reveal-item {
+      opacity:0; transform:translateY(24px);
+      transition:opacity .4s ease,transform .4s ease;
+      will-change:opacity,transform;
+    }
+    body.js .reveal.is-visible, body.js .reveal-item.is-visible { opacity:1; transform:translateY(0); }
+    @media(prefers-reduced-motion:reduce){ .reveal,.reveal-item{ transition:none;transform:none;opacity:1; } }
+
+    /* ── Header ── */
+    .header { position:sticky; top:16px; z-index:1000; display:flex; justify-content:center; }
+    .nav-shell {
+      width:min(1100px,100% - 40px); padding:10px 24px; border-radius:999px;
+      display:flex; gap:24px; align-items:center; justify-content:space-between;
+      background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
+      box-shadow:0 20px 60px rgba(2,6,23,0.4),inset 0 1px 0 rgba(255,255,255,0.08);
+      backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+    }
+    .nav-brand { display:flex; align-items:center; }
+    .nav-brand img { height:28px; }
+    .nav-links { display:flex; gap:20px; font-size:13px; letter-spacing:.08em; text-transform:uppercase; }
+    .nav-links a { color:rgba(255,255,255,0.7); text-decoration:none; padding-bottom:2px;
+                   border-bottom:2px solid transparent; transition:color .25s,border-color .25s; }
+    .nav-links a:hover { color:#fff; border-color:var(--accent-blue); }
+    .nav-hero-cta { font-size:13px !important; padding:9px 20px !important; }
+
+    /* ── Buttons ── */
+    .hero-btn {
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:14px 32px; border-radius:12px; text-decoration:none;
+      font-weight:700; font-size:16px;
+      transition:all .3s cubic-bezier(.34,1.56,.64,1);
+    }
+    .hero-btn--green { background:linear-gradient(135deg,#10b981,#34d399); color:#fff;
+                       box-shadow:0 12px 32px rgba(16,185,129,.4); }
+    .hero-btn--green:hover { transform:translateY(-4px); box-shadow:0 20px 48px rgba(16,185,129,.5); }
+
+    /* ── Hero ── */
+    .hero { position:relative; padding:110px 20px 80px; overflow:hidden; background:#0b1020; }
+    .hero-orb {
+      position:absolute; border-radius:50%; pointer-events:none; filter:blur(80px); opacity:.18;
+      animation:orbFloat 8s ease-in-out infinite;
+    }
+    .hero-orb--1 { width:500px; height:500px; background:#3b82f6; top:-120px; left:-100px; }
+    .hero-orb--2 { width:400px; height:400px; background:#8b5cf6; top:40px; right:-80px; animation-delay:-3s; }
+    .hero-orb--3 { width:300px; height:300px; background:#10b981; bottom:-60px; left:40%; animation-delay:-5s; }
+    @keyframes orbFloat {
+      0%,100% { transform:translate(0,0) scale(1); }
+      33%      { transform:translate(20px,-20px) scale(1.05); }
+      66%      { transform:translate(-15px,15px) scale(.97); }
+    }
+    .hero-shell { position:relative; z-index:1; max-width:1100px; margin:0 auto; }
+    .hero-eyebrow { text-transform:uppercase; font-weight:700; letter-spacing:.25em;
+                    font-size:13px; color:var(--accent-blue); margin-bottom:8px; }
+
+    .new-batch-badge {
+      display:inline-flex; align-items:center; gap:8px;
+      background:linear-gradient(135deg,rgba(16,185,129,.2),rgba(16,185,129,.08));
+      border:1px solid rgba(16,185,129,.5); border-radius:999px;
+      padding:8px 20px; font-size:13px; font-weight:700; color:#34d399;
+      letter-spacing:.1em; text-transform:uppercase; margin-bottom:24px;
+    }
+    .new-batch-badge .dot {
+      width:8px; height:8px; border-radius:50%; background:#10b981;
+      animation:pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow:0 0 0 0 rgba(16,185,129,.4); }
+      50%      { box-shadow:0 0 0 8px rgba(16,185,129,0); }
+    }
+    .hero-copy h1 {
+      font-size:clamp(36px,5vw,64px); line-height:1.1; margin:0 0 20px;
+      font-weight:800; letter-spacing:-.8px;
+      background:linear-gradient(90deg,#fff,rgba(255,255,255,.85));
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+    }
+    .hero-subtitle { font-size:18px; line-height:1.8; color:rgba(255,255,255,.85); max-width:620px; }
+    .hero-actions { display:flex; gap:16px; margin:36px 0 0; flex-wrap:wrap; }
+
+    /* ── Gallery ── */
+    .gallery-section { padding:80px 20px; background:rgba(255,255,255,.02); }
+    .gallery-shell { max-width:1200px; margin:0 auto; }
+    .section-header { text-align:center; }
+    .section-header .hero-eyebrow { display:block; margin-bottom:8px; }
+    .section-header h2 { font-size:clamp(28px,4vw,44px); font-weight:800; line-height:1.2; }
+    .section-header p  { color:rgba(255,255,255,.6); margin-top:12px; font-size:16px; }
+    .gallery-single {
+      display:flex; justify-content:center; margin-top:48px;
+    }
+    .gallery-single img {
+      width:100%; max-width:560px; aspect-ratio:3/2; object-fit:cover;
+      border-radius:16px; border:1px solid rgba(255,255,255,.08);
+      cursor:pointer; transition:transform .3s ease, box-shadow .3s ease;
+    }
+    .gallery-single img:hover { transform:scale(1.03); box-shadow:0 16px 40px rgba(0,0,0,.5); }
+
+    /* ── Lightbox ── */
+    .gallery-lightbox {
+      position:fixed; inset:0; z-index:9000; background:rgba(0,0,0,.92);
+      display:none; align-items:center; justify-content:center; flex-direction:column;
+    }
+    .gallery-lightbox.active { display:flex; }
+    .gallery-lightbox img { max-width:90vw; max-height:80vh; border-radius:12px; object-fit:contain; }
+    .lightbox-close {
+      position:absolute; top:20px; right:24px; background:none; border:none;
+      color:#fff; font-size:32px; cursor:pointer; opacity:.7; transition:opacity .2s;
+    }
+    .lightbox-close:hover { opacity:1; }
+
+    /* ── Stat Banner ── */
+    .stat-banner { padding:60px 20px; text-align:center; }
+    .stat-banner-shell { display:inline-flex; flex-direction:column; align-items:center; gap:12px; }
+    .stat-main { display:flex; align-items:baseline; gap:6px; line-height:1; }
+    .stat-num   { font-size:clamp(72px,12vw,120px); font-weight:900;
+                  background:linear-gradient(135deg,#10b981,#34d399);
+                  -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .stat-sep   { font-size:clamp(48px,8vw,80px); font-weight:300; color:rgba(255,255,255,.2); }
+    .stat-denom { font-size:clamp(48px,8vw,80px); font-weight:900; color:rgba(255,255,255,.35); }
+    .stat-label { font-size:clamp(15px,2vw,20px); color:rgba(255,255,255,.6);
+                  text-transform:uppercase; letter-spacing:.2em; font-weight:600; }
+
+    /* ── Batch Section ── */
+    .batch-section { padding:80px 20px; background:rgba(255,255,255,.02); }
+    .batch-shell { max-width:1100px; margin:0 auto; }
+    .batch-title { font-size:clamp(22px,3vw,32px); font-weight:800; color:#fff;
+                   margin-bottom:40px; text-align:center; }
+    .batch-subtitle { font-size:16px; font-weight:700; text-transform:uppercase;
+                      letter-spacing:.15em; color:var(--accent-blue); margin:32px 0 16px; }
+    .photo-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+      gap:12px; list-style:none;
+    }
+    .photo-grid__item img {
+      width:100%; aspect-ratio:1; object-fit:cover; border-radius:12px;
+      border:1px solid rgba(255,255,255,.08);
+      transition:transform .3s ease, box-shadow .3s ease; cursor:pointer;
+    }
+    .photo-grid__item img:hover { transform:scale(1.05); box-shadow:0 12px 32px rgba(0,0,0,.5); }
+
+    /* ── Vision ── */
+    .vision { padding:100px 20px; max-width:800px; margin:0 auto; text-align:center; }
+    .vision h2 { font-size:clamp(32px,4vw,48px); font-weight:800; margin-bottom:32px; }
+    .vision-quote {
+      font-size:clamp(18px,2.5vw,24px); line-height:1.7; color:rgba(255,255,255,.85);
+      font-style:italic; border-left:3px solid var(--accent-blue);
+      padding-left:24px; text-align:left; margin-bottom:40px;
+    }
+    .vision-text p { font-size:17px; line-height:1.8; color:rgba(255,255,255,.7); margin-bottom:16px; }
+
+    /* ── Journey ── */
+    @keyframes pinPop {
+      0%   { transform:translate(-50%,-50%) scale(0); opacity:0; }
+      65%  { transform:translate(-50%,-50%) scale(1.18); opacity:1; }
+      100% { transform:translate(-50%,-50%) scale(1); opacity:1; }
+    }
+    @keyframes pinRing {
+      0%   { transform:translate(-50%,-50%) scale(1); opacity:0.7; }
+      100% { transform:translate(-50%,-50%) scale(2.2); opacity:0; }
+    }
+    @keyframes pinFloat {
+      0%,100% { transform:translateY(0); }
+      50%      { transform:translateY(-9px); }
+    }
+    @keyframes routeFade { from { opacity:0; } to { opacity:1; } }
+
+    .journey { padding:90px 20px 80px; max-width:1200px; margin:0 auto; }
+    .journey-header { text-align:center; margin-bottom:40px; }
+    .journey-header h2 {
+      font-size:44px; font-weight:800;
+      background:linear-gradient(90deg,#a78bfa,#60a5fa);
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+      margin:8px 0 12px; letter-spacing:-0.5px;
+    }
+    .journey-sub { font-size:16px; color:rgba(255,255,255,0.45); margin:0; }
+    .journey-map-wrap { position:relative; width:100%; aspect-ratio:900/800; }
+    .journey-map {
+      position:absolute; inset:0; border-radius:24px; overflow:hidden;
+      border:1px solid rgba(255,255,255,0.07);
+      background:
+        radial-gradient(ellipse 60% 50% at 25% 30%,rgba(139,92,246,0.07) 0%,transparent 70%),
+        radial-gradient(ellipse 60% 50% at 75% 70%,rgba(59,130,246,0.07) 0%,transparent 70%),
+        #080b1e;
+    }
+    .map-grid {
+      position:absolute; inset:0;
+      background-image:linear-gradient(rgba(255,255,255,0.022) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,0.022) 1px,transparent 1px);
+      background-size:48px 48px;
+    }
+    .map-svg { position:absolute; inset:0; width:100%; height:100%; animation:routeFade 1s ease 0.3s both; }
+    .map-route { stroke-dashoffset:0; }
+    .mpin { position:absolute; z-index:10; animation:pinFloat 3.2s ease-in-out infinite; text-decoration:none; cursor:pointer; }
+    .mpin:hover { animation-play-state:paused; }
+    .mpin-dot {
+      position:absolute; top:0; left:0; transform:translate(-50%,-50%);
+      width:46px; height:46px; border-radius:50%; background:var(--c,#8b5cf6);
+      border:3px solid rgba(255,255,255,0.25);
+      display:flex; align-items:center; justify-content:center; z-index:2;
+      animation:pinPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+      transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1),border-color 0.2s;
+    }
+    .mpin-dot:hover { transform:translate(-50%,-50%) scale(1.18); border-color:rgba(255,255,255,0.6); }
+    .mpin-dot::after {
+      content:''; position:absolute; inset:0; border-radius:50%;
+      background:var(--c,#8b5cf6); z-index:-1; animation:pinRing 2.4s ease-out infinite;
+    }
+    .mpin-emoji { font-size:20px; line-height:1; pointer-events:none; user-select:none; }
+    .mpin-label {
+      position:absolute; top:0; transform:translateY(-50%);
+      background:rgba(8,10,30,0.92); border:1px solid rgba(255,255,255,0.1);
+      border-radius:12px; padding:10px 14px; width:148px;
+      backdrop-filter:blur(10px); transition:box-shadow .25s,border-color .25s;
+    }
+    .mpin:hover .mpin-label { border-color:var(--c,#8b5cf6); box-shadow:0 8px 28px rgba(0,0,0,.45); }
+    .mpin-label--right { left:calc(23px + 14px); border-left:3px solid var(--c,#8b5cf6); }
+    .mpin-label--left  { right:calc(23px + 14px); text-align:right; border-right:3px solid var(--c,#8b5cf6); }
+    .mpin-num { display:block; font-size:10px; font-weight:700; letter-spacing:.14em; color:var(--c,#8b5cf6); margin-bottom:3px; }
+    .mpin-label strong { display:block; font-size:15px; font-weight:700; color:#fff; margin-bottom:4px; }
+    .mpin-label p { font-size:11px; color:rgba(255,255,255,0.5); margin:0; line-height:1.45; }
+    .mpin:nth-child(3)  { animation-delay:0.7s; }
+    .mpin:nth-child(4)  { animation-delay:-0.8s; }
+    .mpin:nth-child(5)  { animation-delay:-1.6s; }
+    .mpin:nth-child(6)  { animation-delay:-2.4s; }
+    .mpin:nth-child(7)  { animation-delay:-0.3s; }
+    .mpin:nth-child(8)  { animation-delay:0.4s; }
+    .mpin:nth-child(9)  { animation-delay:-1.1s; }
+    .mpin:nth-child(10) { animation-delay:-1.9s; }
+    .mpin:nth-child(3)  .mpin-dot { animation-delay:0.6s; }
+    .mpin:nth-child(4)  .mpin-dot { animation-delay:1.0s; }
+    .mpin:nth-child(5)  .mpin-dot { animation-delay:1.4s; }
+    .mpin:nth-child(6)  .mpin-dot { animation-delay:1.8s; }
+    .mpin:nth-child(7)  .mpin-dot { animation-delay:2.2s; }
+    .mpin:nth-child(8)  .mpin-dot { animation-delay:2.6s; }
+    .mpin:nth-child(9)  .mpin-dot { animation-delay:3.0s; }
+    .mpin:nth-child(10) .mpin-dot { animation-delay:3.4s; }
+    .mpin:nth-child(3)  .mpin-dot::after { animation-delay:0.6s; }
+    .mpin:nth-child(4)  .mpin-dot::after { animation-delay:1.0s; }
+    .mpin:nth-child(5)  .mpin-dot::after { animation-delay:1.4s; }
+    .mpin:nth-child(6)  .mpin-dot::after { animation-delay:1.8s; }
+    .mpin:nth-child(7)  .mpin-dot::after { animation-delay:2.2s; }
+    .mpin:nth-child(8)  .mpin-dot::after { animation-delay:2.6s; }
+    .mpin:nth-child(9)  .mpin-dot::after { animation-delay:3.0s; }
+    .mpin:nth-child(10) .mpin-dot::after { animation-delay:3.4s; }
+
+    /* ── Footer ── */
+    .site-footer {
+      position:relative; margin-top:120px; padding:60px 20px 40px;
+      background:linear-gradient(135deg,rgba(15,15,16,0.95),rgba(15,15,16,0.98));
+      border-top:1px solid rgba(245,158,11,0.2);
+    }
+    .footer-content {
+      max-width:1100px; margin:0 auto;
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:48px;
+    }
+    .footer-section { display:flex; flex-direction:column; gap:12px; }
+    .footer-section h3 {
+      font-size:28px; font-weight:800;
+      background:linear-gradient(90deg,#f59e0b,#fb923c);
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+      letter-spacing:-0.5px;
+    }
+    .footer-section h4 { font-size:16px; font-weight:700; color:#f59e0b; text-transform:uppercase; letter-spacing:.08em; margin:0; }
+    .footer-tagline  { font-size:16px; font-weight:600; color:rgba(255,255,255,0.8); margin:0; }
+    .footer-description { font-size:14px; line-height:1.6; color:rgba(255,255,255,0.7); margin:0; }
+    .footer-section p { font-size:14px; color:rgba(255,255,255,0.75); margin:0; font-weight:300; }
+    .footer-phone { font-size:14px; color:rgba(255,255,255,0.8); margin:0; font-weight:500; }
+    .footer-social-link { color:#f59e0b !important; text-decoration:none; font-weight:600; display:inline-block; transition:color .2s,transform .2s; }
+    .footer-social-link:hover { color:#fb923c !important; transform:translateX(4px); }
+    .footer-links { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:12px; }
+    .footer-links a { color:rgba(255,255,255,0.7); text-decoration:none; font-size:14px; padding:4px 0; display:inline-block; transition:color .2s,transform .2s; }
+    .footer-links a:hover { color:#f59e0b; transform:translateX(4px); }
+    .footer-divider { max-width:1100px; margin:40px auto 0; height:1px;
+                      background:linear-gradient(90deg,transparent,rgba(245,158,11,0.3),transparent); }
+    .footer-credit { max-width:1100px; margin:30px auto 0; color:rgba(255,255,255,0.5); font-size:13px; text-align:center; }
+
+    /* jump to top */
+    .jump-to-top {
+      position:fixed; bottom:32px; right:32px; width:44px; height:44px;
+      border-radius:50%; background:rgba(59,130,246,.2); border:1px solid rgba(59,130,246,.4);
+      color:#fff; font-size:18px; cursor:pointer; opacity:0; pointer-events:none;
+      transition:opacity .3s,transform .3s; z-index:900;
+    }
+    .jump-to-top.visible { opacity:1; pointer-events:auto; }
+    .jump-to-top:hover { transform:translateY(-4px); background:rgba(59,130,246,.4); }
+
+    /* ── Responsive ── */
+    @media(max-width:768px) {
+      .nav-links { display:none; }
+      .hero { padding:90px 16px 60px; }
+      .photo-grid { grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); }
+      .journey { padding:60px 20px; }
+      .journey-header h2 { font-size:28px; }
+      .journey-map-wrap { aspect-ratio:auto; display:flex; flex-direction:column; gap:10px; margin-top:32px; }
+      .journey-map { display:none; }
+      .mpin {
+        position:static; animation:none;
+        display:flex; flex-direction:row; align-items:center; gap:14px;
+        background:rgba(12,14,35,0.9); border:1px solid rgba(255,255,255,0.08);
+        border-left:3px solid var(--c,#8b5cf6);
+        border-radius:14px; padding:14px 16px;
+        text-decoration:none; color:inherit;
+      }
+      .mpin-dot { position:static; transform:none; animation:none; flex-shrink:0; width:42px; height:42px; }
+      .mpin-dot::after { display:none; }
+      .mpin-dot:hover { transform:none; }
+      .mpin-label { position:static; transform:none; width:auto; flex:1;
+                    background:none; border:none !important; border-radius:0; padding:0; backdrop-filter:none; text-align:left; }
+      .mpin-label--left { text-align:left; right:auto; }
+      .site-footer { padding:40px 20px 80px; margin-top:80px; }
+      .footer-content { gap:32px; }
+      .footer-section h3 { font-size:22px; }
+      .footer-divider { margin:30px auto 0; }
+      .footer-credit { margin:24px auto 0; font-size:12px; }
+    }
+  </style>
 </head>
 <body class="home">
 
-<!-- Header with floating nav -->
+<!-- Header -->
 <header class="header">
   <div class="nav-shell">
     <a href="index.html" aria-label="Home" class="nav-brand">
-      <img src="images/logo transparent.png" alt="AI Karyashala logo" class="header-logo">
+      <img src="images/logo transparent.png" alt="AI Karyashala logo">
     </a>
-
     <nav class="nav-links" aria-label="Main">
       <a href="#journey">Our Journey</a>
       <a href="students.html">Our Students</a>
       <a href="projects.html">Projects</a>
     </nav>
-
-    <a href="/ugadhi-2026/index.html" class="hero-btn hero-btn--primary nav-hero-cta" target="_blank" rel="noopener noreferrer">
-      Join the Next Batch
-    </a>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSeqHiK-VAOsLcggY9B23mADMwoidJtpXllB26Jc49CovTGdZA/viewform?pli=1" class="hero-btn hero-btn--green nav-hero-cta" target="_blank" rel="noopener noreferrer">Join Now</a>
   </div>
 </header>
 
-<!-- Hero Section -->
+<!-- Hero -->
 <section class="hero">
+  <div class="hero-orb hero-orb--1"></div>
+  <div class="hero-orb hero-orb--2"></div>
+  <div class="hero-orb hero-orb--3"></div>
   <div class="hero-shell">
     <div class="hero-copy">
-      <p class="hero-eyebrow">AI Karyashala</p>
-      <h2 class="hero-subtitle-main">Training and Research & Development (R&D)</h2>
-      <h1>Build software craft. Start your career.</h1>
-      <p class="hero-subtitle">
-        A focused daily practice that blends strong fundamentals with modern AI
-        workflows to build real-world readiness.
-      </p>
-
-      <div class="hero-actions">
-        <a href="/ugadhi-2026/index.html" class="hero-btn hero-btn--primary" target="_blank" rel="noopener noreferrer">
-          Join the Next Batch
-        </a>
-        <a href="projects.html" class="hero-btn hero-btn--ghost">
-          See Projects
-        </a>
+      <div class="new-batch-badge">
+        <span class="dot"></span>
+        New Batch Has Started — June 1st
       </div>
-
-      <div class="hero-pills hero-pills--compact">
-        <span>Hands-on practice</span>
-        <span>Job-ready focus</span>
+      <p class="hero-eyebrow">Training and Research &amp; Development (R&amp;D)</p>
+      <h1>AI Karyashala</h1>
+      <p class="hero-subtitle">
+        The new batch started on <strong>June 1st</strong>. You can still join —
+        enroll before <strong>June 7th</strong>.
+      </p>
+      <div class="hero-actions">
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSeqHiK-VAOsLcggY9B23mADMwoidJtpXllB26Jc49CovTGdZA/viewform?pli=1" class="hero-btn hero-btn--green" target="_blank" rel="noopener noreferrer">Join Now</a>
       </div>
     </div>
   </div>
 </section>
 
+<!-- Gallery: Batch 2026 -->
+<section class="gallery-section reveal" id="gallery">
+  <div class="gallery-shell">
+    <div class="section-header">
+      <span class="hero-eyebrow">Batch 2026</span>
+      <h2>Day One &amp; Beyond</h2>
+      <p>Moments from the new batch.</p>
+    </div>
+    <div class="gallery-single">
+      <img src="batch_2026/2.jpg" alt="Batch 2026 — Day One" loading="lazy" id="galleryPhoto">
+    </div>
+  </div>
+</section>
+
+<!-- Lightbox -->
+<div class="gallery-lightbox" aria-hidden="true">
+  <button class="lightbox-close" aria-label="Close">×</button>
+  <img src="" alt="">
+</div>
+
+<!-- Placement Stat Banner -->
+<section class="stat-banner reveal">
+  <div class="stat-banner-shell">
+    <div class="stat-main">
+      <span class="stat-num">20</span>
+      <span class="stat-sep">/</span>
+      <span class="stat-denom">26</span>
+    </div>
+    <div class="stat-label">students placed from our first batch</div>
+  </div>
+</section>
+
+<!-- First Batch — Students -->
 <section class="batch-section reveal">
   <div class="batch-shell">
-    <h2 class="batch-title">First Batch — 28 Students</h2>
-
+    <h2 class="batch-title">First Batch — 26 Students &nbsp;·&nbsp; <span style="color:#34d399;">20 Placed</span></h2>
     <h3 class="batch-subtitle">Placed — 20</h3>
     <ul class="photo-grid">
-      <li class="photo-grid__item"><img src="students_photos/AIK070168.jpeg" alt="AIK070168" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK070460.jpeg" alt="AIK070460" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK070627.jpeg" alt="AIK070627" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK071428.jpeg" alt="AIK071428" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK071639.jpeg" alt="AIK071639" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK073361.jpeg" alt="AIK073361" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK073930.jpeg" alt="AIK073930" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK074830.jpeg" alt="AIK074830" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK074920.jpeg" alt="AIK074920" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK075966.jpeg" alt="AIK075966" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK075998.jpeg" alt="AIK075998" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK076684.jpeg" alt="AIK076684" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK078978.jpeg" alt="AIK078978" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK079161.jpeg" alt="AIK079161" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK079188.jpeg" alt="AIK079188" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK079494.jpeg" alt="AIK079494" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK079622.jpeg" alt="AIK079622" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK079683.jpeg" alt="AIK079683" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK074898.jpeg" alt="AIK074898" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK077197.jpeg" alt="AIK077197" loading="lazy" /></li>
-    </ul>
-
-    <h3 class="batch-subtitle">Enterprising — 02</h3>
-    <ul class="photo-grid">  
-      <li class="photo-grid__item"><img src="students_photos/AIK073926.jpeg" alt="AIK073926" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK073988.jpeg" alt="AIK073988" loading="lazy" /></li>
-    </ul>
-
-    <h3 class="batch-subtitle">Working on Projects — 06</h3>
-    <ul class="photo-grid">
-      <!-- <li class="photo-grid__item"><img src="students_photos/AIK071015.jpeg" alt="AIK071015" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK071912.jpeg" alt="AIK071912" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK077189.jpeg" alt="AIK077189" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK078472.jpeg" alt="AIK078472" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK079063.jpeg" alt="AIK079063" loading="lazy" /></li>
-      <li class="photo-grid__item"><img src="students_photos/AIK075843.jpeg" alt="AIK075843" loading="lazy" /></li> -->
+      <li class="photo-grid__item"><img src="students_photos/AIK070168.jpeg" alt="AIK070168" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK070460.jpeg" alt="AIK070460" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK070627.jpeg" alt="AIK070627" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK071428.jpeg" alt="AIK071428" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK071639.jpeg" alt="AIK071639" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK073361.jpeg" alt="AIK073361" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK073930.jpeg" alt="AIK073930" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK074830.jpeg" alt="AIK074830" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK074920.jpeg" alt="AIK074920" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK075843.jpeg" alt="AIK075843" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK075966.jpeg" alt="AIK075966" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK075998.jpeg" alt="AIK075998" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK076684.jpeg" alt="AIK076684" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK078978.jpeg" alt="AIK078978" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK079161.jpeg" alt="AIK079161" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK079188.jpeg" alt="AIK079188" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK079494.jpeg" alt="AIK079494" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK079622.jpeg" alt="AIK079622" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK079683.jpeg" alt="AIK079683" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK074898.jpeg" alt="AIK074898" loading="lazy"></li>
+      <li class="photo-grid__item"><img src="students_photos/AIK077197.jpeg" alt="AIK077197" loading="lazy"></li>
     </ul>
   </div>
 </section>
 
-<!-- Vision Section -->
+<!-- Vision -->
 <section class="vision reveal">
-  <h1>Vision</h1>
-
+  <h2>Vision</h2>
   <div class="vision-quote">
-    “One goal: build software craft strong enough to earn a fresher role,
-    no matter the gap years.”
+    "The purpose of AI-Karyashala is to nurture youth to be joyful, inspired,
+    focused and competent. We want our students to blossom into strong engineers
+    who build our nation Bharat."
   </div>
-
   <div class="vision-text">
     <p>
-      We adapt to what real software work demands today, not what last year’s
-      syllabus suggested.
+      With the advent of Gen-AI, the way software is built has completely changed.
+      But some things still remain timeless — strong fundamentals, problem-solving ability,
+      fluid expression, algorithmic thinking, deep understanding of systems and networks,
+      and debugging with clarity.
     </p>
-
     <p>
-      We use AI as leverage to learn faster and go deeper, not as a shortcut.
+      At AI-Karyashala, we nurture students to become <strong>AI-Native Engineers</strong> who can
+      build for the modern AI era while staying deeply grounded in core engineering principles,
+      curiosity and lifelong learning.
+      <span style="color:rgba(255,255,255,.5); font-size:15px; display:block; margin-top:6px;">
+        ( జీవితాంత + విద్యా + అర్థీ )
+      </span>
     </p>
-
     <p>
-      With focused, hands-on practice from 9 AM to 4 PM, we compound skill into
-      job readiness.
+      We currently run the <strong>AI-Native Job Ready Program</strong>, designed to prepare
+      students for the modern AI-driven software industry.
+    </p>
+    <p style="color:rgba(255,255,255,.85); font-weight:600;">
+      In our first batch, <span style="color:#34d399;">20 out of 26 students</span> got placed.
     </p>
   </div>
 </section>
@@ -135,9 +475,7 @@
     <h2>Our Journey</h2>
     <p class="journey-sub">Ten milestones. One path.</p>
   </div>
-
   <div class="journey-map-wrap">
-    <!-- Map canvas -->
     <div class="journey-map">
       <div class="map-grid"></div>
       <svg class="map-svg" viewBox="0 0 900 800" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
@@ -159,9 +497,7 @@
             <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
-        <!-- S-curve route through 10 stops -->
-        <path class="map-route-shadow"
-          d="M 90,50 C 350,30 518,138 738,128 C 558,123 290,198 90,208 C 350,188 518,298 738,288 C 558,283 290,350 90,360 C 350,340 518,450 738,440 C 558,435 290,510 90,520 C 350,500 518,610 738,600 C 558,595 290,662 90,672 C 350,652 518,762 738,752"
+        <path d="M 90,50 C 350,30 518,138 738,128 C 558,123 290,198 90,208 C 350,188 518,298 738,288 C 558,283 290,350 90,360 C 350,340 518,450 738,440 C 558,435 290,510 90,520 C 350,500 518,610 738,600 C 558,595 290,662 90,672 C 350,652 518,762 738,752"
           fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
         <path class="map-route"
           d="M 90,50 C 350,30 518,138 738,128 C 558,123 290,198 90,208 C 350,188 518,298 738,288 C 558,283 290,350 90,360 C 350,340 518,450 738,440 C 558,435 290,510 90,520 C 350,500 518,610 738,600 C 558,595 290,662 90,672 C 350,652 518,762 738,752"
@@ -170,142 +506,107 @@
       </svg>
     </div>
 
-    <!-- 01 Yoga — left, label right -->
     <a href="yoga.html" class="mpin" style="--c:#8b5cf6; left:10%; top:6%">
-      <div class="mpin-dot reveal-item">
-        <span class="mpin-emoji">🧘</span>
-      </div>
+      <div class="mpin-dot reveal-item"><span class="mpin-emoji">🧘</span></div>
       <div class="mpin-label mpin-label--right">
-        <span class="mpin-num">01</span>
-        <strong>Yoga</strong>
+        <span class="mpin-num">01</span><strong>Yoga</strong>
         <p>Discipline, focus, and inner balance.</p>
       </div>
     </a>
-
-    <!-- 02 APDTS — right, label left -->
     <a href="apdts.html" class="mpin" style="--c:#3b82f6; left:82%; top:16%">
-      <div class="mpin-dot reveal-item">
-        <span class="mpin-emoji">🖥️</span>
-      </div>
+      <div class="mpin-dot reveal-item"><span class="mpin-emoji">🖥️</span></div>
       <div class="mpin-label mpin-label--left">
-        <span class="mpin-num">02</span>
-        <strong>APDTS</strong>
+        <span class="mpin-num">02</span><strong>APDTS</strong>
         <p>Digital summit &amp; tech showcase.</p>
       </div>
     </a>
-
-    <!-- 03 Projects — left, label right -->
     <a href="projects.html" class="mpin" style="--c:#10b981; left:10%; top:26%">
-      <div class="mpin-dot reveal-item">
-        <span class="mpin-emoji">🚀</span>
-      </div>
+      <div class="mpin-dot reveal-item"><span class="mpin-emoji">🚀</span></div>
       <div class="mpin-label mpin-label--right">
-        <span class="mpin-num">03</span>
-        <strong>Projects</strong>
+        <span class="mpin-num">03</span><strong>Projects</strong>
         <p>Hands-on development.</p>
       </div>
     </a>
-
-    <!-- 04 KIET — right, label left -->
     <a href="https://aikaryashala.com/bootcamp/kiet/" class="mpin" style="--c:#f59e0b; left:82%; top:36%" target="_blank" rel="noopener noreferrer">
-      <div class="mpin-dot reveal-item">
-        <span class="mpin-emoji">🎓</span>
-      </div>
+      <div class="mpin-dot reveal-item"><span class="mpin-emoji">🎓</span></div>
       <div class="mpin-label mpin-label--left">
-        <span class="mpin-num">04</span>
-        <strong>KIET</strong>
+        <span class="mpin-num">04</span><strong>KIET</strong>
         <p>Academic &amp; professional foundation.</p>
       </div>
     </a>
-
-    <!-- 05 Bootcamp — left, label right -->
     <a href="bootcamp-reviews.html" class="mpin" style="--c:#ec4899; left:10%; top:45%">
-      <div class="mpin-dot reveal-item">
-        <span class="mpin-emoji">⚡</span>
-      </div>
+      <div class="mpin-dot reveal-item"><span class="mpin-emoji">⚡</span></div>
       <div class="mpin-label mpin-label--right">
-        <span class="mpin-num">05</span>
-        <strong>Bootcamp</strong>
+        <span class="mpin-num">05</span><strong>Bootcamp</strong>
         <p>Accelerated learning &amp; career launchpad.</p>
       </div>
     </a>
-
-    <!-- 06 Buildathon — right, label left -->
     <a href="buildathon.html" class="mpin" style="--c:#84cc16; left:82%; top:55%">
-      <div class="mpin-dot reveal-item">
-        <span class="mpin-emoji">🏆</span>
-      </div>
+      <div class="mpin-dot reveal-item"><span class="mpin-emoji">🏆</span></div>
       <div class="mpin-label mpin-label--left">
-        <span class="mpin-num">06</span>
-        <strong>Buildathon</strong>
+        <span class="mpin-num">06</span><strong>Buildathon</strong>
         <p>AI for Vizag Buildathon — build &amp; compete.</p>
       </div>
     </a>
-
-    <!-- 07 Sumedha — left, label right -->
     <a href="sumedha.html" class="mpin" style="--c:#06b6d4; left:10%; top:65%">
-      <div class="mpin-dot reveal-item">
-        <span class="mpin-emoji">🤝</span>
-      </div>
+      <div class="mpin-dot reveal-item"><span class="mpin-emoji">🤝</span></div>
       <div class="mpin-label mpin-label--right">
-        <span class="mpin-num">07</span>
-        <strong>Sumedha 2026</strong>
+        <span class="mpin-num">07</span><strong>Sumedha 2026</strong>
         <p>AIKYA Community stall at Gayathri College.</p>
       </div>
     </a>
-
-    <!-- 08 AU 100 Years — right, label left -->
     <a href="#" class="mpin" style="--c:#f97316; left:82%; top:75%">
-      <div class="mpin-dot reveal-item">
-        <span class="mpin-emoji">🏛️</span>
-      </div>
+      <div class="mpin-dot reveal-item"><span class="mpin-emoji">🏛️</span></div>
       <div class="mpin-label mpin-label--left">
-        <span class="mpin-num">08</span>
-        <strong>AU 100 Years</strong>
+        <span class="mpin-num">08</span><strong>AU 100 Years</strong>
         <p>Tech summit at AU Convention Centre.</p>
       </div>
     </a>
-
-    <!-- 09 AI Fusion — left, label right -->
     <a href="aifusion.html" class="mpin" style="--c:#a855f7; left:10%; top:84%">
-      <div class="mpin-dot reveal-item">
-        <span class="mpin-emoji">🤖</span>
-      </div>
+      <div class="mpin-dot reveal-item"><span class="mpin-emoji">🤖</span></div>
       <div class="mpin-label mpin-label--right">
-        <span class="mpin-num">09</span>
-        <strong>AI Fusion</strong>
+        <span class="mpin-num">09</span><strong>AI Fusion</strong>
         <p>Attended AI Fusion summit 2026.</p>
       </div>
     </a>
-
-    <!-- 10 GVP College — right, label left -->
     <a href="gvpcew/index.html" class="mpin" style="--c:#14b8a6; left:82%; top:94%">
-      <div class="mpin-dot reveal-item">
-        <span class="mpin-emoji">🎯</span>
-      </div>
+      <div class="mpin-dot reveal-item"><span class="mpin-emoji">🎯</span></div>
       <div class="mpin-label mpin-label--left">
-        <span class="mpin-num">10</span>
-        <strong>GVP College</strong>
+        <span class="mpin-num">10</span><strong>GVP College</strong>
         <p>Seven-day DSA session at Gayatri Vidya Parishad College of Engineering for Women.</p>
       </div>
     </a>
-
   </div>
 </section>
 
+<!-- Footer -->
 <footer class="site-footer">
   <div class="footer-content">
     <div class="footer-section">
       <h3>AI Karyashala</h3>
-      <p class="footer-tagline">Training and R&D</p>
-      <p class="footer-description">Building software craft for the next generation of engineers.</p>
+      <p class="footer-tagline">Training and R&amp;D</p>
+      <p class="footer-description">
+        MUKUND SUVASA Apartment,<br>
+        Pent-house, 3rd Ln,<br>
+        Dwaraka Nagar,<br>
+        Visakhapatnam, AP 530016
+      </p>
+      <p class="footer-description">9 AM – 6 PM &nbsp;|&nbsp; Mon – Sat</p>
+      <p>
+        <a href="https://maps.app.goo.gl/dLjDaJ83BprWiwzf9" target="_blank" rel="noopener noreferrer"
+           style="color:#f59e0b; font-size:12px; font-weight:600; text-decoration:none; display:inline-block; transition:color .2s;">
+          Open in Google Maps →
+        </a>
+      </p>
     </div>
 
     <div class="footer-section">
       <h4>Connect</h4>
       <p>By Rohini Kumar Barla</p>
       <p class="footer-phone">Mobile: +91 91042 42425</p>
-      <p style="margin-top: 12px;"><a href="https://www.linkedin.com/in/rohinibarla/" target="_blank" rel="noopener noreferrer" class="footer-social-link">LinkedIn Profile →</a></p>
+      <p style="margin-top:12px;">
+        <a href="https://www.linkedin.com/in/rohinibarla/" target="_blank" rel="noopener noreferrer" class="footer-social-link">LinkedIn Profile →</a>
+      </p>
     </div>
 
     <div class="footer-section">
@@ -319,14 +620,59 @@
   </div>
 
   <div class="footer-divider"></div>
-
-  <p class="footer-credit">
-    © 2025 AI Karyashala
-  </p>
-
+  <p class="footer-credit">© 2026 AI Karyashala</p>
   <button class="jump-to-top" aria-label="Jump to top" title="Back to top">↑</button>
 </footer>
 
-<script src="script.js"></script>
+<script>
+  document.body.classList.add('js');
+  const revealTargets = document.querySelectorAll('.reveal, .reveal-item');
+  if ('IntersectionObserver' in window) {
+    const obs = new IntersectionObserver((entries, o) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-visible'); o.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    revealTargets.forEach(t => obs.observe(t));
+  } else {
+    revealTargets.forEach(t => t.classList.add('is-visible'));
+  }
+
+  const hero = document.querySelector('.hero');
+  if (hero) {
+    let ticking = false;
+    const check = () => { document.body.classList.toggle('scrolled', window.scrollY > hero.offsetHeight * 0.35); ticking = false; };
+    window.addEventListener('scroll', () => { if (!ticking) { requestAnimationFrame(check); ticking = true; } }, { passive: true });
+    check();
+  }
+
+  const jumpBtn = document.querySelector('.jump-to-top');
+  if (jumpBtn) {
+    window.addEventListener('scroll', () => jumpBtn.classList.toggle('visible', window.scrollY > 300), { passive: true });
+    jumpBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  }
+
+  const lightbox = document.querySelector('.gallery-lightbox');
+  const lbImg    = lightbox?.querySelector('img');
+  document.getElementById('galleryPhoto')?.addEventListener('click', () => {
+    lbImg.src = document.getElementById('galleryPhoto').src;
+    lightbox.classList.add('active');
+    lightbox.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  });
+  lightbox?.querySelector('.lightbox-close')?.addEventListener('click', () => {
+    lightbox.classList.remove('active');
+    lightbox.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  });
+  lightbox?.addEventListener('click', e => {
+    if (e.target === lightbox) { lightbox.classList.remove('active'); document.body.style.overflow = ''; }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && lightbox?.classList.contains('active')) {
+      lightbox.classList.remove('active'); document.body.style.overflow = '';
+    }
+  });
+
+  window.addEventListener('load', () => { if (!window.location.hash) window.scrollTo({ top: 0, behavior: 'auto' }); });
+</script>
 </body>
 </html>
