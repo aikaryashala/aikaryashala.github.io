@@ -155,14 +155,14 @@
     .photo-grid__item img:hover { transform:scale(1.05); box-shadow:0 12px 32px rgba(0,0,0,.5); }
 
     /* ── Vision ── */
-    .vision { padding:100px 20px; max-width:800px; margin:0 auto; text-align:center; }
-    .vision h2 { font-size:clamp(32px,4vw,48px); font-weight:800; margin-bottom:32px; }
+    .vision { padding:80px 20px; max-width:800px; margin:0 auto; text-align:center; }
+    .vision h2 { font-size:clamp(28px,4vw,48px); font-weight:800; margin-bottom:28px; }
     .vision-quote {
-      font-size:clamp(18px,2.5vw,24px); line-height:1.7; color:rgba(255,255,255,.85);
+      font-size:clamp(16px,2.2vw,22px); line-height:1.8; color:rgba(255,255,255,.85);
       font-style:italic; border-left:3px solid var(--accent-blue);
-      padding-left:24px; text-align:left; margin-bottom:40px;
+      padding-left:24px; text-align:left; margin-bottom:36px;
     }
-    .vision-text p { font-size:17px; line-height:1.8; color:rgba(255,255,255,.7); margin-bottom:16px; }
+    .vision-text p { font-size:clamp(15px,1.5vw,17px); line-height:1.8; color:rgba(255,255,255,.7); margin-bottom:16px; }
 
     /* ── Journey ── */
     @keyframes pinPop {
@@ -278,8 +278,8 @@
     }
     .footer-section h4 { font-size:16px; font-weight:700; color:#f59e0b; text-transform:uppercase; letter-spacing:.08em; margin:0; }
     .footer-tagline  { font-size:16px; font-weight:600; color:rgba(255,255,255,0.8); margin:0; }
-    .footer-description { font-size:14px; line-height:1.6; color:rgba(255,255,255,0.7); margin:0; }
-    .footer-section p { font-size:14px; color:rgba(255,255,255,0.75); margin:0; font-weight:300; }
+    .footer-description { font-size:14px; line-height:1.8; color:rgba(255,255,255,0.7); margin:0; font-weight:400; }
+    .footer-section p { font-size:14px; color:rgba(255,255,255,0.75); margin:0; font-weight:400; }
     .footer-phone { font-size:14px; color:rgba(255,255,255,0.8); margin:0; font-weight:500; }
     .footer-social-link { color:#f59e0b !important; text-decoration:none; font-weight:600; display:inline-block; transition:color .2s,transform .2s; }
     .footer-social-link:hover { color:#fb923c !important; transform:translateX(4px); }
@@ -301,13 +301,46 @@
     .jump-to-top:hover { transform:translateY(-4px); background:rgba(59,130,246,.4); }
 
     /* ── Responsive ── */
+    @media(max-width:1024px) {
+      .journey-header h2 { font-size:36px; }
+      .footer-content { grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:36px; }
+    }
+
     @media(max-width:768px) {
+      /* Nav */
       .nav-links { display:none; }
-      .hero { padding:90px 16px 60px; }
-      .photo-grid { grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); }
-      .journey { padding:60px 20px; }
-      .journey-header h2 { font-size:28px; }
-      .journey-map-wrap { aspect-ratio:auto; display:flex; flex-direction:column; gap:10px; margin-top:32px; }
+      .nav-shell { padding:8px 16px; }
+      .nav-hero-cta { padding:8px 16px !important; font-size:12px !important; }
+
+      /* Hero */
+      .hero { padding:80px 16px 56px; }
+      .hero-copy h1 { font-size:clamp(32px,8vw,48px); }
+      .hero-subtitle { font-size:16px; }
+      .new-batch-badge { font-size:11px; padding:6px 16px; }
+      .hero-actions { margin:24px 0 0; }
+      .hero-btn { padding:12px 24px; font-size:15px; }
+
+      /* Gallery */
+      .gallery-section { padding:56px 16px; }
+      .gallery-single img { max-width:100%; }
+
+      /* Stat Banner */
+      .stat-banner { padding:48px 16px; }
+
+      /* Batch Section */
+      .batch-section { padding:56px 16px; }
+      .photo-grid { grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:8px; }
+      .batch-title { font-size:clamp(18px,5vw,26px); margin-bottom:28px; }
+
+      /* Vision */
+      .vision { padding:56px 16px; }
+      .vision-quote { padding-left:16px; }
+
+      /* Journey */
+      .journey { padding:56px 16px; }
+      .journey-header { margin-bottom:28px; }
+      .journey-header h2 { font-size:26px; }
+      .journey-map-wrap { aspect-ratio:auto; display:flex; flex-direction:column; gap:10px; margin-top:28px; }
       .journey-map { display:none; }
       .mpin {
         position:static; animation:none;
@@ -321,13 +354,31 @@
       .mpin-dot::after { display:none; }
       .mpin-dot:hover { transform:none; }
       .mpin-label { position:static; transform:none; width:auto; flex:1;
-                    background:none; border:none !important; border-radius:0; padding:0; backdrop-filter:none; text-align:left; }
+                    background:none; border:none !important; border-radius:0;
+                    padding:0; backdrop-filter:none; text-align:left; }
       .mpin-label--left { text-align:left; right:auto; }
-      .site-footer { padding:40px 20px 80px; margin-top:80px; }
-      .footer-content { gap:32px; }
+      .mpin-label strong { font-size:14px; }
+      .mpin-label p { font-size:12px; }
+
+      /* Footer */
+      .site-footer { padding:40px 16px 72px; margin-top:64px; }
+      .footer-content { grid-template-columns:1fr; gap:28px; }
       .footer-section h3 { font-size:22px; }
-      .footer-divider { margin:30px auto 0; }
-      .footer-credit { margin:24px auto 0; font-size:12px; }
+      .footer-section h4 { font-size:14px; }
+      .footer-divider { margin:28px auto 0; }
+      .footer-credit { margin:20px auto 0; font-size:12px; }
+    }
+
+    @media(max-width:480px) {
+      .hero { padding:70px 14px 48px; }
+      .photo-grid { grid-template-columns:repeat(auto-fill,minmax(70px,1fr)); gap:6px; }
+      .batch-section { padding:48px 14px; }
+      .gallery-section { padding:48px 14px; }
+      .stat-banner { padding:40px 14px; }
+      .vision { padding:48px 14px; }
+      .journey { padding:48px 14px; }
+      .site-footer { padding:36px 14px 64px; }
+      .hero-btn { padding:11px 20px; font-size:14px; }
     }
   </style>
 </head>
