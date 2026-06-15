@@ -232,6 +232,82 @@
       .compare-card { padding:22px 18px; }
       .podcast-block { padding:24px 18px; }
     }
+
+    /* ── Setup Section ── */
+    .setup-block { margin-bottom:64px; }
+    .setup-steps { display:flex; flex-direction:column; gap:0; margin-bottom:28px; }
+    .setup-step {
+      display:flex; gap:20px; align-items:flex-start;
+      padding:20px 0; border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .setup-step:last-child { border-bottom:none; }
+    .setup-step-num {
+      flex-shrink:0; width:32px; height:32px; border-radius:50%;
+      background:linear-gradient(135deg,#3b82f6,#6366f1); color:#fff;
+      font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center;
+    }
+    .setup-step-body { flex:1; }
+    .setup-step-body h4 { font-size:15px; font-weight:700; color:#fff; margin-bottom:6px; }
+    .setup-step-body p  { font-size:13px; color:rgba(255,255,255,.55); line-height:1.7; margin-bottom:10px; }
+    .setup-step-body p:last-child { margin-bottom:0; }
+    .cmd-block {
+      background:#060810; border:1px solid rgba(255,255,255,.1); border-radius:10px;
+      padding:12px 16px; margin:8px 0; font-family:"Cascadia Code","Fira Code","Consolas",monospace;
+      font-size:13px; overflow-x:auto;
+    }
+    .cmd-block .cmd-line { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+    .cmd-block .cmd-line:last-child { margin-bottom:0; }
+    .cmd-prompt { color:#10b981; font-weight:700; user-select:none; }
+    .cmd-text   { color:#e2e8f0; }
+    .cmd-comment { color:rgba(255,255,255,.3); font-size:12px; }
+    .note-tag {
+      display:inline-flex; align-items:center; gap:6px;
+      background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.3);
+      border-radius:8px; padding:6px 12px; font-size:12px; color:#fbbf24;
+      margin-top:8px; line-height:1.5;
+    }
+    .setup-ref-link {
+      display:inline-flex; align-items:center; gap:8px;
+      background:rgba(59,130,246,.1); border:1px solid rgba(59,130,246,.3);
+      border-radius:10px; padding:12px 20px; color:#93c5fd; text-decoration:none;
+      font-size:14px; font-weight:600; transition:background .2s,border-color .2s;
+    }
+    .setup-ref-link:hover { background:rgba(59,130,246,.2); border-color:rgba(59,130,246,.5); color:#fff; }
+
+    /* ── CS50 Section ── */
+    .cs50-block { margin-bottom:80px; }
+    .cs50-cards { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:8px; }
+    .cs50-card {
+      background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08);
+      border-radius:18px; padding:28px 24px;
+    }
+    .cs50-card-icon { font-size:32px; margin-bottom:14px; }
+    .cs50-card h3 { font-size:16px; font-weight:800; color:#fff; margin-bottom:8px; }
+    .cs50-card p  { font-size:13px; color:rgba(255,255,255,.55); line-height:1.7; margin-bottom:16px; }
+    .cs50-btn {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 20px; border-radius:10px; font-size:13px; font-weight:700;
+      text-decoration:none; transition:all .25s;
+    }
+    .cs50-btn--gh {
+      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); color:#fff;
+    }
+    .cs50-btn--gh:hover { background:rgba(255,255,255,.15); border-color:rgba(255,255,255,.3); }
+    .cs50-btn--cs50 {
+      background:linear-gradient(135deg,#e11d48,#be123c); color:#fff;
+      box-shadow:0 8px 24px rgba(225,29,72,.3);
+    }
+    .cs50-btn--cs50:hover { transform:translateY(-2px); box-shadow:0 12px 32px rgba(225,29,72,.4); }
+    .cs50-divider { text-align:center; font-size:12px; color:rgba(255,255,255,.25); margin:10px 0; }
+
+    @media(max-width:768px) {
+      .cs50-cards { grid-template-columns:1fr; }
+      .setup-block, .cs50-block { margin-bottom:48px; }
+    }
+    @media(max-width:480px) {
+      .cmd-block { font-size:12px; padding:10px 12px; }
+      .cs50-card { padding:22px 18px; }
+    }
   </style>
 </head>
 <body>
@@ -239,13 +315,13 @@
 <!-- Header -->
 <header class="header">
   <div class="nav-shell">
-    <a href="../index.html" aria-label="Home" class="nav-brand">
-      <img src="../images/logo transparent.png" alt="AI Karyashala logo">
+    <a href="../../index.html" aria-label="Home" class="nav-brand">
+      <img src="../../images/logo transparent.png" alt="AI Karyashala logo">
     </a>
     <nav class="nav-links" aria-label="Main">
-      <a href="../index.html#journey">Our Journey</a>
-      <a href="../students.html">Our Students</a>
-      <a href="../projects.html">Projects</a>
+      <a href="../../index.html#journey">Our Journey</a>
+      <a href="../../students.html">Our Students</a>
+      <a href="../../projects.html">Projects</a>
     </nav>
   </div>
 </header>
@@ -417,6 +493,135 @@
 
   </div>
 
+  <!-- WSL Ubuntu Setup -->
+  <div class="setup-block">
+    <p class="section-label">Environment Setup</p>
+    <h2 class="section-title">Install Ubuntu on Windows via WSL</h2>
+    <p class="section-desc">
+      Open <strong>PowerShell</strong> or <strong>Command Prompt</strong> as Administrator and follow these steps.
+    </p>
+
+    <div class="setup-steps">
+
+      <div class="setup-step">
+        <div class="setup-step-num">1</div>
+        <div class="setup-step-body">
+          <h4>Update WSL</h4>
+          <p>Make sure your WSL installation is up to date before anything else.</p>
+          <div class="cmd-block">
+            <div class="cmd-line"><span class="cmd-prompt">PS&gt;</span><span class="cmd-text">wsl --update</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-step">
+        <div class="setup-step-num">2</div>
+        <div class="setup-step-body">
+          <h4>List Available Distributions</h4>
+          <p>See all Linux distributions you can install. Look for <strong>Ubuntu-24.04</strong> in the list.</p>
+          <div class="cmd-block">
+            <div class="cmd-line"><span class="cmd-prompt">PS&gt;</span><span class="cmd-text">wsl --list --online</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-step">
+        <div class="setup-step-num">3</div>
+        <div class="setup-step-body">
+          <h4>Install Ubuntu 24.04</h4>
+          <p>Either command works — use whichever succeeds on your machine.</p>
+          <div class="cmd-block">
+            <div class="cmd-line"><span class="cmd-prompt">PS&gt;</span><span class="cmd-text">wsl --install Ubuntu-24.04</span></div>
+            <div class="cmd-line"><span class="cmd-comment">&nbsp;&nbsp;&nbsp;&nbsp;# or</span></div>
+            <div class="cmd-line"><span class="cmd-prompt">PS&gt;</span><span class="cmd-text">wsl --install -d Ubuntu-24.04</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-step">
+        <div class="setup-step-num">4</div>
+        <div class="setup-step-body">
+          <h4>Restart Your Machine</h4>
+          <p>After installation completes, restart Windows to apply the changes before the first launch.</p>
+        </div>
+      </div>
+
+      <div class="setup-step">
+        <div class="setup-step-num">5</div>
+        <div class="setup-step-body">
+          <h4>Set Username &amp; Password</h4>
+          <p>
+            On first launch, Ubuntu will ask you to create a Unix username and password.
+            The password is not visible while you type — that is normal. Type it carefully and press Enter.
+          </p>
+          <div class="note-tag">
+            ⚠️ The cursor will not move and nothing will be shown while typing your password. This is expected.
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-step">
+        <div class="setup-step-num">6</div>
+        <div class="setup-step-body">
+          <h4>Verify the Installation</h4>
+          <p>Run these commands to confirm WSL and Ubuntu are set up correctly.</p>
+          <div class="cmd-block">
+            <div class="cmd-line"><span class="cmd-prompt">PS&gt;</span><span class="cmd-text">wsl --version</span><span class="cmd-comment">&nbsp;&nbsp;# check WSL version</span></div>
+            <div class="cmd-line"><span class="cmd-prompt">PS&gt;</span><span class="cmd-text">wsl --list --verbose</span><span class="cmd-comment">&nbsp;&nbsp;# see running distros &amp; WSL version per distro</span></div>
+          </div>
+          <p style="margin-top:10px;">You should see <strong>Ubuntu-24.04</strong> listed with state <strong>Stopped</strong> or <strong>Running</strong> and version <strong>2</strong>.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <a href="https://aikaryashala.com/bootcamp/kiet/installation.html" target="_blank" rel="noopener noreferrer" class="setup-ref-link">
+      Full installation guide with more steps →
+    </a>
+  </div>
+
+  <!-- CS50.dev + GitHub -->
+  <div class="cs50-block">
+    <p class="section-label">Coding Environment</p>
+    <h2 class="section-title">Get Started with CS50.dev</h2>
+    <p class="section-desc">
+      CS50.dev is a cloud-based VS Code environment used in the sessions. It requires a GitHub account to log in.
+    </p>
+
+    <div class="cs50-cards">
+
+      <div class="cs50-card">
+        <div class="cs50-card-icon">🐙</div>
+        <h3>GitHub Account</h3>
+        <p>
+          If you don't have a GitHub account, create one first.
+          If you already have one, simply log in — no new account needed.
+        </p>
+        <div class="cs50-divider">No account yet?</div>
+        <a href="https://github.com/signup" target="_blank" rel="noopener noreferrer" class="cs50-btn cs50-btn--gh">
+          Create GitHub Account →
+        </a>
+        <div class="cs50-divider" style="margin-top:14px;">Already have one?</div>
+        <a href="https://github.com/login" target="_blank" rel="noopener noreferrer" class="cs50-btn cs50-btn--gh" style="margin-top:6px;">
+          Log in to GitHub →
+        </a>
+      </div>
+
+      <div class="cs50-card">
+        <div class="cs50-card-icon">💻</div>
+        <h3>Open CS50.dev</h3>
+        <p>
+          Once you're logged into GitHub, go to CS50.dev and sign in with your GitHub account.
+          Your workspace will be ready in seconds.
+        </p>
+        <a href="https://cs50.dev" target="_blank" rel="noopener noreferrer" class="cs50-btn cs50-btn--cs50">
+          Open CS50.dev →
+        </a>
+      </div>
+
+    </div>
+  </div>
+
   <!-- NotebookLM Telugu Podcast Placeholder -->
   <div class="podcast-block">
     <div class="podcast-icon">🎙️</div>
@@ -435,7 +640,7 @@
 <!-- Footer -->
 <footer class="site-footer">
   <p class="footer-credit">
-    <a href="../index.html">← Back to AI Karyashala</a>
+    <a href="../../index.html">← Back to AI Karyashala</a>
     &nbsp;&nbsp;·&nbsp;&nbsp;
     © 2026 AI Karyashala
   </p>
