@@ -315,7 +315,7 @@
       border-radius:14px; overflow:hidden;
     }
     .qa-question {
-      display:flex; align-items:flex-start; gap:14px;
+      display:flex; align-items:center; gap:14px;
       padding:18px 20px; cursor:default;
     }
     .qa-q-badge {
@@ -613,88 +613,6 @@
 
   </div>
 
-  <!-- Linux & C Commands -->
-  <div class="commands-block">
-    <p class="section-label">Session Commands</p>
-    <h2 class="section-title">Linux &amp; C Commands</h2>
-    <p class="section-desc">Commands used during the session — run these inside your Ubuntu terminal.</p>
-
-    <!-- File System -->
-    <div class="cmd-group">
-      <p class="cmd-group-title">File System</p>
-      <div class="cmd-table">
-        <div class="cmd-row">
-          <span class="cmd-code">ls</span>
-          <span class="cmd-desc">List all files and folders in the current directory</span>
-        </div>
-        <div class="cmd-row">
-          <span class="cmd-code">pwd</span>
-          <span class="cmd-desc">Print Working Directory — shows your current location in the file system</span>
-        </div>
-        <div class="cmd-row">
-          <span class="cmd-code">clear</span>
-          <span class="cmd-desc">Clear the terminal screen</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Working with Files -->
-    <div class="cmd-group">
-      <p class="cmd-group-title">Working with Files</p>
-      <div class="cmd-table">
-        <div class="cmd-row">
-          <span class="cmd-code">touch sum.c</span>
-          <span class="cmd-desc">Create a new empty file named <strong>sum.c</strong></span>
-        </div>
-        <div class="cmd-row">
-          <span class="cmd-code">cat sum.c</span>
-          <span class="cmd-desc">Print the contents of <strong>sum.c</strong> to the terminal</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Compiling & Running C -->
-    <div class="cmd-group">
-      <p class="cmd-group-title">Compiling &amp; Running C</p>
-      <div class="cmd-table">
-        <div class="cmd-row">
-          <span class="cmd-code">clang sum.c</span>
-          <span class="cmd-desc">Compile <strong>sum.c</strong> using the Clang compiler</span>
-        </div>
-        <div class="cmd-row">
-          <span class="cmd-code">./a.out</span>
-          <span class="cmd-desc">Run the compiled program — default output file is always <strong>a.out</strong></span>
-        </div>
-        <div class="cmd-row">
-          <span class="cmd-code">rm a.out</span>
-          <span class="cmd-desc">Delete the <strong>a.out</strong> file</span>
-        </div>
-        <div class="cmd-row">
-          <span class="cmd-code">clang sum.c -o sum</span>
-          <span class="cmd-desc">Compile and name the output <strong>sum</strong> instead of a.out</span>
-        </div>
-        <div class="cmd-row">
-          <span class="cmd-code">./sum</span>
-          <span class="cmd-desc">Run the named executable — <strong>sum.c</strong> executes</span>
-        </div>
-      </div>
-      <div class="cmd-note">
-        When you run <code>clang sum.c</code> without <code>-o</code>, the compiler always creates a default output file called <code>a.out</code> (short for <em>assembler output</em>). Use <code>-o &lt;name&gt;</code> to give it a meaningful name.
-      </div>
-    </div>
-
-    <!-- Bash -->
-    <div class="cmd-group">
-      <p class="cmd-group-title">Bash Script</p>
-      <div class="cmd-table">
-        <div class="cmd-row">
-          <span class="cmd-code">bash file</span>
-          <span class="cmd-desc">Execute a bash script file directly</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- WSL Ubuntu Setup -->
   <div class="setup-block">
     <p class="section-label">Environment Setup</p>
@@ -782,78 +700,6 @@
     </a>
   </div>
 
-  <!-- Homework -->
-  <div class="homework-block">
-    <div class="homework-icon">📝</div>
-    <div class="homework-body">
-      <span class="homework-tag">Homework</span>
-      <h3>Install Git Bash at Home</h3>
-      <p>
-        Git Bash gives you a Unix-style terminal on Windows — the same commands you used today
-        (<code style="font-family:monospace;font-size:12px;color:#fbbf24;">ls</code>,
-        <code style="font-family:monospace;font-size:12px;color:#fbbf24;">pwd</code>,
-        <code style="font-family:monospace;font-size:12px;color:#fbbf24;">touch</code>, etc.)
-        will work on your personal machine without needing WSL.
-      </p>
-      <a href="https://git-scm.com/downloads/win" target="_blank" rel="noopener noreferrer" class="homework-link">
-        Download Git Bash for Windows →
-      </a>
-    </div>
-  </div>
-
-  <!-- Faculty Q&A -->
-  <div class="qa-block">
-    <p class="section-label">Faculty Q&amp;A</p>
-    <h2 class="section-title">Questions from the Session</h2>
-    <p class="section-desc">Questions raised by the faculty during the session.</p>
-
-    <div class="qa-list">
-
-      <div class="qa-item">
-        <div class="qa-question">
-          <div class="qa-q-badge">Q</div>
-          <p>What is the difference between Bash and PowerShell?</p>
-        </div>
-        <div class="qa-answer">
-          <strong>Bash</strong> (Bourne Again Shell) is the default shell on Linux and macOS. It is designed around Unix philosophy — everything is a file, commands are small tools chained together with pipes.<br><br>
-          <strong>PowerShell</strong> is Microsoft's shell built on .NET. Instead of plain text output, it passes structured objects between commands — making it more powerful for Windows system administration but different in syntax and philosophy.
-          <ul>
-            <li>Bash uses <code style="font-family:monospace;font-size:12px;">ls</code> &nbsp;·&nbsp; PowerShell uses <code style="font-family:monospace;font-size:12px;">Get-ChildItem</code></li>
-            <li>Bash pipes text &nbsp;·&nbsp; PowerShell pipes objects</li>
-            <li>Bash is cross-platform &nbsp;·&nbsp; PowerShell is now cross-platform too (via PowerShell Core)</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="qa-item">
-        <div class="qa-question">
-          <div class="qa-q-badge">Q</div>
-          <p>What shell does macOS use? Is it the same as Bash?</p>
-        </div>
-        <div class="qa-answer">
-          macOS used Bash as the default shell until macOS Catalina (2019). Since then, the default is <strong>Zsh</strong> (Z Shell) — which is very similar to Bash in usage but has better auto-completion and plugins.<br><br>
-          All three — <strong>Bash</strong>, <strong>Zsh</strong>, and <strong>sh</strong> — are Unix shells and share the same core commands (<code style="font-family:monospace;font-size:12px;">ls</code>, <code style="font-family:monospace;font-size:12px;">pwd</code>, <code style="font-family:monospace;font-size:12px;">cd</code>, etc.). Scripts written for Bash mostly run on Zsh without changes.
-        </div>
-      </div>
-
-      <div class="qa-item">
-        <div class="qa-question">
-          <div class="qa-q-badge">Q</div>
-          <p>What is the difference between Command Prompt and PowerShell?</p>
-        </div>
-        <div class="qa-answer">
-          Both are Windows terminals, but they are very different in capability:
-          <ul>
-            <li><strong>Command Prompt (cmd.exe)</strong> — the original Windows shell, dating back to DOS. Limited scripting, no object pipeline, basic commands only.</li>
-            <li><strong>PowerShell</strong> — a modern replacement built on .NET. Supports scripting, object-oriented pipelines, remote management, and access to the full Windows API.</li>
-          </ul>
-          For most development tasks on Windows today, <strong>PowerShell</strong> or <strong>Windows Terminal with WSL</strong> is recommended over Command Prompt.
-        </div>
-      </div>
-
-    </div>
-  </div>
-
   <!-- CS50.dev + GitHub -->
   <div class="cs50-block">
     <p class="section-label">Coding Environment</p>
@@ -898,6 +744,130 @@
     </div>
   </div>
 
+  <!-- Linux & C Commands -->
+  <div class="commands-block">
+    <p class="section-label">Session Commands</p>
+    <h2 class="section-title">Linux &amp; C Commands</h2>
+    <p class="section-desc">Commands used during the session — run these inside your Ubuntu terminal.</p>
+
+    <div class="cmd-group">
+      <p class="cmd-group-title">File System</p>
+      <div class="cmd-table">
+        <div class="cmd-row">
+          <span class="cmd-code">ls</span>
+          <span class="cmd-desc">List all files and folders in the current directory</span>
+        </div>
+        <div class="cmd-row">
+          <span class="cmd-code">pwd</span>
+          <span class="cmd-desc">Print Working Directory — shows your current location in the file system</span>
+        </div>
+        <div class="cmd-row">
+          <span class="cmd-code">clear</span>
+          <span class="cmd-desc">Clear the terminal screen</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cmd-group">
+      <p class="cmd-group-title">Working with Files</p>
+      <div class="cmd-table">
+        <div class="cmd-row">
+          <span class="cmd-code">touch sum.c</span>
+          <span class="cmd-desc">Create a new empty file named <strong>sum.c</strong></span>
+        </div>
+        <div class="cmd-row">
+          <span class="cmd-code">cat sum.c</span>
+          <span class="cmd-desc">Print the contents of <strong>sum.c</strong> to the terminal</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cmd-group">
+      <p class="cmd-group-title">Compiling &amp; Running C</p>
+      <div class="cmd-table">
+        <div class="cmd-row">
+          <span class="cmd-code">clang sum.c</span>
+          <span class="cmd-desc">Compile <strong>sum.c</strong> using the Clang compiler</span>
+        </div>
+        <div class="cmd-row">
+          <span class="cmd-code">./a.out</span>
+          <span class="cmd-desc">Run the compiled program — default output file is always <strong>a.out</strong></span>
+        </div>
+        <div class="cmd-row">
+          <span class="cmd-code">rm a.out</span>
+          <span class="cmd-desc">Delete the <strong>a.out</strong> file</span>
+        </div>
+        <div class="cmd-row">
+          <span class="cmd-code">clang sum.c -o sum</span>
+          <span class="cmd-desc">Compile and name the output <strong>sum</strong> instead of a.out</span>
+        </div>
+        <div class="cmd-row">
+          <span class="cmd-code">./sum</span>
+          <span class="cmd-desc">Run the named executable — <strong>sum.c</strong> executes</span>
+        </div>
+      </div>
+      <div class="cmd-note">
+        When you run <code>clang sum.c</code> without <code>-o</code>, the compiler always creates a default output file called <code>a.out</code> (short for <em>assembler output</em>). Use <code>-o &lt;name&gt;</code> to give it a meaningful name.
+      </div>
+    </div>
+
+    <div class="cmd-group">
+      <p class="cmd-group-title">Bash Script</p>
+      <div class="cmd-table">
+        <div class="cmd-row">
+          <span class="cmd-code">bash file</span>
+          <span class="cmd-desc">Execute a bash script file directly</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Homework -->
+  <div class="homework-block">
+    <div class="homework-icon">📝</div>
+    <div class="homework-body">
+      <span class="homework-tag">Homework</span>
+      <h3>Install Git Bash at Home</h3>
+      <p>
+        Git Bash gives you a Unix-style terminal on Windows — the same commands you used today
+        (<code style="font-family:monospace;font-size:12px;color:#fbbf24;">ls</code>,
+        <code style="font-family:monospace;font-size:12px;color:#fbbf24;">pwd</code>,
+        <code style="font-family:monospace;font-size:12px;color:#fbbf24;">touch</code>, etc.)
+        will work on your personal machine without needing WSL.
+      </p>
+      <a href="https://git-scm.com/downloads/win" target="_blank" rel="noopener noreferrer" class="homework-link">
+        Download Git Bash for Windows →
+      </a>
+    </div>
+  </div>
+
+  <!-- Faculty Questions -->
+  <div class="qa-block">
+    <p class="section-label">Faculty Q&amp;A</p>
+    <h2 class="section-title">Questions from the Session</h2>
+    <p class="section-desc">Questions raised by the faculty during the session.</p>
+
+    <div class="qa-list">
+      <div class="qa-item">
+        <div class="qa-question">
+          <div class="qa-q-badge">Q</div>
+          <p>What is the difference between Bash and PowerShell?</p>
+        </div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-question">
+          <div class="qa-q-badge">Q</div>
+          <p>What shell does macOS use? Is it Bash or something else?</p>
+        </div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-question">
+          <div class="qa-q-badge">Q</div>
+          <p>What is the difference between Command Prompt and PowerShell?</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
 </div>
 
