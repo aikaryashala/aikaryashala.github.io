@@ -101,19 +101,19 @@
     .info-card-value span { color:#fb7185; }
 
     /* ── Content Shell ── */
-    .content-shell { max-width:900px; margin:0 auto; padding:0 20px; }
+    .content-shell { max-width:900px; margin:0 auto; padding:64px 20px 0; }
 
     /* ── Section Heading ── */
     .section-label {
       font-size:11px; font-weight:700; letter-spacing:.2em; text-transform:uppercase;
-      color:var(--accent-red); margin-bottom:10px;
+      color:var(--accent-red); margin-bottom:10px; display:block;
     }
     .section-title {
-      font-size:clamp(22px,3vw,32px); font-weight:800; color:#fff;
-      margin-bottom:12px; line-height:1.25;
+      font-size:clamp(20px,3vw,30px); font-weight:800; color:#fff;
+      margin-bottom:10px; line-height:1.25;
     }
     .section-desc {
-      font-size:15px; color:rgba(255,255,255,.6); line-height:1.8; margin-bottom:40px;
+      font-size:15px; color:rgba(255,255,255,.6); line-height:1.8; margin-bottom:36px;
     }
 
     /* ── Video Block ── */
@@ -181,10 +181,10 @@
       border-top:1px solid rgba(255,255,255,.07);
     }
 
-    /* ── Podcast Placeholder ── */
+    /* ── Podcast Block ── */
     .podcast-block {
       background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08);
-      border-radius:20px; padding:40px 36px; margin-bottom:80px;
+      border-radius:20px; padding:32px 36px; margin-bottom:64px;
       display:flex; align-items:center; gap:28px;
     }
     .podcast-icon {
@@ -217,20 +217,32 @@
       .page-hero { padding:90px 16px 56px; }
       .info-strip { grid-template-columns:repeat(2,1fr); gap:10px; margin-top:28px; }
       .info-card { padding:14px 16px; }
+      .content-shell { padding-top:48px; }
+      .section-desc { margin-bottom:28px; }
       .compare-grid { grid-template-columns:1fr; gap:16px; }
-      .podcast-block { flex-direction:column; align-items:flex-start; gap:20px; padding:28px 24px; }
-      .video-block, .compare-grid, .podcast-block { margin-bottom:48px; }
+      .podcast-block { flex-direction:column; align-items:flex-start; gap:16px; padding:24px; margin-bottom:48px; }
+      .video-block, .compare-grid { margin-bottom:48px; }
+      .setup-block, .cs50-block { margin-bottom:48px; }
+      .cs50-cards { grid-template-columns:1fr; }
+      .setup-ref-link { display:flex; justify-content:center; }
     }
 
     @media(max-width:480px) {
       .page-hero { padding:80px 14px 44px; }
       .event-badge { font-size:11px; padding:6px 14px; }
-      .back-link { font-size:12px; margin-bottom:20px; }
-      .info-strip { grid-template-columns:repeat(2,1fr); gap:8px; margin-top:24px; }
+      .info-strip { grid-template-columns:repeat(2,1fr); gap:8px; margin-top:20px; }
       .info-card { padding:12px 14px; border-radius:12px; }
-      .content-shell { padding:0 14px; }
-      .compare-card { padding:22px 18px; }
-      .podcast-block { padding:24px 18px; }
+      .info-card-label { font-size:9px; }
+      .content-shell { padding:40px 14px 0; }
+      .section-title { font-size:20px; }
+      .section-desc { font-size:14px; }
+      .compare-card { padding:20px 16px; }
+      .podcast-block { padding:20px 16px; }
+      .cmd-block { font-size:12px; padding:10px 12px; }
+      .cmd-comment { display:none; }
+      .cs50-card { padding:22px 18px; }
+      .setup-step { gap:14px; }
+      .setup-step-num { width:28px; height:28px; font-size:12px; }
     }
 
     /* ── Setup Section ── */
@@ -247,24 +259,24 @@
       font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center;
     }
     .setup-step-body { flex:1; }
-    .setup-step-body h4 { font-size:15px; font-weight:700; color:#fff; margin-bottom:6px; }
-    .setup-step-body p  { font-size:13px; color:rgba(255,255,255,.55); line-height:1.7; margin-bottom:10px; }
+    .setup-step-body h4 { font-size:16px; font-weight:700; color:#fff; margin-bottom:6px; }
+    .setup-step-body p  { font-size:14px; color:rgba(255,255,255,.55); line-height:1.7; margin-bottom:10px; }
     .setup-step-body p:last-child { margin-bottom:0; }
     .cmd-block {
       background:#060810; border:1px solid rgba(255,255,255,.1); border-radius:10px;
       padding:12px 16px; margin:8px 0; font-family:"Cascadia Code","Fira Code","Consolas",monospace;
       font-size:13px; overflow-x:auto;
     }
-    .cmd-block .cmd-line { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+    .cmd-block .cmd-line { display:flex; align-items:baseline; gap:10px; margin-bottom:4px; flex-wrap:wrap; }
     .cmd-block .cmd-line:last-child { margin-bottom:0; }
-    .cmd-prompt { color:#10b981; font-weight:700; user-select:none; }
-    .cmd-text   { color:#e2e8f0; }
+    .cmd-prompt { color:#10b981; font-weight:700; user-select:none; flex-shrink:0; }
+    .cmd-text   { color:#e2e8f0; flex-shrink:0; }
     .cmd-comment { color:rgba(255,255,255,.3); font-size:12px; }
     .note-tag {
-      display:inline-flex; align-items:center; gap:6px;
+      display:flex; align-items:flex-start; gap:6px; flex-wrap:wrap;
       background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.3);
-      border-radius:8px; padding:6px 12px; font-size:12px; color:#fbbf24;
-      margin-top:8px; line-height:1.5;
+      border-radius:8px; padding:8px 14px; font-size:13px; color:#fbbf24;
+      margin-top:10px; line-height:1.6;
     }
     .setup-ref-link {
       display:inline-flex; align-items:center; gap:8px;
@@ -276,29 +288,30 @@
 
     /* ── CS50 Section ── */
     .cs50-block { margin-bottom:80px; }
-    .cs50-cards { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:8px; }
+    .cs50-cards { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:4px; }
     .cs50-card {
       background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08);
-      border-radius:18px; padding:28px 24px;
+      border-radius:18px; padding:28px 24px; display:flex; flex-direction:column;
     }
     .cs50-card-icon { font-size:32px; margin-bottom:14px; }
     .cs50-card h3 { font-size:16px; font-weight:800; color:#fff; margin-bottom:8px; }
-    .cs50-card p  { font-size:13px; color:rgba(255,255,255,.55); line-height:1.7; margin-bottom:16px; }
+    .cs50-card p  { font-size:14px; color:rgba(255,255,255,.55); line-height:1.7; margin-bottom:20px; flex:1; }
+    .cs50-btn-group { display:flex; flex-direction:column; gap:10px; }
+    .cs50-divider { font-size:11px; font-weight:600; color:rgba(255,255,255,.25); text-transform:uppercase; letter-spacing:.08em; }
     .cs50-btn {
-      display:inline-flex; align-items:center; gap:8px;
-      padding:10px 20px; border-radius:10px; font-size:13px; font-weight:700;
-      text-decoration:none; transition:all .25s;
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      padding:11px 20px; border-radius:10px; font-size:14px; font-weight:700;
+      text-decoration:none; transition:all .25s; text-align:center;
     }
     .cs50-btn--gh {
-      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); color:#fff;
+      background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.15); color:#fff;
     }
-    .cs50-btn--gh:hover { background:rgba(255,255,255,.15); border-color:rgba(255,255,255,.3); }
+    .cs50-btn--gh:hover { background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.3); }
     .cs50-btn--cs50 {
       background:linear-gradient(135deg,#e11d48,#be123c); color:#fff;
       box-shadow:0 8px 24px rgba(225,29,72,.3);
     }
     .cs50-btn--cs50:hover { transform:translateY(-2px); box-shadow:0 12px 32px rgba(225,29,72,.4); }
-    .cs50-divider { text-align:center; font-size:12px; color:rgba(255,255,255,.25); margin:10px 0; }
 
     @media(max-width:768px) {
       .cs50-cards { grid-template-columns:1fr; }
@@ -388,7 +401,7 @@
   </div>
 
   <!-- NotebookLM Telugu Podcast -->
-  <div class="podcast-block" style="margin-bottom:64px;">
+  <div class="podcast-block">
     <div class="podcast-icon">🎙️</div>
     <div class="podcast-text">
       <h3>NotebookLM Telugu Podcast</h3>
@@ -610,14 +623,16 @@
           If you don't have a GitHub account, create one first.
           If you already have one, simply log in — no new account needed.
         </p>
-        <div class="cs50-divider">No account yet?</div>
-        <a href="https://github.com/signup" target="_blank" rel="noopener noreferrer" class="cs50-btn cs50-btn--gh">
-          Create GitHub Account →
-        </a>
-        <div class="cs50-divider" style="margin-top:14px;">Already have one?</div>
-        <a href="https://github.com/login" target="_blank" rel="noopener noreferrer" class="cs50-btn cs50-btn--gh" style="margin-top:6px;">
-          Log in to GitHub →
-        </a>
+        <div class="cs50-btn-group">
+          <span class="cs50-divider">No account yet?</span>
+          <a href="https://github.com/signup" target="_blank" rel="noopener noreferrer" class="cs50-btn cs50-btn--gh">
+            Create GitHub Account →
+          </a>
+          <span class="cs50-divider">Already have one?</span>
+          <a href="https://github.com/login" target="_blank" rel="noopener noreferrer" class="cs50-btn cs50-btn--gh">
+            Log in to GitHub →
+          </a>
+        </div>
       </div>
 
       <div class="cs50-card">
