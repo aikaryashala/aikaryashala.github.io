@@ -812,6 +812,49 @@
     </div>
 
     <div class="cmd-group">
+      <p class="cmd-group-title">Compilation Stages — Save Intermediate Files</p>
+      <div class="cmd-table">
+        <div class="cmd-row">
+          <span class="cmd-code">clang --save-temps sum.c -o sum</span>
+          <span class="cmd-desc">Compile and save all intermediate files generated during compilation</span>
+        </div>
+        <div class="cmd-row">
+          <span class="cmd-code">ls</span>
+          <span class="cmd-desc">List the directory — you will see all the files created</span>
+        </div>
+      </div>
+      <div class="cmd-note">
+        After running <code>--save-temps</code>, the following files are generated:
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:12px;">
+          <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:8px 12px;">
+            <code style="color:#10b981;font-size:12px;">sum</code>
+            <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:3px;">Final executable</div>
+          </div>
+          <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:8px 12px;">
+            <code style="color:#60a5fa;font-size:12px;">sum.i</code>
+            <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:3px;">Preprocessed source</div>
+          </div>
+          <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:8px;padding:8px 12px;">
+            <code style="color:#a78bfa;font-size:12px;">sum.bc</code>
+            <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:3px;">LLVM bitcode</div>
+          </div>
+          <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:8px 12px;">
+            <code style="color:#fbbf24;font-size:12px;">sum.s</code>
+            <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:3px;">Assembly code</div>
+          </div>
+          <div style="background:rgba(236,72,153,.08);border:1px solid rgba(236,72,153,.2);border-radius:8px;padding:8px 12px;">
+            <code style="color:#f472b6;font-size:12px;">sum.o</code>
+            <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:3px;">Object file</div>
+          </div>
+          <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;">
+            <code style="color:rgba(255,255,255,.6);font-size:12px;">sum.c</code>
+            <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:3px;">Original source</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cmd-group">
       <p class="cmd-group-title">Bash Script</p>
       <div class="cmd-table">
         <div class="cmd-row">
