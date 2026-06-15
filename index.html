@@ -189,7 +189,7 @@
       margin:8px 0 12px; letter-spacing:-0.5px;
     }
     .journey-sub { font-size:16px; color:rgba(255,255,255,0.45); margin:0; }
-    .journey-map-wrap { position:relative; width:100%; aspect-ratio:900/800; }
+    .journey-map-wrap { position:relative; width:100%; aspect-ratio:900/900; }
     .journey-map {
       position:absolute; inset:0; border-radius:24px; overflow:hidden;
       border:1px solid rgba(255,255,255,0.07);
@@ -242,6 +242,8 @@
     .mpin:nth-child(8)  { animation-delay:0.4s; }
     .mpin:nth-child(9)  { animation-delay:-1.1s; }
     .mpin:nth-child(10) { animation-delay:-1.9s; }
+    .mpin:nth-child(11) { animation-delay: 0.6s; }
+    .mpin:nth-child(12) { animation-delay:-0.5s; }
     .mpin:nth-child(3)  .mpin-dot { animation-delay:0.6s; }
     .mpin:nth-child(4)  .mpin-dot { animation-delay:1.0s; }
     .mpin:nth-child(5)  .mpin-dot { animation-delay:1.4s; }
@@ -250,6 +252,8 @@
     .mpin:nth-child(8)  .mpin-dot { animation-delay:2.6s; }
     .mpin:nth-child(9)  .mpin-dot { animation-delay:3.0s; }
     .mpin:nth-child(10) .mpin-dot { animation-delay:3.4s; }
+    .mpin:nth-child(11) .mpin-dot { animation-delay:3.8s; }
+    .mpin:nth-child(12) .mpin-dot { animation-delay:4.2s; }
     .mpin:nth-child(3)  .mpin-dot::after { animation-delay:0.6s; }
     .mpin:nth-child(4)  .mpin-dot::after { animation-delay:1.0s; }
     .mpin:nth-child(5)  .mpin-dot::after { animation-delay:1.4s; }
@@ -258,6 +262,8 @@
     .mpin:nth-child(8)  .mpin-dot::after { animation-delay:2.6s; }
     .mpin:nth-child(9)  .mpin-dot::after { animation-delay:3.0s; }
     .mpin:nth-child(10) .mpin-dot::after { animation-delay:3.4s; }
+    .mpin:nth-child(11) .mpin-dot::after { animation-delay:3.8s; }
+    .mpin:nth-child(12) .mpin-dot::after { animation-delay:4.2s; }
 
     /* ── Footer ── */
     .site-footer {
@@ -505,34 +511,35 @@
   <div class="journey-header">
     <p class="hero-eyebrow">Our Journey</p>
     <h2>Our Journey</h2>
-    <p class="journey-sub">Ten milestones. One path.</p>
+    <p class="journey-sub">Eleven milestones. One path.</p>
   </div>
   <div class="journey-map-wrap">
     <div class="journey-map">
       <div class="map-grid"></div>
-      <svg class="map-svg" viewBox="0 0 900 800" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <svg class="map-svg" viewBox="0 0 900 900" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <defs>
           <linearGradient id="routeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%"   stop-color="#8b5cf6"/>
-            <stop offset="11%"  stop-color="#3b82f6"/>
-            <stop offset="22%"  stop-color="#10b981"/>
-            <stop offset="33%"  stop-color="#f59e0b"/>
-            <stop offset="44%"  stop-color="#ec4899"/>
-            <stop offset="55%"  stop-color="#84cc16"/>
-            <stop offset="66%"  stop-color="#06b6d4"/>
-            <stop offset="77%"  stop-color="#f97316"/>
-            <stop offset="88%"  stop-color="#a855f7"/>
-            <stop offset="100%" stop-color="#14b8a6"/>
+            <stop offset="10%"  stop-color="#3b82f6"/>
+            <stop offset="20%"  stop-color="#10b981"/>
+            <stop offset="30%"  stop-color="#f59e0b"/>
+            <stop offset="40%"  stop-color="#ec4899"/>
+            <stop offset="50%"  stop-color="#84cc16"/>
+            <stop offset="60%"  stop-color="#06b6d4"/>
+            <stop offset="70%"  stop-color="#f97316"/>
+            <stop offset="80%"  stop-color="#a855f7"/>
+            <stop offset="90%"  stop-color="#14b8a6"/>
+            <stop offset="100%" stop-color="#e11d48"/>
           </linearGradient>
           <filter id="glow">
             <feGaussianBlur stdDeviation="3" result="blur"/>
             <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
-        <path d="M 90,50 C 350,30 518,138 738,128 C 558,123 290,198 90,208 C 350,188 518,298 738,288 C 558,283 290,350 90,360 C 350,340 518,450 738,440 C 558,435 290,510 90,520 C 350,500 518,610 738,600 C 558,595 290,662 90,672 C 350,652 518,762 738,752"
+        <path d="M 90,54 C 350,34 518,145 738,135 C 558,130 290,206 90,216 C 350,196 518,307 738,297 C 558,292 290,368 90,378 C 350,358 518,469 738,459 C 558,454 290,530 90,540 C 350,520 518,631 738,621 C 558,616 290,692 90,702 C 350,682 518,793 738,783 C 558,778 290,854 90,864"
           fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
         <path class="map-route"
-          d="M 90,50 C 350,30 518,138 738,128 C 558,123 290,198 90,208 C 350,188 518,298 738,288 C 558,283 290,350 90,360 C 350,340 518,450 738,440 C 558,435 290,510 90,520 C 350,500 518,610 738,600 C 558,595 290,662 90,672 C 350,652 518,762 738,752"
+          d="M 90,54 C 350,34 518,145 738,135 C 558,130 290,206 90,216 C 350,196 518,307 738,297 C 558,292 290,368 90,378 C 350,358 518,469 738,459 C 558,454 290,530 90,540 C 350,520 518,631 738,621 C 558,616 290,692 90,702 C 350,682 518,793 738,783 C 558,778 290,854 90,864"
           fill="none" stroke="url(#routeGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
           stroke-dasharray="10 7" filter="url(#glow)"/>
       </svg>
@@ -545,67 +552,74 @@
         <p>Discipline, focus, and inner balance.</p>
       </div>
     </a>
-    <a href="apdts.html" class="mpin" style="--c:#3b82f6; left:82%; top:16%">
+    <a href="apdts.html" class="mpin" style="--c:#3b82f6; left:82%; top:15%">
       <div class="mpin-dot reveal-item"><span class="mpin-emoji">🖥️</span></div>
       <div class="mpin-label mpin-label--left">
         <span class="mpin-num">02</span><strong>APDTS</strong>
         <p>Digital summit &amp; tech showcase.</p>
       </div>
     </a>
-    <a href="projects.html" class="mpin" style="--c:#10b981; left:10%; top:26%">
+    <a href="projects.html" class="mpin" style="--c:#10b981; left:10%; top:24%">
       <div class="mpin-dot reveal-item"><span class="mpin-emoji">🚀</span></div>
       <div class="mpin-label mpin-label--right">
         <span class="mpin-num">03</span><strong>Projects</strong>
         <p>Hands-on development.</p>
       </div>
     </a>
-    <a href="https://aikaryashala.com/bootcamp/kiet/" class="mpin" style="--c:#f59e0b; left:82%; top:36%" target="_blank" rel="noopener noreferrer">
+    <a href="https://aikaryashala.com/bootcamp/kiet/" class="mpin" style="--c:#f59e0b; left:82%; top:33%" target="_blank" rel="noopener noreferrer">
       <div class="mpin-dot reveal-item"><span class="mpin-emoji">🎓</span></div>
       <div class="mpin-label mpin-label--left">
         <span class="mpin-num">04</span><strong>KIET</strong>
         <p>Academic &amp; professional foundation.</p>
       </div>
     </a>
-    <a href="bootcamp-reviews.html" class="mpin" style="--c:#ec4899; left:10%; top:45%">
+    <a href="bootcamp-reviews.html" class="mpin" style="--c:#ec4899; left:10%; top:42%">
       <div class="mpin-dot reveal-item"><span class="mpin-emoji">⚡</span></div>
       <div class="mpin-label mpin-label--right">
         <span class="mpin-num">05</span><strong>Bootcamp</strong>
         <p>Accelerated learning &amp; career launchpad.</p>
       </div>
     </a>
-    <a href="buildathon.html" class="mpin" style="--c:#84cc16; left:82%; top:55%">
+    <a href="buildathon.html" class="mpin" style="--c:#84cc16; left:82%; top:51%">
       <div class="mpin-dot reveal-item"><span class="mpin-emoji">🏆</span></div>
       <div class="mpin-label mpin-label--left">
         <span class="mpin-num">06</span><strong>Buildathon</strong>
         <p>AI for Vizag Buildathon — build &amp; compete.</p>
       </div>
     </a>
-    <a href="sumedha.html" class="mpin" style="--c:#06b6d4; left:10%; top:65%">
+    <a href="sumedha.html" class="mpin" style="--c:#06b6d4; left:10%; top:60%">
       <div class="mpin-dot reveal-item"><span class="mpin-emoji">🤝</span></div>
       <div class="mpin-label mpin-label--right">
         <span class="mpin-num">07</span><strong>Sumedha 2026</strong>
         <p>AIKYA Community stall at Gayathri College.</p>
       </div>
     </a>
-    <a href="#" class="mpin" style="--c:#f97316; left:82%; top:75%">
+    <a href="#" class="mpin" style="--c:#f97316; left:82%; top:69%">
       <div class="mpin-dot reveal-item"><span class="mpin-emoji">🏛️</span></div>
       <div class="mpin-label mpin-label--left">
         <span class="mpin-num">08</span><strong>AU 100 Years</strong>
         <p>Tech summit at AU Convention Centre.</p>
       </div>
     </a>
-    <a href="aifusion.html" class="mpin" style="--c:#a855f7; left:10%; top:84%">
+    <a href="aifusion.html" class="mpin" style="--c:#a855f7; left:10%; top:78%">
       <div class="mpin-dot reveal-item"><span class="mpin-emoji">🤖</span></div>
       <div class="mpin-label mpin-label--right">
         <span class="mpin-num">09</span><strong>AI Fusion</strong>
         <p>Attended AI Fusion summit 2026.</p>
       </div>
     </a>
-    <a href="gvpcew/index.html" class="mpin" style="--c:#14b8a6; left:82%; top:94%">
+    <a href="gvpcew/index.html" class="mpin" style="--c:#14b8a6; left:82%; top:87%">
       <div class="mpin-dot reveal-item"><span class="mpin-emoji">🎯</span></div>
       <div class="mpin-label mpin-label--left">
         <span class="mpin-num">10</span><strong>GVP College</strong>
         <p>Seven-day DSA session at Gayatri Vidya Parishad College of Engineering for Women.</p>
+      </div>
+    </a>
+    <a href="fdp/index.html" class="mpin" style="--c:#e11d48; left:10%; top:96%">
+      <div class="mpin-dot reveal-item"><span class="mpin-emoji">📚</span></div>
+      <div class="mpin-label mpin-label--right">
+        <span class="mpin-num">11</span><strong>ANITS FDP</strong>
+        <p>Faculty Development Programme on Programming Languages, Jun 15–18, 2026.</p>
       </div>
     </a>
   </div>
