@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Session 1 — ANITS FDP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&family=Alegreya+SC:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+  html{zoom:1.25}
+    :root {
+      --bg:       #E8DDD0;
+      --bg-2:     #DFD3C4;
+      --bg-3:     #D4C5B0;
+      --card:     #F0EAE0;
+      --ink:      #1C0E08;
+      --ink-2:    #2F1708;
+      --ink-3:    #5B3520;
+      --ink-4:    #8B7060;
+      --border:   #C8B8A0;
+      --border-2: #B0A088;
+      --blue:     #7A3018;
+      --blue-bg:  rgba(122,48,24,.08);
+      --blue-bg-2:rgba(122,48,24,.16);
+      --green:    #3A6B18;
+      --mono:     "Fira Code","Cascadia Code",ui-monospace,monospace;
+      --sans:     "Alegreya",Georgia,"Book Antiqua",serif;
+      --sc:       "Alegreya SC","Alegreya",Georgia,serif;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:var(--sans); background-color:var(--bg); background-image:radial-gradient(#5a372314 .8px, transparent .8px), linear-gradient(90deg, #0000000a 0%, transparent 12% 88%, #0000000a 100%); background-size:16px 16px, 100% 100%; background-attachment:fixed; color:var(--ink); line-height:1.65; -webkit-font-smoothing:antialiased; }
+
+    /* ── Nav ── */
+    .nav { position:sticky; top:0; z-index:100; background:rgba(232,221,208,.92); backdrop-filter:blur(14px); border-bottom:1px solid var(--border); }
+    .nav-inner { max-width:900px; margin:0 auto; padding:0 24px; height:54px; display:flex; align-items:center; gap:16px; }
+    .back-link { display:inline-flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink-3); font-size:13px; font-weight:600; transition:color .15s; }
+    .back-link:hover { color:var(--ink); }
+    .nav-sep { width:1px; height:16px; background:var(--border-2); }
+    .nav-crumb { font-size:13px; color:var(--ink-4); }
+
+    /* ── Page header ── */
+    .page-header { max-width:900px; margin:0 auto; padding:60px 24px 48px; border-bottom:1px solid var(--border); }
+    .session-badge { display:inline-flex; align-items:center; gap:10px; margin-bottom:20px; }
+    .badge-day { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-4); }
+    .badge-dot { width:4px; height:4px; border-radius:50%; background:var(--border-2); }
+    .badge-session { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--blue); background:var(--blue-bg); border:1px solid rgba(37,99,235,.2); border-radius:20px; padding:3px 10px; }
+    .page-title { font-size:clamp(26px,4.5vw,44px); font-weight:900; line-height:1.1; letter-spacing:-.03em; color:var(--ink); margin-bottom:14px; }
+    .page-desc { font-size:16px; color:var(--ink-3); line-height:1.7; max-width:620px; }
+
+    /* ── Shell ── */
+    .shell { max-width:900px; margin:0 auto; padding:0 24px 80px; }
+
+    /* ── Section blocks ── */
+    .section { margin-top:52px; }
+    .section-label { font-size:11px; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-4); margin-bottom:8px; }
+    .section-title { font-size:clamp(18px,2.5vw,24px); font-weight:800; color:var(--ink); margin-bottom:14px; letter-spacing:-.02em; }
+    .section-desc { font-size:14px; color:var(--ink-3); line-height:1.7; margin-bottom:20px; }
+
+    /* ── Links ── */
+    .link-stack { display:flex; flex-direction:column; gap:10px; }
+    .resource-link {
+      display:flex; align-items:center; gap:14px;
+      padding:14px 18px; border:1px solid var(--border);
+      border-radius:10px; text-decoration:none;
+      background:var(--card); transition:border-color .18s, background .18s;
+    }
+    .resource-link:hover { border-color:var(--border-2); background:var(--bg-2); }
+    .resource-icon { font-size:20px; flex-shrink:0; width:36px; text-align:center; }
+    .resource-body { flex:1; min-width:0; }
+    .resource-title { font-size:14px; font-weight:600; color:var(--ink); }
+    .resource-sub { font-size:12px; color:var(--ink-4); margin-top:2px; }
+    .resource-arrow { color:var(--ink-4); font-size:14px; flex-shrink:0; }
+
+    /* ── Video embed ── */
+    .video-wrap { position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:12px; border:1px solid var(--border); background:#000; }
+    .video-wrap iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:0; border-radius:12px; }
+
+    /* ── Comparison table ── */
+    .compare-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .compare-card { border:1px solid var(--border); border-radius:12px; padding:20px 18px; background:var(--card); }
+    .compare-lang { font-size:15px; font-weight:800; color:var(--ink); margin-bottom:6px; }
+    .compare-path { font-size:12.5px; color:var(--ink-3); line-height:1.6; }
+    .compare-path code { font-family:var(--mono); font-size:.88em; background:var(--bg-2); padding:1px 5px; border-radius:4px; color:var(--ink-2); }
+    .compare-tag { display:inline-block; margin-top:10px; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--blue); background:var(--blue-bg); border:1px solid rgba(37,99,235,.18); border-radius:6px; padding:2px 8px; }
+
+    /* ── Steps ── */
+    .steps { display:flex; flex-direction:column; gap:10px; }
+    .step { display:flex; align-items:flex-start; gap:14px; padding:14px 18px; border:1px solid var(--border); border-radius:10px; background:var(--card); }
+    .step-num { flex-shrink:0; width:26px; height:26px; border-radius:6px; background:var(--bg-3); font-size:11px; font-weight:800; color:var(--ink-3); display:flex; align-items:center; justify-content:center; margin-top:1px; }
+    .step-body { flex:1; }
+    .step-title { font-size:14px; font-weight:600; color:var(--ink); margin-bottom:4px; }
+    .step-detail { font-size:13px; color:var(--ink-3); line-height:1.6; }
+    .step-code { margin-top:8px; background:var(--bg-2); border:1px solid var(--border); border-radius:7px; padding:9px 12px; font-family:var(--mono); font-size:12.5px; color:var(--ink-2); }
+
+    /* ── Footer ── */
+    .site-footer { border-top:1px solid var(--border); padding:28px 24px; text-align:center; }
+    .footer-inner { max-width:900px; margin:0 auto; }
+    .footer-text { font-size:13px; color:var(--ink-4); }
+    .footer-text a { color:var(--ink-3); text-decoration:none; }
+    .footer-text a:hover { color:var(--ink); }
+
+    @media (max-width:640px) {
+      .compare-grid { grid-template-columns:1fr; }
+      .page-header { padding:40px 18px 36px; }
+      .shell { padding:0 18px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="back-link">← ANITS FDP</a>
+    <div class="nav-sep"></div>
+    <span class="nav-crumb">Session 1</span>
+  </div>
+</nav>
+
+<header class="page-header">
+  <div class="session-badge">
+    <span class="badge-day">Day 1</span>
+    <span class="badge-dot"></span>
+    <span class="badge-session">Session 1</span>
+  </div>
+  <h1 class="page-title">C++, Python &amp; Java —<br>Compilation Compared</h1>
+  <p class="page-desc">How each language takes source code all the way to execution — and why it matters for understanding programming at a deeper level.</p>
+</header>
+
+<div class="shell">
+
+  <!-- Video & Podcast -->
+  <div class="section">
+    <p class="section-label">Resources</p>
+    <h2 class="section-title">Video &amp; Podcast</h2>
+    <div class="video-wrap">
+      <iframe
+        src="https://www.youtube.com/embed/hnlz0YYCpBU"
+        title="Compilation Video — C++, Python &amp; Java"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
+      </iframe>
+    </div>
+    <div class="link-stack" style="margin-top:12px;">
+      <a href="https://notebooklm.google.com/notebook/1d9aafde-6ac7-4b6c-9cf6-7d878de7177b/artifact/cf9706f2-4341-4bab-bff8-f10149bf57b8?utm_source=nlm_web_share&utm_medium=google_oo&utm_campaign=art_share_1" target="_blank" rel="noopener noreferrer" class="resource-link">
+        <span class="resource-icon">🎙</span>
+        <div class="resource-body">
+          <div class="resource-title">Telugu Podcast</div>
+          <div class="resource-sub">NotebookLM — listen in Telugu</div>
+        </div>
+        <span class="resource-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Language Comparison -->
+  <div class="section">
+    <p class="section-label">Concept</p>
+    <h2 class="section-title">How Each Language Runs</h2>
+    <p class="section-desc">Each language takes a different path from source code to execution.</p>
+    <div class="compare-grid">
+      <div class="compare-card">
+        <div class="compare-lang">C++</div>
+        <div class="compare-path">
+          <code>.cpp</code> source →<br>
+          Compiler (<code>g++</code>) →<br>
+          Native machine code →<br>
+          CPU runs directly
+        </div>
+        <span class="compare-tag">Compiled</span>
+      </div>
+      <div class="compare-card">
+        <div class="compare-lang">Python</div>
+        <div class="compare-path">
+          <code>.py</code> source →<br>
+          Interpreter (<code>python3</code>) →<br>
+          Bytecode (<code>.pyc</code>) →<br>
+          Python VM executes
+        </div>
+        <span class="compare-tag">Interpreted</span>
+      </div>
+      <div class="compare-card">
+        <div class="compare-lang">Java</div>
+        <div class="compare-path">
+          <code>.java</code> source →<br>
+          Compiler (<code>javac</code>) →<br>
+          Bytecode (<code>.class</code>) →<br>
+          JVM executes
+        </div>
+        <span class="compare-tag">JVM Bytecode</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- WSL Setup -->
+  <div class="section">
+    <p class="section-label">Environment Setup</p>
+    <h2 class="section-title">Install Ubuntu on Windows via WSL</h2>
+    <p class="section-desc">Follow these steps in order. All PowerShell commands must be run as Administrator.</p>
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Verify Windows Version</div>
+          <div class="step-detail">Open PowerShell and check your build. WSL 2 requires Windows 10 version 2004+ (Build 19041+) or Windows 11.</div>
+          <div class="step-code">winver</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Run PowerShell as Administrator</div>
+          <div class="step-detail">Search <strong>PowerShell</strong> in the Start menu → Right-click → <strong>Run as Administrator</strong>.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Enable WSL</div>
+          <div class="step-detail">This enables WSL, Virtual Machine Platform, downloads WSL, and installs Ubuntu automatically. Restart when prompted.</div>
+          <div class="step-code">wsl --install</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">Update WSL</div>
+          <div class="step-detail">After restart, update WSL and verify the version.</div>
+          <div class="step-code">wsl --update</div>
+          <div class="step-code" style="margin-top:6px;">wsl --version</div>
+          <div class="step-detail" style="margin-top:8px;">Expected output: <code>WSL version: 2.x.x</code></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <div class="step-title">View Available Distros</div>
+          <div class="step-detail">See all Linux distributions available to install.</div>
+          <div class="step-code">wsl --list --online</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-body">
+          <div class="step-title">Install Ubuntu 24.04</div>
+          <div class="step-detail">Install the latest Ubuntu LTS release and wait for it to finish.</div>
+          <div class="step-code">wsl --install -d Ubuntu-24.04</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">7</div>
+        <div class="step-body">
+          <div class="step-title">Launch Ubuntu</div>
+          <div class="step-detail">Do <strong>not</strong> assume restart will start Ubuntu automatically. Run it explicitly, or open <strong>Ubuntu 24.04</strong> from the Start menu. On first launch, create your UNIX username and password.</div>
+          <div class="step-code">wsl -d Ubuntu-24.04</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">8</div>
+        <div class="step-body">
+          <div class="step-title">Update Ubuntu</div>
+          <div class="step-detail">Inside the Ubuntu terminal, update and upgrade all packages.</div>
+          <div class="step-code">sudo apt update</div>
+          <div class="step-code" style="margin-top:6px;">sudo apt upgrade -y</div>
+        </div>
+      </div>
+
+    </div>
+    <div style="margin-top:12px;">
+      <a href="https://aikaryashala.com/bootcamp/kiet/installation.html" target="_blank" rel="noopener noreferrer" class="resource-link">
+        <span class="resource-icon">📄</span>
+        <div class="resource-body">
+          <div class="resource-title">Full WSL Setup Guide</div>
+          <div class="resource-sub">aikaryashala.com/bootcamp/kiet/installation.html</div>
+        </div>
+        <span class="resource-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-text"><a href="index.html">← Back to ANITS FDP</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
