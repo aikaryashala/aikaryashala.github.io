@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Function Tiles — ANITS FDP</title>
+
+  <style>
+    /* ================================================================
+       TOKENS
+       ================================================================ */
+    :root {
+      --accent-blue: #3b82f6;
+      --accent-red:  #e11d48;
+      --bg:          #0b1020;
+      --bg-card:     rgba(255,255,255,0.03);
+      --border:      rgba(255,255,255,0.08);
+      --border-hi:   rgba(255,255,255,0.16);
+      --text-hi:     #fff;
+      --text-mid:    #e2e8f0;
+      --text-lo:     rgba(255,255,255,0.72);
+      --font-ui:     "Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+      --font-mono:   "Cascadia Code","Fira Code","Consolas",monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-ui);
+      background: var(--bg);
+      color: var(--text-hi);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    :focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 3px; border-radius: 4px; }
+
+    /* ================================================================
+       HEADER  (ANITS pill nav)
+       ================================================================ */
+    .page-header {
+      position: sticky;
+      top: 16px;
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      padding: 0 20px;
+    }
+
+    .nav-shell {
+      width: min(1100px, 100%);
+      padding: 10px 20px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 20px 60px rgba(2,6,23,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+
+    .nav-brand { display: flex; align-items: center; text-decoration: none; flex-shrink: 0; }
+    .nav-brand img { height: 26px; }
+
+    .nav-divider { width: 1px; height: 18px; background: rgba(255,255,255,0.12); flex-shrink: 0; }
+
+    .nav-badge {
+      font-family: var(--font-mono);
+      font-size: 13px; font-weight: 500; color: #93c5fd;
+      background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 6px; padding: 3px 10px; flex-shrink: 0;
+    }
+
+    .nav-subtitle {
+      font-size: 13px; font-weight: 500; color: var(--text-lo);
+      letter-spacing: 0.01em;
+    }
+
+    .nav-spacer { flex: 1; }
+
+    .nav-back {
+      font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.55);
+      text-decoration: none; white-space: nowrap;
+      letter-spacing: 0.04em; transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--text-hi); }
+
+    /* ================================================================
+       PAGE CONTENT
+       ================================================================ */
+    .page-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 20px 72px;
+    }
+
+    .page-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--accent-red);
+      display: block; margin-bottom: 10px;
+    }
+
+    .page-title {
+      font-size: clamp(24px, 3.5vw, 42px);
+      font-weight: 800; color: var(--text-hi);
+      line-height: 1.15; margin-bottom: 12px;
+      background: linear-gradient(90deg, #fff, rgba(255,255,255,0.85));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+
+    .page-desc {
+      font-size: 15px; color: var(--text-lo);
+      line-height: 1.75; margin-bottom: 44px;
+      max-width: 580px;
+    }
+
+    /* ================================================================
+       TILE GRID
+       ================================================================ */
+    .tiles {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    /* ================================================================
+       INDIVIDUAL TILE
+       ================================================================ */
+    .tile {
+      --eq-color: #888;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .tile:hover {
+      border-color: color-mix(in srgb, var(--eq-color) 35%, transparent);
+      box-shadow: 0 0 40px color-mix(in srgb, var(--eq-color) 10%, transparent),
+                  0 8px 32px rgba(0,0,0,0.3);
+    }
+
+    /* Colored top accent line */
+    .tile-accent {
+      height: 3px;
+      background: var(--eq-color);
+      flex-shrink: 0;
+    }
+
+    /* Graph canvas area */
+    .tile-graph {
+      position: relative;
+      height: 270px;
+      flex-shrink: 0;
+      background: #0b1020;
+    }
+
+    .tile-canvas {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Bottom info panel */
+    .tile-info {
+      padding: 20px 24px 22px;
+      border-top: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .tile-label {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--eq-color);
+      display: block;
+      letter-spacing: -0.02em;
+      text-shadow: 0 0 24px color-mix(in srgb, var(--eq-color) 50%, transparent);
+    }
+
+    .tile-type {
+      display: inline-block;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--eq-color);
+      background: color-mix(in srgb, var(--eq-color) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--eq-color) 25%, transparent);
+      border-radius: 4px; padding: 2px 8px;
+      align-self: flex-start;
+      margin-top: 2px;
+    }
+
+    .tile-desc {
+      font-size: 13px;
+      color: var(--text-lo);
+      line-height: 1.55;
+      margin-top: 2px;
+    }
+
+    /* ================================================================
+       RESPONSIVE
+       ================================================================ */
+    @media (max-width: 680px) {
+      .tiles { grid-template-columns: 1fr; gap: 16px; }
+      .tile-graph { height: 240px; }
+      .tile-label { font-size: 18px; }
+      .nav-subtitle { display: none; }
+      .page-header { top: 10px; padding: 0 12px; }
+      .nav-shell { padding: 8px 14px; gap: 10px; }
+    }
+
+    @media (max-width: 400px) {
+      .page-content { padding: 36px 14px 56px; }
+      .tile-info { padding: 16px 18px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════
+     HEADER
+     ════════════════════════════════════════════════════ -->
+<header style="padding-top:16px;">
+  <div class="page-header">
+    <div class="nav-shell">
+      <a href="../../index.html" class="nav-brand" aria-label="AI Karyashala home">
+        <img src="../../images/logo transparent.png" alt="AI Karyashala" />
+      </a>
+      <div class="nav-divider" aria-hidden="true"></div>
+      <span class="nav-badge" aria-hidden="true">f(x)</span>
+      <div class="nav-divider" aria-hidden="true"></div>
+      <span class="nav-subtitle">Function Tiles</span>
+      <div class="nav-spacer"></div>
+      <a href="index.html" class="nav-back">← ANITS FDP</a>
+    </div>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════════════════════
+     MAIN CONTENT
+     ════════════════════════════════════════════════════ -->
+<div class="page-content">
+
+  <span class="page-eyebrow">Visual Math</span>
+  <h1 class="page-title">Function Tiles</h1>
+  <p class="page-desc">
+    Four functions, four graphs. Each tile shows a single equation on its own coordinate plane —
+    compare their shapes, slopes, and positions at a glance.
+  </p>
+
+  <div class="tiles" id="tilesGrid"></div>
+
+</div><!-- /page-content -->
+
+<!-- ================================================================
+     JAVASCRIPT
+     ================================================================ -->
+<script>
+'use strict';
+
+// ──────────────────────────────────────────────────────────────────────
+//  EQUATIONS
+// ──────────────────────────────────────────────────────────────────────
+const EQUATIONS = [
+  {
+    label:       'y = x',
+    fn:          x => x,
+    color:       '#3b82f6',
+    type:        'Linear',
+    desc:        'A straight line through the origin with slope 1. For every unit right, the line rises one unit.',
+  },
+  {
+    label:       'y = x²',
+    fn:          x => x * x,
+    color:       '#e11d48',
+    type:        'Quadratic',
+    desc:        'An upward-opening parabola symmetric about the y-axis. Output is always ≥ 0.',
+  },
+  {
+    label:       'y = x + 5',
+    fn:          x => x + 5,
+    color:       '#10b981',
+    type:        'Linear',
+    desc:        'Same slope as y = x but shifted up by 5 units. Crosses the y-axis at (0, 5).',
+  },
+  {
+    label:       'y = 5',
+    fn:          ()  => 5,
+    color:       '#f59e0b',
+    type:        'Constant',
+    desc:        'A horizontal line at height 5. The output never changes regardless of x.',
+  },
+];
+
+// ──────────────────────────────────────────────────────────────────────
+//  VIEW RANGE
+// ──────────────────────────────────────────────────────────────────────
+const VIEW = { xMin: -10, xMax: 10, yMin: -8, yMax: 8 };
+
+// ──────────────────────────────────────────────────────────────────────
+//  HELPERS
+// ──────────────────────────────────────────────────────────────────────
+function toCanvas(wx, wy, W, H) {
+  return {
+    x: (wx - VIEW.xMin) / (VIEW.xMax - VIEW.xMin) * W,
+    y: (1 - (wy - VIEW.yMin) / (VIEW.yMax - VIEW.yMin)) * H,
+  };
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//  DRAW A SINGLE TILE'S CANVAS
+// ──────────────────────────────────────────────────────────────────────
+function drawTile(canvas, eq) {
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const W   = canvas.width  / dpr;
+  const H   = canvas.height / dpr;
+  const c   = (wx, wy) => toCanvas(wx, wy, W, H);
+
+  // ── Background ───────────────────────────────────────────────────
+  ctx.fillStyle = '#0b1020';
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtle color orb in top-left area matching the curve
+  const orb = ctx.createRadialGradient(W * 0.18, H * 0.22, 0, W * 0.18, H * 0.22, W * 0.55);
+  orb.addColorStop(0, eq.color + '14');
+  orb.addColorStop(1, 'transparent');
+  ctx.fillStyle = orb;
+  ctx.fillRect(0, 0, W, H);
+
+  // ── Minor grid lines ─────────────────────────────────────────────
+  ctx.setLineDash([]);
+  ctx.lineWidth   = 1;
+  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+  for (let x = Math.floor(VIEW.xMin); x <= VIEW.xMax; x++) {
+    const cx = c(x, 0).x;
+    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke();
+  }
+  for (let y = Math.floor(VIEW.yMin); y <= VIEW.yMax; y++) {
+    const cy = c(0, y).y;
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke();
+  }
+
+  // ── Axes ─────────────────────────────────────────────────────────
+  const O = c(0, 0);
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.lineWidth   = 1;
+  ctx.beginPath(); ctx.moveTo(0, O.y); ctx.lineTo(W, O.y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(O.x, 0); ctx.lineTo(O.x, H); ctx.stroke();
+
+  // Axis arrows
+  const A = 4;
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.beginPath(); ctx.moveTo(W - 1, O.y); ctx.lineTo(W - 1 - A*2, O.y - A); ctx.lineTo(W - 1 - A*2, O.y + A); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(O.x, 1);     ctx.lineTo(O.x - A, 1 + A*2);     ctx.lineTo(O.x + A, 1 + A*2);     ctx.closePath(); ctx.fill();
+
+  // Axis name labels (x, y)
+  ctx.font         = `500 10px "Cascadia Code","Fira Code","Consolas",monospace`;
+  ctx.fillStyle    = 'rgba(255,255,255,0.65)';
+  ctx.textAlign    = 'right'; ctx.textBaseline = 'bottom';
+  ctx.fillText('x', W - 3, O.y - 4);
+  ctx.textAlign    = 'left';  ctx.textBaseline = 'top';
+  ctx.fillText('y', O.x + 5, 2);
+
+  // ── Tick labels (every 5 units only — keeps small tiles uncluttered) ─
+  ctx.font        = `400 9px "Cascadia Code","Fira Code","Consolas",monospace`;
+  ctx.fillStyle   = 'rgba(255,255,255,0.75)';
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth   = 1;
+
+  const clampOX = Math.max(18, Math.min(W - 6,  O.x));
+  const clampOY = Math.max(8,  Math.min(H - 10, O.y));
+
+  for (let x = Math.ceil(VIEW.xMin); x <= VIEW.xMax; x++) {
+    if (x === 0 || x % 5 !== 0) continue;
+    const cx = c(x, 0).x;
+    ctx.beginPath(); ctx.moveTo(cx, clampOY - 3); ctx.lineTo(cx, clampOY + 3); ctx.stroke();
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText(String(x), cx, clampOY + 5);
+  }
+  for (let y = Math.ceil(VIEW.yMin); y <= VIEW.yMax; y++) {
+    if (y === 0 || y % 4 !== 0) continue;
+    const cy = c(0, y).y;
+    ctx.beginPath(); ctx.moveTo(clampOX - 3, cy); ctx.lineTo(clampOX + 3, cy); ctx.stroke();
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText(String(y), clampOX - 5, cy);
+  }
+
+  // ── Origin label ─────────────────────────────────────────────────
+  ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+  ctx.fillText('0', clampOX - 4, clampOY + 4);
+
+  // ── Build curve path ─────────────────────────────────────────────
+  const STEPS    = Math.ceil(W * 3);
+  const dx       = (VIEW.xMax - VIEW.xMin) / STEPS;
+  const MAX_JUMP = (VIEW.yMax - VIEW.yMin) * 2.2;
+  const CLIP     = (VIEW.yMax - VIEW.yMin) * 1.8;
+
+  const segments = [];
+  let seg = [], prevY = null;
+
+  for (let i = 0; i <= STEPS; i++) {
+    const wx = VIEW.xMin + i * dx;
+    const wy = eq.fn(wx);
+
+    if (!isFinite(wy) || isNaN(wy)) {
+      if (seg.length) { segments.push(seg); seg = []; }
+      prevY = null; continue;
+    }
+    if (prevY !== null && Math.abs(wy - prevY) > MAX_JUMP) {
+      if (seg.length) { segments.push(seg); seg = []; }
+    }
+    prevY = wy;
+    if (wy < VIEW.yMin - CLIP || wy > VIEW.yMax + CLIP) {
+      if (seg.length) { segments.push(seg); seg = []; }
+      continue;
+    }
+    seg.push(c(wx, wy));
+  }
+  if (seg.length) segments.push(seg);
+
+  function strokeAll() {
+    for (const s of segments) {
+      if (s.length < 2) continue;
+      ctx.beginPath(); ctx.moveTo(s[0].x, s[0].y);
+      for (let j = 1; j < s.length; j++) ctx.lineTo(s[j].x, s[j].y);
+      ctx.stroke();
+    }
+  }
+
+  // Pass 1 — outer glow halo
+  ctx.save();
+  ctx.shadowColor = eq.color; ctx.shadowBlur = 28;
+  ctx.strokeStyle = eq.color + '45';
+  ctx.lineWidth   = 12;
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  strokeAll();
+  ctx.restore();
+
+  // Pass 2 — sharp bright line
+  ctx.save();
+  ctx.shadowColor = eq.color; ctx.shadowBlur = 10;
+  ctx.strokeStyle = eq.color;
+  ctx.lineWidth   = 2.5;
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  strokeAll();
+  ctx.restore();
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//  CANVAS INIT (sets pixel buffer size for HiDPI)
+// ──────────────────────────────────────────────────────────────────────
+function initCanvas(canvas) {
+  const wrapper = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  const w   = wrapper.clientWidth;
+  const h   = wrapper.clientHeight;
+  if (!w || !h) return false;
+  canvas.width  = Math.round(w * dpr);
+  canvas.height = Math.round(h * dpr);
+  canvas.getContext('2d').scale(dpr, dpr);
+  return true;
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//  BUILD TILES
+// ──────────────────────────────────────────────────────────────────────
+const tileItems = [];  // { canvas, eq } — kept for resize redraw
+
+function buildTiles() {
+  const grid = document.getElementById('tilesGrid');
+
+  EQUATIONS.forEach(eq => {
+    // Tile wrapper
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+    tile.style.cssText = `--eq-color: ${eq.color}`;
+
+    tile.innerHTML = `
+      <div class="tile-accent"></div>
+      <div class="tile-graph">
+        <canvas class="tile-canvas" aria-hidden="true"></canvas>
+      </div>
+      <div class="tile-info">
+        <span class="tile-label">${eq.label}</span>
+        <span class="tile-type">${eq.type}</span>
+        <span class="tile-desc">${eq.desc}</span>
+      </div>
+    `;
+
+    grid.appendChild(tile);
+
+    const canvas = tile.querySelector('.tile-canvas');
+    tileItems.push({ canvas, eq });
+  });
+
+  // Wait one animation frame so the browser has laid out the grid
+  // and clientWidth / clientHeight are accurate.
+  requestAnimationFrame(drawAll);
+}
+
+function drawAll() {
+  tileItems.forEach(({ canvas, eq }) => {
+    if (initCanvas(canvas)) drawTile(canvas, eq);
+  });
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//  RESIZE  (debounced)
+// ──────────────────────────────────────────────────────────────────────
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(drawAll, 60);
+});
+
+// ──────────────────────────────────────────────────────────────────────
+//  START
+// ──────────────────────────────────────────────────────────────────────
+buildTiles();
+</script>
+
+</body>
+</html>
