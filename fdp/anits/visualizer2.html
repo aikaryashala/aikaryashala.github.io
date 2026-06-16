@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Function Tiles — ANITS FDP</title>
+  <title>Function Graph Gallery — Coordinate Geometry · ANITS FDP</title>
 
   <style>
     /* ================================================================
@@ -113,8 +113,9 @@
     .page-desc {
       font-size: 15px; color: var(--text-lo);
       line-height: 1.75; margin-bottom: 44px;
-      max-width: 580px;
+      max-width: 600px;
     }
+    .page-desc strong { color: var(--text-hi); font-weight: 600; }
 
     /* ================================================================
        TILE GRID
@@ -239,7 +240,7 @@
       <div class="nav-divider" aria-hidden="true"></div>
       <span class="nav-badge" aria-hidden="true">f(x)</span>
       <div class="nav-divider" aria-hidden="true"></div>
-      <span class="nav-subtitle">Function Tiles</span>
+      <span class="nav-subtitle">Coordinate Geometry</span>
       <div class="nav-spacer"></div>
       <a href="index.html" class="nav-back">← ANITS FDP</a>
     </div>
@@ -251,11 +252,13 @@
      ════════════════════════════════════════════════════ -->
 <div class="page-content">
 
-  <span class="page-eyebrow">Visual Math</span>
-  <h1 class="page-title">Function Tiles</h1>
+  <span class="page-eyebrow">Coordinate Geometry</span>
+  <h1 class="page-title">Function Graph Gallery</h1>
   <p class="page-desc">
-    Four functions, four graphs. Each tile shows a single equation on its own coordinate plane —
-    compare their shapes, slopes, and positions at a glance.
+    Visualise four fundamental function types on a Cartesian coordinate plane.
+    Each graph illustrates key properties — <strong>slope</strong>, <strong>y-intercept</strong>,
+    <strong>vertex</strong>, and <strong>symmetry</strong> — that form the foundation
+    of algebraic reasoning in mathematics and programming.
   </p>
 
   <div class="tiles" id="tilesGrid"></div>
@@ -273,32 +276,32 @@
 // ──────────────────────────────────────────────────────────────────────
 const EQUATIONS = [
   {
-    label:       'y = x',
-    fn:          x => x,
-    color:       '#3b82f6',
-    type:        'Linear',
-    desc:        'A straight line through the origin with slope 1. For every unit right, the line rises one unit.',
+    label: 'y = x',
+    fn:    x => x,
+    color: '#3b82f6',
+    type:  'Identity Function',
+    desc:  'Maps every input to itself (f(x) = x). Slope = 1, y-intercept = 0. Passes through the origin at a 45° angle. Domain: ℝ, Range: ℝ.',
   },
   {
-    label:       'y = x²',
-    fn:          x => x * x,
-    color:       '#e11d48',
-    type:        'Quadratic',
-    desc:        'An upward-opening parabola symmetric about the y-axis. Output is always ≥ 0.',
+    label: 'y = x²',
+    fn:    x => x * x,
+    color: '#e11d48',
+    type:  'Quadratic Function',
+    desc:  'A second-degree polynomial. Vertex at the origin (0, 0), axis of symmetry x = 0. Opens upward — output is always ≥ 0. Domain: ℝ, Range: [0, ∞).',
   },
   {
-    label:       'y = x + 5',
-    fn:          x => x + 5,
-    color:       '#10b981',
-    type:        'Linear',
-    desc:        'Same slope as y = x but shifted up by 5 units. Crosses the y-axis at (0, 5).',
+    label: 'y = x + 5',
+    fn:    x => x + 5,
+    color: '#10b981',
+    type:  'Linear Function',
+    desc:  'Slope-intercept form y = mx + b with slope m = 1 and y-intercept b = 5. Parallel to y = x, translated 5 units upward. Crosses the y-axis at (0, 5) and the x-axis at (−5, 0).',
   },
   {
-    label:       'y = 5',
-    fn:          ()  => 5,
-    color:       '#f59e0b',
-    type:        'Constant',
-    desc:        'A horizontal line at height 5. The output never changes regardless of x.',
+    label: 'y = 5',
+    fn:    ()  => 5,
+    color: '#f59e0b',
+    type:  'Constant Function',
+    desc:  'A zero-degree polynomial where f(x) = c for all x. Slope = 0 — the rate of change is zero. Graphed as a horizontal line at y = 5. Domain: ℝ, Range: {5}.',
   },
 ];
 
