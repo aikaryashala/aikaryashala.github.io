@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Session 2 — ANITS FDP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&family=Alegreya+SC:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+  html{zoom:1.25}
+    :root {
+      --bg:       #E8DDD0;
+      --bg-2:     #DFD3C4;
+      --bg-3:     #D4C5B0;
+      --card:     #F0EAE0;
+      --ink:      #1C0E08;
+      --ink-2:    #2F1708;
+      --ink-3:    #5B3520;
+      --ink-4:    #8B7060;
+      --border:   #C8B8A0;
+      --border-2: #B0A088;
+      --blue:     #7A3018;
+      --blue-bg:  rgba(122,48,24,.08);
+      --blue-bg-2:rgba(122,48,24,.16);
+      --green:    #3A6B18;
+      --mono:     "Fira Code","Cascadia Code",ui-monospace,monospace;
+      --sans:     "Alegreya",Georgia,"Book Antiqua",serif;
+      --sc:       "Alegreya SC","Alegreya",Georgia,serif;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:var(--sans); background-color:var(--bg); background-image:radial-gradient(#5a372314 .8px, transparent .8px), linear-gradient(90deg, #0000000a 0%, transparent 12% 88%, #0000000a 100%); background-size:16px 16px, 100% 100%; background-attachment:fixed; color:var(--ink); line-height:1.65; -webkit-font-smoothing:antialiased; }
+
+    .nav { position:sticky; top:0; z-index:100; background:rgba(232,221,208,.92); backdrop-filter:blur(14px); border-bottom:1px solid var(--border); }
+    .nav-inner { max-width:900px; margin:0 auto; padding:0 24px; height:54px; display:flex; align-items:center; gap:16px; }
+    .back-link { display:inline-flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink-3); font-size:13px; font-weight:600; transition:color .15s; }
+    .back-link:hover { color:var(--ink); }
+    .nav-sep { width:1px; height:16px; background:var(--border-2); }
+    .nav-crumb { font-size:13px; color:var(--ink-4); }
+
+    .page-header { max-width:900px; margin:0 auto; padding:60px 24px 48px; border-bottom:1px solid var(--border); }
+    .session-badge { display:inline-flex; align-items:center; gap:10px; margin-bottom:20px; }
+    .badge-day { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-4); }
+    .badge-dot { width:4px; height:4px; border-radius:50%; background:var(--border-2); }
+    .badge-session { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--blue); background:var(--blue-bg); border:1px solid rgba(37,99,235,.2); border-radius:20px; padding:3px 10px; }
+    .page-title { font-size:clamp(26px,4.5vw,44px); font-weight:900; line-height:1.1; letter-spacing:-.03em; color:var(--ink); margin-bottom:14px; }
+    .page-desc { font-size:16px; color:var(--ink-3); line-height:1.7; max-width:620px; }
+
+    .shell { max-width:900px; margin:0 auto; padding:0 24px 80px; }
+    .section { margin-top:52px; }
+    .section-label { font-size:11px; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-4); margin-bottom:8px; }
+    .section-title { font-size:clamp(18px,2.5vw,24px); font-weight:800; color:var(--ink); margin-bottom:14px; letter-spacing:-.02em; }
+    .section-desc { font-size:14px; color:var(--ink-3); line-height:1.7; margin-bottom:20px; }
+
+    .link-stack { display:flex; flex-direction:column; gap:10px; }
+    .resource-link {
+      display:flex; align-items:center; gap:14px;
+      padding:14px 18px; border:1px solid var(--border);
+      border-radius:10px; text-decoration:none;
+      background:var(--card); transition:border-color .18s, background .18s;
+    }
+    .resource-link:hover { border-color:var(--border-2); background:var(--bg-2); }
+    .resource-icon { font-size:20px; flex-shrink:0; width:36px; text-align:center; }
+    .resource-body { flex:1; min-width:0; }
+    .resource-title { font-size:14px; font-weight:600; color:var(--ink); }
+    .resource-sub { font-size:12px; color:var(--ink-4); margin-top:2px; }
+    .resource-arrow { color:var(--ink-4); font-size:14px; flex-shrink:0; }
+
+    /* ── Command table ── */
+    .cmd-group { margin-bottom:28px; }
+    .cmd-group-title { font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-4); margin-bottom:10px; }
+    .cmd-table { width:100%; border-collapse:collapse; }
+    .cmd-table tr { border-bottom:1px solid var(--border); }
+    .cmd-table tr:last-child { border-bottom:none; }
+    .cmd-table td { padding:11px 0; vertical-align:top; }
+    .cmd-table td:first-child { width:44%; padding-right:20px; }
+    .cmd-code { font-family:var(--mono); font-size:13px; color:var(--ink-2); background:var(--bg-2); border:1px solid var(--border); border-radius:6px; padding:4px 10px; display:inline-block; }
+    .cmd-desc { font-size:13.5px; color:var(--ink-3); line-height:1.55; }
+
+    /* ── Callout ── */
+    .callout { background:var(--card); border:1px solid var(--border); border-left:3px solid var(--blue); border-radius:10px; padding:16px 18px; margin-bottom:20px; }
+    .callout p { font-size:13.5px; color:var(--ink-3); line-height:1.65; }
+    .callout code { font-family:var(--mono); font-size:.88em; background:var(--bg-2); padding:1px 5px; border-radius:4px; color:var(--ink-2); }
+
+    /* ── File list ── */
+    .file-list { display:flex; flex-direction:column; gap:6px; }
+    .file-row { display:flex; align-items:center; gap:12px; padding:10px 14px; border:1px solid var(--border); border-radius:8px; background:var(--card); }
+    .file-name { font-family:var(--mono); font-size:13px; color:var(--ink-2); min-width:90px; }
+    .file-desc { font-size:13px; color:var(--ink-3); }
+
+    /* ── Q items ── */
+    .q-list { display:flex; flex-direction:column; gap:8px; }
+    .q-item { display:flex; align-items:flex-start; gap:12px; padding:14px 16px; border:1px solid var(--border); border-radius:10px; background:var(--card); }
+    .q-badge { flex-shrink:0; width:22px; height:22px; border-radius:5px; background:var(--bg-3); font-size:10px; font-weight:800; color:var(--ink-3); display:flex; align-items:center; justify-content:center; margin-top:1px; }
+    .q-item p { font-size:13.5px; color:var(--ink-2); line-height:1.6; }
+
+    .site-footer { border-top:1px solid var(--border); padding:28px 24px; text-align:center; }
+    .footer-inner { max-width:900px; margin:0 auto; }
+    .footer-text { font-size:13px; color:var(--ink-4); }
+    .footer-text a { color:var(--ink-3); text-decoration:none; }
+    .footer-text a:hover { color:var(--ink); }
+
+    @media (max-width:600px) {
+      .page-header { padding:40px 18px 36px; }
+      .shell { padding:0 18px 60px; }
+      .cmd-table td:first-child { width:auto; display:block; margin-bottom:4px; }
+      .cmd-table td { display:block; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="back-link">← ANITS FDP</a>
+    <div class="nav-sep"></div>
+    <span class="nav-crumb">Session 2</span>
+  </div>
+</nav>
+
+<header class="page-header">
+  <div class="session-badge">
+    <span class="badge-day">Day 1</span>
+    <span class="badge-dot"></span>
+    <span class="badge-session">Session 2</span>
+  </div>
+  <h1 class="page-title">CS50.dev, Linux &amp;<br>C Programming</h1>
+  <p class="page-desc">Cloud coding environment setup, Linux &amp; C commands, the C compilation pipeline, system internals, and algebraic equation visualizers.</p>
+</header>
+
+<div class="shell">
+
+  <!-- CS50.dev -->
+  <div class="section">
+    <p class="section-label">Environment</p>
+    <h2 class="section-title">Get Started with CS50.dev</h2>
+    <p class="section-desc">CS50.dev is a cloud-based VS Code environment used in the sessions. It requires a GitHub account to log in.</p>
+    <div class="link-stack">
+      <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="resource-link">
+        <span class="resource-icon">🐙</span>
+        <div class="resource-body">
+          <div class="resource-title">GitHub Account</div>
+          <div class="resource-sub">Create one or log in — required before opening CS50.dev</div>
+        </div>
+        <span class="resource-arrow">→</span>
+      </a>
+      <a href="https://cs50.dev" target="_blank" rel="noopener noreferrer" class="resource-link">
+        <span class="resource-icon">💻</span>
+        <div class="resource-body">
+          <div class="resource-title">Open CS50.dev</div>
+          <div class="resource-sub">Sign in with GitHub — your workspace is ready in seconds</div>
+        </div>
+        <span class="resource-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Linux Commands -->
+  <div class="section">
+    <p class="section-label">Session Commands</p>
+    <h2 class="section-title">Linux &amp; C Commands</h2>
+    <p class="section-desc">Commands used during the session — run these inside your Ubuntu terminal.</p>
+
+    <div class="cmd-group">
+      <div class="cmd-group-title">File System</div>
+      <table class="cmd-table">
+        <tr><td><code class="cmd-code">ls</code></td><td class="cmd-desc">List all files and folders in the current directory</td></tr>
+        <tr><td><code class="cmd-code">pwd</code></td><td class="cmd-desc">Print Working Directory — shows your current location in the file system</td></tr>
+        <tr><td><code class="cmd-code">clear</code></td><td class="cmd-desc">Clear the terminal screen</td></tr>
+      </table>
+    </div>
+
+    <div class="cmd-group">
+      <div class="cmd-group-title">Working with Files</div>
+      <table class="cmd-table">
+        <tr><td><code class="cmd-code">touch sum.c</code></td><td class="cmd-desc">Create a new empty file named sum.c</td></tr>
+        <tr><td><code class="cmd-code">cat sum.c</code></td><td class="cmd-desc">Print the contents of sum.c to the terminal</td></tr>
+      </table>
+    </div>
+
+    <div class="cmd-group">
+      <div class="cmd-group-title">Compiling &amp; Running C</div>
+      <table class="cmd-table">
+        <tr><td><code class="cmd-code">clang sum.c</code></td><td class="cmd-desc">Compile sum.c using the Clang compiler</td></tr>
+        <tr><td><code class="cmd-code">./a.out</code></td><td class="cmd-desc">Run the compiled program — default output file is always a.out</td></tr>
+        <tr><td><code class="cmd-code">rm a.out</code></td><td class="cmd-desc">Delete the a.out file</td></tr>
+        <tr><td><code class="cmd-code">clang sum.c -o sum</code></td><td class="cmd-desc">Compile and name the output <code>sum</code> instead of a.out</td></tr>
+        <tr><td><code class="cmd-code">./sum</code></td><td class="cmd-desc">Run the named executable</td></tr>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p>When you run <code>clang sum.c</code> without <code>-o</code>, the compiler always creates a default output file called <code>a.out</code> (short for <em>assembler output</em>). Use <code>-o &lt;name&gt;</code> to give it a meaningful name.</p>
+    </div>
+
+    <div class="cmd-group">
+      <div class="cmd-group-title">Compilation Stages — Save Intermediate Files</div>
+      <table class="cmd-table">
+        <tr><td><code class="cmd-code">clang --save-temps sum.c -o sum</code></td><td class="cmd-desc">Compile and save all intermediate files generated during compilation</td></tr>
+        <tr><td><code class="cmd-code">ls</code></td><td class="cmd-desc">List the directory — you will see all the files created</td></tr>
+      </table>
+    </div>
+
+    <p style="font-size:13.5px;color:var(--ink-3);margin-bottom:12px;">After running <code style="font-family:var(--mono);font-size:.88em;background:var(--bg-2);padding:1px 5px;border-radius:4px;color:var(--ink-2)">--save-temps</code>, the following files are generated:</p>
+    <div class="file-list">
+      <div class="file-row"><span class="file-name">sum</span><span class="file-desc">Final executable</span></div>
+      <div class="file-row"><span class="file-name">sum.i</span><span class="file-desc">Preprocessed source</span></div>
+      <div class="file-row"><span class="file-name">sum.bc</span><span class="file-desc">LLVM bitcode</span></div>
+      <div class="file-row"><span class="file-name">sum.s</span><span class="file-desc">Assembly code</span></div>
+      <div class="file-row"><span class="file-name">sum.o</span><span class="file-desc">Object file</span></div>
+      <div class="file-row"><span class="file-name">sum.c</span><span class="file-desc">Original source</span></div>
+    </div>
+
+    <div class="cmd-group" style="margin-top:20px;">
+      <div class="cmd-group-title">Bash Script</div>
+      <table class="cmd-table">
+        <tr><td><code class="cmd-code">bash file</code></td><td class="cmd-desc">Execute a bash script file directly</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- System Internals -->
+  <div class="section">
+    <p class="section-label">Deep Dive</p>
+    <h2 class="section-title">System Internals</h2>
+    <p class="section-desc">Understand what happens under the hood — how the operating system manages memory, processes, and hardware.</p>
+    <div class="link-stack">
+      <a href="systeminternals.html" class="resource-link">
+        <span class="resource-icon">🖥</span>
+        <div class="resource-body">
+          <div class="resource-title">Explore System Internals</div>
+          <div class="resource-sub">Memory, processes, and hardware internals</div>
+        </div>
+        <span class="resource-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-text"><a href="index.html">← Back to ANITS FDP</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
