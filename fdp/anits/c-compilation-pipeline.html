@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The C Compilation Pipeline — from hello.c to a running program</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d10;
+    --panel:#14181e;
+    --panel-2:#1a1f27;
+    --line:rgba(255,255,255,.08);
+    --line-2:rgba(255,255,255,.16);
+    --ink:#e8ebf0;
+    --muted:#8b95a3;
+    --faint:#5b6470;
+    --amber:#ffb02e;
+    --amber-soft:rgba(255,176,46,.14);
+    --teal:#2dd4bf;
+    --teal-soft:rgba(45,212,191,.12);
+    --green:#7ee787;
+    --red:#ff7a7a;
+    --purple:#b69bff;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --disp:'Space Grotesk',system-ui,sans-serif;
+    --body:'Inter',system-ui,sans-serif;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+
+  body{
+    font-family:var(--body);
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(255,176,46,.06), transparent 60%),
+      radial-gradient(900px 500px at 0% 110%, rgba(45,212,191,.05), transparent 55%),
+      var(--bg);
+    min-height:100vh;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap{max-width:1180px;margin:0 auto;padding:clamp(20px,4vw,48px) clamp(16px,4vw,40px) 64px}
+
+  /* ── header ── */
+  header{margin-bottom:34px}
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--amber);display:flex;align-items:center;gap:10px;margin-bottom:14px;
+  }
+  .eyebrow::before{content:"";width:26px;height:1px;background:var(--amber)}
+  h1{
+    font-family:var(--disp);font-weight:700;letter-spacing:-.02em;
+    font-size:clamp(28px,5vw,46px);line-height:1.04;margin-bottom:14px;
+  }
+  h1 .swap{color:var(--amber)}
+  .lede{max-width:640px;color:var(--muted);font-size:clamp(15px,1.6vw,17px)}
+  .lede code{font-family:var(--mono);color:var(--teal);font-size:.92em}
+
+  /* ── pipeline rail ── */
+  .rail-scroll{overflow-x:auto;margin:34px -4px 8px;padding:4px 4px 12px;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
+  .rail{display:flex;align-items:stretch;gap:0;min-width:760px;position:relative}
+  .node{
+    flex:1;background:none;border:none;cursor:pointer;color:inherit;text-align:left;
+    padding:14px 14px 14px 18px;position:relative;font-family:var(--body);
+    border-top:2px solid var(--line);transition:border-color .3s;
+  }
+  .node::after{ /* flow arrow between nodes */
+    content:"";position:absolute;top:-6px;right:-5px;width:9px;height:9px;
+    border-top:2px solid var(--line);border-right:2px solid var(--line);
+    transform:rotate(45deg);transition:border-color .3s;
+  }
+  .node:last-child::after{display:none}
+  .node .n{font-family:var(--mono);font-size:12px;color:var(--faint);transition:color .3s}
+  .node .lbl{font-family:var(--disp);font-weight:600;font-size:14.5px;margin:3px 0 4px;color:var(--muted);transition:color .3s}
+  .node .ext{font-family:var(--mono);font-size:12px;color:var(--faint)}
+  .node:hover .lbl{color:var(--ink)}
+  .node[aria-current="true"]{border-top-color:var(--amber)}
+  .node[aria-current="true"]::after{border-top-color:var(--amber);border-right-color:var(--amber)}
+  .node[aria-current="true"] .n{color:var(--amber)}
+  .node[aria-current="true"] .lbl{color:var(--ink)}
+  .node[aria-current="true"] .ext{color:var(--amber)}
+  .node.done{border-top-color:var(--teal)}
+  .node.done::after{border-top-color:var(--teal);border-right-color:var(--teal)}
+  .node.done .n{color:var(--teal)}
+  .node:focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:6px}
+
+  /* ── command bar ── */
+  .cmd{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    background:#0a0c0f;border:1px solid var(--line);border-radius:10px;
+    padding:12px 16px;font-family:var(--mono);font-size:13.5px;margin:14px 0 22px;
+  }
+  .cmd .dollar{color:var(--green);font-weight:700}
+  .cmd .text{color:var(--ink);white-space:nowrap;overflow-x:auto;flex:1}
+  .cmd .flag{color:var(--amber)}
+  .cmd .file{color:var(--teal)}
+  .cmd .tag{
+    margin-left:auto;font-family:var(--mono);font-size:11px;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--muted);border:1px solid var(--line-2);
+    padding:3px 9px;border-radius:999px;white-space:nowrap;
+  }
+  .cmd .tag b{color:var(--ink);font-weight:600}
+
+  /* ── main grid ── */
+  .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;align-items:start}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .panel-head{
+    display:flex;align-items:center;gap:8px;padding:11px 16px;
+    border-bottom:1px solid var(--line);background:var(--panel-2);
+  }
+  .dot{width:11px;height:11px;border-radius:50%}
+  .dot.r{background:#ff5f56}.dot.y{background:#ffbd2e}.dot.g{background:#27c93f}
+  .panel-head .name{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-left:8px}
+  .panel-head .name b{color:var(--ink)}
+
+  .code{
+    font-family:var(--mono);font-size:13px;line-height:1.75;
+    padding:18px 18px 20px;overflow-x:auto;white-space:pre;
+    min-height:360px;tab-size:4;
+  }
+  /* token colors */
+  .cmt{color:var(--faint);font-style:italic}
+  .kw{color:#ff8fa3}
+  .str{color:var(--green)}
+  .num{color:var(--purple)}
+  .fn{color:#7cc7ff}
+  .dir{color:var(--amber)}
+  .reg{color:var(--teal)}
+  .lbll{color:#ffd479}
+  /* change highlights */
+  .ha{background:var(--amber-soft);border-radius:3px;padding:1px 3px;box-shadow:inset 0 0 0 1px rgba(255,176,46,.35)}
+  .ht{background:var(--teal-soft);border-radius:3px;padding:1px 3px;box-shadow:inset 0 0 0 1px rgba(45,212,191,.3)}
+  .hr{color:var(--red);font-weight:600}
+  .hg{color:var(--green);font-weight:600}
+  .gut{color:var(--faint)}
+
+  /* notes column */
+  .notes h2{font-family:var(--disp);font-size:19px;font-weight:600;letter-spacing:-.01em;margin-bottom:4px}
+  .notes .sub{color:var(--amber);font-family:var(--mono);font-size:12px;letter-spacing:.04em;margin-bottom:16px}
+  .notes p{color:var(--muted);font-size:14.5px;margin-bottom:14px}
+  .notes p b{color:var(--ink);font-weight:600}
+  .notes p code,.inset code{font-family:var(--mono);font-size:.88em;color:var(--teal);background:rgba(45,212,191,.08);padding:1px 5px;border-radius:4px}
+
+  .steps{list-style:none;display:flex;flex-direction:column;gap:11px;margin:4px 0 18px}
+  .steps li{position:relative;padding-left:26px;font-size:14px;color:var(--muted)}
+  .steps li b{color:var(--ink);font-weight:600}
+  .steps li::before{
+    content:"";position:absolute;left:0;top:7px;width:9px;height:9px;border-radius:2px;
+    background:var(--amber);box-shadow:0 0 0 3px var(--amber-soft);
+  }
+
+  .tags{display:flex;flex-wrap:wrap;gap:7px}
+  .chip{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid var(--line-2);padding:4px 9px;border-radius:6px}
+
+  .inset{
+    background:var(--panel-2);border:1px solid var(--line);border-radius:10px;
+    padding:13px 15px;margin:4px 0 18px;font-size:13px;color:var(--muted);
+  }
+  .inset .ititle{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);margin-bottom:9px}
+  .ir{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-family:var(--mono);font-size:12px}
+  .ir span{padding:3px 8px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--ink);white-space:nowrap}
+  .ir span.hot{border-color:var(--purple);color:var(--purple)}
+  .ir b{color:var(--faint)}
+
+  /* ── memory map (stage 6) ── */
+  .memmap{padding:20px 18px;min-height:360px}
+  .seg{
+    display:grid;grid-template-columns:84px 1fr;align-items:stretch;gap:12px;margin-bottom:8px;
+  }
+  .seg .addr{font-family:var(--mono);font-size:11px;color:var(--faint);text-align:right;padding-top:13px}
+  .bar{
+    border-radius:8px;padding:12px 14px;border:1px solid var(--line-2);position:relative;overflow:hidden;
+  }
+  .bar .bname{font-family:var(--mono);font-weight:700;font-size:13px}
+  .bar .bdesc{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .bar.text{background:linear-gradient(135deg,rgba(255,176,46,.16),rgba(255,176,46,.05));border-color:rgba(255,176,46,.4)}
+  .bar.text .bname{color:var(--amber)}
+  .bar.rodata{background:rgba(255,255,255,.03)}
+  .bar.rodata .bname{color:var(--ink)}
+  .bar.data{background:linear-gradient(135deg,rgba(45,212,191,.16),rgba(45,212,191,.05));border-color:rgba(45,212,191,.4)}
+  .bar.data .bname{color:var(--teal)}
+  .bar.bss{background:rgba(255,255,255,.03);border-style:dashed}
+  .bar.bss .bname{color:var(--muted)}
+  .bar.heap,.bar.stack{background:rgba(255,255,255,.02);border-style:dotted}
+  .bar.heap .bname,.bar.stack .bname{color:var(--faint)}
+  .pill{position:absolute;top:10px;right:12px;font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+  .grow{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--faint);font-family:var(--mono);font-size:11px;margin:2px 0 2px 96px}
+
+  /* ── footer nav ── */
+  .footer-nav{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:26px}
+  .btn{
+    font-family:var(--disp);font-weight:600;font-size:14px;cursor:pointer;
+    background:var(--panel);color:var(--ink);border:1px solid var(--line-2);
+    padding:11px 20px;border-radius:10px;display:inline-flex;align-items:center;gap:9px;
+    transition:border-color .2s,background .2s,transform .1s;
+  }
+  .btn:hover:not(:disabled){border-color:var(--amber);background:var(--panel-2)}
+  .btn:active:not(:disabled){transform:translateY(1px)}
+  .btn:disabled{opacity:.32;cursor:not-allowed}
+  .btn.primary{background:var(--amber);color:#1a1205;border-color:var(--amber)}
+  .btn.primary:hover{background:#ffbe52;border-color:#ffbe52}
+  .btn:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+  .progress{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.04em}
+  .progress b{color:var(--amber)}
+
+  .credit{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--faint);text-align:center;letter-spacing:.03em}
+  .credit b{color:var(--muted)}
+
+  /* entrance animation */
+  .fade{animation:fade .45s ease both}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  @media (max-width:860px){
+    .grid{grid-template-columns:1fr}
+    .code,.memmap{min-height:auto}
+    .cmd .tag{margin-left:0}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .fade{animation:none}
+    *{transition:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Inside the toolchain</div>
+    <h1>How <span class="swap">hello.c</span> becomes a running program</h1>
+    <p class="lede">One command — <code>gcc hello.c -o hello</code> — quietly runs four separate tools. Step through each stage and watch the <em>same</em> program transform from text you wrote into machine code the CPU runs.</p>
+  </header>
+
+  <!-- pipeline rail -->
+  <div class="rail-scroll">
+    <div class="rail" id="rail" role="tablist" aria-label="Compilation stages"></div>
+  </div>
+
+  <!-- command bar -->
+  <div class="cmd" id="cmd"></div>
+
+  <!-- main -->
+  <div class="grid">
+    <div class="panel fade" id="leftPanel">
+      <div class="panel-head">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="name" id="fileName"></span>
+      </div>
+      <div id="leftBody"></div>
+    </div>
+
+    <div class="notes fade" id="notes"></div>
+  </div>
+
+  <!-- nav -->
+  <div class="footer-nav">
+    <button class="btn" id="prev">← Back</button>
+    <div class="progress">Stage <b id="cur">1</b> / 6</div>
+    <button class="btn primary" id="next">Next →</button>
+  </div>
+
+  <div class="credit">Interactive teaching artifact · the C compilation pipeline · <b>built for AI Karyashala</b></div>
+
+</div>
+
+<script>
+/* ── stage data ──────────────────────────────────────────────────────── */
+const STAGES = [
+  {
+    key:"source", label:"Source", ext:".c",
+    file:"hello.c", form:"Text", state:"Written by you",
+    cmd:[["",""],["$","gcc "],["file","hello.c "],["flag","-o "],["file","hello"]],
+    title:"You write the source",
+    sub:"gcc — the driver that runs everything below",
+    code:
+`<span class="dir">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+<span class="dir">#define</span> PI <span class="num">3.14159</span>
+
+<span class="kw">int</span> <span class="fn">main</span>(<span class="kw">void</span>) {
+    <span class="kw">double</span> r = <span class="num">2.0</span>;
+    <span class="fn">printf</span>(<span class="str">"Area = %f\\n"</span>, PI * r * r);
+    <span class="kw">return</span> <span class="num">0</span>;
+}`,
+    steps:[
+      "This is plain, human-readable C — a <b>translation unit</b>.",
+      "Lines starting with <code>#</code> are <b>directives</b>, not C statements. They are messages to the <b>preprocessor</b>, handled before real compilation.",
+      "The single <code>gcc hello.c</code> command silently chains four tools. Let's crack it open."
+    ],
+    tags:["translation unit","directives","gcc driver"]
+  },
+  {
+    key:"preprocess", label:"Preprocess", ext:".i",
+    file:"hello.i", form:"Text", state:"Expanded C",
+    cmd:[["",""],["$","gcc "],["flag","-E "],["file","hello.c "],["flag","-o "],["file","hello.i"]],
+    title:"Preprocessor expands the text",
+    sub:"cpp — pure text manipulation, no compiling yet",
+    code:
+`<span class="cmt">/* ~730 lines pulled in from stdio.h ... */</span>
+<span class="ht"><span class="kw">extern</span> <span class="kw">int</span> <span class="fn">printf</span>(<span class="kw">const char</span> *__restrict, ...);</span>
+<span class="ht"><span class="kw">extern</span> <span class="kw">int</span> <span class="fn">scanf</span> (<span class="kw">const char</span> *__restrict, ...);</span>
+<span class="cmt">/* ... hundreds more declarations ... */</span>
+
+<span class="kw">int</span> <span class="fn">main</span>(<span class="kw">void</span>) {
+    <span class="kw">double</span> r = <span class="num">2.0</span>;
+    <span class="fn">printf</span>(<span class="str">"Area = %f\\n"</span>, <span class="ha"><span class="num">3.14159</span></span> * r * r);
+    <span class="kw">return</span> <span class="num">0</span>;
+}`,
+    steps:[
+      "<code>#include &lt;stdio.h&gt;</code> → the <b>entire header is pasted in</b>, bringing the declaration of <code>printf</code> with it.",
+      "<code>#define PI</code> → every <code>PI</code> is replaced by <span style='color:var(--amber)'>3.14159</span> (blind text substitution).",
+      "Comments are stripped. The file grows from <b>8 lines to ~730</b> — but it's still C.",
+      "Nothing is checked or compiled here. It's copy-paste-and-replace."
+    ],
+    tags:["#include paste","macro expansion","still text"]
+  },
+  {
+    key:"compile", label:"Compile", ext:".s",
+    file:"hello.s", form:"Text", state:"Assembly",
+    cmd:[["",""],["$","gcc "],["flag","-S "],["file","hello.i "],["flag","-o "],["file","hello.s"]],
+    title:"Compiler emits assembly",
+    sub:"cc1 — the actual C compiler",
+    inset:{
+      title:"Inside the compiler",
+      ir:["tokens","AST","<hot>IR (GIMPLE)</hot>","RTL","optimize","asm"],
+      note:"The compiler first builds a target-independent <b>intermediate representation</b>, optimizes it, then lowers it to assembly for <em>your</em> CPU (x86-64)."
+    },
+    code:
+`        .section .rodata
+<span class="lbll">.LC1:</span>
+        .string <span class="str">"Area = %f\\n"</span>
+        .text
+        .globl  <span class="fn">main</span>
+<span class="lbll">main:</span>
+        <span class="kw">pushq</span>   <span class="reg">%rbp</span>
+        <span class="kw">movq</span>    <span class="reg">%rsp</span>, <span class="reg">%rbp</span>
+        <span class="kw">subq</span>    <span class="num">$16</span>, <span class="reg">%rsp</span>
+        <span class="kw">movsd</span>   <span class="lbll">.LC0</span>(<span class="reg">%rip</span>), <span class="reg">%xmm0</span>   <span class="cmt"># r = 2.0</span>
+        <span class="kw">movsd</span>   <span class="reg">%xmm0</span>, <span class="num">-8</span>(<span class="reg">%rbp</span>)
+        <span class="cmt"># ... compute PI * r * r ...</span>
+        <span class="kw">leaq</span>    <span class="lbll">.LC1</span>(<span class="reg">%rip</span>), <span class="reg">%rdi</span>   <span class="cmt"># format str</span>
+        <span class="kw">call</span>    <span class="fn">printf@PLT</span>          <span class="cmt"># into libc</span>
+        <span class="kw">movl</span>    <span class="num">$0</span>, <span class="reg">%eax</span>
+        <span class="kw">leave</span>
+        <span class="kw">ret</span>`,
+    steps:[
+      "Now real work: the text is <b>tokenized, parsed into an AST</b>, then turned into an <b>intermediate representation</b> (GIMPLE).",
+      "The IR is CPU-agnostic. Optimizations run here, then it's <b>lowered to assembly</b> for your specific architecture.",
+      "Output is x86-64 assembly — human-readable mnemonics like <code>movq</code> and <code>call</code>, still a text file.",
+      "Note <code>printf@PLT</code>: a placeholder. <code>main</code> doesn't yet know where <code>printf</code> actually lives."
+    ],
+    tags:["AST → IR → asm","register allocation","target-specific"]
+  },
+  {
+    key:"assemble", label:"Assemble", ext:".o",
+    file:"hello.o", form:"Binary", state:"Object file",
+    cmd:[["",""],["$","gcc "],["flag","-c "],["file","hello.s "],["flag","-o "],["file","hello.o"]],
+    title:"Assembler makes machine code",
+    sub:"as — mnemonics become bytes",
+    code:
+`<span class="cmt"># raw bytes of hello.o (ELF relocatable)</span>
+<span class="gut">0000000</span>  <span class="ht">7f 45 4c 46</span> 02 01 01 00   <span class="cmt">.ELF....</span>
+<span class="gut">0000010</span>  55 48 89 e5 48 83 ec 10   <span class="cmt">UH..H...</span>
+<span class="gut">0000020</span>  f2 0f 10 05 00 00 00 00   <span class="cmt">........</span>
+
+<span class="cmt"># $ nm hello.o   (symbol table)</span>
+<span class="num">0000000000000000</span> <span class="hg">T</span> main      <span class="cmt"># Defined here</span>
+                 <span class="hr">U</span> printf    <span class="cmt"># Undefined — TBD</span>`,
+    steps:[
+      "The assembler converts each mnemonic into the exact <b>machine-code bytes</b> the CPU decodes.",
+      "Output is a <b>relocatable ELF object</b> — binary now, opening with the magic bytes <code>7f 45 4c 46</code>.",
+      "It carries a <b>symbol table</b>: <code>main</code> is <span style='color:var(--green)'>defined (T)</span>, but <code>printf</code> is <span style='color:var(--red)'>undefined (U)</span>.",
+      "Addresses aren't final yet — they're marked with <b>relocations</b> for the linker to patch."
+    ],
+    tags:["ELF object","symbol table","relocations"]
+  },
+  {
+    key:"link", label:"Link", ext:"",
+    file:"hello", form:"Binary", state:"Executable",
+    cmd:[["",""],["$","gcc "],["file","hello.o "],["flag","-o "],["file","hello"]],
+    title:"Linker joins the pieces",
+    sub:"ld — resolve symbols, assign addresses",
+    custom:"link",
+    steps:[
+      "The linker gathers <b>your object</b> plus the <b>C runtime</b> startup files (<code>crt1.o</code>, <code>crti.o</code>) and the <b>C library</b>.",
+      "It <b>resolves</b> the undefined <code>printf</code> to libc's real implementation — the red wire turns green.",
+      "<code>crt1.o</code> provides <code>_start</code>, which sets things up, <b>calls your main</b>, then exits cleanly.",
+      "By default libc is <b>dynamically linked</b> (loaded at run time); statically, its code would be copied in."
+    ],
+    tags:["symbol resolution","_start → main","static vs dynamic"]
+  },
+  {
+    key:"executable", label:"Executable", ext:"",
+    file:"./hello", form:"Binary", state:"Runs",
+    cmd:[["",""],["$","./hello"],["",""]],
+    cmdOut:"Area = 12.566360",
+    title:"The executable in memory",
+    sub:"ELF sections the loader maps when you run it",
+    custom:"memory",
+    steps:[
+      "<b>.text</b> is the <b>code section</b> — your instructions plus linked library code. Read-only, executable.",
+      "<b>.rodata</b> holds constants like the string <code>\"Area = %f\"</code> and <code>3.14159</code>.",
+      "<b>.data</b> is the <b>data section</b> — initialized globals/statics, read-write.",
+      "<b>.bss</b> holds uninitialized globals — zero-filled at load, so it takes <b>no space in the file</b>."
+    ],
+    tags:[".text + .data",".bss is free on disk","heap ↑  stack ↓"]
+  }
+];
+
+/* ── render helpers ──────────────────────────────────────────────────── */
+const rail = document.getElementById('rail');
+const cmdEl = document.getElementById('cmd');
+const fileName = document.getElementById('fileName');
+const leftBody = document.getElementById('leftBody');
+const leftPanel = document.getElementById('leftPanel');
+const notes = document.getElementById('notes');
+const prevBtn = document.getElementById('prev');
+const nextBtn = document.getElementById('next');
+const curEl = document.getElementById('cur');
+
+let i = 0;
+
+/* build rail once */
+STAGES.forEach((s, idx)=>{
+  const b = document.createElement('button');
+  b.className='node'; b.setAttribute('role','tab');
+  b.innerHTML = `<div class="n">${String(idx+1).padStart(2,'0')}</div>
+                 <div class="lbl">${s.label}</div>
+                 <div class="ext">${s.ext || s.file}</div>`;
+  b.addEventListener('click', ()=>go(idx));
+  rail.appendChild(b);
+});
+
+function cmdHTML(parts){
+  return parts.map(([cls,txt])=>{
+    if(cls==="$") return `<span class="dollar">$</span>&nbsp;<span class="text">${txt}`;
+    if(cls==="") return txt;
+    return `<span class="${cls}">${txt}</span>`;
+  }).join('') + `</span>`;
+}
+
+function linkDiagram(){
+  return `<div class="memmap" style="display:flex;flex-direction:column;justify-content:center;gap:14px">
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${chipBox('hello.o','your code','var(--teal)')}
+        ${chipBox('crt1.o · crti.o','C runtime start','var(--faint)')}
+        ${chipBox('libc.so','printf, malloc…','var(--amber)')}
+      </div>
+      <div style="text-align:center">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:6px">ld</div>
+        <div style="font-size:24px;color:var(--amber)">→</div>
+      </div>
+      <div>${chipBox('hello','executable ELF','var(--green)',true)}</div>
+    </div>
+    <div style="margin-top:6px;background:#0a0c0f;border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-family:var(--mono);font-size:12.5px">
+      <div style="color:var(--muted);margin-bottom:6px"># symbol resolution</div>
+      <div><span class="hr">before:</span>  main → printf  <span class="hr">[ ? ]</span></div>
+      <div><span class="hg">after :</span>  main → printf  <span class="hg">[ libc:0x401f20 ]</span></div>
+    </div>
+  </div>`;
+}
+function chipBox(name,desc,color,big){
+  return `<div style="border:1px solid var(--line-2);border-radius:9px;padding:${big?'16px 16px':'10px 13px'};background:var(--panel-2)">
+    <div style="font-family:var(--mono);font-weight:700;font-size:${big?'15px':'13px'};color:${color}">${name}</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px">${desc}</div>
+  </div>`;
+}
+
+function memoryDiagram(){
+  const seg=(addr,cls,name,desc,pill)=>`
+    <div class="seg">
+      <div class="addr">${addr}</div>
+      <div class="bar ${cls}">
+        ${pill?`<span class="pill">${pill}</span>`:''}
+        <div class="bname">${name}</div><div class="bdesc">${desc}</div>
+      </div>
+    </div>`;
+  return `<div class="memmap">
+    ${seg('high ↑','stack','[ stack ]','local vars: r, return addr — grows down','runtime')}
+    <div class="grow">↓ &nbsp; free memory &nbsp; ↑</div>
+    ${seg('','heap','[ heap ]','malloc / free — grows up','runtime')}
+    ${seg('','bss','.bss','uninitialized globals — zero-filled','0 bytes on disk')}
+    ${seg('','data','.data','initialized globals & statics','DATA')}
+    ${seg('','rodata','.rodata','"Area = %f", constant 3.14159','read-only')}
+    ${seg('low','text','.text','machine code: your main + libc','CODE')}
+  </div>`;
+}
+
+function go(idx){
+  i = Math.max(0, Math.min(STAGES.length-1, idx));
+  const s = STAGES[i];
+
+  /* rail state */
+  [...rail.children].forEach((n,k)=>{
+    n.setAttribute('aria-current', k===i ? 'true':'false');
+    n.classList.toggle('done', k<i);
+  });
+
+  /* command bar */
+  let tag = `<span class="tag"><b>${s.form}</b> · ${s.state}</span>`;
+  cmdEl.innerHTML = cmdHTML(s.cmd) + tag;
+
+  /* left panel */
+  fileName.innerHTML = `<b>${s.file}</b>`;
+  if(s.custom==="link") leftBody.innerHTML = linkDiagram();
+  else if(s.custom==="memory") leftBody.innerHTML = memoryDiagram();
+  else leftBody.innerHTML = `<pre class="code">${s.code}</pre>`;
+
+  /* notes */
+  let insetHTML = '';
+  if(s.inset){
+    const irHTML = s.inset.ir.map(x=>{
+      const hot = x.includes('<hot>');
+      const txt = x.replace('<hot>','').replace('</hot>','');
+      return `<span class="${hot?'hot':''}">${txt}</span>`;
+    }).join('<b>→</b>');
+    insetHTML = `<div class="inset">
+      <div class="ititle">${s.inset.title}</div>
+      <div class="ir">${irHTML}</div>
+      <p style="margin:11px 0 0;font-size:13px">${s.inset.note}</p>
+    </div>`;
+  }
+  let outHTML = '';
+  if(s.cmdOut){
+    outHTML = `<div class="inset" style="font-family:var(--mono)">
+      <span style="color:var(--green)">$</span> ./hello<br>
+      <span style="color:var(--ink)">${s.cmdOut}</span>
+    </div>`;
+  }
+  notes.innerHTML = `
+    <h2>${s.title}</h2>
+    <div class="sub">${s.sub}</div>
+    ${insetHTML}
+    <ul class="steps">${s.steps.map(t=>`<li>${t}</li>`).join('')}</ul>
+    ${outHTML}
+    <div class="tags">${s.tags.map(t=>`<span class="chip">${t}</span>`).join('')}</div>`;
+
+  /* re-trigger fade */
+  leftPanel.classList.remove('fade'); notes.classList.remove('fade');
+  void leftPanel.offsetWidth;
+  leftPanel.classList.add('fade'); notes.classList.add('fade');
+
+  /* nav */
+  prevBtn.disabled = i===0;
+  nextBtn.textContent = i===STAGES.length-1 ? 'Restart ↺' : 'Next →';
+  curEl.textContent = i+1;
+
+  /* keep active rail node in view on mobile */
+  rail.children[i].scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
+}
+
+prevBtn.addEventListener('click', ()=>go(i-1));
+nextBtn.addEventListener('click', ()=> i===STAGES.length-1 ? go(0) : go(i+1));
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight') go(i+1);
+  if(e.key==='ArrowLeft') go(i-1);
+});
+
+go(0);
+</script>
+</body>
+</html>
