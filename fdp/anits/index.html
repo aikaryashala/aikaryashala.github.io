@@ -16,7 +16,7 @@
     body { background:#0b1020; color:#fff; overflow-x:hidden; }
 
     /* ── Header ── */
-    .header { position:sticky; top:16px; z-index:1000; display:flex; justify-content:center; }
+    .header { position:sticky; top:16px; z-index:1000; display:flex; justify-content:center; padding-top:16px; }
     .nav-shell {
       width:min(1100px,100% - 40px); padding:10px 24px; border-radius:999px;
       display:flex; gap:24px; align-items:center; justify-content:space-between;
@@ -302,6 +302,7 @@
 
     /* ── Q&A Section ── */
     .qa-block { margin-bottom:0; }
+    .qa-block--spaced { margin-bottom:64px; }
     .qa-list { display:flex; flex-direction:column; gap:10px; }
     .qa-item {
       background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08);
@@ -350,6 +351,7 @@
       .podcast-block { flex-direction:column; gap:16px; padding:24px; margin-bottom:48px; }
       .compare-grid { grid-template-columns:1fr; gap:16px; margin-bottom:48px; }
       .setup-block, .cs50-block, .commands-block, .homework-block { margin-bottom:48px; }
+      .qa-block--spaced { margin-bottom:48px; }
       .cs50-cards { grid-template-columns:1fr; }
       .setup-ref-link { display:flex; }
       .homework-block { flex-direction:column; gap:16px; padding:24px; }
@@ -876,7 +878,7 @@
       evaluate, and execute mathematical expressions.
     </p>
 
-    <div class="cs50-cards">
+    <div class="cs50-cards" style="grid-template-columns:1fr">
 
       <div class="cs50-card">
         <div class="cs50-card-icon">🔢</div>
@@ -906,7 +908,7 @@
   </div>
 
   <!-- Faculty Group Questions -->
-  <div class="qa-block" style="margin-bottom:64px;">
+  <div class="qa-block qa-block--spaced">
     <p class="section-label">Faculty Group Q&amp;A</p>
     <h2 class="section-title">Questions from Faculty Groups</h2>
     <p class="section-desc">Questions raised by faculty as groups during the session.</p>
