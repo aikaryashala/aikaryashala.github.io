@@ -146,13 +146,6 @@
                   0 8px 32px rgba(0,0,0,0.3);
     }
 
-    /* Colored top accent line */
-    .tile-accent {
-      height: 3px;
-      background: var(--eq-color);
-      flex-shrink: 0;
-    }
-
     /* Graph canvas area */
     .tile-graph {
       position: relative;
@@ -490,7 +483,6 @@ function buildTiles() {
     tile.style.cssText = `--eq-color: ${eq.color}`;
 
     tile.innerHTML = `
-      <div class="tile-accent"></div>
       <div class="tile-graph">
         <canvas class="tile-canvas" aria-hidden="true"></canvas>
       </div>

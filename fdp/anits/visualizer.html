@@ -210,39 +210,27 @@
       box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
     }
 
-    /* ── Zoom controls ── */
-    .zoom-controls {
-      display: flex;
-      gap: 6px;
+    /* ── Apply button ── */
+    .apply-btn {
+      width: 100%;
       margin-top: 8px;
-    }
-    .zoom-btn {
-      flex: 1;
-      padding: 6px 4px;
-      background: var(--bg-panel);
-      border: 1px solid var(--border);
+      padding: 7px 12px;
+      background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(59,130,246,0.3);
       border-radius: 8px;
-      color: var(--text-lo);
-      font-size: 15px;
-      font-weight: 700;
+      color: #93c5fd;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
       cursor: pointer;
       transition: background 0.15s, border-color 0.15s, color 0.15s;
-      font-family: var(--font-mono);
-      line-height: 1;
-    }
-    .zoom-btn:hover {
-      background: var(--bg-hover);
-      border-color: var(--border-hi);
-      color: var(--text-hi);
-    }
-    .zoom-btn.zoom-reset {
-      font-size: 10px;
       font-family: var(--font-ui);
-      letter-spacing: 0.04em;
-      font-weight: 600;
-      color: var(--text-ghost);
     }
-    .zoom-btn.zoom-reset:hover { color: var(--accent-blue); border-color: rgba(59,130,246,0.4); }
+    .apply-btn:hover {
+      background: rgba(59,130,246,0.22);
+      border-color: rgba(59,130,246,0.55);
+      color: #fff;
+    }
 
     /* ── Category group ── */
     .eq-category {
@@ -540,11 +528,7 @@
         </div>
       </div>
 
-      <div class="zoom-controls">
-        <button class="zoom-btn" id="btnZoomIn"  title="Zoom in · Scroll up">＋</button>
-        <button class="zoom-btn" id="btnZoomOut" title="Zoom out · Scroll down">－</button>
-        <button class="zoom-btn zoom-reset" id="btnReset" title="Reset to default range">Reset</button>
-      </div>
+      <button class="apply-btn" id="btnApply">Apply Range</button>
     </div>
 
     <!-- Category: Basic -->
@@ -622,7 +606,7 @@
       <span class="status-sep" aria-hidden="true">·</span>
       <span class="status-item">Toggle curves in sidebar</span>
       <span class="status-sep" aria-hidden="true">·</span>
-      <span class="status-item">Tab to focus graph</span>
+      <span class="status-item">Edit range and click Apply</span>
     </div>
   </main>
 
@@ -746,8 +730,7 @@ const EQUATIONS = [
 // ══════════════════════════════════════════════════════════════════════
 //  VIEW RANGE
 // ══════════════════════════════════════════════════════════════════════
-const VIEW         = { xMin: -10, xMax: 10, yMin: -8, yMax: 8 };
-const DEFAULT_VIEW = { xMin: -10, xMax: 10, yMin: -8, yMax: 8 };
+const VIEW = { xMin: -10, xMax: 10, yMin: -8, yMax: 8 };
 
 // ══════════════════════════════════════════════════════════════════════
 //  CANVAS SETUP
@@ -1183,20 +1166,8 @@ function buildSidebar() {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-//  RANGE — sync input fields ↔ VIEW object
+//  RANGE — apply input fields → VIEW object
 // ══════════════════════════════════════════════════════════════════════
-function fmt(n) {
-  // Show integer values without decimal, others to 2dp
-  return Number.isInteger(n) ? String(n) : parseFloat(n.toFixed(2)).toString();
-}
-
-function syncInputsFromView() {
-  document.getElementById('inp-xmin').value = fmt(VIEW.xMin);
-  document.getElementById('inp-xmax').value = fmt(VIEW.xMax);
-  document.getElementById('inp-ymin').value = fmt(VIEW.yMin);
-  document.getElementById('inp-ymax').value = fmt(VIEW.yMax);
-}
-
 function applyRangeFromInputs() {
   const xMin = parseFloat(document.getElementById('inp-xmin').value);
   const xMax = parseFloat(document.getElementById('inp-xmax').value);
@@ -1210,51 +1181,14 @@ function applyRangeFromInputs() {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-//  ZOOM — scale the view range around its centre
-// ══════════════════════════════════════════════════════════════════════
-function zoom(factor) {
-  const cx    = (VIEW.xMin + VIEW.xMax) / 2;
-  const cy    = (VIEW.yMin + VIEW.yMax) / 2;
-  const xHalf = (VIEW.xMax - VIEW.xMin) / 2 * factor;
-  const yHalf = (VIEW.yMax - VIEW.yMin) / 2 * factor;
-  VIEW.xMin = cx - xHalf;  VIEW.xMax = cx + xHalf;
-  VIEW.yMin = cy - yHalf;  VIEW.yMax = cy + yHalf;
-  syncInputsFromView();
-  render();
-}
-
-function resetView() {
-  VIEW.xMin = DEFAULT_VIEW.xMin; VIEW.xMax = DEFAULT_VIEW.xMax;
-  VIEW.yMin = DEFAULT_VIEW.yMin; VIEW.yMax = DEFAULT_VIEW.yMax;
-  syncInputsFromView();
-  render();
-}
-
-// ══════════════════════════════════════════════════════════════════════
-//  WIRE UP RANGE INPUTS & ZOOM BUTTONS
+//  WIRE UP RANGE INPUTS & APPLY BUTTON
 // ══════════════════════════════════════════════════════════════════════
 ['inp-xmin', 'inp-xmax', 'inp-ymin', 'inp-ymax'].forEach(id => {
   const el = document.getElementById(id);
-  el.addEventListener('change', applyRangeFromInputs);
   el.addEventListener('keydown', e => { if (e.key === 'Enter') applyRangeFromInputs(); });
 });
 
-document.getElementById('btnZoomIn').addEventListener('click',  () => zoom(0.75));
-document.getElementById('btnZoomOut').addEventListener('click', () => zoom(1.35));
-document.getElementById('btnReset').addEventListener('click',   resetView);
-
-// Mouse-wheel zoom on the canvas
-canvas.addEventListener('wheel', e => {
-  e.preventDefault();
-  zoom(e.deltaY > 0 ? 1.15 : 0.87);
-}, { passive: false });
-
-// Keyboard shortcuts: + / - keys while canvas is focused
-canvas.addEventListener('keydown', e => {
-  if (e.key === '+' || e.key === '=') { e.preventDefault(); zoom(0.75); }
-  if (e.key === '-')                   { e.preventDefault(); zoom(1.35); }
-  if (e.key === '0' || e.key === 'r')  { e.preventDefault(); resetView(); }
-});
+document.getElementById('btnApply').addEventListener('click', applyRangeFromInputs);
 
 // ══════════════════════════════════════════════════════════════════════
 //  INIT
