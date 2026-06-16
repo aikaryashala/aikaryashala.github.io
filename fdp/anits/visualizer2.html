@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Function Graph Gallery — Coordinate Geometry · ANITS FDP</title>
+  <title>Equation Graph Gallery — Coordinate Geometry · ANITS FDP</title>
 
   <style>
     /* ================================================================
@@ -246,11 +246,11 @@
 <div class="page-content">
 
   <span class="page-eyebrow">Coordinate Geometry</span>
-  <h1 class="page-title">Function Graph Gallery</h1>
+  <h1 class="page-title">Equation Graph Gallery</h1>
   <p class="page-desc">
-    Visualise four fundamental function types on a Cartesian coordinate plane.
-    Each graph illustrates key properties — <strong>slope</strong>, <strong>y-intercept</strong>,
-    <strong>vertex</strong>, and <strong>symmetry</strong> — that form the foundation
+    Visualise four fundamental algebraic equations on a two-dimensional Cartesian coordinate plane.
+    Each graph illustrates key properties — <strong>slope (gradient)</strong>, <strong>y-intercept</strong>,
+    <strong>vertex</strong>, and <strong>axis of symmetry</strong> — that form the foundation
     of algebraic reasoning in mathematics and programming.
   </p>
 
@@ -272,28 +272,28 @@ const EQUATIONS = [
     label: 'y = x',
     fn:    x => x,
     color: '#3b82f6',
-    type:  'Identity Function',
+    type:  'Identity Equation',
     desc:  'Maps every input to itself (f(x) = x). Slope = 1, y-intercept = 0. Passes through the origin at a 45° angle. Domain: ℝ, Range: ℝ.',
   },
   {
     label: 'y = x²',
     fn:    x => x * x,
     color: '#e11d48',
-    type:  'Quadratic Function',
+    type:  'Quadratic Equation',
     desc:  'A second-degree polynomial. Vertex at the origin (0, 0), axis of symmetry x = 0. Opens upward — output is always ≥ 0. Domain: ℝ, Range: [0, ∞).',
   },
   {
     label: 'y = x + 5',
     fn:    x => x + 5,
     color: '#10b981',
-    type:  'Linear Function',
+    type:  'Linear Equation',
     desc:  'Slope-intercept form y = mx + b with slope m = 1 and y-intercept b = 5. Parallel to y = x, translated 5 units upward. Crosses the y-axis at (0, 5) and the x-axis at (−5, 0).',
   },
   {
     label: 'y = 5',
     fn:    ()  => 5,
     color: '#f59e0b',
-    type:  'Constant Function',
+    type:  'Constant Equation',
     desc:  'A zero-degree polynomial where f(x) = c for all x. Slope = 0 — the rate of change is zero. Graphed as a horizontal line at y = 5. Domain: ℝ, Range: {5}.',
   },
 ];
