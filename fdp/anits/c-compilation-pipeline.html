@@ -6,27 +6,43 @@
 <title>The C Compilation Pipeline — from hello.c to a running program</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&family=Alegreya+SC:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0b0d10;
-    --panel:#14181e;
-    --panel-2:#1a1f27;
-    --line:rgba(255,255,255,.08);
-    --line-2:rgba(255,255,255,.16);
-    --ink:#e8ebf0;
-    --muted:#8b95a3;
-    --faint:#5b6470;
-    --amber:#ffb02e;
-    --amber-soft:rgba(255,176,46,.14);
-    --teal:#2dd4bf;
-    --teal-soft:rgba(45,212,191,.12);
-    --green:#7ee787;
-    --red:#ff7a7a;
-    --purple:#b69bff;
-    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
-    --disp:'Space Grotesk',system-ui,sans-serif;
-    --body:'Inter',system-ui,sans-serif;
+    /* shared design tokens (same as index.html) */
+    --bg:        #E8DDD0;
+    --bg-2:      #DFD3C4;
+    --bg-3:      #D4C5B0;
+    --card:      #F0EAE0;
+    --ink:       #1C0E08;
+    --ink-2:     #2F1708;
+    --ink-3:     #5B3520;
+    --ink-4:     #8B7060;
+    --border:    #C8B8A0;
+    --border-2:  #B0A088;
+    --blue:      #7A3018;
+    --blue-bg:   rgba(122,48,24,.08);
+    --green:     #3A6B18;
+    --mono:      "Fira Code","Cascadia Code",ui-monospace,monospace;
+    --sans:      "Alegreya",Georgia,"Book Antiqua",serif;
+
+    /* page-specific aliases */
+    --panel:     var(--card);
+    --panel-2:   var(--bg-2);
+    --line:      var(--border);
+    --line-2:    var(--border-2);
+    --muted:     var(--ink-3);
+    --faint:     var(--ink-4);
+    --disp:      var(--sans);
+    --body:      var(--sans);
+
+    /* pipeline accent colors */
+    --amber:        #B45309;
+    --amber-soft:   rgba(180,83,9,.10);
+    --teal:         #0369A1;
+    --teal-soft:    rgba(3,105,161,.08);
+    --red:          #B91C1C;
+    --purple:       #6D28D9;
   }
 
   *{box-sizing:border-box;margin:0;padding:0}
@@ -34,10 +50,7 @@
   body{
     font-family:var(--body);
     color:var(--ink);
-    background:
-      radial-gradient(1200px 600px at 80% -10%, rgba(255,176,46,.06), transparent 60%),
-      radial-gradient(900px 500px at 0% 110%, rgba(45,212,191,.05), transparent 55%),
-      var(--bg);
+    background:var(--bg);
     min-height:100vh;
     line-height:1.55;
     -webkit-font-smoothing:antialiased;
@@ -104,7 +117,7 @@
   /* ── command bar ── */
   .cmd{
     display:flex;align-items:center;gap:12px;flex-wrap:wrap;
-    background:#0a0c0f;border:1px solid var(--line);border-radius:10px;
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
     padding:12px 16px;font-family:var(--mono);font-size:13.5px;margin:14px 0 22px;
   }
   .cmd .dollar{color:var(--green);font-weight:700}
@@ -137,17 +150,17 @@
     min-height:360px;tab-size:4;
   }
   /* token colors */
-  .cmt{color:var(--faint);font-style:italic}
-  .kw{color:#ff8fa3}
+  .cmt{color:#888880;font-style:italic}
+  .kw{color:#9D174D}
   .str{color:var(--green)}
   .num{color:var(--purple)}
-  .fn{color:#7cc7ff}
+  .fn{color:#1D4ED8}
   .dir{color:var(--amber)}
   .reg{color:var(--teal)}
-  .lbll{color:#ffd479}
+  .lbll{color:#92400E}
   /* change highlights */
-  .ha{background:var(--amber-soft);border-radius:3px;padding:1px 3px;box-shadow:inset 0 0 0 1px rgba(255,176,46,.35)}
-  .ht{background:var(--teal-soft);border-radius:3px;padding:1px 3px;box-shadow:inset 0 0 0 1px rgba(45,212,191,.3)}
+  .ha{background:rgba(180,83,9,.12);border-radius:3px;padding:1px 3px;box-shadow:inset 0 0 0 1px rgba(180,83,9,.3)}
+  .ht{background:rgba(3,105,161,.10);border-radius:3px;padding:1px 3px;box-shadow:inset 0 0 0 1px rgba(3,105,161,.25)}
   .hr{color:var(--red);font-weight:600}
   .hg{color:var(--green);font-weight:600}
   .gut{color:var(--faint)}
@@ -164,7 +177,7 @@
   .steps li b{color:var(--ink);font-weight:600}
   .steps li::before{
     content:"";position:absolute;left:0;top:7px;width:9px;height:9px;border-radius:2px;
-    background:var(--amber);box-shadow:0 0 0 3px var(--amber-soft);
+    background:var(--amber);box-shadow:0 0 0 3px rgba(180,83,9,.12);
   }
 
   .tags{display:flex;flex-wrap:wrap;gap:7px}
@@ -191,15 +204,15 @@
   }
   .bar .bname{font-family:var(--mono);font-weight:700;font-size:13px}
   .bar .bdesc{font-size:12.5px;color:var(--muted);margin-top:2px}
-  .bar.text{background:linear-gradient(135deg,rgba(255,176,46,.16),rgba(255,176,46,.05));border-color:rgba(255,176,46,.4)}
+  .bar.text{background:linear-gradient(135deg,rgba(180,83,9,.12),rgba(180,83,9,.04));border-color:rgba(180,83,9,.3)}
   .bar.text .bname{color:var(--amber)}
-  .bar.rodata{background:rgba(255,255,255,.03)}
+  .bar.rodata{background:rgba(0,0,0,.02)}
   .bar.rodata .bname{color:var(--ink)}
-  .bar.data{background:linear-gradient(135deg,rgba(45,212,191,.16),rgba(45,212,191,.05));border-color:rgba(45,212,191,.4)}
+  .bar.data{background:linear-gradient(135deg,rgba(3,105,161,.12),rgba(3,105,161,.04));border-color:rgba(3,105,161,.3)}
   .bar.data .bname{color:var(--teal)}
-  .bar.bss{background:rgba(255,255,255,.03);border-style:dashed}
+  .bar.bss{background:rgba(0,0,0,.02);border-style:dashed}
   .bar.bss .bname{color:var(--muted)}
-  .bar.heap,.bar.stack{background:rgba(255,255,255,.02);border-style:dotted}
+  .bar.heap,.bar.stack{background:rgba(0,0,0,.015);border-style:dotted}
   .bar.heap .bname,.bar.stack .bname{color:var(--faint)}
   .pill{position:absolute;top:10px;right:12px;font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
   .grow{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--faint);font-family:var(--mono);font-size:11px;margin:2px 0 2px 96px}
@@ -474,7 +487,7 @@ function linkDiagram(){
       </div>
       <div>${chipBox('hello','executable ELF','var(--green)',true)}</div>
     </div>
-    <div style="margin-top:6px;background:#0a0c0f;border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-family:var(--mono);font-size:12.5px">
+    <div style="margin-top:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-family:var(--mono);font-size:12.5px">
       <div style="color:var(--muted);margin-bottom:6px"># symbol resolution</div>
       <div><span class="hr">before:</span>  main → printf  <span class="hr">[ ? ]</span></div>
       <div><span class="hg">after :</span>  main → printf  <span class="hg">[ libc:0x401f20 ]</span></div>
