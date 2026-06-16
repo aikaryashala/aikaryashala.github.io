@@ -4,1057 +4,435 @@
   <meta charset="UTF-8">
   <title>ANITS FDP — AI Karyashala</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&family=Alegreya+SC:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   <style>
+  html{zoom:1.25}
     :root {
-      --accent-blue: #3b82f6;
-      --accent-red: #e11d48;
+      --bg:        #E8DDD0;
+      --bg-2:      #DFD3C4;
+      --bg-3:      #D4C5B0;
+      --card:      #F0EAE0;
+      --ink:       #1C0E08;
+      --ink-2:     #2F1708;
+      --ink-3:     #5B3520;
+      --ink-4:     #8B7060;
+      --border:    #C8B8A0;
+      --border-2:  #B0A088;
+      --blue:      #7A3018;
+      --blue-bg:   rgba(122,48,24,.08);
+      --blue-bg-2: rgba(122,48,24,.16);
+      --green:     #3A6B18;
+      --mono:      "Fira Code","Cascadia Code",ui-monospace,monospace;
+      --sans:      "Alegreya",Georgia,"Book Antiqua",serif;
+      --sc:        "Alegreya SC","Alegreya",Georgia,serif;
     }
 
-    * { margin:0; padding:0; box-sizing:border-box;
-        font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif; }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-    body { background:#0b1020; color:#fff; overflow-x:hidden; }
+    body {
+      font-family: var(--sans);
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(#5a372314 .8px, transparent .8px),
+        linear-gradient(90deg, #0000000a 0%, transparent 12% 88%, #0000000a 100%);
+      background-size: 16px 16px, 100% 100%;
+      background-attachment: fixed;
+      color: var(--ink);
+      line-height: 1.65;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
 
-    /* ── Header ── */
-    .header { position:sticky; top:16px; z-index:1000; display:flex; justify-content:center; padding-top:16px; }
-    .nav-shell {
-      width:min(1100px,100% - 40px); padding:10px 24px; border-radius:999px;
-      display:flex; gap:24px; align-items:center; justify-content:space-between;
-      background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
-      box-shadow:0 20px 60px rgba(2,6,23,0.4),inset 0 1px 0 rgba(255,255,255,0.08);
-      backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
-      position:relative;
+    /* ── Nav ── */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(232,221,208,.92);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
     }
-    .nav-brand { display:flex; align-items:center; }
-    .nav-brand img { height:28px; }
-    .nav-links { display:flex; gap:20px; font-size:13px; letter-spacing:.08em; text-transform:uppercase; }
-    .nav-links a { color:rgba(255,255,255,0.7); text-decoration:none; padding-bottom:2px;
-                   border-bottom:2px solid transparent; transition:color .25s,border-color .25s; }
-    .nav-links a:hover { color:#fff; border-color:var(--accent-blue); }
-
-    /* ── Hamburger ── */
-    .nav-hamburger {
-      display:none; flex-direction:column; justify-content:center; gap:5px;
-      background:none; border:none; cursor:pointer; padding:6px; flex-shrink:0;
+    .nav-inner {
+      max-width: 900px; margin: 0 auto; padding: 0 24px;
+      height: 54px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
     }
-    .nav-hamburger span {
-      display:block; width:22px; height:2px; background:rgba(255,255,255,.8);
-      border-radius:2px; transition:all .25s;
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; color: var(--ink);
+      font-size: 14px; font-weight: 700; flex-shrink: 0;
     }
+    .nav-brand img { height: 22px; }
+    .nav-sep { width: 1px; height: 16px; background: var(--border-2); flex-shrink: 0; }
+    .nav-sub { font-size: 13px; font-weight: 500; color: var(--ink-3); }
 
     /* ── Hero ── */
-    .page-hero { position:relative; padding:120px 20px 80px; overflow:hidden; background:#0b1020; }
-    .hero-orb { position:absolute; border-radius:50%; pointer-events:none; filter:blur(80px); opacity:.15; }
-    .hero-orb--1 { width:500px; height:500px; background:#e11d48; top:-100px; left:-80px; }
-    .hero-orb--2 { width:350px; height:350px; background:#3b82f6; top:60px; right:-60px; }
-    .page-hero-shell { position:relative; z-index:1; max-width:900px; margin:0 auto; }
+    .hero {
+      max-width: 900px; margin: 0 auto;
+      padding: 80px 24px 64px;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-eyebrow {
+      font-family: var(--sc); font-size: 14px; font-weight: 500; letter-spacing: .06em;
+      color: var(--ink-4); margin-bottom: 22px;
+    }
+    .hero-title {
+      font-size: clamp(30px,5vw,56px); font-weight: 900;
+      line-height: 1.08; letter-spacing: -.035em; color: var(--ink); margin-bottom: 18px;
+    }
+    .hero-subtitle {
+      font-size: clamp(15px,1.8vw,18px); color: var(--ink-3);
+      line-height: 1.7; max-width: 600px; margin-bottom: 44px;
+    }
+    .hero-meta {
+      display: flex; flex-wrap: wrap; gap: 32px;
+      padding-top: 32px; border-top: 1px solid var(--border);
+    }
+    .hero-meta-item { display: flex; flex-direction: column; gap: 4px; }
+    .hero-meta-label {
+      font-family: var(--sc); font-size: 12px; font-weight: 500; letter-spacing: .06em;
+      color: var(--ink-4);
+    }
+    .hero-meta-value { font-size: 15px; font-weight: 600; color: var(--ink); }
 
-    .event-badge {
-      display:inline-flex; align-items:center; gap:8px;
-      background:linear-gradient(135deg,rgba(225,29,72,.2),rgba(225,29,72,.08));
-      border:1px solid rgba(225,29,72,.5); border-radius:999px;
-      padding:8px 20px; font-size:13px; font-weight:700; color:#fb7185;
-      letter-spacing:.1em; text-transform:uppercase; margin-bottom:24px;
-    }
-    .event-badge .dot {
-      width:8px; height:8px; border-radius:50%; background:#e11d48;
-      animation:pulse 1.8s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%,100% { box-shadow:0 0 0 0 rgba(225,29,72,.4); }
-      50%      { box-shadow:0 0 0 8px rgba(225,29,72,0); }
-    }
-    .page-eyebrow {
-      text-transform:uppercase; font-weight:700; letter-spacing:.25em;
-      font-size:13px; color:var(--accent-red); margin-bottom:8px;
-    }
-    .page-title {
-      font-size:clamp(28px,4.5vw,54px); font-weight:800; line-height:1.15;
-      margin:0 0 16px; letter-spacing:-.5px;
-      background:linear-gradient(90deg,#fff,rgba(255,255,255,.85));
-      -webkit-background-clip:text; background-clip:text; color:transparent;
-    }
-    .page-org { font-size:clamp(14px,1.8vw,18px); font-weight:500; color:rgba(255,255,255,.65); line-height:1.6; }
+    /* ── Shell ── */
+    .shell { max-width: 900px; margin: 0 auto; padding: 0 24px 100px; }
 
-    /* ── Info Cards ── */
-    .info-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:40px; }
-    .info-card {
-      background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1);
-      border-radius:16px; padding:18px 20px;
+    /* ── Sessions Grid ── */
+    .sessions-header {
+      padding-top: 60px; margin-bottom: 28px;
     }
-    .info-card-label {
-      font-size:10px; font-weight:700; letter-spacing:.15em;
-      text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:8px;
+    .sessions-label {
+      font-family: var(--sc); font-size: 14px; font-weight: 500; letter-spacing: .06em;
+      color: var(--ink-4); margin-bottom: 8px;
     }
-    .info-card-value { font-size:clamp(13px,1.5vw,17px); font-weight:700; color:#fff; line-height:1.35; }
-    .info-card-value span { color:#fb7185; }
-
-    /* ── Content Shell ── */
-    .content-shell { max-width:900px; margin:0 auto; padding:64px 20px 80px; }
-
-    /* ── Section Heading ── */
-    .section-label {
-      font-size:11px; font-weight:700; letter-spacing:.2em; text-transform:uppercase;
-      color:var(--accent-red); margin-bottom:10px; display:block;
-    }
-    .section-title { font-size:clamp(20px,3vw,30px); font-weight:800; color:#fff; margin-bottom:10px; line-height:1.25; }
-    .section-desc { font-size:15px; color:rgba(255,255,255,.6); line-height:1.8; margin-bottom:36px; }
-    .section-desc strong { color:rgba(255,255,255,.88); }
-
-    /* ── Video Block ── */
-    .video-block { margin-bottom:64px; }
-    .video-wrap {
-      position:relative; width:100%; padding-bottom:56.25%;
-      border-radius:16px; overflow:hidden;
-      border:1px solid rgba(255,255,255,.08); background:#080b1e;
-    }
-    .video-wrap iframe { position:absolute; inset:0; width:100%; height:100%; border:none; }
-    .video-caption { margin-top:14px; font-size:13px; color:rgba(255,255,255,.4); text-align:center; line-height:1.6; }
-
-    /* ── Comparison Cards ── */
-    .compare-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-bottom:64px; }
-    .compare-card {
-      background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08);
-      border-radius:20px; padding:28px 24px; position:relative; overflow:hidden;
-    }
-    .compare-card::before {
-      content:''; position:absolute; top:0; left:0; right:0; height:3px;
-      background:var(--lang-color,#3b82f6);
-    }
-    .compare-card--cpp  { --lang-color:#3b82f6; }
-    .compare-card--java { --lang-color:#f59e0b; }
-    .compare-card--py   { --lang-color:#10b981; }
-    .lang-badge {
-      display:inline-block; font-size:11px; font-weight:800; letter-spacing:.12em;
-      text-transform:uppercase; color:var(--lang-color); background:rgba(255,255,255,.05);
-      border:1px solid var(--lang-color); border-radius:6px; padding:3px 10px; margin-bottom:16px;
-    }
-    .compare-card h3 { font-size:18px; font-weight:800; color:#fff; margin-bottom:6px; }
-    .compare-card .tagline { font-size:12px; color:rgba(255,255,255,.45); margin-bottom:20px; line-height:1.5; }
-    .flow-steps { display:flex; flex-direction:column; gap:8px; }
-    .flow-step { display:flex; align-items:flex-start; gap:10px; }
-    .flow-step-num {
-      flex-shrink:0; width:22px; height:22px; border-radius:50%;
-      background:var(--lang-color); color:#fff;
-      font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; margin-top:1px;
-    }
-    .flow-step-text { font-size:13px; color:rgba(255,255,255,.75); line-height:1.5; }
-    .flow-step-text strong { color:#fff; display:block; font-size:12px; margin-bottom:1px; }
-    .compare-card .result-tag {
-      margin-top:20px; font-size:11px; font-weight:700; letter-spacing:.1em;
-      text-transform:uppercase; color:var(--lang-color); padding-top:16px;
-      border-top:1px solid rgba(255,255,255,.07);
+    .sessions-title {
+      font-size: clamp(20px,2.8vw,28px); font-weight: 700;
+      color: var(--ink); letter-spacing: -.01em;
     }
 
-    /* ── Podcast Block ── */
-    .podcast-block {
-      background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08);
-      border-radius:20px; padding:32px 36px; margin-bottom:64px;
-      display:flex; align-items:flex-start; gap:28px;
-    }
-    .podcast-icon {
-      flex-shrink:0; width:56px; height:56px; border-radius:14px;
-      background:linear-gradient(135deg,rgba(225,29,72,.25),rgba(225,29,72,.08));
-      border:1px solid rgba(225,29,72,.3);
-      display:flex; align-items:center; justify-content:center; font-size:24px;
-      margin-top:2px;
-    }
-    .podcast-text h3 { font-size:18px; font-weight:800; color:#fff; margin-bottom:6px; }
-    .podcast-text p  { font-size:14px; color:rgba(255,255,255,.55); line-height:1.7; }
-    .podcast-link {
-      display:inline-block; margin-top:12px; font-size:13px; font-weight:700;
-      color:#fb7185; text-decoration:none; transition:color .2s,transform .2s;
-    }
-    .podcast-link:hover { color:#fff; transform:translateX(4px); }
-
-    /* ── Setup Section ── */
-    .setup-block { margin-bottom:64px; }
-    .setup-steps { display:flex; flex-direction:column; margin-bottom:28px; }
-    .setup-step {
-      display:flex; gap:20px; align-items:flex-start;
-      padding:20px 0; border-bottom:1px solid rgba(255,255,255,.06);
-    }
-    .setup-step:last-child { border-bottom:none; }
-    .setup-step-num {
-      flex-shrink:0; width:32px; height:32px; border-radius:50%;
-      background:linear-gradient(135deg,#3b82f6,#6366f1); color:#fff;
-      font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center;
-    }
-    .setup-step-body { flex:1; min-width:0; }
-    .setup-step-body h4 { font-size:16px; font-weight:700; color:#fff; margin-bottom:6px; }
-    .setup-step-body p  { font-size:14px; color:rgba(255,255,255,.55); line-height:1.7; margin-bottom:10px; }
-    .setup-step-body p:last-child { margin-bottom:0; }
-    .cmd-block {
-      background:#060810; border:1px solid rgba(255,255,255,.1); border-radius:10px;
-      padding:12px 16px; margin:8px 0;
-      font-family:"Cascadia Code","Fira Code","Consolas",monospace;
-      font-size:13px; overflow-x:auto;
-    }
-    .cmd-block .cmd-line { display:flex; align-items:baseline; gap:10px; margin-bottom:4px; flex-wrap:wrap; }
-    .cmd-block .cmd-line:last-child { margin-bottom:0; }
-    .cmd-prompt { color:#10b981; font-weight:700; user-select:none; flex-shrink:0; }
-    .cmd-text   { color:#e2e8f0; flex-shrink:0; }
-    .cmd-comment { color:rgba(255,255,255,.3); font-size:12px; }
-    .note-tag {
-      display:flex; align-items:flex-start; gap:6px; flex-wrap:wrap;
-      background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.3);
-      border-radius:8px; padding:8px 14px; font-size:13px; color:#fbbf24;
-      margin-top:10px; line-height:1.6;
-    }
-    .setup-ref-link {
-      display:inline-flex; align-items:center; gap:8px;
-      background:rgba(59,130,246,.1); border:1px solid rgba(59,130,246,.3);
-      border-radius:10px; padding:12px 20px; color:#93c5fd; text-decoration:none;
-      font-size:14px; font-weight:600; transition:background .2s,border-color .2s;
-    }
-    .setup-ref-link:hover { background:rgba(59,130,246,.2); border-color:rgba(59,130,246,.5); color:#fff; }
-
-    /* ── CS50 Section ── */
-    .cs50-block { margin-bottom:64px; }
-    .cs50-cards { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:4px; }
-    .cs50-card {
-      background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08);
-      border-radius:18px; padding:28px 24px; display:flex; flex-direction:column;
-    }
-    .cs50-card-icon { font-size:32px; margin-bottom:14px; }
-    .cs50-card h3 { font-size:18px; font-weight:800; color:#fff; margin-bottom:8px; }
-    .cs50-card p  { font-size:14px; color:rgba(255,255,255,.55); line-height:1.7; margin-bottom:20px; flex:1; }
-    .cs50-btn-group { display:flex; flex-direction:column; gap:10px; }
-    .cs50-divider { font-size:11px; font-weight:600; color:rgba(255,255,255,.25); text-transform:uppercase; letter-spacing:.08em; }
-    .cs50-btn {
-      display:flex; align-items:center; justify-content:center; gap:8px;
-      padding:11px 20px; border-radius:10px; font-size:14px; font-weight:700;
-      text-decoration:none; transition:all .25s;
-    }
-    .cs50-btn--gh { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.15); color:#fff; }
-    .cs50-btn--gh:hover { background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.3); }
-    .cs50-btn--cs50 {
-      background:linear-gradient(135deg,#e11d48,#be123c); color:#fff;
-      box-shadow:0 8px 24px rgba(225,29,72,.3);
-    }
-    .cs50-btn--cs50:hover { transform:translateY(-2px); box-shadow:0 12px 32px rgba(225,29,72,.4); }
-
-    /* ── Commands Section ── */
-    .commands-block { margin-bottom:64px; }
-    .cmd-group { margin-bottom:32px; }
-    .cmd-group:last-child { margin-bottom:0; }
-    .cmd-group-title {
-      font-size:12px; font-weight:700; letter-spacing:.15em; text-transform:uppercase;
-      color:rgba(255,255,255,.35); margin-bottom:12px; padding-bottom:8px;
-      border-bottom:1px solid rgba(255,255,255,.06);
-    }
-    .cmd-table { display:flex; flex-direction:column; gap:2px; }
-    .cmd-row {
-      display:grid; grid-template-columns:auto 1fr;
-      align-items:start; gap:20px;
-      padding:10px 14px; border-radius:10px;
-      transition:background .2s;
-    }
-    .cmd-row:hover { background:rgba(255,255,255,.04); }
-    .cmd-row .cmd-code {
-      font-family:"Cascadia Code","Fira Code","Consolas",monospace;
-      font-size:13px; color:#10b981; font-weight:600; white-space:nowrap;
-    }
-    .cmd-row .cmd-desc { font-size:13px; color:rgba(255,255,255,.55); line-height:1.6; padding-top:2px; }
-    .cmd-row .cmd-desc strong { color:rgba(255,255,255,.85); font-weight:600; }
-    .cmd-note {
-      margin-top:12px; padding:14px 16px;
-      background:rgba(16,185,129,.07); border:1px solid rgba(16,185,129,.2);
-      border-radius:10px; font-size:13px; color:rgba(255,255,255,.65); line-height:1.6;
-    }
-    .cmd-note code {
-      font-family:"Cascadia Code","Fira Code","Consolas",monospace;
-      color:#10b981; font-size:12px; background:rgba(16,185,129,.12);
-      padding:1px 6px; border-radius:4px;
+    .sessions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 64px;
     }
 
-    /* ── Homework Section ── */
-    .homework-block {
-      background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(245,158,11,.03));
-      border:1px solid rgba(245,158,11,.25); border-radius:20px;
-      padding:32px 36px; margin-bottom:64px;
-      display:flex; align-items:flex-start; gap:24px;
+    .session-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 26px 24px;
+      background: var(--card);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      transition: border-color .18s, box-shadow .18s;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
     }
-    .homework-icon {
-      flex-shrink:0; width:52px; height:52px; border-radius:14px;
-      background:rgba(245,158,11,.15); border:1px solid rgba(245,158,11,.3);
-      display:flex; align-items:center; justify-content:center; font-size:24px; margin-top:2px;
+    .session-card:hover {
+      border-color: var(--border-2);
+      box-shadow: 0 4px 20px rgba(0,0,0,.06);
     }
-    .homework-tag {
-      display:inline-block; font-size:11px; font-weight:700; letter-spacing:.12em;
-      text-transform:uppercase; color:#fbbf24;
-      background:rgba(245,158,11,.12); border:1px solid rgba(245,158,11,.3);
-      border-radius:6px; padding:3px 10px; margin-bottom:12px;
+    .sc-open {
+      margin-top: auto;
+      padding-top: 16px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--blue);
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
-    .homework-body h3 { font-size:18px; font-weight:800; color:#fff; margin-bottom:8px; }
-    .homework-body p  { font-size:14px; color:rgba(255,255,255,.6); line-height:1.7; margin-bottom:14px; }
-    .inline-code {
-      font-family:"Cascadia Code","Fira Code","Consolas",monospace;
-      font-size:12px; color:#fbbf24; background:rgba(245,158,11,.1);
-      padding:1px 6px; border-radius:4px;
-    }
-    .homework-link {
-      display:inline-flex; align-items:center; gap:6px;
-      color:#fbbf24; text-decoration:none; font-size:13px; font-weight:700;
-      transition:color .2s,transform .2s;
-    }
-    .homework-link:hover { color:#fff; transform:translateX(4px); }
 
-    /* ── Q&A Section ── */
-    .qa-block { margin-bottom:0; }
-    .qa-block--spaced { margin-bottom:64px; }
-    .qa-list { display:flex; flex-direction:column; gap:10px; }
+    .sc-meta {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+    }
+    .sc-day {
+      font-family: var(--sc); font-size: 12px; font-weight: 500; letter-spacing: .05em;
+      color: var(--ink-4);
+    }
+    .sc-badge {
+      font-family: var(--sc); font-size: 12px; font-weight: 500; letter-spacing: .05em;
+      color: var(--blue);
+      background: var(--blue-bg);
+      border: 1px solid rgba(122,48,24,.2);
+      border-radius: 20px; padding: 2px 8px;
+    }
+    .sc-title {
+      font-size: 16px; font-weight: 700; color: var(--ink);
+      letter-spacing: -.01em; line-height: 1.3; margin-bottom: 8px;
+    }
+    .sc-desc {
+      font-size: 13px; color: var(--ink-3); line-height: 1.6;
+      margin-bottom: 18px; flex: 1;
+    }
+
+
+    /* ── Q&A ── */
+    .qa-section { margin-bottom: 60px; }
+    .qa-label {
+      font-family: var(--sc); font-size: 14px; font-weight: 500; letter-spacing: .06em;
+      color: var(--ink-4); margin-bottom: 8px;
+    }
+    .qa-title {
+      font-size: clamp(18px,2.5vw,24px); font-weight: 700;
+      color: var(--ink); margin-bottom: 8px; letter-spacing: -.01em;
+    }
+    .qa-desc {
+      font-size: 14px; color: var(--ink-3); line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .qa-list { display: flex; flex-direction: column; gap: 8px; }
     .qa-item {
-      background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08);
-      border-radius:14px;
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 15px 18px; border: 1px solid var(--border);
+      border-radius: 10px; background: var(--card);
     }
-    .qa-question { display:flex; align-items:center; gap:14px; padding:18px 20px; }
-    .qa-q-badge {
-      flex-shrink:0; width:26px; height:26px; border-radius:6px;
-      background:linear-gradient(135deg,#a78bfa,#7c3aed); color:#fff;
-      font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center;
+    .qa-badge {
+      flex-shrink: 0; width: 23px; height: 23px;
+      border-radius: 5px; background: var(--bg-3);
+      font-size: 10px; font-weight: 800; color: var(--ink-3);
+      display: flex; align-items: center; justify-content: center; margin-top: 1px;
     }
-    .qa-question p { font-size:15px; font-weight:600; color:#fff; line-height:1.5; }
+    .qa-item p { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    /* ── Additional Resources ── */
+    .resources-section { margin-bottom: 60px; }
+    .resources-label {
+      font-family: var(--sc); font-size: 14px; font-weight: 500; letter-spacing: .06em;
+      color: var(--ink-4); margin-bottom: 8px;
+    }
+    .resources-title {
+      font-size: clamp(18px,2.5vw,24px); font-weight: 700;
+      color: var(--ink); margin-bottom: 20px; letter-spacing: -.01em;
+    }
+    .resource-stack { display: flex; flex-direction: column; gap: 10px; }
+    .resource-link {
+      display: flex; align-items: center; gap: 14px;
+      padding: 13px 18px; border: 1px solid var(--border);
+      border-radius: 10px; text-decoration: none;
+      background: var(--card); transition: border-color .18s, background .18s;
+    }
+    .resource-link:hover { border-color: var(--border-2); background: var(--bg-2); }
+    .resource-body { flex: 1; min-width: 0; }
+    .resource-title-text { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+    .resource-url { font-size: 11.5px; color: var(--ink-4); margin-top: 2px; font-family: var(--mono); }
+    .resource-arrow { color: var(--ink-4); font-size: 14px; flex-shrink: 0; }
 
     /* ── Footer ── */
-    .site-footer { padding:40px 20px; border-top:1px solid rgba(255,255,255,.06); text-align:center; }
-    .footer-credit { color:rgba(255,255,255,.35); font-size:13px; }
-    .footer-credit a { color:rgba(255,255,255,.5); text-decoration:none; }
-    .footer-credit a:hover { color:#fff; }
+    .site-footer { border-top: 1px solid var(--border); padding: 32px 24px; text-align: center; }
+    .footer-inner { max-width: 900px; margin: 0 auto; }
+    .footer-text { font-size: 13px; color: var(--ink-4); }
+    .footer-text a { color: var(--ink-3); text-decoration: none; transition: color .18s; }
+    .footer-text a:hover { color: var(--ink); }
 
-    /* ── Responsive 600px ── */
-    @media(max-width:600px) {
-      .info-strip { grid-template-columns:repeat(2,1fr); gap:10px; margin-top:28px; }
-      .info-card  { padding:14px 16px; }
-    }
-
-    /* ── Responsive 768px ── */
-    @media(max-width:768px) {
-      .nav-hamburger { display:flex; }
-      .nav-links {
-        display:none; position:absolute; top:calc(100% + 10px); right:0;
-        flex-direction:column; gap:14px; text-transform:none; letter-spacing:0;
-        background:rgba(11,16,32,.96); border:1px solid rgba(255,255,255,.12);
-        border-radius:16px; padding:18px 24px; min-width:200px;
-        backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
-        box-shadow:0 16px 48px rgba(2,6,23,.5); z-index:200;
-      }
-      .nav-links.is-open { display:flex; }
-      .nav-links a { font-size:14px; letter-spacing:0; text-transform:none; border-bottom:none; }
-      .nav-shell { padding:8px 16px; }
-      .page-hero { padding:90px 16px 56px; }
-      .info-strip { gap:10px; margin-top:28px; }
-      .info-card  { padding:14px 16px; }
-      .content-shell { padding:48px 16px 64px; }
-      .section-desc { margin-bottom:24px; }
-      .video-block { margin-bottom:48px; }
-      .podcast-block { flex-direction:column; gap:16px; padding:24px; margin-bottom:48px; }
-      .compare-grid { grid-template-columns:1fr; gap:16px; margin-bottom:48px; }
-      .setup-block, .cs50-block, .commands-block, .homework-block { margin-bottom:48px; }
-      .qa-block--spaced { margin-bottom:48px; }
-      .cs50-cards { grid-template-columns:1fr; }
-      .setup-ref-link { display:flex; }
-      .homework-block { flex-direction:column; gap:16px; padding:24px; }
-    }
-
-    /* ── Responsive 480px ── */
-    @media(max-width:480px) {
-      .page-hero { padding:80px 14px 44px; }
-      .event-badge { font-size:11px; padding:6px 14px; }
-      .info-strip { grid-template-columns:repeat(2,1fr); gap:8px; margin-top:20px; }
-      .info-card { padding:12px 14px; border-radius:12px; }
-      .info-card-label { font-size:9px; }
-      .content-shell { padding:40px 14px 56px; }
-      .section-title { font-size:20px; }
-      .section-desc { font-size:14px; margin-bottom:20px; }
-      .compare-card { padding:20px 16px; }
-      .podcast-block { padding:20px 16px; }
-      .cmd-block { font-size:12px; padding:10px 12px; }
-      .cmd-comment { display:none; }
-      .cmd-row { grid-template-columns:1fr; gap:4px; padding:10px 10px; }
-      .cmd-row .cmd-desc { padding-top:0; padding-left:2px; }
-      .cs50-card { padding:20px 16px; }
-      .cs50-card h3 { font-size:16px; }
-      .setup-step { gap:14px; }
-      .setup-step-num { width:28px; height:28px; font-size:12px; }
-      .homework-block { padding:20px 16px; }
-      .qa-question { padding:14px 16px; }
-      .qa-question p { font-size:14px; }
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .nav-sub, .nav-sep { display: none; }
+      .hero { padding: 48px 18px 40px; }
+      .shell { padding: 0 18px 80px; }
+      .hero-meta { gap: 18px; }
+      .sessions-grid { grid-template-columns: 1fr; }
+      .sessions-header { padding-top: 44px; }
     }
   </style>
 </head>
 <body>
 
-<!-- Header -->
-<header class="header">
-  <div class="nav-shell">
-    <a href="../../index.html" aria-label="Home" class="nav-brand">
-      <img src="../../images/logo transparent.png" alt="AI Karyashala logo">
+<!-- Nav -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../../index.html" class="nav-brand">
+      <img src="../../images/logo transparent.png" alt="AI Karyashala">
+      <span class="nav-sep"></span>
+      <span class="nav-sub">ANITS FDP</span>
     </a>
-    <button class="nav-hamburger" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
-      <span></span><span></span><span></span>
-    </button>
-    <nav class="nav-links" id="navLinks" aria-label="Main">
-      <a href="../../index.html#journey">Our Journey</a>
-      <a href="../../students.html">Our Students</a>
-      <a href="../../projects.html">Projects</a>
-    </nav>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="hero">
+  <p class="hero-eyebrow">Faculty Development Programme &nbsp;·&nbsp; June 2026</p>
+  <h1 class="hero-title">ANITS FDP on<br>Programming Languages</h1>
+  <p class="hero-subtitle">
+    Anil Neerukonda Institute of Technology &amp; Sciences (A), Visakhapatnam, Andhra Pradesh
+  </p>
+  <div class="hero-meta">
+    <div class="hero-meta-item">
+      <span class="hero-meta-label">Dates</span>
+      <span class="hero-meta-value">15 – 18 June 2026</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="hero-meta-label">Duration</span>
+      <span class="hero-meta-value">4 Days</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="hero-meta-label">Sessions</span>
+      <span class="hero-meta-value">4 Sessions</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="hero-meta-label">Host</span>
+      <span class="hero-meta-value">ANITS (A)</span>
+    </div>
   </div>
 </header>
 
-<!-- Hero -->
-<section class="page-hero">
-  <div class="hero-orb hero-orb--1"></div>
-  <div class="hero-orb hero-orb--2"></div>
-  <div class="page-hero-shell">
-    <div class="event-badge">
-      <span class="dot"></span>
-      Faculty Development Programme
-    </div>
-
-    <p class="page-eyebrow">ANITS &nbsp;·&nbsp; June 2026</p>
-    <h1 class="page-title">Faculty Development Programme on Programming Languages</h1>
-    <p class="page-org">
-      Anil Neerukonda Institute of Technology &amp; Sciences (A),
-      Visakhapatnam, Andhra Pradesh
-    </p>
-
-    <div class="info-strip">
-      <div class="info-card">
-        <div class="info-card-label">Dates</div>
-        <div class="info-card-value"><span>15 – 18</span> June 2026</div>
-      </div>
-      <div class="info-card">
-        <div class="info-card-label">Duration</div>
-        <div class="info-card-value">4 Days</div>
-      </div>
-      <div class="info-card">
-        <div class="info-card-label">Topic</div>
-        <div class="info-card-value">Programming Languages</div>
-      </div>
-      <div class="info-card">
-        <div class="info-card-label">Host</div>
-        <div class="info-card-value">ANITS (A)</div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- Main Content -->
-<div class="content-shell">
+<div class="shell">
 
-  <!-- Video Section -->
-  <div class="video-block">
-    <p class="section-label">Session Resource</p>
-    <h2 class="section-title">C++, Python &amp; Java — Compilation Compared</h2>
-    <p class="section-desc">
-      How do C++, Python, and Java differ in the way they compile and execute code?
-      This video walks through each language's compilation model — from source to execution —
-      and helps understand the trade-offs in performance, portability, and development speed.
-    </p>
-    <div class="video-wrap">
-      <iframe
-        src="https://www.youtube.com/embed/hnlz0YYCpBU"
-        title="C++, Python and Java Compilation Compared"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen>
-      </iframe>
-    </div>
-    <p class="video-caption">C++, Python &amp; Java — Compilation &amp; Execution Model Comparison</p>
+  <!-- Sessions -->
+  <div class="sessions-header">
+    <p class="sessions-label">Programme</p>
+    <h2 class="sessions-title">Sessions</h2>
   </div>
 
-  <!-- NotebookLM Telugu Podcast -->
-  <div class="podcast-block">
-    <div class="podcast-icon">🎙️</div>
-    <div class="podcast-text">
-      <h3>NotebookLM Telugu Podcast</h3>
-      <p>
-        A Telugu-language podcast on C++, Python &amp; Java compilation concepts —
-        generated using Google NotebookLM.
+  <div class="sessions-grid">
+
+    <!-- Session 1 -->
+    <a class="session-card" href="session1.html">
+      <div class="sc-meta">
+        <span class="sc-day">Day 1</span>
+        <span class="sc-badge">Session 1</span>
+      </div>
+      <h3 class="sc-title">C++, Python &amp; Java — Compilation Compared</h3>
+      <p class="sc-desc">
+        How each language takes source code to execution — video walkthrough, Telugu podcast, and language comparison.
+        Plus WSL &amp; Ubuntu environment setup.
       </p>
-      <a href="https://notebooklm.google.com/notebook/1d9aafde-6ac7-4b6c-9cf6-7d878de7177b/artifact/cf9706f2-4341-4bab-bff8-f10149bf57b8?utm_source=nlm_web_share&utm_medium=google_oo&utm_campaign=art_share_1&utm_content=&utm_smc=nlm_web_share_google_oo_art_share_1_" target="_blank" rel="noopener noreferrer" class="podcast-link">Listen on NotebookLM →</a>
-    </div>
-  </div>
-
-  <!-- Comparison Cards -->
-  <div class="compare-section">
-    <p class="section-label">Quick Reference</p>
-    <h2 class="section-title">How Each Language Runs</h2>
-    <p class="section-desc">
-      Each language takes a different path from source code to execution.
-    </p>
-
-  <div class="compare-grid">
-
-    <!-- C++ -->
-    <div class="compare-card compare-card--cpp">
-      <span class="lang-badge">C++</span>
-      <h3>Compiled to Native</h3>
-      <p class="tagline">Source → Machine code. No runtime needed.</p>
-      <div class="flow-steps">
-        <div class="flow-step">
-          <div class="flow-step-num">1</div>
-          <div class="flow-step-text">
-            <strong>Source (.cpp)</strong>
-            Write the program in C++
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-step-num">2</div>
-          <div class="flow-step-text">
-            <strong>Compiler (g++ / clang++)</strong>
-            Translates to machine code &amp; links libraries
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-step-num">3</div>
-          <div class="flow-step-text">
-            <strong>Native Executable</strong>
-            Runs directly on the CPU — no middleman
-          </div>
-        </div>
-      </div>
-      <p class="result-tag">Fastest execution · Platform-specific binary</p>
-    </div>
-
-    <!-- Java -->
-    <div class="compare-card compare-card--java">
-      <span class="lang-badge">Java</span>
-      <h3>Bytecode + JVM</h3>
-      <p class="tagline">Source → Bytecode → JIT → Native at runtime.</p>
-      <div class="flow-steps">
-        <div class="flow-step">
-          <div class="flow-step-num">1</div>
-          <div class="flow-step-text">
-            <strong>Source (.java)</strong>
-            Write the program in Java
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-step-num">2</div>
-          <div class="flow-step-text">
-            <strong>javac Compiler</strong>
-            Compiles to platform-neutral bytecode (.class)
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-step-num">3</div>
-          <div class="flow-step-text">
-            <strong>JVM + JIT Compiler</strong>
-            Interprets bytecode and JIT-compiles hot paths to native
-          </div>
-        </div>
-      </div>
-      <p class="result-tag">Write once, run anywhere · JVM required</p>
-    </div>
-
-    <!-- Python -->
-    <div class="compare-card compare-card--py">
-      <span class="lang-badge">Python</span>
-      <h3>Interpreted</h3>
-      <p class="tagline">Source → Bytecode → CPython VM.</p>
-      <div class="flow-steps">
-        <div class="flow-step">
-          <div class="flow-step-num">1</div>
-          <div class="flow-step-text">
-            <strong>Source (.py)</strong>
-            Write the program in Python
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-step-num">2</div>
-          <div class="flow-step-text">
-            <strong>CPython Compiler</strong>
-            Compiles to bytecode (.pyc) automatically
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-step-num">3</div>
-          <div class="flow-step-text">
-            <strong>Python VM</strong>
-            Executes bytecode line-by-line at runtime
-          </div>
-        </div>
-      </div>
-      <p class="result-tag">Most flexible &amp; dynamic · Slowest raw speed</p>
-    </div>
-
-  </div><!-- /compare-grid -->
-  </div><!-- /compare-section -->
-
-  <!-- WSL Ubuntu Setup -->
-  <div class="setup-block">
-    <p class="section-label">Environment Setup</p>
-    <h2 class="section-title">Install Ubuntu on Windows via WSL</h2>
-    <p class="section-desc">
-      Open <strong>PowerShell</strong> or <strong>Command Prompt</strong> as Administrator and follow these steps.
-    </p>
-
-    <div class="setup-steps">
-
-      <div class="setup-step">
-        <div class="setup-step-num">1</div>
-        <div class="setup-step-body">
-          <h4>Update WSL</h4>
-          <p>Make sure your WSL installation is up to date before anything else.</p>
-          <div class="cmd-block">
-            <div class="cmd-line"><span class="cmd-prompt">PS&gt;</span><span class="cmd-text">wsl --update</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="setup-step">
-        <div class="setup-step-num">2</div>
-        <div class="setup-step-body">
-          <h4>List Available Distributions</h4>
-          <p>See all Linux distributions you can install. Look for <strong>Ubuntu-24.04</strong> in the list.</p>
-          <div class="cmd-block">
-            <div class="cmd-line"><span class="cmd-prompt">PS&gt;</span><span class="cmd-text">wsl --list --online</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="setup-step">
-        <div class="setup-step-num">3</div>
-        <div class="setup-step-body">
-          <h4>Install Ubuntu 24.04</h4>
-          <p>Either command works — use whichever succeeds on your machine.</p>
-          <div class="cmd-block">
-            <div class="cmd-line"><span class="cmd-prompt">PS&gt;</span><span class="cmd-text">wsl --install Ubuntu-24.04</span></div>
-            <div class="cmd-line"><span class="cmd-comment">&nbsp;&nbsp;&nbsp;&nbsp;# or</span></div>
-            <div class="cmd-line"><span class="cmd-prompt">PS&gt;</span><span class="cmd-text">wsl --install -d Ubuntu-24.04</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="setup-step">
-        <div class="setup-step-num">4</div>
-        <div class="setup-step-body">
-          <h4>Restart Your Machine</h4>
-          <p>After installation completes, restart Windows to apply the changes before the first launch.</p>
-        </div>
-      </div>
-
-      <div class="setup-step">
-        <div class="setup-step-num">5</div>
-        <div class="setup-step-body">
-          <h4>Set Username &amp; Password</h4>
-          <p>
-            On first launch, Ubuntu will ask you to create a Unix username and password.
-            The password is not visible while you type — that is normal. Type it carefully and press Enter.
-          </p>
-          <div class="note-tag">
-            ⚠️ The cursor will not move and nothing will be shown while typing your password. This is expected.
-          </div>
-        </div>
-      </div>
-
-      <div class="setup-step">
-        <div class="setup-step-num">6</div>
-        <div class="setup-step-body">
-          <h4>Verify the Installation</h4>
-          <p>Run these commands to confirm WSL and Ubuntu are set up correctly.</p>
-          <div class="cmd-block">
-            <div class="cmd-line"><span class="cmd-prompt">PS&gt;</span><span class="cmd-text">wsl --version</span><span class="cmd-comment">&nbsp;&nbsp;# check WSL version</span></div>
-            <div class="cmd-line"><span class="cmd-prompt">PS&gt;</span><span class="cmd-text">wsl --list --verbose</span><span class="cmd-comment">&nbsp;&nbsp;# see running distros &amp; WSL version per distro</span></div>
-          </div>
-          <p style="margin-top:10px;">You should see <strong>Ubuntu-24.04</strong> listed with state <strong>Stopped</strong> or <strong>Running</strong> and version <strong>2</strong>.</p>
-        </div>
-      </div>
-
-    </div>
-
-    <a href="https://aikaryashala.com/bootcamp/kiet/installation.html" target="_blank" rel="noopener noreferrer" class="setup-ref-link">
-      Full installation guide with more steps →
+      <span class="sc-open">Open Session →</span>
     </a>
-  </div>
 
-  <!-- CS50.dev + GitHub -->
-  <div class="cs50-block">
-    <p class="section-label">Coding Environment</p>
-    <h2 class="section-title">Get Started with CS50.dev</h2>
-    <p class="section-desc">
-      CS50.dev is a cloud-based VS Code environment used in the sessions. It requires a GitHub account to log in.
-    </p>
-
-    <div class="cs50-cards">
-
-      <div class="cs50-card">
-        <div class="cs50-card-icon">🐙</div>
-        <h3>GitHub Account</h3>
-        <p>
-          If you don't have a GitHub account, create one first.
-          If you already have one, simply log in — no new account needed.
-        </p>
-        <div class="cs50-btn-group">
-          <span class="cs50-divider">No account yet?</span>
-          <a href="https://github.com/signup" target="_blank" rel="noopener noreferrer" class="cs50-btn cs50-btn--gh">
-            Create GitHub Account →
-          </a>
-          <span class="cs50-divider">Already have one?</span>
-          <a href="https://github.com/login" target="_blank" rel="noopener noreferrer" class="cs50-btn cs50-btn--gh">
-            Log in to GitHub →
-          </a>
-        </div>
+    <!-- Session 2 -->
+    <a class="session-card" href="session2.html">
+      <div class="sc-meta">
+        <span class="sc-day">Day 1</span>
+        <span class="sc-badge">Session 2</span>
       </div>
-
-      <div class="cs50-card">
-        <div class="cs50-card-icon">💻</div>
-        <h3>Open CS50.dev</h3>
-        <p>
-          Once you're logged into GitHub, go to CS50.dev and sign in with your GitHub account.
-          Your workspace will be ready in seconds.
-        </p>
-        <div class="cs50-btn-group">
-          <a href="https://cs50.dev" target="_blank" rel="noopener noreferrer" class="cs50-btn cs50-btn--cs50">
-            Open CS50.dev →
-          </a>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Linux & C Commands -->
-  <div class="commands-block">
-    <p class="section-label">Session Commands</p>
-    <h2 class="section-title">Linux &amp; C Commands</h2>
-    <p class="section-desc">Commands used during the session — run these inside your Ubuntu terminal.</p>
-
-    <div class="cmd-group">
-      <p class="cmd-group-title">File System</p>
-      <div class="cmd-table">
-        <div class="cmd-row">
-          <span class="cmd-code">ls</span>
-          <span class="cmd-desc">List all files and folders in the current directory</span>
-        </div>
-        <div class="cmd-row">
-          <span class="cmd-code">pwd</span>
-          <span class="cmd-desc">Print Working Directory — shows your current location in the file system</span>
-        </div>
-        <div class="cmd-row">
-          <span class="cmd-code">clear</span>
-          <span class="cmd-desc">Clear the terminal screen</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="cmd-group">
-      <p class="cmd-group-title">Working with Files</p>
-      <div class="cmd-table">
-        <div class="cmd-row">
-          <span class="cmd-code">touch sum.c</span>
-          <span class="cmd-desc">Create a new empty file named <strong>sum.c</strong></span>
-        </div>
-        <div class="cmd-row">
-          <span class="cmd-code">cat sum.c</span>
-          <span class="cmd-desc">Print the contents of <strong>sum.c</strong> to the terminal</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="cmd-group">
-      <p class="cmd-group-title">Compiling &amp; Running C</p>
-      <div class="cmd-table">
-        <div class="cmd-row">
-          <span class="cmd-code">clang sum.c</span>
-          <span class="cmd-desc">Compile <strong>sum.c</strong> using the Clang compiler</span>
-        </div>
-        <div class="cmd-row">
-          <span class="cmd-code">./a.out</span>
-          <span class="cmd-desc">Run the compiled program — default output file is always <strong>a.out</strong></span>
-        </div>
-        <div class="cmd-row">
-          <span class="cmd-code">rm a.out</span>
-          <span class="cmd-desc">Delete the <strong>a.out</strong> file</span>
-        </div>
-        <div class="cmd-row">
-          <span class="cmd-code">clang sum.c -o sum</span>
-          <span class="cmd-desc">Compile and name the output <strong>sum</strong> instead of a.out</span>
-        </div>
-        <div class="cmd-row">
-          <span class="cmd-code">./sum</span>
-          <span class="cmd-desc">Run the named executable — <strong>sum.c</strong> executes</span>
-        </div>
-      </div>
-      <div class="cmd-note">
-        When you run <code>clang sum.c</code> without <code>-o</code>, the compiler always creates a default output file called <code>a.out</code> (short for <em>assembler output</em>). Use <code>-o &lt;name&gt;</code> to give it a meaningful name.
-      </div>
-    </div>
-
-    <div class="cmd-group">
-      <p class="cmd-group-title">Compilation Stages — Save Intermediate Files</p>
-      <div class="cmd-table">
-        <div class="cmd-row">
-          <span class="cmd-code">clang --save-temps sum.c -o sum</span>
-          <span class="cmd-desc">Compile and save all intermediate files generated during compilation</span>
-        </div>
-        <div class="cmd-row">
-          <span class="cmd-code">ls</span>
-          <span class="cmd-desc">List the directory — you will see all the files created</span>
-        </div>
-      </div>
-      <div class="cmd-note">
-        After running <code>--save-temps</code>, the following files are generated:
-        <div style="overflow-x:auto;margin-top:12px;">
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;min-width:280px;">
-          <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:8px 12px;">
-            <code style="color:#10b981;font-size:12px;">sum</code>
-            <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:3px;">Final executable</div>
-          </div>
-          <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:8px 12px;">
-            <code style="color:#60a5fa;font-size:12px;">sum.i</code>
-            <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:3px;">Preprocessed source</div>
-          </div>
-          <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:8px;padding:8px 12px;">
-            <code style="color:#a78bfa;font-size:12px;">sum.bc</code>
-            <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:3px;">LLVM bitcode</div>
-          </div>
-          <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:8px 12px;">
-            <code style="color:#fbbf24;font-size:12px;">sum.s</code>
-            <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:3px;">Assembly code</div>
-          </div>
-          <div style="background:rgba(236,72,153,.08);border:1px solid rgba(236,72,153,.2);border-radius:8px;padding:8px 12px;">
-            <code style="color:#f472b6;font-size:12px;">sum.o</code>
-            <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:3px;">Object file</div>
-          </div>
-          <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;">
-            <code style="color:rgba(255,255,255,.6);font-size:12px;">sum.c</code>
-            <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:3px;">Original source</div>
-          </div>
-        </div><!-- /files grid -->
-        </div><!-- /overflow wrapper -->
-      </div>
-    </div>
-
-    <div class="cmd-group">
-      <p class="cmd-group-title">Bash Script</p>
-      <div class="cmd-table">
-        <div class="cmd-row">
-          <span class="cmd-code">bash file</span>
-          <span class="cmd-desc">Execute a bash script file directly</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- System Internals -->
-  <div class="setup-block">
-    <p class="section-label">Deep Dive</p>
-    <h2 class="section-title">System Internals</h2>
-    <p class="section-desc">
-      Understand what happens under the hood — how the operating system manages memory, processes, and hardware.
-    </p>
-    <a href="../../bootcamp/kiet/systeminternals_preb.html" class="setup-ref-link">
-      Explore System Internals →
+      <h3 class="sc-title">CS50.dev, Linux &amp; C Programming</h3>
+      <p class="sc-desc">
+        Cloud coding environment setup, Linux &amp; C commands, C compilation pipeline, system internals, and algebraic equation visualizers.
+      </p>
+      <span class="sc-open">Open Session →</span>
     </a>
-  </div>
 
-  <!-- Interactive Visualizers -->
-  <div class="cs50-block">
-    <p class="section-label">Interactive Visualizers</p>
-    <h2 class="section-title">Algebraic Functions on a Cartesian Plane</h2>
-    <p class="section-desc">
-      Visualise how algebraic functions map a domain (input x) to a range (output y) on a two-dimensional
-      Cartesian coordinate plane — built to complement the session on how programming languages parse,
-      evaluate, and execute mathematical expressions.
-    </p>
-
-    <div class="cs50-cards" style="grid-template-columns:1fr">
-
-      <div class="cs50-card">
-        <div class="cs50-card-icon">🔢</div>
-        <h3>Equation Graph Gallery</h3>
-        <p>
-          Four fundamental algebraic equations — <strong>Identity</strong> y = x,
-          <strong>Quadratic</strong> y = x² (second-degree polynomial, vertex at origin),
-          <strong>Linear</strong> y = x + 5 (slope m = 1, y-intercept b = 5),
-          and <strong>Constant</strong> y = 5 (zero-degree polynomial, slope = 0) —
-          each plotted on its own Cartesian graph to compare gradient, y-intercept, vertex,
-          axis of symmetry, and domain–range relationships.
-        </p>
-        <div class="cs50-btn-group">
-          <a href="visualizer2.html" class="cs50-btn cs50-btn--gh">
-            Open Equation Graph Gallery →
-          </a>
-        </div>
+    <!-- Session 3 -->
+    <a class="session-card" href="session3.html">
+      <div class="sc-meta">
+        <span class="sc-day">Day 2</span>
+        <span class="sc-badge">Session 1</span>
       </div>
-
-    </div>
-
-    <div style="margin-top:16px;">
-      <a href="visualizer.html" class="setup-ref-link">
-        More Visualizations →
-      </a>
-    </div>
-  </div>
-
-  <!-- C Compilation Pipeline -->
-  <div class="setup-block">
-    <p class="section-label">Interactive Deep Dive</p>
-    <h2 class="section-title">The C Compilation Pipeline</h2>
-    <p class="section-desc">
-      Step through all six stages of what <strong>gcc</strong> really does — from the source file you write
-      to the machine code the CPU executes. Preprocessor, compiler, assembler, and linker, one stage at a time.
-    </p>
-    <a href="c-compilation-pipeline.html" class="setup-ref-link">
-      Explore the C Compilation Pipeline →
+      <h3 class="sc-title">Resources &amp; AI-Assisted Learning</h3>
+      <p class="sc-desc">
+        Curated resources for C programming and practice, plus an AI prompt template for structured, chunk-by-chunk learning of any technical topic.
+      </p>
+      <span class="sc-open">Open Session →</span>
     </a>
+
+    <!-- Session 4 -->
+    <a class="session-card" href="session4.html">
+      <div class="sc-meta">
+        <span class="sc-day">Day 2</span>
+        <span class="sc-badge">Session 2</span>
+      </div>
+      <h3 class="sc-title">Build &amp; Deploy Your First Website</h3>
+      <p class="sc-desc">
+        Buy a domain, create a GitHub repo, write your first HTML page in the browser editor, deploy on GitHub Pages, and connect a custom domain with DNS A records.
+      </p>
+      <span class="sc-open">Open Session →</span>
+    </a>
+
   </div>
 
-  <!-- Faculty Group Questions -->
-  <div class="qa-block qa-block--spaced">
-    <p class="section-label">Faculty Group Q&amp;A</p>
-    <h2 class="section-title">Questions from Faculty Groups</h2>
-    <p class="section-desc">Questions raised by faculty as groups during the session.</p>
-
+  <!-- Faculty Group Q&A -->
+  <div class="qa-section">
+    <p class="qa-label">Faculty Group Q&amp;A</p>
+    <h2 class="qa-title">Questions from Faculty Groups</h2>
+    <p class="qa-desc">Questions raised by faculty as groups during the session.</p>
     <div class="qa-list">
       <div class="qa-item">
-        <div class="qa-question">
-          <div class="qa-q-badge">Q</div>
-          <p>In C programming, students show interest in arrays, for loops, and while loops — but when it comes to structures, pointers, and files, why do they lose interest?</p>
-        </div>
+        <div class="qa-badge">Q</div>
+        <p>In C programming, students show interest in arrays, for loops, and while loops — but when it comes to structures, pointers, and files, why do they lose interest?</p>
       </div>
       <div class="qa-item">
-        <div class="qa-question">
-          <div class="qa-q-badge">Q</div>
-          <p>How can we use AI effectively for teaching?</p>
-        </div>
+        <div class="qa-badge">Q</div>
+        <p>How can we use AI effectively for teaching?</p>
       </div>
       <div class="qa-item">
-        <div class="qa-question">
-          <div class="qa-q-badge">Q</div>
-          <p>With the increasing use of AI tools, students often rely on generated code instead of developing their own programming skills. How can faculty address this challenge effectively?</p>
-        </div>
+        <div class="qa-badge">Q</div>
+        <p>With the increasing use of AI tools, students often rely on generated code instead of developing their own programming skills. How can faculty address this challenge effectively?</p>
       </div>
       <div class="qa-item">
-        <div class="qa-question">
-          <div class="qa-q-badge">Q</div>
-          <p>How can we assess students' actual programming abilities rather than their ability to memorise code?</p>
-        </div>
+        <div class="qa-badge">Q</div>
+        <p>How can we assess students' actual programming abilities rather than their ability to memorise code?</p>
       </div>
       <div class="qa-item">
-        <div class="qa-question">
-          <div class="qa-q-badge">Q</div>
-          <p>What are the industry-based tools and technologies students should be aware of?</p>
-        </div>
+        <div class="qa-badge">Q</div>
+        <p>What are the industry-based tools and technologies students should be aware of?</p>
       </div>
       <div class="qa-item">
-        <div class="qa-question">
-          <div class="qa-q-badge">Q</div>
-          <p>Can you suggest the best AI tools for teaching and learning programming concepts?</p>
-        </div>
+        <div class="qa-badge">Q</div>
+        <p>Can you suggest the best AI tools for teaching and learning programming concepts?</p>
       </div>
       <div class="qa-item">
-        <div class="qa-question">
-          <div class="qa-q-badge">Q</div>
-          <p>Students should learn debugging techniques simultaneously with coding so that problem solving becomes easier. How can we make that happen?</p>
-        </div>
+        <div class="qa-badge">Q</div>
+        <p>Students should learn debugging techniques simultaneously with coding so that problem solving becomes easier. How can we make that happen?</p>
       </div>
       <div class="qa-item">
-        <div class="qa-question">
-          <div class="qa-q-badge">Q</div>
-          <p>How can we incorporate industry-oriented coding practices into the curriculum?</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Homework -->
-  <div class="homework-block">
-    <div class="homework-icon">📝</div>
-    <div class="homework-body">
-      <span class="homework-tag">Homework</span>
-      <h3>Install Git Bash at Home</h3>
-      <p>
-        Git Bash gives you a Unix-style terminal on Windows — the same commands you used today
-        (<code class="inline-code">ls</code>,
-        <code class="inline-code">pwd</code>,
-        <code class="inline-code">touch</code>, etc.)
-        will work on your personal machine without needing WSL.
-      </p>
-      <a href="https://git-scm.com/downloads/win" target="_blank" rel="noopener noreferrer" class="homework-link">
-        Download Git Bash for Windows →
-      </a>
-    </div>
-  </div>
-
-  <!-- Faculty Questions -->
-  <div class="qa-block" style="margin-bottom:64px;">
-    <p class="section-label">Faculty Q&amp;A</p>
-    <h2 class="section-title">Questions from the Session</h2>
-    <p class="section-desc">Questions raised by the faculty during the session.</p>
-
-    <div class="qa-list">
-      <div class="qa-item">
-        <div class="qa-question">
-          <div class="qa-q-badge">Q</div>
-          <p>What is the difference between Bash and PowerShell?</p>
-        </div>
-      </div>
-      <div class="qa-item">
-        <div class="qa-question">
-          <div class="qa-q-badge">Q</div>
-          <p>What shell does macOS use? Is it Bash or something else?</p>
-        </div>
-      </div>
-      <div class="qa-item">
-        <div class="qa-question">
-          <div class="qa-q-badge">Q</div>
-          <p>What is the difference between Command Prompt and PowerShell?</p>
-        </div>
+        <div class="qa-badge">Q</div>
+        <p>How can we incorporate industry-oriented coding practices into the curriculum?</p>
       </div>
     </div>
   </div>
 
   <!-- Additional Resources -->
-  <div class="setup-block">
-    <p class="section-label">Additional Resources</p>
-    <h2 class="section-title">References</h2>
-    <p class="section-desc">Recommended external resources to practise and explore further.</p>
-    <div style="display:flex; flex-direction:column; gap:12px;">
-      <a href="https://rohinibarla.com/c/" target="_blank" rel="noopener noreferrer" class="setup-ref-link">
-        rohinibarla.com/c/ — C Programming Resources →
+  <div class="resources-section">
+    <p class="resources-label">Additional Resources</p>
+    <h2 class="resources-title">References</h2>
+    <div class="resource-stack">
+      <a href="https://rohinibarla.com/c/" target="_blank" rel="noopener noreferrer" class="resource-link">
+        <div class="resource-body">
+          <div class="resource-title-text">C Programming Resources</div>
+          <div class="resource-url">rohinibarla.com/c/</div>
+        </div>
+        <span class="resource-arrow">→</span>
       </a>
-      <a href="https://horstmann.com/codecheck/python-questions.html" target="_blank" rel="noopener noreferrer" class="setup-ref-link">
-        horstmann.com — Python Practice Questions →
+      <a href="https://horstmann.com/codecheck/python-questions.html" target="_blank" rel="noopener noreferrer" class="resource-link">
+        <div class="resource-body">
+          <div class="resource-title-text">Python Practice Questions</div>
+          <div class="resource-url">horstmann.com/codecheck/python-questions.html</div>
+        </div>
+        <span class="resource-arrow">→</span>
       </a>
-      <a href="https://aikaryashala.com/gvpcew/index.html" target="_blank" rel="noopener noreferrer" class="setup-ref-link">
-        aikaryashala.com/gvpcew — GVPCEW Session →
+      <a href="https://aikaryashala.com/gvpcew/index.html" target="_blank" rel="noopener noreferrer" class="resource-link">
+        <div class="resource-body">
+          <div class="resource-title-text">GVPCEW Session</div>
+          <div class="resource-url">aikaryashala.com/gvpcew</div>
+        </div>
+        <span class="resource-arrow">→</span>
       </a>
-      <a href="ai-tools.html" class="setup-ref-link">
-        AI Tools Directory →
+      <a href="ai-tools.html" class="resource-link">
+        <div class="resource-body">
+          <div class="resource-title-text">AI Tools Directory</div>
+          <div class="resource-url">ai-tools.html</div>
+        </div>
+        <span class="resource-arrow">→</span>
       </a>
     </div>
   </div>
 
-</div>
+</div><!-- /shell -->
 
 <!-- Footer -->
 <footer class="site-footer">
-  <p class="footer-credit">
-    <a href="../../index.html">← Back to AI Karyashala</a>
-    &nbsp;&nbsp;·&nbsp;&nbsp;
-    © 2026 AI Karyashala
-  </p>
+  <div class="footer-inner">
+    <p class="footer-text">
+      <a href="../../index.html">← AI Karyashala</a>
+      &nbsp;&nbsp;·&nbsp;&nbsp;
+      © 2026 AI Karyashala
+    </p>
+  </div>
 </footer>
 
-<script>
-  (function() {
-    var btn = document.getElementById('navToggle');
-    var nav = document.getElementById('navLinks');
-    if (!btn || !nav) return;
-    btn.addEventListener('click', function() {
-      var open = nav.classList.toggle('is-open');
-      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
-    document.addEventListener('click', function(e) {
-      if (!btn.contains(e.target) && !nav.contains(e.target)) {
-        nav.classList.remove('is-open');
-        btn.setAttribute('aria-expanded', 'false');
-      }
-    });
-  })();
-</script>
 </body>
 </html>
