@@ -4,245 +4,168 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Equation Graph Gallery — Coordinate Geometry · ANITS FDP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&family=Alegreya+SC:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 
   <style>
-    /* ================================================================
-       TOKENS
-       ================================================================ */
+  html{zoom:1.25}
     :root {
-      --accent-blue: #3b82f6;
-      --accent-red:  #e11d48;
-      --bg:          #0b1020;
-      --bg-card:     rgba(255,255,255,0.03);
-      --border:      rgba(255,255,255,0.08);
-      --border-hi:   rgba(255,255,255,0.16);
-      --text-hi:     #fff;
-      --text-mid:    #e2e8f0;
-      --text-lo:     rgba(255,255,255,0.72);
-      --font-ui:     "Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
-      --font-mono:   "Cascadia Code","Fira Code","Consolas",monospace;
+      --bg:       #E8DDD0;
+      --bg-2:     #DFD3C4;
+      --card:     #F0EAE0;
+      --ink:      #1C0E08;
+      --ink-2:    #2F1708;
+      --ink-3:    #5B3520;
+      --ink-4:    #8B7060;
+      --border:   #C8B8A0;
+      --border-2: #B0A088;
+      --blue:     #7A3018;
+      --blue-bg:  rgba(122,48,24,.08);
+      --green:    #3A6B18;
+      --sans:     "Alegreya",Georgia,"Book Antiqua",serif;
+      --mono:     "Fira Code","Cascadia Code",ui-monospace,monospace;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
 
     body {
-      font-family: var(--font-ui);
+      font-family: var(--sans);
       background: var(--bg);
-      color: var(--text-hi);
+      color: var(--ink);
       min-height: 100vh;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
-    :focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 3px; border-radius: 4px; }
+    :focus-visible { outline:2px solid var(--blue); outline-offset:3px; border-radius:4px; }
 
-    /* ================================================================
-       HEADER  (ANITS pill nav)
-       ================================================================ */
-    .page-header {
-      position: sticky;
-      top: 16px;
-      z-index: 100;
-      display: flex;
-      justify-content: center;
-      padding: 0 20px;
+    /* ── Nav ── */
+    .nav {
+      position: sticky; top:0; z-index:100;
+      background: rgba(232,221,208,.92);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
     }
-
-    .nav-shell {
-      width: min(1100px, 100%);
-      padding: 10px 20px;
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12);
-      box-shadow: 0 20px 60px rgba(2,6,23,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+    .nav-inner {
+      max-width: 1100px; margin:0 auto; padding:0 24px;
+      height: 52px; display:flex; align-items:center; justify-content:space-between; gap:12px;
     }
-
-    .nav-brand { display: flex; align-items: center; text-decoration: none; flex-shrink: 0; }
-    .nav-brand img { height: 26px; }
-
-    .nav-divider { width: 1px; height: 18px; background: rgba(255,255,255,0.12); flex-shrink: 0; }
-
+    .nav-brand {
+      display:flex; align-items:center; gap:9px;
+      text-decoration:none; color:var(--ink);
+      font-size:13.5px; font-weight:700; flex-shrink:0;
+    }
+    .nav-brand img { height:21px; }
+    .nav-sep { width:1px; height:14px; background:var(--border-2); flex-shrink:0; }
     .nav-badge {
-      font-family: var(--font-mono);
-      font-size: 13px; font-weight: 500; color: #93c5fd;
-      background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25);
-      border-radius: 6px; padding: 3px 10px; flex-shrink: 0;
+      font-family:var(--mono); font-size:12px; font-weight:600;
+      color:var(--blue); background:var(--blue-bg);
+      border:1px solid rgba(37,99,235,.22); border-radius:5px; padding:2px 8px;
     }
-
-    .nav-subtitle {
-      font-size: 13px; font-weight: 500; color: var(--text-lo);
-      letter-spacing: 0.01em;
-    }
-
-    .nav-spacer { flex: 1; }
-
+    .nav-sub { font-size:12.5px; font-weight:500; color:var(--ink-3); }
     .nav-back {
-      font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.55);
-      text-decoration: none; white-space: nowrap;
-      letter-spacing: 0.04em; transition: color 0.2s;
+      font-size:12.5px; font-weight:600; color:var(--blue); text-decoration:none;
+      padding:5px 11px; border-radius:7px;
+      border:1px solid rgba(37,99,235,.2); background:var(--blue-bg);
+      transition:all .15s; white-space:nowrap; flex-shrink:0;
     }
-    .nav-back:hover { color: var(--text-hi); }
+    .nav-back:hover { background:rgba(37,99,235,.13); border-color:rgba(37,99,235,.38); }
 
-    /* ================================================================
-       PAGE CONTENT
-       ================================================================ */
-    .page-content {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 48px 20px 72px;
-    }
+    /* ── Content ── */
+    .page-content { max-width:1100px; margin:0 auto; padding:52px 24px 72px; }
 
     .page-eyebrow {
-      font-size: 11px; font-weight: 700; letter-spacing: 0.22em;
-      text-transform: uppercase; color: var(--accent-red);
-      display: block; margin-bottom: 10px;
+      font-size:10.5px; font-weight:700; letter-spacing:.2em;
+      text-transform:uppercase; color:var(--ink-4); display:block; margin-bottom:10px;
     }
-
     .page-title {
-      font-size: clamp(24px, 3.5vw, 42px);
-      font-weight: 800; color: var(--text-hi);
-      line-height: 1.15; margin-bottom: 12px;
-      background: linear-gradient(90deg, #fff, rgba(255,255,255,0.85));
-      -webkit-background-clip: text; background-clip: text; color: transparent;
+      font-size:clamp(24px,3.5vw,40px); font-weight:900;
+      color:var(--ink); line-height:1.1; margin-bottom:12px;
+      letter-spacing:-.03em;
     }
-
     .page-desc {
-      font-size: 15px; color: var(--text-lo);
-      line-height: 1.75; margin-bottom: 44px;
-      max-width: 600px;
+      font-size:15px; color:var(--ink-3); line-height:1.8;
+      margin-bottom:44px; max-width:600px;
     }
-    .page-desc strong { color: var(--text-hi); font-weight: 600; }
+    .page-desc strong { color:var(--ink-2); font-weight:600; }
 
-    /* ================================================================
-       TILE GRID
-       ================================================================ */
-    .tiles {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 22px;
-    }
+    /* ── Tile grid ── */
+    .tiles { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
 
-    /* ================================================================
-       INDIVIDUAL TILE
-       ================================================================ */
+    /* ── Individual tile ── */
     .tile {
-      --eq-color: #888;
-      display: flex;
-      flex-direction: column;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      overflow: hidden;
-      transition: border-color 0.25s, box-shadow 0.25s;
+      --eq-color: #666;
+      display:flex; flex-direction:column;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:16px; overflow:hidden;
+      transition:border-color .2s, box-shadow .2s;
     }
-
     .tile:hover {
-      border-color: color-mix(in srgb, var(--eq-color) 35%, transparent);
-      box-shadow: 0 0 40px color-mix(in srgb, var(--eq-color) 10%, transparent),
-                  0 8px 32px rgba(0,0,0,0.3);
+      border-color: color-mix(in srgb,var(--eq-color) 35%, var(--border));
+      box-shadow: 0 6px 28px rgba(0,0,0,.08);
     }
 
-    /* Graph canvas area */
     .tile-graph {
-      position: relative;
-      height: 270px;
-      flex-shrink: 0;
-      background: #0b1020;
+      position:relative; height:260px; flex-shrink:0;
+      background:var(--bg);
     }
-
     .tile-canvas {
-      position: absolute;
-      inset: 0;
-      display: block;
-      width: 100%;
-      height: 100%;
+      position:absolute; inset:0; display:block; width:100%; height:100%;
     }
 
-    /* Bottom info panel */
     .tile-info {
-      padding: 20px 24px 22px;
-      border-top: 1px solid var(--border);
-      background: rgba(255,255,255,0.02);
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+      padding:18px 22px 20px;
+      border-top:1px solid var(--border);
+      background:var(--card);
+      display:flex; flex-direction:column; gap:6px;
     }
-
     .tile-label {
-      font-family: var(--font-mono);
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--eq-color);
-      display: block;
-      letter-spacing: -0.02em;
-      text-shadow: 0 0 24px color-mix(in srgb, var(--eq-color) 50%, transparent);
+      font-family:var(--mono); font-size:20px; font-weight:700;
+      color:var(--eq-color); display:block; letter-spacing:-.01em;
     }
-
     .tile-type {
-      display: inline-block;
-      font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--eq-color);
-      background: color-mix(in srgb, var(--eq-color) 12%, transparent);
-      border: 1px solid color-mix(in srgb, var(--eq-color) 25%, transparent);
-      border-radius: 4px; padding: 2px 8px;
-      align-self: flex-start;
-      margin-top: 2px;
+      display:inline-block;
+      font-size:10px; font-weight:700; letter-spacing:.12em;
+      text-transform:uppercase;
+      color:var(--eq-color);
+      background:color-mix(in srgb,var(--eq-color) 10%,transparent);
+      border:1px solid color-mix(in srgb,var(--eq-color) 22%,transparent);
+      border-radius:4px; padding:2px 7px;
+      align-self:flex-start; margin-top:2px;
     }
+    .tile-desc { font-size:13px; color:var(--ink-3); line-height:1.6; margin-top:2px; }
 
-    .tile-desc {
-      font-size: 13px;
-      color: var(--text-lo);
-      line-height: 1.55;
-      margin-top: 2px;
+    /* ── Responsive ── */
+    @media (max-width:680px) {
+      .tiles { grid-template-columns:1fr; gap:14px; }
+      .tile-graph { height:220px; }
+      .tile-label { font-size:17px; }
+      .nav-sub { display:none; }
+      .page-content { padding:36px 18px 56px; }
     }
-
-    /* ================================================================
-       RESPONSIVE
-       ================================================================ */
-    @media (max-width: 680px) {
-      .tiles { grid-template-columns: 1fr; gap: 16px; }
-      .tile-graph { height: 240px; }
-      .tile-label { font-size: 18px; }
-      .nav-subtitle { display: none; }
-      .page-header { top: 10px; padding: 0 12px; }
-      .nav-shell { padding: 8px 14px; gap: 10px; }
-    }
-
-    @media (max-width: 400px) {
-      .page-content { padding: 36px 14px 56px; }
-      .tile-info { padding: 16px 18px 18px; }
+    @media (max-width:400px) {
+      .tile-info { padding:14px 16px 16px; }
     }
   </style>
 </head>
 <body>
 
-<!-- ════════════════════════════════════════════════════════
-     HEADER
-     ════════════════════════════════════════════════════ -->
-<header style="padding-top:16px;">
-  <div class="page-header">
-    <div class="nav-shell">
-      <a href="../../index.html" class="nav-brand" aria-label="AI Karyashala home">
-        <img src="../../images/logo transparent.png" alt="AI Karyashala" />
-      </a>
-      <div class="nav-divider" aria-hidden="true"></div>
-      <span class="nav-badge" aria-hidden="true">f(x)</span>
-      <div class="nav-divider" aria-hidden="true"></div>
-      <span class="nav-subtitle">Coordinate Geometry</span>
-      <div class="nav-spacer"></div>
-      <a href="index.html" class="nav-back">← ANITS FDP</a>
-    </div>
+<!-- Nav -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../../index.html" class="nav-brand" aria-label="AI Karyashala home">
+      <img src="../../images/logo transparent.png" alt="AI Karyashala" />
+      <span class="nav-sep"></span>
+      <span class="nav-badge">f(x)</span>
+      <span class="nav-sub">Coordinate Geometry</span>
+    </a>
+    <a href="index.html" class="nav-back">← ANITS FDP</a>
   </div>
-</header>
+</nav>
 
-<!-- ════════════════════════════════════════════════════════
-     MAIN CONTENT
-     ════════════════════════════════════════════════════ -->
+<!-- Content -->
 <div class="page-content">
 
   <span class="page-eyebrow">Coordinate Geometry</span>
@@ -256,56 +179,36 @@
 
   <div class="tiles" id="tilesGrid"></div>
 
-</div><!-- /page-content -->
+</div>
 
-<!-- ================================================================
-     JAVASCRIPT
-     ================================================================ -->
 <script>
 'use strict';
 
-// ──────────────────────────────────────────────────────────────────────
-//  EQUATIONS
-// ──────────────────────────────────────────────────────────────────────
 const EQUATIONS = [
   {
-    label: 'y = x',
-    fn:    x => x,
-    color: '#3b82f6',
-    type:  'Identity Equation',
-    desc:  'Maps every input to itself (f(x) = x). Slope = 1, y-intercept = 0. Passes through the origin at a 45° angle. Domain: ℝ, Range: ℝ.',
+    label:'y = x', fn:x=>x, color:'#2563EB',
+    type:'Identity Equation',
+    desc:'Maps every input to itself (f(x) = x). Slope = 1, y-intercept = 0. Passes through the origin at a 45° angle. Domain: ℝ, Range: ℝ.',
   },
   {
-    label: 'y = x²',
-    fn:    x => x * x,
-    color: '#e11d48',
-    type:  'Quadratic Equation',
-    desc:  'A second-degree polynomial. Vertex at the origin (0, 0), axis of symmetry x = 0. Opens upward — output is always ≥ 0. Domain: ℝ, Range: [0, ∞).',
+    label:'y = x²', fn:x=>x*x, color:'#DC2626',
+    type:'Quadratic Equation',
+    desc:'A second-degree polynomial. Vertex at the origin (0, 0), axis of symmetry x = 0. Opens upward — output is always ≥ 0. Domain: ℝ, Range: [0, ∞).',
   },
   {
-    label: 'y = x + 5',
-    fn:    x => x + 5,
-    color: '#10b981',
-    type:  'Linear Equation',
-    desc:  'Slope-intercept form y = mx + b with slope m = 1 and y-intercept b = 5. Parallel to y = x, translated 5 units upward. Crosses the y-axis at (0, 5) and the x-axis at (−5, 0).',
+    label:'y = x + 5', fn:x=>x+5, color:'#059669',
+    type:'Linear Equation',
+    desc:'Slope-intercept form y = mx + b with slope m = 1 and y-intercept b = 5. Parallel to y = x, translated 5 units upward. Crosses the y-axis at (0, 5) and the x-axis at (−5, 0).',
   },
   {
-    label: 'y = 5',
-    fn:    ()  => 5,
-    color: '#f59e0b',
-    type:  'Constant Equation',
-    desc:  'A zero-degree polynomial where f(x) = c for all x. Slope = 0 — the rate of change is zero. Graphed as a horizontal line at y = 5. Domain: ℝ, Range: {5}.',
+    label:'y = 5', fn:()=>5, color:'#D97706',
+    type:'Constant Equation',
+    desc:'A zero-degree polynomial where f(x) = c for all x. Slope = 0 — the rate of change is zero. Graphed as a horizontal line at y = 5. Domain: ℝ, Range: {5}.',
   },
 ];
 
-// ──────────────────────────────────────────────────────────────────────
-//  VIEW RANGE
-// ──────────────────────────────────────────────────────────────────────
-const VIEW = { xMin: -10, xMax: 10, yMin: -8, yMax: 8 };
+const VIEW = { xMin:-10, xMax:10, yMin:-8, yMax:8 };
 
-// ──────────────────────────────────────────────────────────────────────
-//  HELPERS
-// ──────────────────────────────────────────────────────────────────────
 function toCanvas(wx, wy, W, H) {
   return {
     x: (wx - VIEW.xMin) / (VIEW.xMax - VIEW.xMin) * W,
@@ -313,217 +216,145 @@ function toCanvas(wx, wy, W, H) {
   };
 }
 
-// ──────────────────────────────────────────────────────────────────────
-//  DRAW A SINGLE TILE'S CANVAS
-// ──────────────────────────────────────────────────────────────────────
 function drawTile(canvas, eq) {
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio || 1;
-  const W   = canvas.width  / dpr;
-  const H   = canvas.height / dpr;
+  const W   = canvas.width / dpr, H = canvas.height / dpr;
   const c   = (wx, wy) => toCanvas(wx, wy, W, H);
 
-  // ── Background ───────────────────────────────────────────────────
-  ctx.fillStyle = '#0b1020';
+  // Light background
+  ctx.fillStyle = '#F9F9F6';
   ctx.fillRect(0, 0, W, H);
 
-  // Subtle color orb in top-left area matching the curve
-  const orb = ctx.createRadialGradient(W * 0.18, H * 0.22, 0, W * 0.18, H * 0.22, W * 0.55);
-  orb.addColorStop(0, eq.color + '14');
-  orb.addColorStop(1, 'transparent');
-  ctx.fillStyle = orb;
+  // Very subtle color tint from the equation color
+  const tint = ctx.createRadialGradient(W*.2,H*.2,0,W*.2,H*.2,W*.6);
+  tint.addColorStop(0, eq.color + '0D');
+  tint.addColorStop(1, 'transparent');
+  ctx.fillStyle = tint;
   ctx.fillRect(0, 0, W, H);
 
-  // ── Minor grid lines ─────────────────────────────────────────────
+  // Minor grid
   ctx.setLineDash([]);
   ctx.lineWidth   = 1;
-  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
-  for (let x = Math.floor(VIEW.xMin); x <= VIEW.xMax; x++) {
-    const cx = c(x, 0).x;
-    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke();
+  ctx.strokeStyle = 'rgba(0,0,0,0.05)';
+  for (let x=Math.floor(VIEW.xMin);x<=VIEW.xMax;x++) {
+    const cx=c(x,0).x;
+    ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.stroke();
   }
-  for (let y = Math.floor(VIEW.yMin); y <= VIEW.yMax; y++) {
-    const cy = c(0, y).y;
-    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke();
-  }
-
-  // ── Axes ─────────────────────────────────────────────────────────
-  const O = c(0, 0);
-  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-  ctx.lineWidth   = 1;
-  ctx.beginPath(); ctx.moveTo(0, O.y); ctx.lineTo(W, O.y); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(O.x, 0); ctx.lineTo(O.x, H); ctx.stroke();
-
-  // Axis arrows
-  const A = 4;
-  ctx.fillStyle = 'rgba(255,255,255,0.25)';
-  ctx.beginPath(); ctx.moveTo(W - 1, O.y); ctx.lineTo(W - 1 - A*2, O.y - A); ctx.lineTo(W - 1 - A*2, O.y + A); ctx.closePath(); ctx.fill();
-  ctx.beginPath(); ctx.moveTo(O.x, 1);     ctx.lineTo(O.x - A, 1 + A*2);     ctx.lineTo(O.x + A, 1 + A*2);     ctx.closePath(); ctx.fill();
-
-  // Axis name labels (x, y)
-  ctx.font         = `500 10px "Cascadia Code","Fira Code","Consolas",monospace`;
-  ctx.fillStyle    = 'rgba(255,255,255,0.65)';
-  ctx.textAlign    = 'right'; ctx.textBaseline = 'bottom';
-  ctx.fillText('x', W - 3, O.y - 4);
-  ctx.textAlign    = 'left';  ctx.textBaseline = 'top';
-  ctx.fillText('y', O.x + 5, 2);
-
-  // ── Tick labels (every 5 units only — keeps small tiles uncluttered) ─
-  ctx.font        = `400 9px "Cascadia Code","Fira Code","Consolas",monospace`;
-  ctx.fillStyle   = 'rgba(255,255,255,0.75)';
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-  ctx.lineWidth   = 1;
-
-  const clampOX = Math.max(18, Math.min(W - 6,  O.x));
-  const clampOY = Math.max(8,  Math.min(H - 10, O.y));
-
-  for (let x = Math.ceil(VIEW.xMin); x <= VIEW.xMax; x++) {
-    if (x === 0 || x % 5 !== 0) continue;
-    const cx = c(x, 0).x;
-    ctx.beginPath(); ctx.moveTo(cx, clampOY - 3); ctx.lineTo(cx, clampOY + 3); ctx.stroke();
-    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    ctx.fillText(String(x), cx, clampOY + 5);
-  }
-  for (let y = Math.ceil(VIEW.yMin); y <= VIEW.yMax; y++) {
-    if (y === 0 || y % 4 !== 0) continue;
-    const cy = c(0, y).y;
-    ctx.beginPath(); ctx.moveTo(clampOX - 3, cy); ctx.lineTo(clampOX + 3, cy); ctx.stroke();
-    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-    ctx.fillText(String(y), clampOX - 5, cy);
+  for (let y=Math.floor(VIEW.yMin);y<=VIEW.yMax;y++) {
+    const cy=c(0,y).y;
+    ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();
   }
 
-  // ── Origin label ─────────────────────────────────────────────────
-  ctx.textAlign = 'right'; ctx.textBaseline = 'top';
-  ctx.fillText('0', clampOX - 4, clampOY + 4);
+  // Axes
+  const O=c(0,0);
+  ctx.strokeStyle='rgba(0,0,0,0.22)'; ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(0,O.y);ctx.lineTo(W,O.y);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(O.x,0);ctx.lineTo(O.x,H);ctx.stroke();
 
-  // ── Build curve path ─────────────────────────────────────────────
-  const STEPS    = Math.ceil(W * 3);
-  const dx       = (VIEW.xMax - VIEW.xMin) / STEPS;
-  const MAX_JUMP = (VIEW.yMax - VIEW.yMin) * 2.2;
-  const CLIP     = (VIEW.yMax - VIEW.yMin) * 1.8;
+  // Arrow heads
+  const A=4; ctx.fillStyle='rgba(0,0,0,0.25)';
+  ctx.beginPath();ctx.moveTo(W-1,O.y);ctx.lineTo(W-1-A*2,O.y-A);ctx.lineTo(W-1-A*2,O.y+A);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(O.x,1); ctx.lineTo(O.x-A,1+A*2); ctx.lineTo(O.x+A,1+A*2); ctx.closePath();ctx.fill();
 
-  const segments = [];
-  let seg = [], prevY = null;
+  // Axis labels
+  ctx.font='500 10px "JetBrains Mono","Fira Code",monospace';
+  ctx.fillStyle='rgba(0,0,0,0.45)';
+  ctx.textAlign='right';  ctx.textBaseline='bottom'; ctx.fillText('x',W-3,O.y-4);
+  ctx.textAlign='left';   ctx.textBaseline='top';    ctx.fillText('y',O.x+5,2);
 
-  for (let i = 0; i <= STEPS; i++) {
-    const wx = VIEW.xMin + i * dx;
-    const wy = eq.fn(wx);
+  // Tick labels (every 5 units)
+  ctx.font='400 9px "JetBrains Mono","Fira Code",monospace';
+  ctx.fillStyle='rgba(0,0,0,0.45)'; ctx.strokeStyle='rgba(0,0,0,0.15)'; ctx.lineWidth=1;
+  const cOX=Math.max(18,Math.min(W-6,O.x)), cOY=Math.max(8,Math.min(H-10,O.y));
+  for (let x=Math.ceil(VIEW.xMin);x<=VIEW.xMax;x++) {
+    if (x===0||x%5!==0) continue;
+    const cx=c(x,0).x;
+    ctx.beginPath();ctx.moveTo(cx,cOY-3);ctx.lineTo(cx,cOY+3);ctx.stroke();
+    ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(String(x),cx,cOY+5);
+  }
+  for (let y=Math.ceil(VIEW.yMin);y<=VIEW.yMax;y++) {
+    if (y===0||y%4!==0) continue;
+    const cy=c(0,y).y;
+    ctx.beginPath();ctx.moveTo(cOX-3,cy);ctx.lineTo(cOX+3,cy);ctx.stroke();
+    ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(String(y),cOX-5,cy);
+  }
+  ctx.textAlign='right';ctx.textBaseline='top';ctx.fillText('0',cOX-4,cOY+4);
 
-    if (!isFinite(wy) || isNaN(wy)) {
-      if (seg.length) { segments.push(seg); seg = []; }
-      prevY = null; continue;
-    }
-    if (prevY !== null && Math.abs(wy - prevY) > MAX_JUMP) {
-      if (seg.length) { segments.push(seg); seg = []; }
-    }
-    prevY = wy;
-    if (wy < VIEW.yMin - CLIP || wy > VIEW.yMax + CLIP) {
-      if (seg.length) { segments.push(seg); seg = []; }
-      continue;
-    }
-    seg.push(c(wx, wy));
+  // Build curve path
+  const STEPS=Math.ceil(W*3), dx=(VIEW.xMax-VIEW.xMin)/STEPS;
+  const MAX_JUMP=(VIEW.yMax-VIEW.yMin)*2.2, CLIP=(VIEW.yMax-VIEW.yMin)*1.8;
+  const segments=[]; let seg=[],prevY=null;
+  for (let i=0;i<=STEPS;i++) {
+    const wx=VIEW.xMin+i*dx, wy=eq.fn(wx);
+    if (!isFinite(wy)||isNaN(wy)) { if(seg.length){segments.push(seg);seg=[];} prevY=null;continue; }
+    if (prevY!==null&&Math.abs(wy-prevY)>MAX_JUMP){if(seg.length){segments.push(seg);seg=[];}}
+    prevY=wy;
+    if (wy<VIEW.yMin-CLIP||wy>VIEW.yMax+CLIP){if(seg.length){segments.push(seg);seg=[];}continue;}
+    seg.push(c(wx,wy));
   }
   if (seg.length) segments.push(seg);
 
   function strokeAll() {
     for (const s of segments) {
-      if (s.length < 2) continue;
-      ctx.beginPath(); ctx.moveTo(s[0].x, s[0].y);
-      for (let j = 1; j < s.length; j++) ctx.lineTo(s[j].x, s[j].y);
+      if (s.length<2) continue;
+      ctx.beginPath();ctx.moveTo(s[0].x,s[0].y);
+      for (let j=1;j<s.length;j++) ctx.lineTo(s[j].x,s[j].y);
       ctx.stroke();
     }
   }
 
-  // Pass 1 — outer glow halo
+  // Subtle shadow pass
   ctx.save();
-  ctx.shadowColor = eq.color; ctx.shadowBlur = 28;
-  ctx.strokeStyle = eq.color + '45';
-  ctx.lineWidth   = 12;
-  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-  strokeAll();
-  ctx.restore();
+  ctx.shadowColor=eq.color+'28'; ctx.shadowBlur=8;
+  ctx.strokeStyle=eq.color+'40'; ctx.lineWidth=8;
+  ctx.lineJoin='round'; ctx.lineCap='round';
+  strokeAll(); ctx.restore();
 
-  // Pass 2 — sharp bright line
+  // Sharp line
   ctx.save();
-  ctx.shadowColor = eq.color; ctx.shadowBlur = 10;
-  ctx.strokeStyle = eq.color;
-  ctx.lineWidth   = 2.5;
-  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-  strokeAll();
-  ctx.restore();
+  ctx.strokeStyle=eq.color; ctx.lineWidth=2.5;
+  ctx.lineJoin='round'; ctx.lineCap='round';
+  strokeAll(); ctx.restore();
 }
 
-// ──────────────────────────────────────────────────────────────────────
-//  CANVAS INIT (sets pixel buffer size for HiDPI)
-// ──────────────────────────────────────────────────────────────────────
 function initCanvas(canvas) {
-  const wrapper = canvas.parentElement;
-  const dpr = window.devicePixelRatio || 1;
-  const w   = wrapper.clientWidth;
-  const h   = wrapper.clientHeight;
-  if (!w || !h) return false;
-  canvas.width  = Math.round(w * dpr);
-  canvas.height = Math.round(h * dpr);
-  canvas.getContext('2d').scale(dpr, dpr);
+  const wrapper=canvas.parentElement;
+  const dpr=window.devicePixelRatio||1;
+  const w=wrapper.clientWidth, h=wrapper.clientHeight;
+  if (!w||!h) return false;
+  canvas.width=Math.round(w*dpr); canvas.height=Math.round(h*dpr);
+  canvas.getContext('2d').scale(dpr,dpr);
   return true;
 }
 
-// ──────────────────────────────────────────────────────────────────────
-//  BUILD TILES
-// ──────────────────────────────────────────────────────────────────────
-const tileItems = [];  // { canvas, eq } — kept for resize redraw
-
+const tileItems=[];
 function buildTiles() {
-  const grid = document.getElementById('tilesGrid');
-
-  EQUATIONS.forEach(eq => {
-    // Tile wrapper
-    const tile = document.createElement('div');
-    tile.className = 'tile';
-    tile.style.cssText = `--eq-color: ${eq.color}`;
-
-    tile.innerHTML = `
-      <div class="tile-graph">
-        <canvas class="tile-canvas" aria-hidden="true"></canvas>
-      </div>
+  const grid=document.getElementById('tilesGrid');
+  EQUATIONS.forEach(eq=>{
+    const tile=document.createElement('div');
+    tile.className='tile'; tile.style.cssText=`--eq-color:${eq.color}`;
+    tile.innerHTML=`
+      <div class="tile-graph"><canvas class="tile-canvas" aria-hidden="true"></canvas></div>
       <div class="tile-info">
         <span class="tile-label">${eq.label}</span>
         <span class="tile-type">${eq.type}</span>
         <span class="tile-desc">${eq.desc}</span>
-      </div>
-    `;
-
+      </div>`;
     grid.appendChild(tile);
-
-    const canvas = tile.querySelector('.tile-canvas');
-    tileItems.push({ canvas, eq });
+    tileItems.push({ canvas:tile.querySelector('.tile-canvas'), eq });
   });
-
-  // Wait one animation frame so the browser has laid out the grid
-  // and clientWidth / clientHeight are accurate.
   requestAnimationFrame(drawAll);
 }
 
 function drawAll() {
-  tileItems.forEach(({ canvas, eq }) => {
-    if (initCanvas(canvas)) drawTile(canvas, eq);
-  });
+  tileItems.forEach(({canvas,eq})=>{ if(initCanvas(canvas)) drawTile(canvas,eq); });
 }
 
-// ──────────────────────────────────────────────────────────────────────
-//  RESIZE  (debounced)
-// ──────────────────────────────────────────────────────────────────────
-let resizeTimer = null;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(drawAll, 60);
-});
+let resizeTimer=null;
+window.addEventListener('resize',()=>{ clearTimeout(resizeTimer); resizeTimer=setTimeout(drawAll,60); });
 
-// ──────────────────────────────────────────────────────────────────────
-//  START
-// ──────────────────────────────────────────────────────────────────────
 buildTiles();
 </script>
-
 </body>
 </html>
