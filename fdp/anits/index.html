@@ -169,6 +169,46 @@
     }
 
 
+    /* ── Install Steps ── */
+    .install-section { margin-bottom: 60px; }
+    .install-label {
+      font-family: var(--sc); font-size: 14px; font-weight: 500; letter-spacing: .06em;
+      color: var(--ink-4); margin-bottom: 8px;
+    }
+    .install-title {
+      font-size: clamp(18px,2.5vw,24px); font-weight: 700;
+      color: var(--ink); margin-bottom: 8px; letter-spacing: -.01em;
+    }
+    .install-desc {
+      font-size: 14px; color: var(--ink-3); line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .install-steps { display: flex; flex-direction: column; gap: 8px; }
+    .install-step {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 16px 18px; border: 1px solid var(--border);
+      border-radius: 10px; background: var(--card);
+    }
+    .step-num {
+      flex-shrink: 0; width: 26px; height: 26px;
+      border-radius: 50%; background: var(--blue-bg-2);
+      font-size: 11px; font-weight: 800; color: var(--blue);
+      border: 1px solid rgba(122,48,24,.25);
+      display: flex; align-items: center; justify-content: center; margin-top: 1px;
+    }
+    .step-body { flex: 1; }
+    .step-body strong { font-size: 14px; color: var(--ink); font-weight: 700; display: block; margin-bottom: 3px; }
+    .step-body p { font-size: 13.5px; color: var(--ink-2); line-height: 1.6; }
+    .step-body code {
+      font-family: var(--mono); font-size: 12.5px;
+      background: var(--bg-3); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 6px; color: var(--blue);
+    }
+    .step-note {
+      display: inline-block; margin-top: 6px;
+      font-size: 12px; color: var(--ink-4); font-style: italic;
+    }
+
     /* ── Q&A ── */
     .qa-section { margin-bottom: 60px; }
     .qa-label {
@@ -342,6 +382,33 @@
       <span class="sc-open">Open Session →</span>
     </a>
 
+  </div>
+
+  <!-- Install Git Bash -->
+  <div class="install-section">
+    <p class="install-label">Setup Guide</p>
+    <h2 class="install-title">How to Install Git Bash on Windows</h2>
+    <p class="install-desc">Git Bash gives you a Unix-like terminal on Windows — with Git, Bash, and common Linux commands built in. Follow these steps to install it.</p>
+    <div class="install-steps">
+
+      <div class="install-step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Download the Installer</strong>
+          <p>Go to <a href="https://git-scm.com/download/win" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-family:var(--mono);font-size:12.5px;">git-scm.com/download/win</a> in your browser. The 64-bit installer will start downloading automatically.</p>
+        </div>
+      </div>
+
+      <div class="install-step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Verify the Installation</strong>
+          <p>In Git Bash, type <code>git --version</code> and press Enter. You should see output like <code>git version 2.x.x.windows.x</code>.</p>
+          <span class="step-note">You can also open Git Bash anytime from the Start Menu or by right-clicking any folder and selecting "Git Bash Here".</span>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <!-- Faculty Group Q&A -->
