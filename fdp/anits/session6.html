@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Session 6 — Git Workflow — ANITS FDP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&family=Alegreya+SC:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+  html{zoom:1.25}
+    :root {
+      --bg:       #E8DDD0;
+      --bg-2:     #DFD3C4;
+      --bg-3:     #D4C5B0;
+      --card:     #F0EAE0;
+      --ink:      #1C0E08;
+      --ink-2:    #2F1708;
+      --ink-3:    #5B3520;
+      --ink-4:    #8B7060;
+      --border:   #C8B8A0;
+      --border-2: #B0A088;
+      --blue:     #7A3018;
+      --blue-bg:  rgba(122,48,24,.08);
+      --blue-bg-2:rgba(122,48,24,.16);
+      --green:    #3A6B18;
+      --green-bg: rgba(58,107,24,.08);
+      --mono:     "Fira Code","Cascadia Code",ui-monospace,monospace;
+      --sans:     "Alegreya",Georgia,"Book Antiqua",serif;
+      --sc:       "Alegreya SC","Alegreya",Georgia,serif;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:var(--sans); background-color:var(--bg); background-image:radial-gradient(#5a372314 .8px, transparent .8px), linear-gradient(90deg, #0000000a 0%, transparent 12% 88%, #0000000a 100%); background-size:16px 16px, 100% 100%; background-attachment:fixed; color:var(--ink); line-height:1.65; -webkit-font-smoothing:antialiased; }
+
+    /* ── Nav ── */
+    .nav { position:sticky; top:0; z-index:100; background:rgba(232,221,208,.92); backdrop-filter:blur(14px); border-bottom:1px solid var(--border); }
+    .nav-inner { max-width:900px; margin:0 auto; padding:0 24px; height:54px; display:flex; align-items:center; gap:16px; }
+    .back-link { display:inline-flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink-3); font-size:13px; font-weight:600; transition:color .15s; }
+    .back-link:hover { color:var(--ink); }
+    .nav-sep { width:1px; height:16px; background:var(--border-2); }
+    .nav-crumb { font-size:13px; color:var(--ink-4); }
+
+    /* ── Page Header ── */
+    .page-header { max-width:900px; margin:0 auto; padding:60px 24px 48px; border-bottom:1px solid var(--border); }
+    .session-badge { display:inline-flex; align-items:center; gap:10px; margin-bottom:20px; }
+    .badge-day { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-4); }
+    .badge-dot { width:4px; height:4px; border-radius:50%; background:var(--border-2); }
+    .badge-session { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--blue); background:var(--blue-bg); border:1px solid rgba(122,48,24,.2); border-radius:20px; padding:3px 10px; }
+    .page-title { font-size:clamp(26px,4.5vw,44px); font-weight:900; line-height:1.1; letter-spacing:-.03em; color:var(--ink); margin-bottom:14px; }
+    .page-desc { font-size:16px; color:var(--ink-3); line-height:1.7; max-width:620px; }
+
+    /* ── Shell ── */
+    .shell { max-width:900px; margin:0 auto; padding:0 24px 80px; }
+    .section { margin-top:52px; }
+    .section-label { font-size:11px; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-4); margin-bottom:8px; }
+    .section-title { font-size:clamp(18px,2.5vw,24px); font-weight:800; color:var(--ink); margin-bottom:10px; letter-spacing:-.02em; }
+    .section-desc { font-size:14px; color:var(--ink-3); line-height:1.7; margin-bottom:20px; }
+
+    /* ── Steps ── */
+    .steps { display:flex; flex-direction:column; gap:10px; }
+    .step { border:1px solid var(--border); border-radius:12px; background:var(--card); overflow:hidden; }
+    .step-header { display:flex; align-items:flex-start; gap:14px; padding:18px 20px 14px; }
+    .step-num { flex-shrink:0; width:28px; height:28px; border-radius:7px; background:var(--bg-3); font-size:11px; font-weight:800; color:var(--ink-3); display:flex; align-items:center; justify-content:center; margin-top:2px; }
+    .step-body { flex:1; }
+    .step-title { font-size:15px; font-weight:700; color:var(--ink); margin-bottom:6px; }
+    .step-detail { font-size:13.5px; color:var(--ink-3); line-height:1.65; }
+    .step-detail strong { color:var(--ink-2); }
+    .step-body code { font-family:var(--mono); font-size:12px; background:var(--bg-3); border:1px solid var(--border); border-radius:4px; padding:1px 6px; color:var(--blue); }
+
+    /* ── Command blocks ── */
+    .cmd-block { margin:0 20px 0; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+    .cmd-block + .cmd-block { margin-top:8px; }
+    .step-header + .cmd-block { margin-top:0; }
+    .cmd-block-label {
+      font-family:var(--sc); font-size:10px; font-weight:700; letter-spacing:.1em;
+      color:var(--ink-4); background:var(--bg-2); border-bottom:1px solid var(--border);
+      padding:5px 14px;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .cmd-block pre { font-family:var(--mono); font-size:12.5px; color:var(--ink-2); background:var(--bg-3); padding:14px 16px; line-height:1.9; white-space:pre; overflow-x:auto; margin:0; }
+    .cmd-block.output pre { color:#7dbf7d; background:#161610; }
+    .cmd-block.output .cmd-block-label { background:#1e1e16; border-bottom-color:#333; color:#777; }
+
+    /* ── Copy button ── */
+    .copy-btn {
+      font-family:var(--sc); font-size:10px; font-weight:700; letter-spacing:.05em;
+      color:var(--blue); background:var(--blue-bg);
+      border:1px solid rgba(122,48,24,.2); border-radius:5px;
+      padding:3px 10px; cursor:pointer;
+      transition:background .15s, border-color .15s, color .15s;
+      line-height:1;
+    }
+    .copy-btn:hover { background:var(--blue-bg-2); border-color:rgba(122,48,24,.35); }
+    .copy-btn.copied { color:var(--green); background:var(--green-bg); border-color:rgba(58,107,24,.3); }
+
+    /* ── Example block ── */
+    .example-block { margin:8px 20px 0; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+    .example-label-bar {
+      font-family:var(--sc); font-size:10px; font-weight:700; letter-spacing:.1em;
+      color:var(--green); background:var(--green-bg);
+      border-bottom:1px solid rgba(58,107,24,.15);
+      padding:5px 14px;
+    }
+    .example-pre { font-family:var(--mono); font-size:12.5px; color:var(--ink-3); background:var(--bg-2); padding:12px 16px; line-height:1.9; white-space:pre; overflow-x:auto; margin:0; }
+
+    /* ── Callout ── */
+    .callout { margin:12px 20px 0; padding:13px 16px; background:var(--blue-bg); border:1px solid rgba(122,48,24,.18); border-left:3px solid var(--blue); border-radius:8px; }
+    .callout p { font-size:13px; color:var(--ink-3); line-height:1.7; }
+    .callout p strong { color:var(--ink-2); }
+    .callout code { font-family:var(--mono); font-size:11.5px; background:var(--bg-3); border:1px solid var(--border); border-radius:4px; padding:1px 5px; color:var(--blue); }
+    .callout.warning { background:rgba(180,100,0,.07); border-color:rgba(180,100,0,.2); border-left-color:#B46400; }
+    .callout.warning p { color:var(--ink-3); }
+    .callout.success { background:var(--green-bg); border-color:rgba(58,107,24,.2); border-left-color:var(--green); }
+
+    /* Top-level callout (outside steps) */
+    .top-callout { padding:16px 20px; background:var(--blue-bg); border:1px solid rgba(122,48,24,.18); border-left:4px solid var(--blue); border-radius:10px; margin-bottom:24px; }
+    .top-callout p { font-size:13.5px; color:var(--ink-3); line-height:1.7; }
+    .top-callout p strong { color:var(--ink-2); }
+    .top-callout code { font-family:var(--mono); font-size:12px; background:var(--bg-3); border:1px solid var(--border); border-radius:4px; padding:1px 6px; color:var(--blue); }
+
+    .step-pad { height:18px; }
+
+    /* ── Tip block (inside step, no margin sides) ── */
+    .tip-block { margin:10px 20px 0; padding:11px 16px; background:var(--bg-2); border:1px solid var(--border); border-radius:8px; }
+    .tip-block p { font-size:12.5px; color:var(--ink-4); line-height:1.65; }
+    .tip-block p strong { color:var(--ink-3); }
+    .tip-block ul { list-style:none; padding:0; margin-top:6px; display:flex; flex-direction:column; gap:4px; }
+    .tip-block ul li { font-family:var(--mono); font-size:12px; color:var(--ink-3); padding-left:12px; position:relative; line-height:1.6; }
+    .tip-block ul li::before { content:"→"; position:absolute; left:0; color:var(--ink-4); }
+
+    /* ── Star workflow block ── */
+    .workflow-block { border:2px solid var(--blue); border-radius:14px; overflow:hidden; margin-top:28px; }
+    .workflow-header { padding:14px 20px; background:var(--blue); display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .workflow-header-title { font-family:var(--sc); font-size:13px; font-weight:700; letter-spacing:.05em; color:#fff; }
+    .workflow-copy-btn {
+      font-family:var(--sc); font-size:10px; font-weight:700; letter-spacing:.05em;
+      color:var(--blue); background:#fff;
+      border:1px solid rgba(255,255,255,.5); border-radius:5px;
+      padding:4px 12px; cursor:pointer;
+      transition:background .15s, color .15s;
+      line-height:1;
+    }
+    .workflow-copy-btn:hover { background:var(--blue-bg-2); color:var(--blue); }
+    .workflow-copy-btn.copied { color:var(--green); }
+    .workflow-block pre { font-family:var(--mono); font-size:12.5px; color:var(--ink-2); background:var(--bg-3); padding:20px 22px; line-height:2; white-space:pre; overflow-x:auto; margin:0; }
+
+    /* ── Compare grid ── */
+    .compare-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .compare-card { border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--card); }
+    .compare-card-head { padding:14px 18px; border-bottom:1px solid var(--border); background:var(--bg-2); }
+    .compare-card-tag { font-family:var(--sc); font-size:10px; font-weight:700; letter-spacing:.08em; color:var(--blue); margin-bottom:4px; }
+    .compare-card-title { font-size:15px; font-weight:800; color:var(--ink); }
+    .compare-card-body { padding:16px 18px; }
+    .compare-row { display:flex; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
+    .compare-row:last-child { border-bottom:none; }
+    .compare-row-label { font-family:var(--sc); font-size:10px; font-weight:700; letter-spacing:.07em; color:var(--ink-4); flex-shrink:0; width:72px; padding-top:1px; }
+    .compare-row-val { font-size:13px; color:var(--ink-3); line-height:1.55; }
+    .compare-row-val strong { color:var(--ink-2); font-weight:600; }
+    .compare-row-val code { font-family:var(--mono); font-size:11.5px; background:var(--bg-3); border:1px solid var(--border); border-radius:4px; padding:1px 5px; color:var(--blue); }
+
+    /* ── Footer ── */
+    .site-footer { border-top:1px solid var(--border); padding:28px 24px; text-align:center; }
+    .footer-inner { max-width:900px; margin:0 auto; }
+    .footer-text { font-size:13px; color:var(--ink-4); }
+    .footer-text a { color:var(--ink-3); text-decoration:none; }
+    .footer-text a:hover { color:var(--ink); }
+
+    @media (max-width:600px) {
+      .page-header { padding:40px 18px 36px; }
+      .shell { padding:0 18px 60px; }
+      .compare-grid { grid-template-columns:1fr; }
+      .cmd-block pre, .example-pre, .workflow-block pre { font-size:11.5px; }
+      .compare-row-label { width:60px; }
+    }
+
+    /* ── Scroll button ── */
+    .scroll-btn { position:fixed; bottom:28px; right:24px; z-index:200; width:40px; height:40px; border-radius:50%; background:var(--blue); color:#fff; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:18px; box-shadow:0 3px 14px rgba(0,0,0,.22); transition:background .15s; }
+    .scroll-btn:hover { background:var(--ink-2); }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="back-link">← ANITS FDP</a>
+    <div class="nav-sep"></div>
+    <span class="nav-crumb">Session 6</span>
+  </div>
+</nav>
+
+<header class="page-header">
+  <div class="session-badge">
+    <span class="badge-day">Day 3</span>
+    <span class="badge-dot"></span>
+    <span class="badge-session">Session 2</span>
+  </div>
+  <h1 class="page-title">Git Workflow —<br>Save &amp; Push Changes</h1>
+  <p class="page-desc">The four commands you will repeat every time you edit files on your local machine — check, stage, commit, and push to GitHub.</p>
+</header>
+
+<div class="shell">
+
+  <!-- Workflow section -->
+  <div class="section">
+    <p class="section-label">Local Workflow</p>
+    <h2 class="section-title">Save &amp; Push Your Changes to GitHub</h2>
+    <p class="section-desc">After editing files using Git Bash and a text editor (Sublime, VS Code, Notepad++) on your local machine, use these four commands in order to save your changes and send them to GitHub.</p>
+
+    <!-- Important: cd into repo first -->
+    <div class="top-callout">
+      <p><strong>Before you start — navigate into your repository folder.</strong><br>
+      After cloning a repo with <code>git clone</code>, your terminal is still in the parent folder. You must <code>cd</code> into the repo before running any git commands, or they will fail with <em>"not a git repository"</em>.</p>
+      <p style="margin-top:10px; font-family:var(--mono); font-size:12.5px; background:var(--bg-3); border:1px solid var(--border); border-radius:6px; padding:10px 14px; color:var(--ink-2); line-height:1.9;">git clone git@github.com:pavankumar19/mywebsite.git
+cd mywebsite</p>
+      <p style="margin-top:8px; font-size:12.5px; color:var(--ink-4);">Replace <strong style="color:var(--ink-3);">mywebsite</strong> with your actual repository name. You only need to do this once per terminal session.</p>
+    </div>
+
+    <div class="steps">
+
+      <!-- Step 1: git status -->
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Check what changed — <code>git status</code></div>
+            <div class="step-detail">Before doing anything, run this to see which files you modified, added, or deleted. It gives you a clear picture of what is pending before you commit.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">Terminal <button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+          <pre>git status</pre>
+        </div>
+        <div class="example-block">
+          <div class="example-label-bar">Example — you edited index.html</div>
+          <pre class="example-pre">git status
+
+On branch main
+Changes not staged for commit:
+  (use "git add &lt;file&gt;..." to update what will be committed)
+
+        modified:   index.html
+
+no changes added to commit</pre>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+      <!-- Step 2: git add -->
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Stage your changes — <code>git add</code></div>
+            <div class="step-detail">This tells Git which files to include in the next commit. Use <code>git add .</code> to stage everything at once, or name a specific file to stage only that file.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">Terminal — stage all changed files <button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+          <pre>git add .</pre>
+        </div>
+        <div class="cmd-block" style="margin-top:8px;">
+          <div class="cmd-block-label">Terminal — stage a specific file <button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+          <pre>git add filename.html</pre>
+        </div>
+        <div class="example-block">
+          <div class="example-label-bar">Example</div>
+          <pre class="example-pre">git add .
+# Stages all modified files at once
+
+git add index.html
+# Stages only index.html</pre>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+      <!-- Step 3: git commit -->
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Commit your changes — <code>git commit</code></div>
+            <div class="step-detail">A commit saves a snapshot of your staged files with a message describing what you changed. Write a short, clear message inside the quotes.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">Terminal <button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+          <pre>git commit -m "your commit message here"</pre>
+        </div>
+        <div class="example-block">
+          <div class="example-label-bar">Example — output after a successful commit</div>
+          <pre class="example-pre">git commit -m "add navigation bar to index.html"
+
+[main 4f2a1c3] add navigation bar to index.html
+ 1 file changed, 12 insertions(+), 0 deletions(-)</pre>
+        </div>
+        <div class="tip-block">
+          <p><strong>Writing a good commit message</strong> — describe what you changed, not why. Keep it under 72 characters.</p>
+          <ul>
+            <li>"fix typo in about page"</li>
+            <li>"add contact form"</li>
+            <li>"update footer links"</li>
+            <li>"add navigation bar to index.html"</li>
+          </ul>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+      <!-- Step 4: git push -->
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">Push to GitHub — <code>git push origin main</code></div>
+            <div class="step-detail">This uploads your committed changes from your local machine to GitHub. <code>origin</code> is the name of the remote (GitHub), and <code>main</code> is the branch name.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">Terminal <button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+          <pre>git push origin main</pre>
+        </div>
+        <div class="example-block">
+          <div class="example-label-bar">Example — successful push output</div>
+          <pre class="example-pre">git push origin main
+
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Writing objects: 100% (3/3), 342 bytes | 342.00 KiB/s, done.
+To git@github.com:pavankumar19/mywebsite.git
+   a1b2c3d..4f2a1c3  main -> main</pre>
+        </div>
+        <div class="callout success">
+          <p>After this, your changes are live on GitHub. If your repository is connected to GitHub Pages, the website updates automatically within a minute.</p>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+    </div>
+
+    <!-- ★ Complete workflow block -->
+    <div class="workflow-block">
+      <div class="workflow-header">
+        <span class="workflow-header-title">★ Complete workflow — run these 4 commands every time</span>
+        <button class="workflow-copy-btn" id="workflowCopyBtn" onclick="copyWorkflow()">Copy</button>
+      </div>
+      <pre id="workflowBlock">git status
+git add .
+git commit -m "describe your change here"
+git push origin main</pre>
+    </div>
+
+  </div>
+
+  <!-- Web Editor vs Local Machine -->
+  <div class="section">
+    <p class="section-label">Concept</p>
+    <h2 class="section-title">Web Editor vs Local Machine</h2>
+    <p class="section-desc">You have used both approaches during this programme. Here is how they differ, and when to use each one.</p>
+
+    <div class="compare-grid">
+
+      <!-- Web Editor -->
+      <div class="compare-card">
+        <div class="compare-card-head">
+          <div class="compare-card-tag">Browser-based</div>
+          <div class="compare-card-title">Web Editor (github.dev)</div>
+        </div>
+        <div class="compare-card-body">
+          <div class="compare-row">
+            <span class="compare-row-label">How to open</span>
+            <span class="compare-row-val">Press <strong>.</strong> (period) on any GitHub repo page</span>
+          </div>
+          <div class="compare-row">
+            <span class="compare-row-label">Editing</span>
+            <span class="compare-row-val">Edit files directly in the browser — no installation needed</span>
+          </div>
+          <div class="compare-row">
+            <span class="compare-row-label">Saving</span>
+            <span class="compare-row-val">Use the Source Control panel to commit &amp; push — no terminal commands</span>
+          </div>
+          <div class="compare-row">
+            <span class="compare-row-label">Terminal</span>
+            <span class="compare-row-val"><strong>No terminal available</strong> — you cannot run code or shell commands</span>
+          </div>
+          <div class="compare-row">
+            <span class="compare-row-label">Best for</span>
+            <span class="compare-row-val">Quick edits to HTML/CSS, fixing typos, small updates from any device</span>
+          </div>
+          <div class="compare-row">
+            <span class="compare-row-label">Git commands</span>
+            <span class="compare-row-val">Handled by the UI — click buttons, no typing <code>git add</code> or <code>git commit</code></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Local Machine -->
+      <div class="compare-card">
+        <div class="compare-card-head">
+          <div class="compare-card-tag">Local machine</div>
+          <div class="compare-card-title">Git Bash + Text Editor</div>
+        </div>
+        <div class="compare-card-body">
+          <div class="compare-row">
+            <span class="compare-row-label">How to open</span>
+            <span class="compare-row-val">Open Git Bash, <code>cd</code> into your repo folder, open files in Sublime / VS Code</span>
+          </div>
+          <div class="compare-row">
+            <span class="compare-row-label">Editing</span>
+            <span class="compare-row-val">Edit files in Sublime Text, VS Code, or any editor installed on your machine</span>
+          </div>
+          <div class="compare-row">
+            <span class="compare-row-label">Saving</span>
+            <span class="compare-row-val">Save the file in your editor, then run <code>git add</code>, <code>git commit</code>, <code>git push</code> in Git Bash</span>
+          </div>
+          <div class="compare-row">
+            <span class="compare-row-label">Terminal</span>
+            <span class="compare-row-val"><strong>Full terminal</strong> — run any shell command, scripts, or development tools</span>
+          </div>
+          <div class="compare-row">
+            <span class="compare-row-label">Best for</span>
+            <span class="compare-row-val">Day-to-day development, larger projects, working offline, running scripts</span>
+          </div>
+          <div class="compare-row">
+            <span class="compare-row-label">Git commands</span>
+            <span class="compare-row-val">Typed manually in Git Bash — <code>git status</code>, <code>git add</code>, <code>git commit</code>, <code>git push</code></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="top-callout" style="margin-top:20px; margin-bottom:0;">
+      <p><strong>Which should you use?</strong> The web editor is great for a quick fix when you are away from your computer. For everything else — day-to-day editing, building your site, running code — use Git Bash and a local editor. The four commands you learned today (<code>git status</code> → <code>git add</code> → <code>git commit</code> → <code>git push</code>) are the same regardless of which editor you use to edit files.</p>
+    </div>
+
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-text"><a href="index.html">← Back to ANITS FDP</a></p>
+  </div>
+</footer>
+
+<button class="scroll-btn" id="scrollBtn" onclick="scrollToggle()" title="Scroll">↓</button>
+<script>
+(function(){
+  var btn=document.getElementById("scrollBtn");
+  function upd(){ btn.textContent=(window.scrollY>200)?"↑":"↓"; }
+  window.addEventListener("scroll",upd,{passive:true});
+  upd();
+})();
+function scrollToggle(){
+  if(window.scrollY>200){ window.scrollTo({top:0,behavior:"smooth"}); }
+  else{ window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"}); }
+}
+
+function copyCmd(btn) {
+  const pre = btn.closest('.cmd-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent.trim()).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyWorkflow() {
+  const text = document.getElementById('workflowBlock').textContent.trim();
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('workflowCopyBtn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>
