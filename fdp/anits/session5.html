@@ -71,10 +71,48 @@
     .cmd-block { margin:0 20px 0; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
     .cmd-block + .cmd-block { margin-top:8px; }
     .step-header + .cmd-block { margin-top:0; }
-    .cmd-block-label { font-family:var(--sc); font-size:10px; font-weight:700; letter-spacing:.1em; color:var(--ink-4); background:var(--bg-2); border-bottom:1px solid var(--border); padding:6px 14px; }
+
+    .cmd-block-label {
+      font-family:var(--sc); font-size:10px; font-weight:700; letter-spacing:.1em;
+      color:var(--ink-4); background:var(--bg-2); border-bottom:1px solid var(--border);
+      padding:5px 14px;
+      display:flex; align-items:center; justify-content:space-between;
+    }
     .cmd-block pre { font-family:var(--mono); font-size:12.5px; color:var(--ink-2); background:var(--bg-3); padding:14px 16px; line-height:1.9; white-space:pre; overflow-x:auto; margin:0; }
     .cmd-block.output pre { color:#7dbf7d; background:#161610; }
     .cmd-block.output .cmd-block-label { background:#1e1e16; border-bottom-color:#333; color:#777; }
+
+    /* ── Copy button ── */
+    .copy-btn {
+      font-family:var(--sc); font-size:10px; font-weight:700; letter-spacing:.05em;
+      color:var(--blue); background:var(--blue-bg);
+      border:1px solid rgba(122,48,24,.2); border-radius:5px;
+      padding:3px 10px; cursor:pointer;
+      transition:background .15s, border-color .15s, color .15s;
+      line-height:1;
+    }
+    .copy-btn:hover { background:var(--blue-bg-2); border-color:rgba(122,48,24,.35); }
+    .copy-btn.copied { color:var(--green); background:var(--green-bg); border-color:rgba(58,107,24,.3); }
+
+    /* ── Example block ── */
+    .example-block {
+      margin:8px 20px 0;
+      border:1px solid var(--border);
+      border-radius:8px; overflow:hidden;
+    }
+    .example-label-bar {
+      font-family:var(--sc); font-size:10px; font-weight:700; letter-spacing:.1em;
+      color:var(--green); background:var(--green-bg);
+      border-bottom:1px solid rgba(58,107,24,.15);
+      padding:5px 14px;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .example-pre {
+      font-family:var(--mono); font-size:12.5px; color:var(--ink-3);
+      background:var(--bg-2); padding:12px 16px;
+      line-height:1.9; white-space:pre; overflow-x:auto; margin:0;
+      border:none;
+    }
 
     /* ── Sub-steps ── */
     .sub-steps { margin:12px 20px 0; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
@@ -144,9 +182,17 @@
           </div>
         </div>
         <div class="cmd-block">
-          <div class="cmd-block-label">Terminal</div>
+          <div class="cmd-block-label">
+            <span>Terminal</span>
+            <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          </div>
           <pre>git config --global user.name "Your Name"
 git config --global user.email "your-email@example.com"</pre>
+        </div>
+        <div class="example-block">
+          <div class="example-label-bar"><span>Example</span></div>
+          <pre class="example-pre">git config --global user.name "Pavan Kumar"
+git config --global user.email "pavan@gmail.com"</pre>
         </div>
         <div class="step-pad"></div>
       </div>
@@ -160,11 +206,21 @@ git config --global user.email "your-email@example.com"</pre>
           </div>
         </div>
         <div class="cmd-block">
-          <div class="cmd-block-label">Terminal</div>
+          <div class="cmd-block-label">
+            <span>Terminal</span>
+            <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          </div>
           <pre>git config --global --list</pre>
         </div>
+        <div class="example-block">
+          <div class="example-label-bar"><span>Example</span></div>
+          <pre class="example-pre">git config --global --list
+# Output on your machine:
+user.name=Pavan Kumar
+user.email=pavan@gmail.com</pre>
+        </div>
         <div class="cmd-block output">
-          <div class="cmd-block-label">Expected Output</div>
+          <div class="cmd-block-label"><span>Expected Output</span></div>
           <pre>user.name=Your Name
 user.email=your-email@example.com</pre>
         </div>
@@ -190,8 +246,15 @@ user.email=your-email@example.com</pre>
           </div>
         </div>
         <div class="cmd-block">
-          <div class="cmd-block-label">Terminal</div>
+          <div class="cmd-block-label">
+            <span>Terminal</span>
+            <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          </div>
           <pre>ssh-keygen -t ed25519 -C "your-email@example.com"</pre>
+        </div>
+        <div class="example-block">
+          <div class="example-label-bar"><span>Example</span></div>
+          <pre class="example-pre">ssh-keygen -t ed25519 -C "pavan@gmail.com"</pre>
         </div>
         <div class="callout">
           <p>When prompted <strong>"Enter file in which to save the key"</strong> — press <strong>Enter</strong> to accept the default path (<code>~/.ssh/id_ed25519</code>). When asked for a passphrase, press Enter to skip (or set one for extra security).</p>
@@ -208,11 +271,20 @@ user.email=your-email@example.com</pre>
           </div>
         </div>
         <div class="cmd-block">
-          <div class="cmd-block-label">Terminal</div>
+          <div class="cmd-block-label">
+            <span>Terminal</span>
+            <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          </div>
           <pre>eval "$(ssh-agent -s)"</pre>
         </div>
+        <div class="example-block">
+          <div class="example-label-bar"><span>Example</span></div>
+          <pre class="example-pre">eval "$(ssh-agent -s)"
+# The agent starts and prints its process ID:
+Agent pid 3721</pre>
+        </div>
         <div class="cmd-block output">
-          <div class="cmd-block-label">Expected Output</div>
+          <div class="cmd-block-label"><span>Expected Output</span></div>
           <pre>Agent pid 12345</pre>
         </div>
         <div class="step-pad"></div>
@@ -227,11 +299,20 @@ user.email=your-email@example.com</pre>
           </div>
         </div>
         <div class="cmd-block">
-          <div class="cmd-block-label">Terminal</div>
+          <div class="cmd-block-label">
+            <span>Terminal</span>
+            <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          </div>
           <pre>ssh-add ~/.ssh/id_ed25519</pre>
         </div>
+        <div class="example-block">
+          <div class="example-label-bar"><span>Example</span></div>
+          <pre class="example-pre">ssh-add ~/.ssh/id_ed25519
+# Confirmation message shown:
+Identity added: /home/pavan/.ssh/id_ed25519 (pavan@gmail.com)</pre>
+        </div>
         <div class="cmd-block output">
-          <div class="cmd-block-label">Expected Output</div>
+          <div class="cmd-block-label"><span>Expected Output</span></div>
           <pre>Identity added: /home/youruser/.ssh/id_ed25519 (your-email@example.com)</pre>
         </div>
         <div class="step-pad"></div>
@@ -246,12 +327,15 @@ user.email=your-email@example.com</pre>
           </div>
         </div>
         <div class="cmd-block">
-          <div class="cmd-block-label">Terminal</div>
+          <div class="cmd-block-label">
+            <span>Terminal</span>
+            <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          </div>
           <pre>cat ~/.ssh/id_ed25519.pub</pre>
         </div>
-        <div class="cmd-block output">
-          <div class="cmd-block-label">What you'll see (copy the entire line)</div>
-          <pre>ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA...long string... your-email@example.com</pre>
+        <div class="example-block">
+          <div class="example-label-bar"><span>Example — what gets printed (copy the entire line)</span></div>
+          <pre class="example-pre">ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GkZQ pavan@gmail.com</pre>
         </div>
         <div class="step-pad"></div>
       </div>
@@ -304,11 +388,19 @@ user.email=your-email@example.com</pre>
           </div>
         </div>
         <div class="cmd-block">
-          <div class="cmd-block-label">Terminal</div>
+          <div class="cmd-block-label">
+            <span>Terminal</span>
+            <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          </div>
           <pre>ssh -T git@github.com</pre>
         </div>
+        <div class="example-block">
+          <div class="example-label-bar"><span>Example — type "yes" when you see this prompt</span></div>
+          <pre class="example-pre">Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'github.com' (ED25519) to the list of known hosts.</pre>
+        </div>
         <div class="cmd-block output">
-          <div class="cmd-block-label">What you'll see</div>
+          <div class="cmd-block-label"><span>What you'll see</span></div>
           <pre>The authenticity of host 'github.com (140.82.x.x)' can't be established.
 ED25519 key fingerprint is SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU.
 Are you sure you want to continue connecting (yes/no/[fingerprint])?</pre>
@@ -338,11 +430,18 @@ Are you sure you want to continue connecting (yes/no/[fingerprint])?</pre>
           </div>
         </div>
         <div class="cmd-block">
-          <div class="cmd-block-label">Terminal</div>
+          <div class="cmd-block-label">
+            <span>Terminal</span>
+            <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          </div>
           <pre>ssh -T git@github.com</pre>
         </div>
+        <div class="example-block">
+          <div class="example-label-bar"><span>Example — your GitHub username appears in the response</span></div>
+          <pre class="example-pre">Hi pavankumar19! You've successfully authenticated, but GitHub does not provide shell access.</pre>
+        </div>
         <div class="cmd-block output">
-          <div class="cmd-block-label">Expected Output (success)</div>
+          <div class="cmd-block-label"><span>Expected Output (success)</span></div>
           <pre>Hi username! You've successfully authenticated, but GitHub does not provide shell access.</pre>
         </div>
         <div class="callout success">
@@ -381,8 +480,16 @@ Are you sure you want to continue connecting (yes/no/[fingerprint])?</pre>
           </div>
         </div>
         <div class="cmd-block">
-          <div class="cmd-block-label">Terminal</div>
+          <div class="cmd-block-label">
+            <span>Terminal</span>
+            <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          </div>
           <pre>git clone git@github.com:username/repository.git</pre>
+        </div>
+        <div class="example-block">
+          <div class="example-label-bar"><span>Example</span></div>
+          <pre class="example-pre">git clone git@github.com:pavankumar19/mywebsite.git
+# Creates a folder called "mywebsite" with all the repo files inside</pre>
         </div>
         <div class="step-pad"></div>
       </div>
@@ -406,11 +513,19 @@ Are you sure you want to continue connecting (yes/no/[fingerprint])?</pre>
           </div>
         </div>
         <div class="cmd-block">
-          <div class="cmd-block-label">Terminal</div>
+          <div class="cmd-block-label">
+            <span>Terminal</span>
+            <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          </div>
           <pre>git remote -v</pre>
         </div>
+        <div class="example-block">
+          <div class="example-label-bar"><span>Example — SSH remote (correct)</span></div>
+          <pre class="example-pre">origin  git@github.com:pavankumar19/mywebsite.git (fetch)
+origin  git@github.com:pavankumar19/mywebsite.git (push)</pre>
+        </div>
         <div class="cmd-block output">
-          <div class="cmd-block-label">Expected Output — SSH (correct)</div>
+          <div class="cmd-block-label"><span>Expected Output — SSH (correct)</span></div>
           <pre>origin  git@github.com:username/repository.git (fetch)
 origin  git@github.com:username/repository.git (push)</pre>
         </div>
@@ -440,11 +555,20 @@ origin  git@github.com:username/repository.git (push)</pre>
           </div>
         </div>
         <div class="cmd-block">
-          <div class="cmd-block-label">Terminal</div>
+          <div class="cmd-block-label">
+            <span>Terminal</span>
+            <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          </div>
           <pre>ssh -vT git@github.com</pre>
         </div>
+        <div class="example-block">
+          <div class="example-label-bar"><span>Example — key lines to look for in the verbose output</span></div>
+          <pre class="example-pre">debug1: Offering public key: /home/pavan/.ssh/id_ed25519 ED25519
+debug1: Server accepts key: /home/pavan/.ssh/id_ed25519 ED25519
+Hi pavankumar19! You've successfully authenticated...</pre>
+        </div>
         <div class="cmd-block output">
-          <div class="cmd-block-label">Key lines to look for</div>
+          <div class="cmd-block-label"><span>What to look for in the output</span></div>
           <pre>debug1: Offering public key: /home/youruser/.ssh/id_ed25519 ED25519
 debug1: Server accepts key: /home/youruser/.ssh/id_ed25519 ED25519
 Hi username! You've successfully authenticated...</pre>
@@ -454,7 +578,7 @@ Hi username! You've successfully authenticated...</pre>
             <strong>What each line means:</strong><br>
             — <em>"Offering public key"</em> → SSH found your key file on disk<br>
             — <em>"Server accepts key"</em> → GitHub recognised and approved it<br>
-            — If neither line appears, your key is not loaded. Re-run <code>ssh-add ~/.ssh/id_ed25519</code> and try again.
+            — If neither line appears, your key is not loaded in the agent. Re-run <code>ssh-add ~/.ssh/id_ed25519</code> and try again.
           </p>
         </div>
         <div class="step-pad"></div>
@@ -470,6 +594,17 @@ Hi username! You've successfully authenticated...</pre>
     <p class="footer-text"><a href="index.html">← Back to ANITS FDP</a></p>
   </div>
 </footer>
+
+<script>
+function copyCmd(btn) {
+  const pre = btn.closest('.cmd-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent.trim()).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
 
 </body>
 </html>
