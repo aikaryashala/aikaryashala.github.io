@@ -30,7 +30,7 @@
       --sc:       "Alegreya SC","Alegreya",Georgia,serif;
     }
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:var(--sans); background-color:var(--bg); background-image:radial-gradient(#5a372314 .8px, transparent .8px), linear-gradient(90deg, #0000000a 0%, transparent 12% 88%, #0000000a 100%); background-size:16px 16px, 100% 100%; background-attachment:fixed; color:var(--ink); line-height:1.65; -webkit-font-smoothing:antialiased; }
+    body { font-family:var(--sans); background-color:var(--bg); background-image:radial-gradient(#5a372314 .8px, transparent .8px), linear-gradient(90deg, #0000000a 0%, transparent 12% 88%, #0000000a 100%); background-size:16px 16px, 100% 100%; background-attachment:fixed; color:var(--ink); line-height:1.65; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
 
     /* ── Nav ── */
     .nav { position:sticky; top:0; z-index:100; background:rgba(232,221,208,.92); backdrop-filter:blur(14px); border-bottom:1px solid var(--border); }
@@ -118,6 +118,13 @@
     .top-callout p strong { color:var(--ink-2); }
     .top-callout code { font-family:var(--mono); font-size:12px; background:var(--bg-3); border:1px solid var(--border); border-radius:4px; padding:1px 6px; color:var(--blue); }
 
+    /* ── Clone block (top callout code) ── */
+    .clone-block { margin-top:12px; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+    .clone-block-label { font-family:var(--sc); font-size:10px; font-weight:700; letter-spacing:.1em; color:var(--ink-4); background:var(--bg-2); border-bottom:1px solid var(--border); padding:5px 14px; display:flex; align-items:center; justify-content:space-between; }
+    .clone-block-body { font-family:var(--mono); font-size:12.5px; background:var(--bg-3); padding:14px 16px; line-height:2; overflow-x:auto; }
+    .clone-line { display:block; color:var(--ink-2); white-space:nowrap; }
+    .clone-cd { display:inline-block; margin-top:4px; background:rgba(122,48,24,.14); border:1px solid rgba(122,48,24,.25); border-radius:4px; padding:2px 10px; color:var(--blue); font-weight:600; white-space:nowrap; }
+
     .step-pad { height:18px; }
 
     /* ── Tip block (inside step, no margin sides) ── */
@@ -169,8 +176,16 @@
       .page-header { padding:40px 18px 36px; }
       .shell { padding:0 18px 60px; }
       .compare-grid { grid-template-columns:1fr; }
-      .cmd-block pre, .example-pre, .workflow-block pre { font-size:11.5px; }
+      .cmd-block pre, .example-pre, .workflow-block pre, .clone-block-body { font-size:11.5px; padding:11px 12px; }
       .compare-row-label { width:60px; }
+      .step-header { padding:14px 14px 12px; }
+      .cmd-block, .example-block, .callout, .tip-block { margin-left:12px; margin-right:12px; }
+      .clone-block { margin-left:0; margin-right:0; }
+      .workflow-header { padding:12px 14px; }
+      .workflow-header-title { font-size:11px; }
+      .workflow-block pre { padding:14px 16px; }
+      .top-callout { padding:14px 16px; }
+      .compare-card-body { padding:12px 14px; }
     }
 
     /* ── Scroll button ── */
@@ -210,7 +225,13 @@
     <div class="top-callout">
       <p><strong>Before you start — navigate into your repository folder.</strong><br>
       After cloning a repo with <code>git clone</code>, your terminal is still in the parent folder. You must <code>cd</code> into the repo before running any git commands, or they will fail with <em>"not a git repository"</em>.</p>
-      <p style="margin-top:10px; font-family:var(--mono); font-size:12.5px; background:var(--bg-3); border:1px solid var(--border); border-radius:6px; padding:10px 14px; color:var(--ink-2); line-height:1.9;">git clone git@github.com:pavankumar19/mywebsite.git<br><span style="display:inline-block; margin-top:4px; background:rgba(122,48,24,.14); border:1px solid rgba(122,48,24,.25); border-radius:4px; padding:2px 10px; color:var(--blue); font-weight:600;">cd mywebsite</span></p>
+      <div class="clone-block">
+        <div class="clone-block-label">Terminal <button class="copy-btn" onclick="copyClone(this)">Copy</button></div>
+        <div class="clone-block-body">
+          <span class="clone-line">git clone git@github.com:pavankumar19/mywebsite.git</span>
+          <span class="clone-cd">cd mywebsite</span>
+        </div>
+      </div>
       <p style="margin-top:8px; font-size:12.5px; color:var(--ink-4);">Replace <strong style="color:var(--ink-3);">mywebsite</strong> with your actual repository name. You only need to do this once per terminal session.</p>
     </div>
 
@@ -257,7 +278,7 @@ no changes added to commit</pre>
           <div class="cmd-block-label">Terminal — stage all changed files <button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
           <pre>git add .</pre>
         </div>
-        <div class="cmd-block" style="margin-top:8px;">
+        <div class="cmd-block">
           <div class="cmd-block-label">Terminal — stage a specific file <button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
           <pre>git add filename.html</pre>
         </div>
@@ -452,6 +473,15 @@ git push origin main</pre>
 function scrollToggle(){
   if(window.scrollY>200){ window.scrollTo({top:0,behavior:"smooth"}); }
   else{ window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"}); }
+}
+
+function copyClone(btn) {
+  const text = 'git clone git@github.com:pavankumar19/mywebsite.git\ncd mywebsite';
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
 }
 
 function copyCmd(btn) {
