@@ -1,0 +1,2078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pointers vs Arrays — when each one earns its place</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,500;1,9..144,600&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper:        #f1ece1;
+  --paper-deep:   #e8e1d1;
+  --paper-dark:   #ddd4be;
+  --ink:          #1a1815;
+  --ink-soft:     #4a4640;
+  --ink-faint:    #8a857b;
+  --rule:         #c9c1ae;
+  --rule-soft:    #ddd5c2;
+  --accent:       #b8442e;
+  --accent-deep:  #8a2c1e;
+  --accent-soft:  #e8b8a8;
+  --highlight:    #e8c547;
+  --cell-bg:      #faf6ec;
+  --cell-active:  #fff1c9;
+  --cell-target:  #ffd9c4;
+  --pointer:      #b8442e;
+
+  --serif: 'Fraunces', Georgia, serif;
+  --mono:  'JetBrains Mono', 'SF Mono', Menlo, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-feature-settings: "ss01", "ss02", "kern";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+/* paper grain */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image:
+    radial-gradient(rgba(0,0,0,0.025) 1px, transparent 1px),
+    radial-gradient(rgba(0,0,0,0.018) 1px, transparent 1px);
+  background-size: 3px 3px, 7px 7px;
+  background-position: 0 0, 1px 1px;
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(26,24,21,0.07) 100%);
+}
+
+main {
+  position: relative;
+  z-index: 2;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 64px 56px 120px;
+}
+
+/* ---------------- HERO ---------------- */
+.hero {
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: 48px 0 56px;
+  margin-bottom: 80px;
+  position: relative;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 44px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.eyebrow span:last-child { color: var(--accent); }
+
+h1 {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(40px, 7vw, 96px);
+  line-height: 0.96;
+  letter-spacing: -0.025em;
+  margin-bottom: 32px;
+  font-variation-settings: "opsz" 144;
+}
+
+h1 em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+}
+
+.hero-lede {
+  font-size: clamp(17px, 1.5vw, 21px);
+  line-height: 1.55;
+  max-width: 700px;
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+
+.hero-lede strong { color: var(--ink); font-weight: 500; }
+
+.hero-meta {
+  margin-top: 48px;
+  display: flex;
+  gap: 32px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  flex-wrap: wrap;
+}
+
+.hero-meta strong {
+  color: var(--ink);
+  font-weight: 500;
+  display: block;
+  margin-top: 4px;
+  font-family: var(--serif);
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
+  font-style: italic;
+}
+
+/* ---------------- SECTIONS ---------------- */
+.section {
+  margin-bottom: 112px;
+  position: relative;
+}
+
+.section-head {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 28px;
+  align-items: baseline;
+  margin-bottom: 44px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.section-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.section-title {
+  font-family: var(--serif);
+  font-size: clamp(28px, 3.6vw, 44px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+.section-title em {
+  font-style: italic;
+  color: var(--ink-soft);
+  font-weight: 300;
+}
+
+.section-sub {
+  grid-column: 2;
+  font-size: 16px;
+  color: var(--ink-soft);
+  margin-top: 10px;
+  font-style: italic;
+}
+
+.prose {
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  max-width: 720px;
+  margin-bottom: 28px;
+}
+
+.prose strong { color: var(--ink); font-weight: 600; }
+.prose code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--paper-deep);
+  padding: 2px 7px;
+  border: 1px solid var(--rule);
+  color: var(--ink);
+}
+
+/* ---------------- SECTION 01: MENTAL MODEL ---------------- */
+.mental-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  margin-top: 32px;
+}
+
+.model-card {
+  border: 1px solid var(--rule);
+  background: var(--paper-deep);
+  padding: 32px 28px;
+  position: relative;
+}
+
+.model-card-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.model-card-label::before {
+  content: "";
+  width: 20px; height: 1px;
+  background: var(--accent);
+}
+
+.model-card-title {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 500;
+  font-style: italic;
+  margin-bottom: 16px;
+  color: var(--ink);
+}
+
+.model-card-desc {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin-bottom: 24px;
+}
+
+.memory-vis {
+  width: 100%;
+  height: auto;
+}
+
+.resolve-demo {
+  margin-top: 56px;
+  padding: 40px 32px;
+  border: 1px solid var(--ink);
+  background: var(--paper-deep);
+  position: relative;
+}
+
+.resolve-demo::before {
+  content: "DEMO";
+  position: absolute;
+  top: -8px;
+  left: 24px;
+  background: var(--paper);
+  padding: 0 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--accent);
+}
+
+.resolve-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-style: italic;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.resolve-sub {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin-bottom: 24px;
+}
+
+.resolve-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 10px 18px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-weight: 500;
+}
+
+.btn:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--paper);
+}
+
+.btn.primary:hover {
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
+}
+
+.btn.ghost {
+  border-color: var(--rule);
+  color: var(--ink-soft);
+}
+
+.resolve-vis-wrap { width: 100%; overflow-x: auto; }
+
+.resolve-status {
+  margin-top: 16px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink-soft);
+  min-height: 1.6em;
+  padding: 12px 14px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+}
+
+.resolve-status .acc { color: var(--accent); font-weight: 600; }
+
+/* ---------------- SECTION 02: COMPARE TABLE ---------------- */
+.compare {
+  border-top: 1px solid var(--ink);
+}
+
+.compare-row {
+  display: grid;
+  grid-template-columns: 220px 1fr 1fr 1.2fr;
+  gap: 24px;
+  padding: 28px 4px;
+  border-bottom: 1px solid var(--rule);
+  align-items: start;
+}
+
+.compare-row.head {
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--ink);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.compare-aspect {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--ink);
+}
+
+.compare-cell {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.compare-cell strong { color: var(--ink); font-weight: 600; }
+
+.compare-code {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--paper-deep);
+  border: 1px solid var(--rule);
+  padding: 12px 14px;
+  white-space: pre;
+  overflow-x: auto;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.compare-code .c { color: var(--ink-faint); font-style: italic; }
+.compare-code .k { color: var(--accent); font-weight: 600; }
+.compare-code .n { color: var(--ink); }
+
+/* ---------------- SECTION 03 + 04: SCENARIOS ---------------- */
+.scenario {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 48px;
+  align-items: start;
+  margin-bottom: 64px;
+  padding-bottom: 64px;
+  border-bottom: 1px dashed var(--rule);
+}
+
+.scenario:last-child { border-bottom: none; padding-bottom: 0; }
+
+.scenario.flip { grid-template-columns: 1.1fr 1fr; }
+.scenario.flip .scenario-text { order: 2; }
+.scenario.flip .scenario-vis { order: 1; }
+
+.scenario-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.scenario-tag::before {
+  content: attr(data-letter);
+  width: 28px; height: 28px;
+  border: 1px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--serif);
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.scenario-title {
+  font-family: var(--serif);
+  font-size: clamp(22px, 2.4vw, 30px);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+
+.scenario-title em { font-style: italic; color: var(--ink-soft); font-weight: 400; }
+
+.scenario-body {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+
+.scenario-body p { margin-bottom: 14px; }
+.scenario-body strong { color: var(--ink); font-weight: 600; }
+.scenario-body code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--paper-deep);
+  padding: 1px 6px;
+  border: 1px solid var(--rule);
+}
+
+.scenario-vis {
+  position: relative;
+  background: var(--paper-deep);
+  border: 1px solid var(--rule);
+  padding: 24px;
+  min-height: 280px;
+}
+
+.vis-caption {
+  position: absolute;
+  bottom: -28px;
+  right: 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* ---------------- SECTION 05: PLAYGROUND ---------------- */
+.playground {
+  border: 1px solid var(--ink);
+  background: var(--paper-deep);
+  padding: 36px;
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 36px;
+}
+
+.pg-left { display: flex; flex-direction: column; gap: 20px; }
+
+.pg-section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pg-section-label::before {
+  content: ""; width: 20px; height: 1px; background: var(--accent);
+}
+
+.pg-program {
+  font-family: var(--mono);
+  font-size: 13px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 18px;
+  line-height: 1.9;
+}
+
+.pg-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 8px;
+  border-left: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+.pg-line.executed {
+  color: var(--ink-faint);
+  text-decoration: line-through;
+  text-decoration-color: var(--accent-soft);
+}
+
+.pg-line.current {
+  background: var(--cell-active);
+  border-left-color: var(--accent);
+  color: var(--ink);
+}
+
+.pg-line .ln {
+  color: var(--ink-faint);
+  font-weight: 500;
+  flex-shrink: 0;
+  width: 18px;
+}
+
+.pg-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pg-mistakes {
+  margin-top: 8px;
+  border-top: 1px dashed var(--rule);
+  padding-top: 16px;
+}
+
+.pg-mistakes-title {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-style: italic;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.pg-mistake-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pg-mistake-btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-align: left;
+  padding: 8px 12px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all 0.18s;
+  letter-spacing: 0.04em;
+}
+
+.pg-mistake-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--paper);
+}
+
+.pg-mistake-btn.active {
+  background: var(--accent);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+
+.pg-right { display: flex; flex-direction: column; gap: 16px; }
+
+.pg-vis-wrap {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 20px;
+  min-height: 300px;
+  position: relative;
+}
+
+.pg-status {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 14px 16px;
+  line-height: 1.55;
+  min-height: 60px;
+  color: var(--ink-soft);
+}
+
+.pg-status .acc { color: var(--accent); font-weight: 600; }
+.pg-status .warn { color: var(--accent-deep); font-weight: 600; }
+
+/* ---------------- SECTION 06: PRODUCTION ---------------- */
+.prod-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--ink);
+  border-left: 1px solid var(--ink);
+}
+
+.prod-card {
+  padding: 28px 26px 32px;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper);
+  transition: background 0.2s;
+}
+
+.prod-card:hover { background: var(--paper-deep); }
+
+.prod-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+  display: inline-block;
+  padding: 3px 8px;
+  border: 1px solid var(--accent);
+}
+
+.prod-name {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 500;
+  font-style: italic;
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+
+.prod-body {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.prod-body strong { color: var(--ink); font-weight: 600; }
+.prod-body code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  color: var(--ink);
+}
+
+/* ---------------- COLOPHON ---------------- */
+.colophon {
+  margin-top: 96px;
+  padding-top: 32px;
+  border-top: 1px solid var(--ink);
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* ---------------- ANIMATIONS ---------------- */
+@keyframes pulse-cell {
+  0%, 100% { fill: var(--cell-bg); }
+  50% { fill: var(--cell-target); }
+}
+
+@keyframes pointer-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.cell-pulse rect { animation: pulse-cell 1.4s ease-in-out infinite; }
+
+/* ---------------- RESPONSIVE ---------------- */
+@media (max-width: 880px) {
+  main { padding: 40px 24px 80px; }
+  .section-head { grid-template-columns: 60px 1fr; gap: 16px; }
+  .mental-grid { grid-template-columns: 1fr; gap: 28px; }
+  .scenario, .scenario.flip { grid-template-columns: 1fr; gap: 28px; }
+  .scenario.flip .scenario-text { order: 1; }
+  .scenario.flip .scenario-vis { order: 2; }
+  .playground { grid-template-columns: 1fr; padding: 24px; }
+  .compare-row { grid-template-columns: 1fr; gap: 12px; padding: 20px 4px; }
+  .compare-row.head { display: none; }
+  .compare-aspect { font-size: 20px; }
+  .compare-cell::before { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 6px; }
+  .compare-cell.array::before { content: "Array"; }
+  .compare-cell.pointer::before { content: "Pointer"; }
+  .compare-cell.code-cell::before { content: "Code"; }
+}
+
+@media (max-width: 560px) {
+  h1 { font-size: 44px; }
+  .hero-meta { gap: 20px; }
+  main { padding: 32px 20px 64px; }
+  .resolve-demo { padding: 28px 20px; }
+}
+</style>
+</head>
+<body>
+<main>
+
+<!-- ============= HERO ============= -->
+<section class="hero">
+  <div class="eyebrow">
+    <span>Field Notes № 02 · Systems</span>
+    <span>An Interactive Explainer</span>
+  </div>
+  <h1>Pointers <em>vs</em> Arrays<br>— when each one earns its place.</h1>
+  <p class="hero-lede">
+    They look alike. They almost behave alike. The compiler will even forgive you for
+    confusing them, most of the time. But behind the syntax, an array is a
+    <strong>fixed shelf in memory</strong> and a pointer is <strong>a signpost
+    that holds an address</strong> — and that single difference decides
+    whether your code lives in firmware, in a kernel, or in a textbook.
+  </p>
+  <div class="hero-meta">
+    <div>Reading time<strong>~12 minutes</strong></div>
+    <div>Level<strong>Intermediate C / C++</strong></div>
+    <div>Format<strong>Interactive · scroll-driven</strong></div>
+  </div>
+</section>
+
+<!-- ============= 01 · MENTAL MODEL ============= -->
+<section class="section" id="s1">
+  <div class="section-head">
+    <div class="section-num">01 ——</div>
+    <div>
+      <h2 class="section-title">The mental model.</h2>
+      <p class="section-sub">Same destination, two different vehicles.</p>
+    </div>
+  </div>
+
+  <p class="prose">
+    An array is born <strong>knowing where it lives</strong>. The compiler reserves a contiguous
+    block of memory at compile time and the array's name <em>is</em> the address of its first byte.
+    A pointer, by contrast, is just a small variable — typically eight bytes on a 64-bit machine —
+    whose only job is to <strong>hold an address</strong>. It can point to anything, including an array.
+    That's why <code>arr[i]</code> and <code>*(arr + i)</code> compile to the same instruction:
+    both forms ask the same question — <em>what is at address arr + i × sizeof(element)?</em>
+  </p>
+
+  <div class="mental-grid">
+
+    <!-- ARRAY MODEL -->
+    <div class="model-card">
+      <div class="model-card-label">Model A · Array</div>
+      <h3 class="model-card-title">A shelf of fixed boxes.</h3>
+      <p class="model-card-desc">
+        Five 4-byte cells, side by side, allocated in one go. The name <code>arr</code>
+        is shorthand for the first cell's address.
+      </p>
+      <svg class="memory-vis" viewBox="0 0 460 280" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrow-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+          </marker>
+        </defs>
+        <!-- addresses -->
+        <g font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)" text-anchor="end">
+          <text x="92" y="62">0x1000</text>
+          <text x="92" y="102">0x1004</text>
+          <text x="92" y="142">0x1008</text>
+          <text x="92" y="182">0x100C</text>
+          <text x="92" y="222">0x1010</text>
+        </g>
+        <!-- cells -->
+        <g>
+          <rect x="100" y="48" width="180" height="32" fill="var(--cell-bg)" stroke="var(--ink)" stroke-width="1"/>
+          <rect x="100" y="88" width="180" height="32" fill="var(--cell-bg)" stroke="var(--ink)" stroke-width="1"/>
+          <rect x="100" y="128" width="180" height="32" fill="var(--cell-bg)" stroke="var(--ink)" stroke-width="1"/>
+          <rect x="100" y="168" width="180" height="32" fill="var(--cell-bg)" stroke="var(--ink)" stroke-width="1"/>
+          <rect x="100" y="208" width="180" height="32" fill="var(--cell-bg)" stroke="var(--ink)" stroke-width="1"/>
+        </g>
+        <!-- values -->
+        <g font-family="JetBrains Mono" font-size="13" fill="var(--ink)" text-anchor="middle" font-weight="600">
+          <text x="190" y="69">10</text>
+          <text x="190" y="109">20</text>
+          <text x="190" y="149">30</text>
+          <text x="190" y="189">40</text>
+          <text x="190" y="229">50</text>
+        </g>
+        <!-- index labels -->
+        <g font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)">
+          <text x="290" y="69">[0]</text>
+          <text x="290" y="109">[1]</text>
+          <text x="290" y="149">[2]</text>
+          <text x="290" y="189">[3]</text>
+          <text x="290" y="229">[4]</text>
+        </g>
+        <!-- arr label -->
+        <g>
+          <line x1="350" y1="64" x2="290" y2="64" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arrow-a)"/>
+          <text x="358" y="60" font-family="Fraunces" font-size="16" font-style="italic" fill="var(--accent)" font-weight="500">arr</text>
+          <text x="358" y="76" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)">= 0x1000</text>
+        </g>
+        <!-- footer -->
+        <g font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)">
+          <text x="100" y="266">int arr[5] = {10,20,30,40,50};</text>
+          <text x="280" y="266" text-anchor="end" fill="var(--accent)">sizeof(arr) = 20</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- POINTER MODEL -->
+    <div class="model-card">
+      <div class="model-card-label">Model B · Pointer</div>
+      <h3 class="model-card-title">A signpost holding an address.</h3>
+      <p class="model-card-desc">
+        The pointer <code>p</code> is itself a variable, stored elsewhere. It contains
+        the address <code>0x1000</code>, which it can be reassigned to forget at any moment.
+      </p>
+      <svg class="memory-vis" viewBox="0 0 460 280" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrow-b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+          </marker>
+        </defs>
+        <!-- target array -->
+        <g font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)" text-anchor="end">
+          <text x="252" y="62">0x1000</text>
+          <text x="252" y="102">0x1004</text>
+          <text x="252" y="142">0x1008</text>
+          <text x="252" y="182">0x100C</text>
+          <text x="252" y="222">0x1010</text>
+        </g>
+        <g>
+          <rect x="260" y="48" width="120" height="32" fill="var(--cell-bg)" stroke="var(--ink)"/>
+          <rect x="260" y="88" width="120" height="32" fill="var(--cell-bg)" stroke="var(--ink)"/>
+          <rect x="260" y="128" width="120" height="32" fill="var(--cell-bg)" stroke="var(--ink)"/>
+          <rect x="260" y="168" width="120" height="32" fill="var(--cell-bg)" stroke="var(--ink)"/>
+          <rect x="260" y="208" width="120" height="32" fill="var(--cell-bg)" stroke="var(--ink)"/>
+        </g>
+        <g font-family="JetBrains Mono" font-size="13" fill="var(--ink)" text-anchor="middle" font-weight="600">
+          <text x="320" y="69">10</text>
+          <text x="320" y="109">20</text>
+          <text x="320" y="149">30</text>
+          <text x="320" y="189">40</text>
+          <text x="320" y="229">50</text>
+        </g>
+        <!-- pointer cell -->
+        <g>
+          <text x="20" y="62" font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)">0xFF20</text>
+          <rect x="60" y="48" width="120" height="32" fill="var(--paper)" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="120" y="69" font-family="JetBrains Mono" font-size="12" fill="var(--accent)" text-anchor="middle" font-weight="600">0x1000</text>
+          <text x="120" y="38" font-family="Fraunces" font-size="16" font-style="italic" fill="var(--accent)" text-anchor="middle" font-weight="500">p</text>
+        </g>
+        <!-- arrow from p to arr[0] -->
+        <path d="M 180 64 Q 220 64 258 64" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arrow-b)" stroke-dasharray="4 3"/>
+        <!-- footer -->
+        <g font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)">
+          <text x="60" y="266">int *p = arr;</text>
+          <text x="380" y="266" text-anchor="end" fill="var(--accent)">sizeof(p) = 8</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <!-- RESOLVE DEMO -->
+  <div class="resolve-demo">
+    <h3 class="resolve-title">How <code style="font-family:var(--mono);font-size:0.85em;background:var(--paper);padding:1px 7px;border:1px solid var(--rule);">arr[2]</code> and <code style="font-family:var(--mono);font-size:0.85em;background:var(--paper);padding:1px 7px;border:1px solid var(--rule);">*(arr + 2)</code> resolve.</h3>
+    <p class="resolve-sub">Both forms compile to the same load. Click to watch the resolution.</p>
+    <div class="resolve-controls">
+      <button class="btn primary" id="res-bracket">Show arr[2]</button>
+      <button class="btn primary" id="res-pointer">Show *(arr + 2)</button>
+      <button class="btn ghost" id="res-reset">Reset</button>
+    </div>
+    <div class="resolve-vis-wrap">
+      <svg id="resolve-svg" viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;min-width:500px">
+        <defs>
+          <marker id="arr-resolve" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+          </marker>
+        </defs>
+        <!-- expression label -->
+        <text id="r-expr" x="20" y="40" font-family="JetBrains Mono" font-size="20" fill="var(--ink-faint)" font-weight="600">—</text>
+        <!-- compute steps -->
+        <g id="r-steps" font-family="JetBrains Mono" font-size="13" fill="var(--ink-soft)">
+          <text id="r-step1" x="20" y="80" opacity="0">step 1 · base address: 0x1000</text>
+          <text id="r-step2" x="20" y="105" opacity="0">step 2 · offset: 2 × sizeof(int) = 8 bytes</text>
+          <text id="r-step3" x="20" y="130" opacity="0">step 3 · effective address: 0x1008</text>
+          <text id="r-step4" x="20" y="155" opacity="0" fill="var(--accent)" font-weight="600">step 4 · load → 30</text>
+        </g>
+        <!-- memory grid (right side) -->
+        <g transform="translate(440, 20)">
+          <text x="0" y="-2" font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)">memory</text>
+          <g font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)" text-anchor="end">
+            <text x="-6" y="22">0x1000</text>
+            <text x="-6" y="50">0x1004</text>
+            <text x="-6" y="78">0x1008</text>
+            <text x="-6" y="106">0x100C</text>
+            <text x="-6" y="134">0x1010</text>
+          </g>
+          <g id="r-cells">
+            <rect data-i="0" x="0" y="10" width="160" height="22" fill="var(--cell-bg)" stroke="var(--ink)"/>
+            <rect data-i="1" x="0" y="38" width="160" height="22" fill="var(--cell-bg)" stroke="var(--ink)"/>
+            <rect data-i="2" x="0" y="66" width="160" height="22" fill="var(--cell-bg)" stroke="var(--ink)"/>
+            <rect data-i="3" x="0" y="94" width="160" height="22" fill="var(--cell-bg)" stroke="var(--ink)"/>
+            <rect data-i="4" x="0" y="122" width="160" height="22" fill="var(--cell-bg)" stroke="var(--ink)"/>
+          </g>
+          <g font-family="JetBrains Mono" font-size="11" fill="var(--ink)" text-anchor="middle" font-weight="600">
+            <text x="80" y="25">10</text>
+            <text x="80" y="53">20</text>
+            <text x="80" y="81">30</text>
+            <text x="80" y="109">40</text>
+            <text x="80" y="137">50</text>
+          </g>
+          <g font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)">
+            <text x="170" y="25">[0]</text>
+            <text x="170" y="53">[1]</text>
+            <text x="170" y="81">[2]</text>
+            <text x="170" y="109">[3]</text>
+            <text x="170" y="137">[4]</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="resolve-status" id="res-status">Awaiting input. Click a button above.</div>
+  </div>
+</section>
+
+<!-- ============= 02 · WHERE THEY DIFFER ============= -->
+<section class="section" id="s2">
+  <div class="section-head">
+    <div class="section-num">02 ——</div>
+    <div>
+      <h2 class="section-title">Where they <em>secretly</em> differ.</h2>
+      <p class="section-sub">Five tests that tell them apart.</p>
+    </div>
+  </div>
+
+  <p class="prose">
+    An array name is often described as "a pointer to its first element," and the compiler
+    encourages this lie by silently <strong>decaying</strong> arrays to pointers in
+    most contexts. But the two are not interchangeable. Here are the five tests that
+    expose the difference — and why each one matters in real code.
+  </p>
+
+  <div class="compare">
+    <div class="compare-row head">
+      <div>Aspect</div>
+      <div>Array</div>
+      <div>Pointer</div>
+      <div>Demonstration</div>
+    </div>
+
+    <div class="compare-row">
+      <div class="compare-aspect">sizeof</div>
+      <div class="compare-cell array"><strong>Total bytes</strong> of the entire array — element size × count.</div>
+      <div class="compare-cell pointer"><strong>Always 8 bytes</strong> on a 64-bit machine. Just the address slot.</div>
+      <div class="compare-cell code-cell"><pre class="compare-code"><span class="k">int</span> arr[5];
+<span class="k">int</span> *p = arr;
+
+sizeof(arr); <span class="c">// 20</span>
+sizeof(p);   <span class="c">// 8</span></pre></div>
+    </div>
+
+    <div class="compare-row">
+      <div class="compare-aspect">lvalue?</div>
+      <div class="compare-cell array">No. The name <strong>cannot be reassigned</strong>. It's not a variable, it's a label baked into the binary.</div>
+      <div class="compare-cell pointer">Yes. A pointer is a variable. It can be moved, swapped, or made to forget.</div>
+      <div class="compare-cell code-cell"><pre class="compare-code"><span class="k">int</span> arr[5], other[5];
+<span class="k">int</span> *p = arr;
+
+arr = other; <span class="c">// ✗ error</span>
+p   = other; <span class="c">// ✓ ok</span></pre></div>
+    </div>
+
+    <div class="compare-row">
+      <div class="compare-aspect">Decay rule</div>
+      <div class="compare-cell array">When passed to a function or used in an expression, decays to <code>T*</code>. The size is <strong>lost</strong>.</div>
+      <div class="compare-cell pointer">Already a pointer. Nothing to decay. Carries no length information ever.</div>
+      <div class="compare-cell code-cell"><pre class="compare-code"><span class="k">void</span> f(<span class="k">int</span> a[5]) {
+  sizeof(a); <span class="c">// 8, not 20!</span>
+}              <span class="c">// a is really int*</span></pre></div>
+    </div>
+
+    <div class="compare-row">
+      <div class="compare-aspect">&amp; operator</div>
+      <div class="compare-cell array"><code>&amp;arr</code> has type <code>int(*)[5]</code> — a pointer to the <strong>whole array</strong>. Numerically the same address, different type.</div>
+      <div class="compare-cell pointer"><code>&amp;p</code> is the address of <strong>the pointer itself</strong>, type <code>int**</code>.</div>
+      <div class="compare-cell code-cell"><pre class="compare-code">&amp;arr;     <span class="c">// int (*)[5]</span>
+&amp;arr+1;   <span class="c">// jumps 20 bytes</span>
+&amp;p;       <span class="c">// int **</span>
+&amp;p+1;     <span class="c">// jumps 8 bytes</span></pre></div>
+    </div>
+
+    <div class="compare-row">
+      <div class="compare-aspect">Storage</div>
+      <div class="compare-cell array">The cells <strong>are</strong> the variable. Lives wherever it was declared — stack, BSS, .rodata, heap.</div>
+      <div class="compare-cell pointer">Two allocations: the pointer (8 bytes) <strong>and</strong> whatever it points to (separate object, possibly heap).</div>
+      <div class="compare-cell code-cell"><pre class="compare-code"><span class="c">// stack: 20 bytes</span>
+<span class="k">int</span> arr[5];
+
+<span class="c">// stack: 8 bytes,</span>
+<span class="c">// heap:  20 bytes</span>
+<span class="k">int</span> *p = malloc(20);</pre></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============= 03 · ARRAYS WIN ============= -->
+<section class="section" id="s3">
+  <div class="section-head">
+    <div class="section-num">03 ——</div>
+    <div>
+      <h2 class="section-title">Where <em>arrays</em> win.</h2>
+      <p class="section-sub">Three places fixed shelves beat signposts.</p>
+    </div>
+  </div>
+
+  <p class="prose">
+    When the size is known, the count is small, and the lifetime is the function's lifetime,
+    arrays are <strong>faster, smaller, and safer</strong> than anything heap-allocated.
+    The compiler can see them, the cache can hold them, and the linker can place them in
+    the right segment. Three real cases where the choice writes itself:
+  </p>
+
+  <!-- 3a UART buffer -->
+  <div class="scenario">
+    <div class="scenario-text">
+      <div class="scenario-tag" data-letter="a">Embedded · firmware</div>
+      <h3 class="scenario-title">A UART buffer that never <em>malloc</em>s.</h3>
+      <div class="scenario-body">
+        <p>On a microcontroller with 32&nbsp;KB of RAM, <strong>there is no heap.</strong>
+        Or rather, there is, but the safety-critical coding standards
+        (MISRA, AUTOSAR, NASA's Power of Ten) forbid it after initialization.
+        Allocations are nondeterministic — they can fragment, fail, or stall a real-time loop.</p>
+        <p>So a serial driver declares its receive buffer as a fixed array
+        in BSS: <code>static uint8_t rx_buf[256];</code>. The address is known at link time,
+        the memory is reserved before <code>main()</code> runs, and the ISR can write to it
+        without touching any allocator. <strong>Predictable, bounded, debuggable.</strong></p>
+        <p>Every Linux kernel driver, every FreeRTOS task, every Arduino sketch you've ever
+        seen does this. The pointer version doesn't even compile against half their toolchains.</p>
+      </div>
+    </div>
+    <div class="scenario-vis">
+      <svg viewBox="0 0 380 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+        <!-- chip outline -->
+        <rect x="20" y="20" width="340" height="240" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.5"/>
+        <text x="32" y="40" font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)" letter-spacing="0.18em">STM32 · 32KB RAM</text>
+        <!-- pins -->
+        <g fill="var(--ink)">
+          <rect x="14" y="60" width="6" height="3"/>
+          <rect x="14" y="80" width="6" height="3"/>
+          <rect x="14" y="100" width="6" height="3"/>
+          <rect x="14" y="120" width="6" height="3"/>
+          <rect x="360" y="60" width="6" height="3"/>
+          <rect x="360" y="80" width="6" height="3"/>
+          <rect x="360" y="100" width="6" height="3"/>
+          <rect x="360" y="120" width="6" height="3"/>
+        </g>
+        <!-- UART label -->
+        <text x="32" y="64" font-family="Fraunces" font-size="12" font-style="italic" fill="var(--accent)">UART RX →</text>
+        <!-- buffer cells -->
+        <g>
+          <rect x="32" y="80" width="316" height="140" fill="var(--paper-deep)" stroke="var(--rule)" stroke-dasharray="3 2"/>
+          <text x="40" y="98" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)">static uint8_t rx_buf[256]</text>
+        </g>
+        <!-- 16 cells representing buffer -->
+        <g id="uart-cells">
+          <!-- generated dynamically below -->
+        </g>
+        <text x="40" y="244" font-family="JetBrains Mono" font-size="9" fill="var(--accent)">.bss segment · zero-initialized · 256 bytes</text>
+        <text x="40" y="256" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)">no malloc · no free · no fragmentation</text>
+      </svg>
+      <div class="vis-caption">FIG. 3A · UART RX BUFFER</div>
+    </div>
+  </div>
+
+  <!-- 3b Lookup tables -->
+  <div class="scenario flip">
+    <div class="scenario-text">
+      <div class="scenario-tag" data-letter="b">ROM · lookup tables</div>
+      <h3 class="scenario-title">Sine, CRC, glyphs — <em>computed once</em>, looked up forever.</h3>
+      <div class="scenario-body">
+        <p>An audio synthesizer needs <code>sin(x)</code> a million times a second.
+        Computing it from a Taylor series each time costs cycles you don't have. The fix is
+        ancient: precompute 1024 values, store them in a <code>const</code> array,
+        index by phase. <strong>One memory load replaces dozens of multiplications.</strong></p>
+        <p>Because the array is <code>const</code>, the linker places it in
+        <code>.rodata</code> — read-only memory, often Flash on embedded devices.
+        It costs <em>zero RAM</em>. The same trick powers CRC tables in every TCP/IP stack,
+        bitmap font glyphs in your terminal, and the trigonometric tables inside
+        a CD player's DSP.</p>
+        <p>You can't put a heap-allocated buffer in ROM. Only an array.</p>
+      </div>
+    </div>
+    <div class="scenario-vis">
+      <svg viewBox="0 0 380 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+        <!-- sine curve -->
+        <path id="sine-path" d="M 30 140 Q 80 60, 130 140 T 230 140 T 330 140" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity="0.5"/>
+        <!-- sample points -->
+        <g id="sine-points">
+          <!-- generated -->
+        </g>
+        <!-- table on right -->
+        <g transform="translate(240, 30)">
+          <text x="0" y="0" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)">sin_table[1024]</text>
+          <rect x="0" y="8" width="110" height="200" fill="var(--paper)" stroke="var(--ink)"/>
+          <g id="sine-table-cells" font-family="JetBrains Mono" font-size="9" fill="var(--ink)">
+            <!-- generated -->
+          </g>
+        </g>
+        <text x="20" y="248" font-family="JetBrains Mono" font-size="9" fill="var(--accent)">const · placed in .rodata · zero RAM cost</text>
+        <text x="20" y="262" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)">phase → index → value · O(1) lookup</text>
+      </svg>
+      <div class="vis-caption">FIG. 3B · SINE TABLE</div>
+    </div>
+  </div>
+
+  <!-- 3c Stack vs heap -->
+  <div class="scenario">
+    <div class="scenario-text">
+      <div class="scenario-tag" data-letter="c">Performance · stack locals</div>
+      <h3 class="scenario-title"><em>int buf[256]</em> on the stack beats malloc.</h3>
+      <div class="scenario-body">
+        <p>Allocating 256 ints on the stack is <strong>one instruction</strong>:
+        <code>sub rsp, 1024</code>. Deallocating them is another single instruction
+        when the function returns. The cache is already warm — the stack frame is
+        right where the CPU just was.</p>
+        <p>Calling <code>malloc(256 * sizeof(int))</code> instead means: a function call,
+        free-list traversal, possibly a <code>brk</code> or <code>mmap</code> syscall,
+        a thread-safety lock, and a corresponding <code>free()</code> later. <strong>Hundreds
+        of cycles vs one.</strong> Plus a cache miss when you finally touch the heap memory.</p>
+        <p>The rule: if the buffer fits comfortably (a few KB) and lives no longer than
+        the function, <em>always</em> use a stack array. Reach for the heap only when
+        the size is huge or the lifetime extends beyond the call.</p>
+      </div>
+    </div>
+    <div class="scenario-vis">
+      <svg viewBox="0 0 380 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+        <!-- stack column -->
+        <g>
+          <text x="60" y="32" font-family="Fraunces" font-size="14" font-style="italic" fill="var(--ink)" text-anchor="middle">Stack</text>
+          <rect x="20" y="44" width="80" height="200" fill="var(--paper)" stroke="var(--ink)"/>
+          <rect x="20" y="160" width="80" height="84" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="60" y="200" font-family="JetBrains Mono" font-size="10" fill="var(--ink)" text-anchor="middle">buf[256]</text>
+          <text x="60" y="216" font-family="JetBrains Mono" font-size="9" fill="var(--ink-soft)" text-anchor="middle">1024 B</text>
+          <text x="60" y="262" font-family="JetBrains Mono" font-size="9" fill="var(--accent)" text-anchor="middle">1 instruction</text>
+        </g>
+        <!-- vs -->
+        <text x="190" y="148" font-family="Fraunces" font-size="22" font-style="italic" fill="var(--ink-faint)" text-anchor="middle">vs</text>
+        <!-- heap column -->
+        <g>
+          <text x="320" y="32" font-family="Fraunces" font-size="14" font-style="italic" fill="var(--ink)" text-anchor="middle">Heap</text>
+          <rect x="280" y="44" width="80" height="200" fill="var(--paper)" stroke="var(--ink)"/>
+          <!-- fragmented blocks -->
+          <rect x="284" y="60" width="72" height="20" fill="var(--paper-dark)" stroke="var(--rule)"/>
+          <rect x="284" y="84" width="72" height="14" fill="var(--paper-dark)" stroke="var(--rule)"/>
+          <rect x="284" y="102" width="72" height="60" fill="var(--accent-soft)" stroke="var(--accent)"/>
+          <text x="320" y="138" font-family="JetBrains Mono" font-size="10" fill="var(--ink)" text-anchor="middle">malloc</text>
+          <text x="320" y="152" font-family="JetBrains Mono" font-size="9" fill="var(--ink-soft)" text-anchor="middle">1024 B</text>
+          <rect x="284" y="166" width="72" height="20" fill="var(--paper-dark)" stroke="var(--rule)"/>
+          <rect x="284" y="190" width="72" height="32" fill="var(--paper-dark)" stroke="var(--rule)"/>
+          <text x="320" y="262" font-family="JetBrains Mono" font-size="9" fill="var(--accent)" text-anchor="middle">~200 cycles</text>
+        </g>
+      </svg>
+      <div class="vis-caption">FIG. 3C · STACK vs HEAP</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============= 04 · POINTERS WIN ============= -->
+<section class="section" id="s4">
+  <div class="section-head">
+    <div class="section-num">04 ——</div>
+    <div>
+      <h2 class="section-title">Where <em>pointers</em> win.</h2>
+      <p class="section-sub">Three places signposts beat shelves.</p>
+    </div>
+  </div>
+
+  <p class="prose">
+    The moment your data <strong>doesn't know its size at compile time</strong>,
+    or its shape changes during the program, arrays surrender. Pointers are the only way to
+    build structures that grow, branch, or refer to one another — and the only way to
+    pass them around without copying.
+  </p>
+
+  <!-- 4a Linked list -->
+  <div class="scenario">
+    <div class="scenario-text">
+      <div class="scenario-tag" data-letter="a">Dynamic · linked structures</div>
+      <h3 class="scenario-title">Lists, trees, graphs — <em>nodes that find their neighbours</em>.</h3>
+      <div class="scenario-body">
+        <p>An array stores its elements in <strong>one contiguous block</strong>.
+        That works beautifully until you need to insert in the middle (shift everyone)
+        or grow past the allocated size (reallocate, copy, repoint). Both are O(n)
+        operations dressed up as constant-time ones.</p>
+        <p>A linked list pays the opposite price: O(1) insertion, O(n) lookup.
+        Each node carries a <code>next</code> pointer to wherever the next node happens to live.
+        That "wherever" is the whole point — nodes can be allocated anywhere, freed
+        independently, rearranged without copying any data, only by rewiring pointers.</p>
+        <p>Trees and graphs generalize the idea. The Linux kernel's <code>struct list_head</code>
+        is one of the most-used pointer constructs in computing.</p>
+      </div>
+    </div>
+    <div class="scenario-vis">
+      <svg viewBox="0 0 380 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+        <defs>
+          <marker id="ll-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+          </marker>
+        </defs>
+        <!-- nodes scattered to imply non-contiguous -->
+        <g id="ll-nodes">
+          <g transform="translate(20, 40)">
+            <rect width="80" height="40" fill="var(--paper)" stroke="var(--ink)"/>
+            <line x1="50" y1="0" x2="50" y2="40" stroke="var(--rule)"/>
+            <text x="25" y="25" font-family="JetBrains Mono" font-size="12" fill="var(--ink)" text-anchor="middle" font-weight="600">42</text>
+            <text x="65" y="25" font-family="JetBrains Mono" font-size="10" fill="var(--accent)" text-anchor="middle">●</text>
+            <text x="40" y="-5" font-family="JetBrains Mono" font-size="8" fill="var(--ink-faint)" text-anchor="middle">0x800</text>
+          </g>
+          <g transform="translate(180, 100)">
+            <rect width="80" height="40" fill="var(--paper)" stroke="var(--ink)"/>
+            <line x1="50" y1="0" x2="50" y2="40" stroke="var(--rule)"/>
+            <text x="25" y="25" font-family="JetBrains Mono" font-size="12" fill="var(--ink)" text-anchor="middle" font-weight="600">17</text>
+            <text x="65" y="25" font-family="JetBrains Mono" font-size="10" fill="var(--accent)" text-anchor="middle">●</text>
+            <text x="40" y="-5" font-family="JetBrains Mono" font-size="8" fill="var(--ink-faint)" text-anchor="middle">0xA40</text>
+          </g>
+          <g transform="translate(80, 180)">
+            <rect width="80" height="40" fill="var(--paper)" stroke="var(--ink)"/>
+            <line x1="50" y1="0" x2="50" y2="40" stroke="var(--rule)"/>
+            <text x="25" y="25" font-family="JetBrains Mono" font-size="12" fill="var(--ink)" text-anchor="middle" font-weight="600">99</text>
+            <text x="65" y="25" font-family="JetBrains Mono" font-size="10" fill="var(--accent)" text-anchor="middle">●</text>
+            <text x="40" y="-5" font-family="JetBrains Mono" font-size="8" fill="var(--ink-faint)" text-anchor="middle">0xC18</text>
+          </g>
+          <g transform="translate(260, 200)">
+            <rect width="80" height="40" fill="var(--paper)" stroke="var(--ink)"/>
+            <line x1="50" y1="0" x2="50" y2="40" stroke="var(--rule)"/>
+            <text x="25" y="25" font-family="JetBrains Mono" font-size="12" fill="var(--ink)" text-anchor="middle" font-weight="600">8</text>
+            <text x="65" y="22" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)" text-anchor="middle">∅</text>
+            <text x="40" y="-5" font-family="JetBrains Mono" font-size="8" fill="var(--ink-faint)" text-anchor="middle">0xE00</text>
+          </g>
+        </g>
+        <!-- arrows showing pointer chase -->
+        <path id="ll-edge1" d="M 85 60 Q 140 60 195 100" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#ll-arrow)"/>
+        <path id="ll-edge2" d="M 245 120 Q 200 160 145 180" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#ll-arrow)"/>
+        <path id="ll-edge3" d="M 145 200 Q 200 220 265 220" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#ll-arrow)"/>
+        <!-- traversal pointer -->
+        <circle id="ll-cursor" cx="60" cy="40" r="6" fill="none" stroke="var(--accent)" stroke-width="2"/>
+        <text x="20" y="270" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)">struct node { int v; struct node *next; };</text>
+      </svg>
+      <div class="vis-caption">FIG. 4A · LINKED LIST</div>
+    </div>
+  </div>
+
+  <!-- 4b pass by reference -->
+  <div class="scenario flip">
+    <div class="scenario-text">
+      <div class="scenario-tag" data-letter="b">Functions · pass-by-reference</div>
+      <h3 class="scenario-title">A 1&nbsp;MB struct passed by pointer is <em>O(1)</em>.</h3>
+      <div class="scenario-body">
+        <p>Pass a struct by value and the compiler must <strong>copy every byte</strong>
+        into the callee's stack frame. For a 1 MB struct, that's a million bytes of
+        memcpy — every call, every time. Cache obliterated, latency spiked.</p>
+        <p>Pass it by pointer and only <strong>8 bytes</strong> move: the address.
+        The callee dereferences when it needs the data. This is why every
+        non-trivial C API takes pointers, why C++ has references, why Rust has borrows.</p>
+        <p>The pointer also lets the callee <em>modify</em> the original. That's how
+        <code>fread(buf, ...)</code> fills your buffer, how <code>scanf("%d", &amp;n)</code>
+        writes to your variable, and how every output-parameter idiom in C ever written
+        actually works.</p>
+      </div>
+    </div>
+    <div class="scenario-vis">
+      <svg viewBox="0 0 380 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+        <!-- by value -->
+        <g>
+          <text x="20" y="32" font-family="Fraunces" font-size="13" font-style="italic" fill="var(--ink-soft)">by value</text>
+          <rect x="20" y="40" width="80" height="60" fill="var(--paper)" stroke="var(--ink)"/>
+          <text x="60" y="64" font-family="JetBrains Mono" font-size="9" fill="var(--ink)" text-anchor="middle">struct</text>
+          <text x="60" y="78" font-family="JetBrains Mono" font-size="11" fill="var(--accent)" text-anchor="middle" font-weight="600">1 MB</text>
+          <!-- copy arrow -->
+          <path d="M 105 70 L 175 70" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 3"/>
+          <text x="140" y="62" font-family="JetBrains Mono" font-size="9" fill="var(--accent)" text-anchor="middle">memcpy</text>
+          <text x="140" y="86" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)" text-anchor="middle">1,048,576 B</text>
+          <rect x="180" y="40" width="80" height="60" fill="var(--accent-soft)" stroke="var(--accent)"/>
+          <text x="220" y="64" font-family="JetBrains Mono" font-size="9" fill="var(--ink)" text-anchor="middle">copy</text>
+          <text x="220" y="78" font-family="JetBrains Mono" font-size="11" fill="var(--accent)" text-anchor="middle" font-weight="600">1 MB</text>
+        </g>
+        <!-- divider -->
+        <line x1="20" y1="130" x2="360" y2="130" stroke="var(--rule)" stroke-dasharray="3 3"/>
+        <!-- by pointer -->
+        <g>
+          <text x="20" y="160" font-family="Fraunces" font-size="13" font-style="italic" fill="var(--ink-soft)">by pointer</text>
+          <rect x="20" y="170" width="80" height="60" fill="var(--paper)" stroke="var(--ink)"/>
+          <text x="60" y="194" font-family="JetBrains Mono" font-size="9" fill="var(--ink)" text-anchor="middle">struct</text>
+          <text x="60" y="208" font-family="JetBrains Mono" font-size="11" fill="var(--accent)" text-anchor="middle" font-weight="600">1 MB</text>
+          <!-- pointer arrow -->
+          <path d="M 105 200 L 295 200" stroke="var(--accent)" stroke-width="2" marker-end="url(#ll-arrow)"/>
+          <text x="200" y="192" font-family="JetBrains Mono" font-size="9" fill="var(--accent)" text-anchor="middle">just the address</text>
+          <text x="200" y="216" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)" text-anchor="middle">8 B</text>
+          <rect x="300" y="180" width="60" height="40" fill="var(--accent-soft)" stroke="var(--accent)"/>
+          <text x="330" y="204" font-family="JetBrains Mono" font-size="9" fill="var(--ink)" text-anchor="middle">ptr</text>
+        </g>
+        <text x="20" y="262" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)">128,000× less data moved · same effect</text>
+      </svg>
+      <div class="vis-caption">FIG. 4B · BY VALUE vs BY POINTER</div>
+    </div>
+  </div>
+
+  <!-- 4c function pointers -->
+  <div class="scenario">
+    <div class="scenario-text">
+      <div class="scenario-tag" data-letter="c">Polymorphism · dispatch tables</div>
+      <h3 class="scenario-title">Function pointers — <em>polymorphism in plain&nbsp;C.</em></h3>
+      <div class="scenario-body">
+        <p>How does the Linux kernel call the right <code>read()</code> for a file on
+        ext4, on a pipe, on a TCP socket, all through one syscall? It doesn't know.
+        Each filesystem registers a struct of function pointers — <code>file_operations</code> —
+        and the kernel dispatches through it: <code>file-&gt;f_op-&gt;read(file, buf, ...)</code>.</p>
+        <p>This is virtual methods, but written by hand. Drivers, state machines,
+        callback APIs, libc's <code>qsort</code> taking a comparator, OpenGL's vtable,
+        every event loop ever — all the same trick. <strong>An array of function
+        pointers is a vtable.</strong></p>
+        <p>Without pointers, "what to do next" must be hardcoded. With them, behavior
+        is data — and data can be swapped at runtime.</p>
+      </div>
+    </div>
+    <div class="scenario-vis">
+      <svg viewBox="0 0 380 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+        <!-- file_operations struct -->
+        <g>
+          <text x="20" y="32" font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)">struct file_operations</text>
+          <rect x="20" y="40" width="140" height="180" fill="var(--paper)" stroke="var(--ink)"/>
+          <line x1="20" y1="68" x2="160" y2="68" stroke="var(--rule)"/>
+          <line x1="20" y1="96" x2="160" y2="96" stroke="var(--rule)"/>
+          <line x1="20" y1="124" x2="160" y2="124" stroke="var(--rule)"/>
+          <line x1="20" y1="152" x2="160" y2="152" stroke="var(--rule)"/>
+          <line x1="20" y1="180" x2="160" y2="180" stroke="var(--rule)"/>
+          <g font-family="JetBrains Mono" font-size="11" fill="var(--ink)">
+            <text x="28" y="58">.open</text>
+            <text x="28" y="86">.read</text>
+            <text x="28" y="114">.write</text>
+            <text x="28" y="142">.close</text>
+            <text x="28" y="170">.ioctl</text>
+            <text x="28" y="198">.mmap</text>
+          </g>
+          <g font-family="JetBrains Mono" font-size="10" fill="var(--accent)">
+            <text x="120" y="58">●</text>
+            <text x="120" y="86">●</text>
+            <text x="120" y="114">●</text>
+            <text x="120" y="142">●</text>
+            <text x="120" y="170">●</text>
+            <text x="120" y="198">●</text>
+          </g>
+        </g>
+        <!-- targets -->
+        <g font-family="JetBrains Mono" font-size="10" fill="var(--ink)">
+          <rect x="240" y="50" width="120" height="22" fill="var(--paper)" stroke="var(--rule)"/>
+          <text x="248" y="65">ext4_file_open</text>
+          <rect x="240" y="78" width="120" height="22" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="248" y="93" fill="var(--ink)" font-weight="600">ext4_read_iter</text>
+          <rect x="240" y="106" width="120" height="22" fill="var(--paper)" stroke="var(--rule)"/>
+          <text x="248" y="121">ext4_write_iter</text>
+          <rect x="240" y="134" width="120" height="22" fill="var(--paper)" stroke="var(--rule)"/>
+          <text x="248" y="149">ext4_release</text>
+          <rect x="240" y="162" width="120" height="22" fill="var(--paper)" stroke="var(--rule)"/>
+          <text x="248" y="177">ext4_ioctl</text>
+          <rect x="240" y="190" width="120" height="22" fill="var(--paper)" stroke="var(--rule)"/>
+          <text x="248" y="205">ext4_file_mmap</text>
+        </g>
+        <!-- dispatch arrows -->
+        <g stroke="var(--accent)" stroke-width="1" fill="none">
+          <path d="M 132 58 Q 180 58 240 60" marker-end="url(#ll-arrow)" opacity="0.4"/>
+          <path d="M 132 86 Q 180 86 240 88" marker-end="url(#ll-arrow)" stroke-width="2"/>
+          <path d="M 132 114 Q 180 114 240 116" marker-end="url(#ll-arrow)" opacity="0.4"/>
+          <path d="M 132 142 Q 180 142 240 144" marker-end="url(#ll-arrow)" opacity="0.4"/>
+          <path d="M 132 170 Q 180 170 240 172" marker-end="url(#ll-arrow)" opacity="0.4"/>
+          <path d="M 132 198 Q 180 198 240 200" marker-end="url(#ll-arrow)" opacity="0.4"/>
+        </g>
+        <text x="20" y="248" font-family="JetBrains Mono" font-size="9" fill="var(--accent)">file-&gt;f_op-&gt;read(file, buf, len, &amp;pos);</text>
+        <text x="20" y="262" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)">one call site · many implementations · runtime dispatch</text>
+      </svg>
+      <div class="vis-caption">FIG. 4C · DISPATCH TABLE</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============= 05 · PLAYGROUND ============= -->
+<section class="section" id="s5">
+  <div class="section-head">
+    <div class="section-num">05 ——</div>
+    <div>
+      <h2 class="section-title">The interactive playground.</h2>
+      <p class="section-sub">Step through a program. Watch memory move.</p>
+    </div>
+  </div>
+
+  <p class="prose">
+    Run the lines below one at a time. The right-hand panel shows what happens in memory:
+    cells fill in, the pointer arrow physically moves, and the status reports what the
+    machine just did. When you're ready, toggle a <em>common mistake</em> to watch the
+    same code go subtly, instructively wrong.
+  </p>
+
+  <div class="playground">
+    <div class="pg-left">
+      <div class="pg-section-label">Program</div>
+      <div class="pg-program" id="pg-program">
+        <div class="pg-line" data-line="0"><span class="ln">1</span><span>int arr[5] = {10, 20, 30, 40, 50};</span></div>
+        <div class="pg-line" data-line="1"><span class="ln">2</span><span>int *p = arr;</span></div>
+        <div class="pg-line" data-line="2"><span class="ln">3</span><span>p++;</span></div>
+        <div class="pg-line" data-line="3"><span class="ln">4</span><span>*p = 99;</span></div>
+        <div class="pg-line" data-line="4"><span class="ln">5</span><span>p += 2;</span></div>
+        <div class="pg-line" data-line="5"><span class="ln">6</span><span>printf("%d", *p);</span></div>
+      </div>
+
+      <div class="pg-controls">
+        <button class="btn primary" id="pg-step">Step ▸</button>
+        <button class="btn" id="pg-run">Run all</button>
+        <button class="btn ghost" id="pg-reset">Reset</button>
+      </div>
+
+      <div class="pg-mistakes">
+        <h4 class="pg-mistakes-title">Common mistakes — toggle to demo:</h4>
+        <div class="pg-mistake-btns">
+          <button class="pg-mistake-btn" data-mistake="dangling">→ Dangling pointer (use after free)</button>
+          <button class="pg-mistake-btn" data-mistake="oob">→ Off-by-one array access</button>
+          <button class="pg-mistake-btn" data-mistake="sizeof">→ sizeof(ptr) ≠ array size</button>
+          <button class="pg-mistake-btn" data-mistake="none">→ Back to normal program</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pg-right">
+      <div class="pg-section-label">Memory state</div>
+      <div class="pg-vis-wrap">
+        <svg id="pg-svg" viewBox="0 0 460 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+          <defs>
+            <marker id="pg-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+            </marker>
+          </defs>
+          <!-- header -->
+          <text x="20" y="24" font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)">addr</text>
+          <text x="120" y="24" font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)">cell</text>
+          <text x="260" y="24" font-family="JetBrains Mono" font-size="10" fill="var(--ink-faint)">name</text>
+          <!-- cells (5 array cells) -->
+          <g id="pg-cells">
+            <!-- generated -->
+          </g>
+          <!-- pointer cell -->
+          <g id="pg-ptr-group" opacity="0">
+            <text x="20" y="288" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)">0xFF20</text>
+            <rect id="pg-ptr-cell" x="80" y="270" width="120" height="28" fill="var(--paper)" stroke="var(--accent)" stroke-width="1.5"/>
+            <text id="pg-ptr-val" x="140" y="289" font-family="JetBrains Mono" font-size="11" fill="var(--accent)" text-anchor="middle" font-weight="600">—</text>
+            <text x="260" y="289" font-family="Fraunces" font-size="14" font-style="italic" fill="var(--accent)" font-weight="500">int *p</text>
+          </g>
+          <!-- pointer arrow into array -->
+          <path id="pg-arrow-line" d="" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#pg-arrow)" opacity="0"/>
+        </svg>
+      </div>
+      <div class="pg-status" id="pg-status">
+        <span class="acc">Ready.</span> Press <strong>Step</strong> to execute the next line, or click a mistake to demonstrate.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============= 06 · IN PRODUCTION ============= -->
+<section class="section" id="s6">
+  <div class="section-head">
+    <div class="section-num">06 ——</div>
+    <div>
+      <h2 class="section-title">In production.</h2>
+      <p class="section-sub">Real codebases, real tradeoffs.</p>
+    </div>
+  </div>
+
+  <p class="prose">
+    The choice between pointer-driven flexibility and array-driven locality isn't
+    academic. It's the dividing line between systems that fit in 32&nbsp;KB and ones
+    that don't, between databases that hit a million queries per second and ones that
+    don't, between game engines that hold 60 FPS and ones that don't.
+  </p>
+
+  <div class="prod-grid">
+    <div class="prod-card">
+      <span class="prod-tag">Pointers</span>
+      <h4 class="prod-name">Linux kernel</h4>
+      <p class="prod-body">
+        <strong>Intrusive linked lists</strong> via <code>struct list_head</code> are
+        everywhere — task lists, page caches, network buffers. Each struct embeds the
+        list pointers directly, so traversal is just dereference-and-go. Zero allocations
+        per node.
+      </p>
+    </div>
+
+    <div class="prod-card">
+      <span class="prod-tag">Arrays</span>
+      <h4 class="prod-name">SQLite</h4>
+      <p class="prod-body">
+        Database files are split into <strong>fixed-size pages</strong> (typically 4 KB)
+        held as a contiguous array in the page cache. Predictable indexing, no fragmentation,
+        and the whole B-tree algorithm assumes constant-time page lookup.
+      </p>
+    </div>
+
+    <div class="prod-card">
+      <span class="prod-tag">Hybrid</span>
+      <h4 class="prod-name">Redis &middot; SDS</h4>
+      <p class="prod-body">
+        Simple Dynamic Strings prepend a small <strong>header</strong> (length, capacity)
+        to a regular C array of bytes. The user gets a <code>char*</code> compatible with
+        every libc function — but Redis still has O(1) length and bounds checks.
+        Array layout, pointer interface.
+      </p>
+    </div>
+
+    <div class="prod-card">
+      <span class="prod-tag">Arrays only</span>
+      <h4 class="prod-name">Embedded RTOS</h4>
+      <p class="prod-body">
+        FreeRTOS, Zephyr, AUTOSAR — many real-time systems forbid <code>malloc</code>
+        after init. Tasks, queues, semaphores all live in <strong>statically allocated arrays</strong>
+        sized at compile time. If it fits, it ships; if not, refactor.
+      </p>
+    </div>
+
+    <div class="prod-card">
+      <span class="prod-tag">The debate</span>
+      <h4 class="prod-name">Game engines &middot; ECS</h4>
+      <p class="prod-body">
+        The <strong>data-oriented design</strong> revolution argued that pointer-heavy
+        OOP destroys cache locality. Modern engines (Unity DOTS, Unreal Mass) store
+        components as <strong>arrays of structs</strong> — iterating one frame is
+        sequential memory, not pointer-chasing. Pointers lost this round.
+      </p>
+    </div>
+
+    <div class="prod-card">
+      <span class="prod-tag">Pointers</span>
+      <h4 class="prod-name">PostgreSQL planner</h4>
+      <p class="prod-body">
+        Query plan trees are deeply nested <strong>tagged-union nodes</strong> connected
+        by pointers. The planner builds, rewrites, and discards thousands of these
+        per query. An array layout would force preallocation of the worst case — wasteful
+        and rigid.
+      </p>
+    </div>
+  </div>
+
+  <p class="prose" style="margin-top: 56px;">
+    The closing thought is older than C itself: <strong>data structures are the program.</strong>
+    Choose the wrong layout and no amount of clever code recovers the cycles, the cache lines,
+    the deterministic memory you needed. Choose the right one and the algorithm
+    almost writes itself. Arrays and pointers are the two atoms — everything else is just
+    how you arrange them.
+  </p>
+</section>
+
+<div class="colophon">
+  <span>Field Notes № 02</span>
+  <span>Set in Fraunces &amp; JetBrains Mono</span>
+  <span>An interactive explainer · 2026</span>
+</div>
+
+</main>
+
+<script>
+/* ============================================================
+ * SECTION 01 · arr[2] / *(arr+2) resolve animation
+ * ============================================================ */
+(function() {
+  const cells = document.querySelectorAll('#r-cells rect');
+  const steps = ['r-step1','r-step2','r-step3','r-step4'].map(id => document.getElementById(id));
+  const exprEl = document.getElementById('r-expr');
+  const statusEl = document.getElementById('res-status');
+
+  function reset() {
+    cells.forEach(c => { c.setAttribute('fill', 'var(--cell-bg)'); c.setAttribute('stroke-width', '1'); });
+    steps.forEach(s => s.setAttribute('opacity', '0'));
+    exprEl.textContent = '—';
+    exprEl.setAttribute('fill', 'var(--ink-faint)');
+    statusEl.innerHTML = 'Awaiting input. Click a button above.';
+  }
+
+  async function showResolve(form) {
+    reset();
+    exprEl.textContent = form;
+    exprEl.setAttribute('fill', 'var(--accent)');
+    statusEl.innerHTML = `<span class="acc">→</span> Resolving <strong>${form}</strong>…`;
+
+    await wait(400);
+    steps[0].setAttribute('opacity', '1');
+    await wait(700);
+    steps[1].setAttribute('opacity', '1');
+    await wait(700);
+    steps[2].setAttribute('opacity', '1');
+    // highlight target cell
+    const target = document.querySelector('#r-cells rect[data-i="2"]');
+    target.setAttribute('fill', 'var(--cell-target)');
+    target.setAttribute('stroke', 'var(--accent)');
+    target.setAttribute('stroke-width', '1.5');
+    await wait(800);
+    steps[3].setAttribute('opacity', '1');
+    statusEl.innerHTML = `<span class="acc">✓</span> Both forms compile to a single load instruction at <strong>0x1008</strong>. Result: <strong>30</strong>.`;
+  }
+
+  function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  document.getElementById('res-bracket').onclick = () => showResolve('arr[2]');
+  document.getElementById('res-pointer').onclick = () => showResolve('*(arr + 2)');
+  document.getElementById('res-reset').onclick = reset;
+})();
+
+/* ============================================================
+ * SECTION 03A · UART buffer cells (decorative grid)
+ * ============================================================ */
+(function() {
+  const g = document.getElementById('uart-cells');
+  if (!g) return;
+  const cols = 16, rows = 8;
+  const cellW = 18, cellH = 14;
+  const startX = 40, startY = 110;
+  const filled = new Set([0,1,2,3,4,5,6,7,8,9,10,11]); // simulate filled bytes
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const idx = r * cols + c;
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', startX + c * cellW);
+      rect.setAttribute('y', startY + r * cellH);
+      rect.setAttribute('width', cellW - 1);
+      rect.setAttribute('height', cellH - 1);
+      rect.setAttribute('fill', filled.has(idx) ? 'var(--accent-soft)' : 'var(--paper)');
+      rect.setAttribute('stroke', 'var(--rule)');
+      rect.setAttribute('stroke-width', '0.5');
+      g.appendChild(rect);
+    }
+  }
+})();
+
+/* ============================================================
+ * SECTION 03B · Sine table dots + table preview
+ * ============================================================ */
+(function() {
+  const pts = document.getElementById('sine-points');
+  const tbl = document.getElementById('sine-table-cells');
+  if (!pts || !tbl) return;
+  // sample points along the sine path (approximated)
+  const samples = 24;
+  for (let i = 0; i < samples; i++) {
+    const t = i / (samples - 1);
+    const x = 30 + t * 200;
+    const y = 140 - Math.sin(t * Math.PI * 2) * 60;
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', x);
+    c.setAttribute('cy', y);
+    c.setAttribute('r', 2.5);
+    c.setAttribute('fill', 'var(--accent)');
+    pts.appendChild(c);
+  }
+  // table preview rows
+  const rows = [
+    ['[0]', '0.0000'],
+    ['[1]', '0.0061'],
+    ['[2]', '0.0123'],
+    ['[3]', '0.0184'],
+    ['[4]', '0.0245'],
+    ['[5]', '0.0307'],
+    ['…',   '…'],
+    ['[1023]', '-0.0061'],
+  ];
+  rows.forEach((r, i) => {
+    const idx = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    idx.setAttribute('x', 8);
+    idx.setAttribute('y', 28 + i * 22);
+    idx.setAttribute('fill', 'var(--ink-faint)');
+    idx.textContent = r[0];
+    tbl.appendChild(idx);
+    const val = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    val.setAttribute('x', 100);
+    val.setAttribute('y', 28 + i * 22);
+    val.setAttribute('text-anchor', 'end');
+    val.setAttribute('fill', 'var(--ink)');
+    val.setAttribute('font-weight', '600');
+    val.textContent = r[1];
+    tbl.appendChild(val);
+  });
+})();
+
+/* ============================================================
+ * SECTION 04A · Linked list traversal animation
+ * ============================================================ */
+(function() {
+  const cursor = document.getElementById('ll-cursor');
+  if (!cursor) return;
+  const positions = [
+    { cx: 60, cy: 60 },
+    { cx: 220, cy: 120 },
+    { cx: 120, cy: 200 },
+    { cx: 300, cy: 220 },
+  ];
+  let i = 0;
+  function tick() {
+    const p = positions[i];
+    cursor.setAttribute('cx', p.cx);
+    cursor.setAttribute('cy', p.cy);
+    i = (i + 1) % positions.length;
+  }
+  tick();
+  setInterval(tick, 1100);
+})();
+
+/* ============================================================
+ * SECTION 05 · INTERACTIVE PLAYGROUND
+ * ============================================================ */
+(function() {
+  const svg = document.getElementById('pg-svg');
+  const cellsG = document.getElementById('pg-cells');
+  const ptrGroup = document.getElementById('pg-ptr-group');
+  const ptrVal = document.getElementById('pg-ptr-val');
+  const arrowLine = document.getElementById('pg-arrow-line');
+  const statusEl = document.getElementById('pg-status');
+  const programEl = document.getElementById('pg-program');
+  const lines = [...document.querySelectorAll('.pg-line')];
+
+  // build memory cells
+  const baseAddr = 0x1000;
+  const cellPositions = []; // y center for each cell
+  function buildCells(values, names) {
+    cellsG.innerHTML = '';
+    cellPositions.length = 0;
+    const startY = 36;
+    const h = 30;
+    for (let i = 0; i < 5; i++) {
+      const y = startY + i * (h + 4);
+      cellPositions.push(y + h / 2);
+      // address
+      const addr = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      addr.setAttribute('x', 20);
+      addr.setAttribute('y', y + 19);
+      addr.setAttribute('font-family', 'JetBrains Mono');
+      addr.setAttribute('font-size', '10');
+      addr.setAttribute('fill', 'var(--ink-faint)');
+      addr.textContent = '0x' + (baseAddr + i * 4).toString(16).toUpperCase();
+      cellsG.appendChild(addr);
+      // cell rect
+      const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      r.setAttribute('x', 80);
+      r.setAttribute('y', y);
+      r.setAttribute('width', 120);
+      r.setAttribute('height', h);
+      r.setAttribute('fill', values[i] === null ? 'var(--paper-deep)' : 'var(--cell-bg)');
+      r.setAttribute('stroke', 'var(--ink)');
+      r.setAttribute('stroke-width', '1');
+      r.setAttribute('data-cell', i);
+      cellsG.appendChild(r);
+      // value
+      const v = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      v.setAttribute('x', 140);
+      v.setAttribute('y', y + 20);
+      v.setAttribute('font-family', 'JetBrains Mono');
+      v.setAttribute('font-size', '13');
+      v.setAttribute('fill', 'var(--ink)');
+      v.setAttribute('text-anchor', 'middle');
+      v.setAttribute('font-weight', '600');
+      v.setAttribute('data-val', i);
+      v.textContent = values[i] === null ? '—' : values[i];
+      cellsG.appendChild(v);
+      // name
+      const n = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      n.setAttribute('x', 220);
+      n.setAttribute('y', y + 20);
+      n.setAttribute('font-family', 'JetBrains Mono');
+      n.setAttribute('font-size', '11');
+      n.setAttribute('fill', 'var(--ink-faint)');
+      n.textContent = names[i];
+      cellsG.appendChild(n);
+    }
+  }
+
+  // state
+  const VALUES_INIT = [null, null, null, null, null];
+  const NAMES = ['arr[0]', 'arr[1]', 'arr[2]', 'arr[3]', 'arr[4]'];
+  let state = {
+    values: [...VALUES_INIT],
+    pIndex: -1, // -1 = pointer not initialized
+    ptrVisible: false,
+    pc: 0, // next line to execute
+    mode: 'normal', // normal | dangling | oob | sizeof
+  };
+
+  function flashCell(i, color) {
+    const r = svg.querySelector(`rect[data-cell="${i}"]`);
+    if (!r) return;
+    r.setAttribute('fill', color);
+    setTimeout(() => {
+      r.setAttribute('fill', state.values[i] === null ? 'var(--paper-deep)' : 'var(--cell-bg)');
+    }, 700);
+  }
+
+  function highlightCell(i, color) {
+    const r = svg.querySelector(`rect[data-cell="${i}"]`);
+    if (!r) return;
+    r.setAttribute('fill', color);
+  }
+
+  function clearHighlights() {
+    for (let i = 0; i < 5; i++) {
+      const r = svg.querySelector(`rect[data-cell="${i}"]`);
+      if (r) r.setAttribute('fill', state.values[i] === null ? 'var(--paper-deep)' : 'var(--cell-bg)');
+    }
+  }
+
+  function updatePointer() {
+    if (!state.ptrVisible) {
+      ptrGroup.setAttribute('opacity', '0');
+      arrowLine.setAttribute('opacity', '0');
+      return;
+    }
+    ptrGroup.setAttribute('opacity', '1');
+    if (state.pIndex >= 0 && state.pIndex < 5) {
+      const addr = '0x' + (baseAddr + state.pIndex * 4).toString(16).toUpperCase();
+      ptrVal.textContent = addr;
+      // arrow from pointer cell to target cell
+      const targetY = cellPositions[state.pIndex];
+      const d = `M 80 284 Q 50 ${(284 + targetY) / 2} 75 ${targetY}`;
+      arrowLine.setAttribute('d', d);
+      arrowLine.setAttribute('opacity', '1');
+      // highlight target cell border
+      clearHighlights();
+      const r = svg.querySelector(`rect[data-cell="${state.pIndex}"]`);
+      if (r) {
+        r.setAttribute('stroke', 'var(--accent)');
+        r.setAttribute('stroke-width', '2');
+      }
+    } else {
+      // out of bounds
+      const addr = '0x' + (baseAddr + state.pIndex * 4).toString(16).toUpperCase();
+      ptrVal.textContent = addr + ' (!)';
+      arrowLine.setAttribute('opacity', '0');
+      clearHighlights();
+    }
+  }
+
+  function clearPointerStroke() {
+    for (let i = 0; i < 5; i++) {
+      const r = svg.querySelector(`rect[data-cell="${i}"]`);
+      if (r) {
+        r.setAttribute('stroke', 'var(--ink)');
+        r.setAttribute('stroke-width', '1');
+      }
+    }
+  }
+
+  function updateValue(i, val) {
+    state.values[i] = val;
+    const t = svg.querySelector(`text[data-val="${i}"]`);
+    if (t) t.textContent = val === null ? '—' : val;
+    const r = svg.querySelector(`rect[data-cell="${i}"]`);
+    if (r) r.setAttribute('fill', val === null ? 'var(--paper-deep)' : 'var(--cell-bg)');
+  }
+
+  function updateLineUI() {
+    lines.forEach((ln, i) => {
+      ln.classList.remove('current', 'executed');
+      if (i < state.pc) ln.classList.add('executed');
+      else if (i === state.pc) ln.classList.add('current');
+    });
+  }
+
+  function setStatus(html) { statusEl.innerHTML = html; }
+
+  function reset() {
+    state = {
+      values: [...VALUES_INIT],
+      pIndex: -1,
+      ptrVisible: false,
+      pc: 0,
+      mode: 'normal',
+    };
+    buildCells(state.values, NAMES);
+    clearPointerStroke();
+    updatePointer();
+    updateLineUI();
+    setStatus('<span class="acc">Ready.</span> Press <strong>Step</strong> to execute the next line, or click a mistake to demonstrate.');
+    // clear mistake button active
+    document.querySelectorAll('.pg-mistake-btn').forEach(b => b.classList.remove('active'));
+  }
+
+  // Execute one program step
+  function step() {
+    if (state.mode !== 'normal') return; // mistakes have their own flow
+    if (state.pc >= 6) {
+      setStatus('<span class="acc">✓ Done.</span> Program finished. Reset to run again.');
+      return;
+    }
+    const line = state.pc;
+    switch (line) {
+      case 0: {
+        // int arr[5] = {10,20,30,40,50};
+        [10,20,30,40,50].forEach((v, i) => {
+          updateValue(i, v);
+          flashCell(i, 'var(--cell-active)');
+        });
+        setStatus('<span class="acc">Line 1.</span> Allocated 5 ints on the stack at <strong>0x1000</strong> and initialized them.');
+        break;
+      }
+      case 1: {
+        // int *p = arr;
+        state.ptrVisible = true;
+        state.pIndex = 0;
+        updatePointer();
+        setStatus('<span class="acc">Line 2.</span> Pointer <strong>p</strong> created and assigned the address of <strong>arr[0]</strong> = 0x1000.');
+        break;
+      }
+      case 2: {
+        // p++;
+        clearPointerStroke();
+        state.pIndex = 1;
+        updatePointer();
+        setStatus('<span class="acc">Line 3.</span> <code>p++</code> moved p forward by <strong>sizeof(int) = 4 bytes</strong>. Now points to <strong>arr[1]</strong> = 0x1004.');
+        break;
+      }
+      case 3: {
+        // *p = 99;
+        updateValue(1, 99);
+        flashCell(1, 'var(--cell-target)');
+        setStatus('<span class="acc">Line 4.</span> <code>*p = 99</code> wrote 99 through the pointer into <strong>arr[1]</strong>. The array was modified.');
+        break;
+      }
+      case 4: {
+        // p += 2;
+        clearPointerStroke();
+        state.pIndex = 3;
+        updatePointer();
+        setStatus('<span class="acc">Line 5.</span> <code>p += 2</code> jumped p forward by <strong>8 bytes</strong>. Now points to <strong>arr[3]</strong> = 0x100C.');
+        break;
+      }
+      case 5: {
+        // printf
+        flashCell(3, 'var(--cell-target)');
+        setStatus(`<span class="acc">Line 6.</span> <code>printf("%d", *p)</code> dereferenced p and printed <strong>${state.values[3]}</strong> — the value at arr[3].`);
+        break;
+      }
+    }
+    state.pc++;
+    updateLineUI();
+  }
+
+  async function runAll() {
+    while (state.pc < 6) {
+      step();
+      await new Promise(r => setTimeout(r, 750));
+    }
+  }
+
+  // Mistake demonstrations
+  function showMistake(kind) {
+    reset();
+    document.querySelectorAll('.pg-mistake-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.mistake === kind);
+    });
+    if (kind === 'none') {
+      setStatus('<span class="acc">Reset to normal program.</span> Press Step to execute.');
+      return;
+    }
+    state.mode = kind;
+    // first run a small setup
+    if (kind === 'dangling') {
+      // simulate: malloc, free, then access
+      // Show array as heap-allocated, then freed
+      [11, 22, 33, 44, 55].forEach((v, i) => updateValue(i, v));
+      state.ptrVisible = true;
+      state.pIndex = 0;
+      updatePointer();
+      setTimeout(() => {
+        // "free" — wipe values, but pointer still points there
+        [0,1,2,3,4].forEach(i => {
+          updateValue(i, null);
+          flashCell(i, '#e8a098');
+        });
+        const r = svg.querySelector('rect[data-cell="0"]');
+        if (r) {
+          r.setAttribute('stroke', 'var(--accent-deep)');
+          r.setAttribute('stroke-width', '2');
+          r.setAttribute('stroke-dasharray', '4 2');
+        }
+        setStatus(`<span class="warn">⚠ Dangling pointer.</span> <code>free(arr)</code> released the memory back to the allocator, but <strong>p still holds 0x1000</strong>. Dereferencing <code>*p</code> now is <em>undefined behavior</em> — it might read garbage, crash, or worse, return what looks like valid data because the bytes haven't been overwritten <em>yet</em>. This is the #1 source of CVEs in C codebases.`);
+      }, 800);
+    } else if (kind === 'oob') {
+      [10, 20, 30, 40, 50].forEach((v, i) => updateValue(i, v));
+      state.ptrVisible = true;
+      state.pIndex = 5; // out of bounds
+      updatePointer();
+      setStatus(`<span class="warn">⚠ Off-by-one.</span> <code>arr[5]</code> reads <strong>past the end</strong> of the array. C does no bounds checking. The byte at 0x1014 might belong to another local variable, the return address, or be on a totally different page. The classic loop bug: <code>for (i = 0; i &lt;= 5; i++)</code> — should be <code>&lt;</code>, not <code>&lt;=</code>. This single character difference has caused decades of stack smashing exploits.`);
+    } else if (kind === 'sizeof') {
+      [10, 20, 30, 40, 50].forEach((v, i) => updateValue(i, v));
+      state.ptrVisible = true;
+      state.pIndex = 0;
+      updatePointer();
+      setStatus(`<span class="warn">⚠ sizeof trap.</span> Inside a function declared as <code>void f(int arr[])</code>, the parameter is silently rewritten to <code>int *arr</code>. So <code>sizeof(arr)</code> returns <strong>8</strong> (pointer size on 64-bit), not <strong>20</strong> (array size). The classic broken idiom <code>for (i = 0; i &lt; sizeof(arr)/sizeof(arr[0]); i++)</code> works in <code>main</code> but silently iterates only twice inside <code>f</code>. <strong>Always pass the length explicitly</strong> to functions.`);
+    }
+  }
+
+  // Wire buttons
+  document.getElementById('pg-step').onclick = step;
+  document.getElementById('pg-run').onclick = runAll;
+  document.getElementById('pg-reset').onclick = reset;
+  document.querySelectorAll('.pg-mistake-btn').forEach(b => {
+    b.onclick = () => showMistake(b.dataset.mistake);
+  });
+  // line click jumps execution? Just informational — make lines clickable to see status
+  lines.forEach((ln, i) => {
+    ln.style.cursor = 'pointer';
+    ln.onclick = () => {
+      if (state.mode === 'normal' && state.pc === i) step();
+    };
+  });
+
+  // initial render
+  reset();
+})();
+</script>
+
+</body>
+</html>
