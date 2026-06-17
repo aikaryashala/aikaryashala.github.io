@@ -168,7 +168,7 @@
 
   <!-- Step 1: Configure Identity -->
   <div class="section">
-    <p class="section-label">Step 1 of 7</p>
+    <p class="section-label">Step 1 of 8</p>
     <h2 class="section-title">Configure Your Identity</h2>
     <p class="section-desc">Git attaches your name and email to every commit you make. This is how your contributions are identified on GitHub. You only need to do this once per machine.</p>
     <div class="steps">
@@ -232,7 +232,7 @@ user.email=your-email@example.com</pre>
 
   <!-- Step 2: Generate SSH Key -->
   <div class="section">
-    <p class="section-label">Step 2 of 7</p>
+    <p class="section-label">Step 2 of 8</p>
     <h2 class="section-title">Generate an SSH Key</h2>
     <p class="section-desc">An SSH key is a pair of files — a <strong>private key</strong> (stays on your machine, never shared) and a <strong>public key</strong> (uploaded to GitHub). When you connect, GitHub checks that your private key matches the public key on file. No password needed after setup.</p>
     <div class="steps">
@@ -257,7 +257,20 @@ user.email=your-email@example.com</pre>
           <pre class="example-pre">ssh-keygen -t ed25519 -C "pavan@gmail.com"</pre>
         </div>
         <div class="callout">
-          <p>When prompted <strong>"Enter file in which to save the key"</strong> — press <strong>Enter</strong> to accept the default path (<code>~/.ssh/id_ed25519</code>). When asked for a passphrase, press Enter to skip (or set one for extra security).</p>
+          <p>After running the command, you will see <strong>3 prompts</strong>. Press <strong>Enter</strong> each time without typing anything:</p>
+          <p style="margin-top:10px;">
+            <strong>Prompt 1</strong> — <em>"Enter file in which to save the key (/home/user/.ssh/id_ed25519):"</em><br>
+            → Press <strong>Enter</strong> (accepts the default path <code>~/.ssh/id_ed25519</code>)
+          </p>
+          <p style="margin-top:8px;">
+            <strong>Prompt 2</strong> — <em>"Enter passphrase (empty for no passphrase):"</em><br>
+            → Press <strong>Enter</strong> (leaves passphrase empty — no typing needed)
+          </p>
+          <p style="margin-top:8px;">
+            <strong>Prompt 3</strong> — <em>"Enter same passphrase again:"</em><br>
+            → Press <strong>Enter</strong> again (confirms empty passphrase)
+          </p>
+          <p style="margin-top:8px;">Total: <strong>3 Enter presses</strong>, nothing to type.</p>
         </div>
         <div class="step-pad"></div>
       </div>
@@ -348,10 +361,13 @@ Identity added: /home/pavan/.ssh/id_ed25519 (pavan@gmail.com)</pre>
             <div class="step-detail">Paste the key you copied into your GitHub account settings.</div>
           </div>
         </div>
+        <div class="callout" style="margin-bottom:0;">
+          <p>⚠️ <strong>Important:</strong> This is your <strong>GitHub profile settings</strong> — not your repository settings. Go to your profile avatar (top-right corner) → <strong>Settings</strong>. This applies to your entire GitHub account, not a specific repo.</p>
+        </div>
         <div class="sub-steps">
           <div class="sub-step">
             <div class="sub-step-num">a</div>
-            <div class="sub-step-body">Go to <strong>GitHub → Settings → SSH and GPG Keys</strong></div>
+            <div class="sub-step-body">Click your profile avatar (top-right on GitHub) → <strong>Settings</strong> → <strong>SSH and GPG Keys</strong> (in the left sidebar under "Access")</div>
           </div>
           <div class="sub-step">
             <div class="sub-step-num">b</div>
@@ -359,7 +375,7 @@ Identity added: /home/pavan/.ssh/id_ed25519 (pavan@gmail.com)</pre>
           </div>
           <div class="sub-step">
             <div class="sub-step-num">c</div>
-            <div class="sub-step-body">Give it a <strong>Title</strong> (e.g. <em>My Laptop</em>) so you can identify this machine later</div>
+            <div class="sub-step-body">Give it a <strong>Title</strong> (e.g. <em>My Laptop</em>) so you can identify which machine this key belongs to</div>
           </div>
           <div class="sub-step">
             <div class="sub-step-num">d</div>
@@ -374,7 +390,7 @@ Identity added: /home/pavan/.ssh/id_ed25519 (pavan@gmail.com)</pre>
 
   <!-- Step 3: Trust GitHub Host Key -->
   <div class="section">
-    <p class="section-label">Step 3 of 7</p>
+    <p class="section-label">Step 3 of 8</p>
     <h2 class="section-title">Trust GitHub's SSH Host Key</h2>
     <p class="section-desc">The very first time you connect to GitHub over SSH, your machine has never seen GitHub's server before. SSH will pause and ask you to confirm that the server is genuine before storing its fingerprint.</p>
     <div class="steps">
@@ -406,7 +422,7 @@ ED25519 key fingerprint is SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU.
 Are you sure you want to continue connecting (yes/no/[fingerprint])?</pre>
         </div>
         <div class="callout">
-          <p>Type <strong>yes</strong> and press Enter. SSH saves GitHub's fingerprint in <code>~/.ssh/known_hosts</code>. From now on, every future connection is verified automatically — you'll never see this prompt again on this machine.</p>
+          <p>When you see the prompt, type <strong>yes</strong> (the full word, not just "y") and press <strong>Enter</strong>. SSH saves GitHub's fingerprint in <code>~/.ssh/known_hosts</code>. From now on, every future connection is verified automatically — you'll never see this prompt again on this machine.</p>
         </div>
         <div class="step-pad"></div>
       </div>
@@ -416,7 +432,7 @@ Are you sure you want to continue connecting (yes/no/[fingerprint])?</pre>
 
   <!-- Step 4: Test SSH Connection -->
   <div class="section">
-    <p class="section-label">Step 4 of 7</p>
+    <p class="section-label">Step 4 of 8</p>
     <h2 class="section-title">Test the SSH Connection</h2>
     <p class="section-desc">After adding your key to GitHub and accepting the host fingerprint, verify that authentication actually works end-to-end.</p>
     <div class="steps">
@@ -455,7 +471,7 @@ Are you sure you want to continue connecting (yes/no/[fingerprint])?</pre>
 
   <!-- Step 5: Clone via SSH -->
   <div class="section">
-    <p class="section-label">Step 5 of 7</p>
+    <p class="section-label">Step 5 of 8</p>
     <h2 class="section-title">Clone a Repository Using SSH</h2>
     <p class="section-desc">Now that your machine is trusted, always use the SSH URL when cloning — not the HTTPS URL. This means no username or password prompts, ever.</p>
     <div class="steps">
@@ -499,7 +515,7 @@ Are you sure you want to continue connecting (yes/no/[fingerprint])?</pre>
 
   <!-- Step 6: Verify Remote -->
   <div class="section">
-    <p class="section-label">Step 6 of 7</p>
+    <p class="section-label">Step 6 of 8</p>
     <h2 class="section-title">Verify Your Remote</h2>
     <p class="section-desc">After cloning, confirm that the remote URL is SSH — not HTTPS. This ensures every push and pull uses your key, not a password prompt.</p>
     <div class="steps">
@@ -541,7 +557,7 @@ origin  git@github.com:username/repository.git (push)</pre>
 
   <!-- Step 7: Debug SSH -->
   <div class="section">
-    <p class="section-label">Step 7 of 7</p>
+    <p class="section-label">Step 7 of 8</p>
     <h2 class="section-title">Check Your SSH Configuration</h2>
     <p class="section-desc">If something isn't working, use verbose mode to see exactly what SSH is doing — which key it's trying, which step it reaches, and where it fails.</p>
     <div class="steps">
@@ -585,6 +601,161 @@ Hi username! You've successfully authenticated...</pre>
       </div>
 
     </div>
+  </div>
+
+  <!-- Step 8: Git Workflow -->
+  <div class="section">
+    <p class="section-label">Step 8 of 8</p>
+    <h2 class="section-title">Save &amp; Push Your Changes to GitHub</h2>
+    <p class="section-desc">After editing files in your cloned repository, use these four commands in order to save your changes and send them to GitHub. This is the standard workflow you will repeat every time.</p>
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Check what changed — git status</div>
+            <div class="step-detail">Before doing anything, run this to see which files you modified, added, or deleted. It gives you a clear picture of what's pending.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">
+            <span>Terminal</span>
+            <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          </div>
+          <pre>git status</pre>
+        </div>
+        <div class="example-block">
+          <div class="example-label-bar"><span>Example — you edited index.html</span></div>
+          <pre class="example-pre">git status
+
+On branch main
+Changes not staged for commit:
+  (use "git add &lt;file&gt;..." to update what will be committed)
+
+        modified:   index.html
+
+no changes added to commit</pre>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Stage your changes — git add</div>
+            <div class="step-detail">This tells Git which files to include in the next commit. Use <code>git add .</code> to stage everything, or name a specific file.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">
+            <span>Terminal — stage all changed files</span>
+            <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          </div>
+          <pre>git add .</pre>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">
+            <span>Terminal — stage a specific file</span>
+            <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          </div>
+          <pre>git add filename.html</pre>
+        </div>
+        <div class="example-block">
+          <div class="example-label-bar"><span>Example</span></div>
+          <pre class="example-pre">git add .
+# Stages all modified files at once
+
+git add index.html
+# Stages only index.html</pre>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Commit your changes — git commit</div>
+            <div class="step-detail">A commit saves a snapshot of your staged files with a message describing what you changed. Write a short, clear message inside the quotes.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">
+            <span>Terminal</span>
+            <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          </div>
+          <pre>git commit -m "your commit message here"</pre>
+        </div>
+        <div class="example-block">
+          <div class="example-label-bar"><span>Example</span></div>
+          <pre class="example-pre">git commit -m "add navigation bar to index.html"
+# Output:
+[main 4f2a1c3] add navigation bar to index.html
+ 1 file changed, 12 insertions(+), 0 deletions(-)</pre>
+        </div>
+        <div class="callout">
+          <p>Write a message that describes <strong>what</strong> you changed, not <strong>why</strong>. Keep it short — under 72 characters. Examples: <em>"fix typo in about page"</em>, <em>"add contact form"</em>, <em>"update footer links"</em>.</p>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">Push to GitHub — git push origin main</div>
+            <div class="step-detail">This uploads your committed changes from your local machine to GitHub. <code>origin</code> is the name of the remote (GitHub), and <code>main</code> is the branch name.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">
+            <span>Terminal</span>
+            <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          </div>
+          <pre>git push origin main</pre>
+        </div>
+        <div class="example-block">
+          <div class="example-label-bar"><span>Example — successful push output</span></div>
+          <pre class="example-pre">git push origin main
+
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Writing objects: 100% (3/3), 342 bytes | 342.00 KiB/s, done.
+To git@github.com:pavankumar19/mywebsite.git
+   a1b2c3d..4f2a1c3  main -> main</pre>
+        </div>
+        <div class="callout success">
+          <p>After this, your changes are live on GitHub. If your repo is connected to GitHub Pages, the website updates automatically within a minute.</p>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+    </div>
+
+    <!-- Full workflow summary -->
+    <div class="step" style="margin-top:10px;">
+      <div class="step-header">
+        <div class="step-num" style="background:var(--blue-bg-2);color:var(--blue);">★</div>
+        <div class="step-body">
+          <div class="step-title">Complete workflow — run these 4 commands every time</div>
+          <div class="step-detail">Copy this entire block and run it after making any changes to your project.</div>
+        </div>
+      </div>
+      <div class="cmd-block">
+        <div class="cmd-block-label">
+          <span>Terminal — full workflow</span>
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+        </div>
+        <pre>git status
+git add .
+git commit -m "describe your change here"
+git push origin main</pre>
+      </div>
+      <div class="step-pad"></div>
+    </div>
+
   </div>
 
 </div><!-- /shell -->
