@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&family=Alegreya+SC:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   <style>
-  html{zoom:1.25}
+  html { zoom: 1.25; }
     :root {
       --bg:       #E8DDD0;
       --bg-2:     #DFD3C4;
@@ -28,74 +28,107 @@
       --sans:     "Alegreya",Georgia,"Book Antiqua",serif;
       --sc:       "Alegreya SC","Alegreya",Georgia,serif;
     }
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:var(--sans); background-color:var(--bg); background-image:radial-gradient(#5a372314 .8px, transparent .8px), linear-gradient(90deg, #0000000a 0%, transparent 12% 88%, #0000000a 100%); background-size:16px 16px, 100% 100%; background-attachment:fixed; color:var(--ink); line-height:1.65; -webkit-font-smoothing:antialiased; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-    .nav { position:sticky; top:0; z-index:100; background:rgba(232,221,208,.92); backdrop-filter:blur(14px); border-bottom:1px solid var(--border); }
-    .nav-inner { max-width:900px; margin:0 auto; padding:0 24px; height:54px; display:flex; align-items:center; gap:16px; }
-    .back-link { display:inline-flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink-3); font-size:13px; font-weight:600; transition:color .15s; }
-    .back-link:hover { color:var(--ink); }
-    .nav-sep { width:1px; height:16px; background:var(--border-2); }
-    .nav-crumb { font-size:13px; color:var(--ink-4); }
-
-    .page-header { max-width:900px; margin:0 auto; padding:60px 24px 48px; border-bottom:1px solid var(--border); }
-    .session-badge { display:inline-flex; align-items:center; gap:10px; margin-bottom:20px; }
-    .badge-day { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-4); }
-    .badge-dot { width:4px; height:4px; border-radius:50%; background:var(--border-2); }
-    .badge-session { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--blue); background:var(--blue-bg); border:1px solid rgba(37,99,235,.2); border-radius:20px; padding:3px 10px; }
-    .page-title { font-size:clamp(26px,4.5vw,44px); font-weight:900; line-height:1.1; letter-spacing:-.03em; color:var(--ink); margin-bottom:14px; }
-    .page-desc { font-size:16px; color:var(--ink-3); line-height:1.7; max-width:620px; }
-
-    .shell { max-width:900px; margin:0 auto; padding:0 24px 80px; }
-    .section { margin-top:52px; }
-    .section-label { font-size:11px; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-4); margin-bottom:8px; }
-    .section-title { font-size:clamp(18px,2.5vw,24px); font-weight:800; color:var(--ink); margin-bottom:14px; letter-spacing:-.02em; }
-    .section-desc { font-size:14px; color:var(--ink-3); line-height:1.7; margin-bottom:20px; }
-
-    .link-stack { display:flex; flex-direction:column; gap:10px; }
-    .resource-link {
-      display:flex; align-items:center; gap:14px;
-      padding:14px 18px; border:1px solid var(--border);
-      border-radius:10px; text-decoration:none;
-      background:var(--card); transition:border-color .18s, background .18s;
+    body {
+      font-family: var(--sans);
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(#5a372314 .8px, transparent .8px),
+        linear-gradient(90deg, #0000000a 0%, transparent 12% 88%, #0000000a 100%);
+      background-size: 16px 16px, 100% 100%;
+      background-attachment: fixed;
+      color: var(--ink);
+      line-height: 1.65;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
-    .resource-link:hover { border-color:var(--border-2); background:var(--bg-2); }
-    .resource-icon { font-size:20px; flex-shrink:0; width:36px; text-align:center; }
-    .resource-body { flex:1; min-width:0; }
-    .resource-title { font-size:14px; font-weight:600; color:var(--ink); }
-    .resource-sub { font-size:12px; color:var(--ink-4); margin-top:2px; }
-    .resource-arrow { color:var(--ink-4); font-size:14px; flex-shrink:0; }
+
+    /* ── Nav ── */
+    .nav { position: sticky; top: 0; z-index: 100; background: rgba(232,221,208,.92); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+    .nav-inner { max-width: 900px; margin: 0 auto; padding: 0 24px; height: 54px; display: flex; align-items: center; gap: 16px; }
+    .back-link { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ink-3); font-size: 13px; font-weight: 600; transition: color .15s; }
+    .back-link:hover { color: var(--ink); }
+    .nav-sep { width: 1px; height: 16px; background: var(--border-2); }
+    .nav-crumb { font-size: 13px; color: var(--ink-4); }
+
+    /* ── Page Header ── */
+    .page-header { max-width: 900px; margin: 0 auto; padding: 60px 24px 48px; border-bottom: 1px solid var(--border); }
+    .session-badge { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    .badge-day { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-4); }
+    .badge-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border-2); }
+    .badge-session { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--blue); background: var(--blue-bg); border: 1px solid rgba(122,48,24,.2); border-radius: 20px; padding: 3px 10px; }
+    .page-title { font-size: clamp(26px,4.5vw,44px); font-weight: 900; line-height: 1.1; letter-spacing: -.03em; color: var(--ink); margin-bottom: 14px; }
+    .page-desc { font-size: 16px; color: var(--ink-3); line-height: 1.7; max-width: 620px; }
+
+    /* ── Shell ── */
+    .shell { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
+    .section { margin-top: 52px; }
+    .section-label { font-size: 11px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 8px; }
+    .section-title { font-size: clamp(18px,2.5vw,24px); font-weight: 800; color: var(--ink); margin-bottom: 14px; letter-spacing: -.02em; }
+    .section-desc { font-size: 14px; color: var(--ink-3); line-height: 1.7; margin-bottom: 20px; }
+
+    /* ── Resource links ── */
+    .link-stack { display: flex; flex-direction: column; gap: 10px; }
+    .resource-link {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 18px; border: 1px solid var(--border);
+      border-radius: 10px; text-decoration: none;
+      background: var(--card); transition: border-color .18s, background .18s;
+    }
+    .resource-link:hover { border-color: var(--border-2); background: var(--bg-2); }
+    .resource-icon { font-size: 20px; flex-shrink: 0; width: 36px; text-align: center; }
+    .resource-body { flex: 1; min-width: 0; }
+    .resource-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+    .resource-sub { font-size: 12px; color: var(--ink-4); margin-top: 2px; word-break: break-word; }
+    .resource-arrow { color: var(--ink-4); font-size: 14px; flex-shrink: 0; }
 
     /* ── Steps ── */
-    .steps { display:flex; flex-direction:column; gap:10px; }
-    .step { display:flex; align-items:flex-start; gap:14px; padding:16px 18px; border:1px solid var(--border); border-radius:10px; background:var(--card); }
-    .step-num { flex-shrink:0; width:28px; height:28px; border-radius:7px; background:var(--bg-3); font-size:11px; font-weight:800; color:var(--ink-3); display:flex; align-items:center; justify-content:center; margin-top:1px; }
-    .step-body { flex:1; }
-    .step-title { font-size:14px; font-weight:700; color:var(--ink); margin-bottom:5px; }
-    .step-detail { font-size:13px; color:var(--ink-3); line-height:1.65; }
+    .steps { display: flex; flex-direction: column; gap: 10px; }
+    .step { display: flex; align-items: flex-start; gap: 14px; padding: 16px 18px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
+    .step-num { flex-shrink: 0; width: 28px; height: 28px; border-radius: 7px; background: var(--bg-3); font-size: 11px; font-weight: 800; color: var(--ink-3); display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+    .step-body { flex: 1; min-width: 0; }
+    .step-title { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+    .step-detail { font-size: 13px; color: var(--ink-3); line-height: 1.65; word-break: break-word; }
+    .step-detail strong { color: var(--ink-2); }
 
     /* ── DNS table ── */
-    .dns-table-wrap { border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-top:8px; }
-    .dns-table { width:100%; border-collapse:collapse; font-size:13px; }
-    .dns-table th { background:var(--bg-2); padding:10px 14px; text-align:left; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-4); border-bottom:1px solid var(--border); }
-    .dns-table td { padding:10px 14px; color:var(--ink-2); border-bottom:1px solid var(--border); }
-    .dns-table tr:last-child td { border-bottom:none; }
-    .dns-table td:first-child { font-family:var(--mono); font-size:12.5px; color:var(--ink); }
-    .dns-table td:nth-child(2) { font-family:var(--mono); font-size:12.5px; color:var(--blue); }
+    .dns-table-wrap {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      overflow-x: auto;
+      margin-top: 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .dns-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 340px; }
+    .dns-table th { background: var(--bg-2); padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-4); border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .dns-table td { padding: 10px 14px; color: var(--ink-2); border-bottom: 1px solid var(--border); }
+    .dns-table tr:last-child td { border-bottom: none; }
+    .dns-table td:first-child { font-family: var(--mono); font-size: 12.5px; color: var(--ink); white-space: nowrap; }
+    .dns-table td:nth-child(2) { font-family: var(--mono); font-size: 12.5px; color: var(--blue); white-space: nowrap; }
+    .dns-table td:nth-child(3) { white-space: nowrap; }
 
-    .callout { background:var(--card); border:1px solid var(--border); border-left:3px solid var(--blue); border-radius:10px; padding:16px 18px; margin-top:14px; }
-    .callout p { font-size:13.5px; color:var(--ink-3); line-height:1.65; }
-    .callout code { font-family:var(--mono); font-size:.88em; background:var(--bg-2); padding:1px 5px; border-radius:4px; color:var(--ink-2); }
+    /* ── Callout ── */
+    .callout { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--blue); border-radius: 10px; padding: 14px 18px; margin-top: 12px; }
+    .callout p { font-size: 13.5px; color: var(--ink-3); line-height: 1.65; word-break: break-word; }
+    .callout code { font-family: var(--mono); font-size: .88em; background: var(--bg-2); padding: 1px 5px; border-radius: 4px; color: var(--ink-2); }
 
-    .site-footer { border-top:1px solid var(--border); padding:28px 24px; text-align:center; }
-    .footer-inner { max-width:900px; margin:0 auto; }
-    .footer-text { font-size:13px; color:var(--ink-4); }
-    .footer-text a { color:var(--ink-3); text-decoration:none; }
-    .footer-text a:hover { color:var(--ink); }
+    /* ── Footer ── */
+    .site-footer { border-top: 1px solid var(--border); padding: 28px 24px; text-align: center; }
+    .footer-inner { max-width: 900px; margin: 0 auto; }
+    .footer-text { font-size: 13px; color: var(--ink-4); }
+    .footer-text a { color: var(--ink-3); text-decoration: none; }
+    .footer-text a:hover { color: var(--ink); }
 
-    @media (max-width:600px) {
-      .page-header { padding:40px 18px 36px; }
-      .shell { padding:0 18px 60px; }
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .page-header { padding: 40px 18px 36px; }
+      .shell { padding: 0 18px 60px; }
+      .step { gap: 10px; padding: 14px 14px; }
+      .dns-table th,
+      .dns-table td { padding: 8px 10px; font-size: 12px; }
+      .resource-link { padding: 12px 14px; gap: 10px; }
     }
   </style>
 </head>
@@ -198,7 +231,7 @@
         <div class="step-num">6</div>
         <div class="step-body">
           <div class="step-title">Commit &amp; push</div>
-          <div class="step-detail">Click the Source Control icon (branch icon in sidebar) → enter a commit message → click Commit &amp; Push. Your changes go live.</div>
+          <div class="step-detail">Click the Source Control icon (branch icon in sidebar) → enter a commit message → click <strong>Commit &amp; Push</strong>. Your changes go live.</div>
         </div>
       </div>
     </div>
@@ -223,7 +256,7 @@
         <div class="step-num">1</div>
         <div class="step-body">
           <div class="step-title">Go to Settings → Pages</div>
-          <div class="step-detail">Open your repository on GitHub → Settings → Pages (in the left sidebar under "Code and automation").</div>
+          <div class="step-detail">Open your repository on GitHub → <strong>Settings</strong> → <strong>Pages</strong> (in the left sidebar under "Code and automation").</div>
         </div>
       </div>
       <div class="step">
@@ -259,46 +292,44 @@
     <h2 class="section-title">Connect a Custom Domain</h2>
     <p class="section-desc">Point your domain to GitHub Pages using DNS A records, then configure it in your repository settings.</p>
 
-    <div class="steps" style="margin-bottom:20px;">
+    <div class="steps">
+
       <div class="step">
         <div class="step-num">1</div>
         <div class="step-body">
           <div class="step-title">Add A records in your domain's DNS manager</div>
-          <div class="step-detail">Log into your domain registrar → DNS Management → add four A records pointing to GitHub's IP addresses.</div>
+          <div class="step-detail">Log into your domain registrar → DNS Management → add four A records pointing to GitHub's IP addresses. Set the <strong>Host / Name</strong> field to <strong>@</strong> (meaning the root domain).</div>
+          <div class="dns-table-wrap">
+            <table class="dns-table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>IP Address (Points To)</th>
+                  <th>TTL</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>A</td><td>185.199.108.153</td><td>Auto / 3600</td></tr>
+                <tr><td>A</td><td>185.199.109.153</td><td>Auto / 3600</td></tr>
+                <tr><td>A</td><td>185.199.110.153</td><td>Auto / 3600</td></tr>
+                <tr><td>A</td><td>185.199.111.153</td><td>Auto / 3600</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout" style="margin-top:12px;">
+            <p>DNS propagation can take up to <strong>24 hours</strong>. Your site may not resolve immediately after saving.</p>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="dns-table-wrap">
-      <table class="dns-table">
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th>IP Address (Points To)</th>
-            <th>TTL</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>A</td><td>185.199.108.153</td><td>Auto / 3600</td></tr>
-          <tr><td>A</td><td>185.199.109.153</td><td>Auto / 3600</td></tr>
-          <tr><td>A</td><td>185.199.110.153</td><td>Auto / 3600</td></tr>
-          <tr><td>A</td><td>185.199.111.153</td><td>Auto / 3600</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="callout">
-      <p>Set the <strong>Host / Name</strong> field to <code>@</code> (meaning the root domain). DNS propagation can take up to 24 hours.</p>
-    </div>
-
-    <div class="steps" style="margin-top:16px;">
       <div class="step">
         <div class="step-num">2</div>
         <div class="step-body">
           <div class="step-title">Set custom domain in GitHub Pages settings</div>
-          <div class="step-detail">Go to your repo → Settings → Pages → Custom domain → enter your domain (e.g. <strong>yourdomain.com</strong>) → Save. Enable "Enforce HTTPS" once the certificate is issued.</div>
+          <div class="step-detail">Go to your repo → <strong>Settings</strong> → <strong>Pages</strong> → Custom domain → enter your domain (e.g. <strong>yourdomain.com</strong>) → Save. Enable <strong>Enforce HTTPS</strong> once the certificate is issued.</div>
         </div>
       </div>
+
     </div>
   </div>
 
