@@ -29,7 +29,7 @@
       --sc:       "Alegreya SC","Alegreya",Georgia,serif;
     }
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:var(--sans); background-color:var(--bg); background-image:radial-gradient(#5a372314 .8px, transparent .8px), linear-gradient(90deg, #0000000a 0%, transparent 12% 88%, #0000000a 100%); background-size:16px 16px, 100% 100%; background-attachment:fixed; color:var(--ink); line-height:1.65; -webkit-font-smoothing:antialiased; }
+    body { font-family:var(--sans); background-color:var(--bg); background-image:radial-gradient(#5a372314 .8px, transparent .8px), linear-gradient(90deg, #0000000a 0%, transparent 12% 88%, #0000000a 100%); background-size:16px 16px, 100% 100%; background-attachment:fixed; color:var(--ink); line-height:1.65; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
 
     .nav { position:sticky; top:0; z-index:100; background:rgba(232,221,208,.92); backdrop-filter:blur(14px); border-bottom:1px solid var(--border); }
     .nav-inner { max-width:900px; margin:0 auto; padding:0 24px; height:54px; display:flex; align-items:center; gap:16px; }
@@ -105,6 +105,10 @@
       .shell { padding:0 18px 60px; }
       .cmd-table td:first-child { width:auto; display:block; margin-bottom:4px; }
       .cmd-table td { display:block; }
+      .cmd-code { font-size:12px; word-break:break-all; }
+      .file-row { padding:8px 12px; gap:8px; }
+      .file-name { min-width:72px; font-size:12px; }
+      .callout p { font-size:13px; }
     }
 
     /* ── Scroll button ── */

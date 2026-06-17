@@ -30,7 +30,7 @@
       --sc:       "Alegreya SC","Alegreya",Georgia,serif;
     }
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:var(--sans); background-color:var(--bg); background-image:radial-gradient(#5a372314 .8px, transparent .8px), linear-gradient(90deg, #0000000a 0%, transparent 12% 88%, #0000000a 100%); background-size:16px 16px, 100% 100%; background-attachment:fixed; color:var(--ink); line-height:1.65; -webkit-font-smoothing:antialiased; }
+    body { font-family:var(--sans); background-color:var(--bg); background-image:radial-gradient(#5a372314 .8px, transparent .8px), linear-gradient(90deg, #0000000a 0%, transparent 12% 88%, #0000000a 100%); background-size:16px 16px, 100% 100%; background-attachment:fixed; color:var(--ink); line-height:1.65; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
 
     /* ── Nav ── */
     .nav { position:sticky; top:0; z-index:100; background:rgba(232,221,208,.92); backdrop-filter:blur(14px); border-bottom:1px solid var(--border); }
@@ -175,6 +175,10 @@
       .use-grid, .concept-grid, .connector-grid { grid-template-columns:1fr; }
       .llm-flow { flex-direction:column; }
       .llm-flow-sep { padding:6px 0; border:none; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+      .step-header { padding:14px 14px 12px; }
+      .cmd-block, .example-block, .callout, .sub-steps { margin-left:12px; margin-right:12px; }
+      .cmd-block pre, .example-pre { font-size:11.5px; padding:11px 12px; }
+      .step-detail { font-size:13px; }
     }
 
     /* ── Scroll button ── */

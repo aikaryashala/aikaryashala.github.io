@@ -42,6 +42,7 @@
       background-attachment: fixed;
       color: var(--ink);
       line-height: 1.65;
+      overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -199,6 +200,9 @@
       .page-header { padding: 40px 18px 36px; }
       .shell { padding: 0 18px 60px; }
       .suggest-box { flex-direction: column; }
+      .prompt-text { font-size: 11.5px; word-break: break-word; }
+      .prompt-header { flex-wrap: wrap; gap: 10px; }
+      .tool-desc { -webkit-line-clamp: 3; }
     }
 
     /* ── Scroll button ── */
