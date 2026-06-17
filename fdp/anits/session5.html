@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Session 5 — ANITS FDP</title>
+  <title>Session 5 — Git, GitHub & AI Tools — ANITS FDP</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -138,9 +138,43 @@
     .footer-text a { color:var(--ink-3); text-decoration:none; }
     .footer-text a:hover { color:var(--ink); }
 
+    /* ── Use-case grid ── */
+    .use-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .use-card { padding:16px 18px; border:1px solid var(--border); border-radius:10px; background:var(--card); }
+    .use-card-num { font-family:var(--sc); font-size:10px; font-weight:700; letter-spacing:.08em; color:var(--blue); margin-bottom:5px; }
+    .use-card-title { font-size:14px; font-weight:700; color:var(--ink); margin-bottom:4px; }
+    .use-card-desc { font-size:12.5px; color:var(--ink-4); line-height:1.55; }
+
+    /* ── Concept cards ── */
+    .concept-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .concept-card { padding:18px; border:1px solid var(--border); border-radius:10px; background:var(--card); }
+    .concept-tag { font-family:var(--sc); font-size:10px; font-weight:700; letter-spacing:.08em; color:var(--blue); background:var(--blue-bg); border:1px solid rgba(122,48,24,.2); border-radius:20px; padding:2px 8px; display:inline-block; margin-bottom:8px; }
+    .concept-title { font-size:15px; font-weight:700; color:var(--ink); margin-bottom:6px; }
+    .concept-desc { font-size:13px; color:var(--ink-3); line-height:1.65; }
+    .concept-desc code { font-family:var(--mono); font-size:11.5px; background:var(--bg-3); border:1px solid var(--border); border-radius:4px; padding:1px 5px; color:var(--blue); }
+
+    /* ── LLM flow ── */
+    .llm-flow { display:flex; border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:16px; }
+    .llm-flow-step { flex:1; padding:18px 12px; background:var(--card); text-align:center; }
+    .llm-flow-sep { display:flex; align-items:center; justify-content:center; padding:0 8px; background:var(--bg-2); color:var(--ink-4); font-size:18px; border-left:1px solid var(--border); border-right:1px solid var(--border); flex-shrink:0; }
+    .llm-flow-label { font-family:var(--sc); font-size:10px; font-weight:700; letter-spacing:.08em; color:var(--ink-4); margin-bottom:5px; }
+    .llm-flow-value { font-size:13px; font-weight:700; color:var(--ink); margin-bottom:3px; }
+    .llm-flow-sub { font-size:11px; color:var(--ink-4); line-height:1.5; }
+
+    /* ── Connector/skill grid ── */
+    .connector-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .connector-card { padding:16px 18px; border:1px solid var(--border); border-radius:10px; background:var(--card); }
+    .connector-icon { font-size:22px; margin-bottom:7px; }
+    .connector-name { font-size:14px; font-weight:700; color:var(--ink); margin-bottom:2px; }
+    .connector-cat { font-family:var(--sc); font-size:10px; font-weight:700; letter-spacing:.06em; color:var(--blue); margin-bottom:5px; }
+    .connector-desc { font-size:12.5px; color:var(--ink-4); line-height:1.55; }
+
     @media (max-width:600px) {
       .page-header { padding:40px 18px 36px; }
       .shell { padding:0 18px 60px; }
+      .use-grid, .concept-grid, .connector-grid { grid-template-columns:1fr; }
+      .llm-flow { flex-direction:column; }
+      .llm-flow-sep { padding:6px 0; border:none; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
     }
   </style>
 </head>
@@ -160,8 +194,8 @@
     <span class="badge-dot"></span>
     <span class="badge-session">Session 1</span>
   </div>
-  <h1 class="page-title">Connect Your Machine<br>to GitHub via SSH</h1>
-  <p class="page-desc">Set up your Git identity, generate an SSH key, add it to GitHub, and establish a trusted connection — so you can push and pull without typing a password every time.</p>
+  <h1 class="page-title">Git, GitHub, LLMs<br>&amp; Claude Desktop</h1>
+  <p class="page-desc">SSH setup, Git identity, push workflow, real-world GitHub usage, how LLMs process prompts, and getting started with Claude Desktop — skills and connectors for educators.</p>
 </header>
 
 <div class="shell">
@@ -754,6 +788,330 @@ git commit -m "describe your change here"
 git push origin main</pre>
       </div>
       <div class="step-pad"></div>
+    </div>
+
+  </div>
+
+  <!-- Section: Where GitHub is Used -->
+  <div class="section">
+    <p class="section-label">Beyond the Terminal</p>
+    <h2 class="section-title">Where GitHub is Used in the Real World</h2>
+    <p class="section-desc">GitHub is not just for storing code. It is the foundation of modern software development, collaboration, and deployment — used by individuals, teams, and companies worldwide.</p>
+
+    <div class="use-grid" style="margin-bottom:28px;">
+      <div class="use-card">
+        <div class="use-card-num">01</div>
+        <div class="use-card-title">Personal Portfolio</div>
+        <div class="use-card-desc">Host your website for free with GitHub Pages — exactly like what you built in Session 4.</div>
+      </div>
+      <div class="use-card">
+        <div class="use-card-num">02</div>
+        <div class="use-card-title">Team Projects</div>
+        <div class="use-card-desc">Multiple developers work on the same codebase simultaneously without overwriting each other's work.</div>
+      </div>
+      <div class="use-card">
+        <div class="use-card-num">03</div>
+        <div class="use-card-title">Open Source</div>
+        <div class="use-card-desc">Anyone can contribute to public projects — from small tools to Linux and VS Code itself.</div>
+      </div>
+      <div class="use-card">
+        <div class="use-card-num">04</div>
+        <div class="use-card-title">CI/CD Pipelines</div>
+        <div class="use-card-desc">Every push can automatically run tests and deploy to production — no manual steps needed.</div>
+      </div>
+      <div class="use-card">
+        <div class="use-card-num">05</div>
+        <div class="use-card-title">Documentation Sites</div>
+        <div class="use-card-desc">Markdown docs hosted alongside the code — always in sync with the project version.</div>
+      </div>
+      <div class="use-card">
+        <div class="use-card-num">06</div>
+        <div class="use-card-title">Academic &amp; Research</div>
+        <div class="use-card-desc">Version control for data, scripts, analysis notebooks, and research paper drafts.</div>
+      </div>
+    </div>
+
+    <!-- git pull and git merge -->
+    <p class="section-label" style="margin-bottom:8px;">More Commands to Know</p>
+    <div class="steps" style="margin-bottom:24px;">
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num" style="background:var(--blue-bg-2);color:var(--blue);font-size:9px;">pull</div>
+          <div class="step-body">
+            <div class="step-title">git pull — bring remote changes to your machine</div>
+            <div class="step-detail">When a teammate pushes new code to GitHub, your local copy is out of date. <code>git pull</code> fetches their changes and merges them into your branch automatically.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">
+            <span>Terminal</span>
+            <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          </div>
+          <pre>git pull origin main</pre>
+        </div>
+        <div class="example-block">
+          <div class="example-label-bar"><span>Example — pulling teammate's changes</span></div>
+          <pre class="example-pre">git pull origin main
+# Output:
+remote: Enumerating objects: 3, done.
+Updating a1b2c3d..4f2a1c3
+Fast-forward
+ index.html | 5 +++++
+ 1 file changed, 5 insertions(+)</pre>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num" style="background:var(--blue-bg-2);color:var(--blue);font-size:9px;">mrg</div>
+          <div class="step-body">
+            <div class="step-title">git merge — combine two branches into one</div>
+            <div class="step-detail">After finishing work on a feature branch, merge it into <code>main</code> to include your changes in the main codebase.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">
+            <span>Terminal — switch to main first, then merge</span>
+            <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          </div>
+          <pre>git checkout main
+git merge feature-branch</pre>
+        </div>
+        <div class="example-block">
+          <div class="example-label-bar"><span>Example</span></div>
+          <pre class="example-pre">git checkout main
+git merge add-contact-page
+# Output:
+Updating 4f2a1c3..9d3e5a1
+Fast-forward
+ contact.html | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)</pre>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+    </div>
+
+    <!-- Branches and PRs -->
+    <p class="section-label" style="margin-bottom:8px;">Key Concepts</p>
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-tag">Branches</div>
+        <div class="concept-title">Work without breaking main</div>
+        <div class="concept-desc">A branch is an independent copy of the codebase. You can experiment, add features, or fix bugs in isolation — without touching the working <code>main</code> branch. Think of it as a draft copy of your notebook.<br><br>Create a branch: <code>git checkout -b feature-name</code><br>Switch branches: <code>git checkout main</code><br>List branches: <code>git branch</code></div>
+      </div>
+      <div class="concept-card">
+        <div class="concept-tag">Pull Request</div>
+        <div class="concept-title">Request a review before merging</div>
+        <div class="concept-desc">A Pull Request (PR) is a request to merge your branch into <code>main</code>. Before the code is merged, teammates can review it, leave comments, and suggest changes — ensuring quality before anything goes live.<br><br>On GitHub: push your branch → open a PR → assign a reviewer → merge after approval.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: How LLMs Work -->
+  <div class="section">
+    <p class="section-label">Understanding AI</p>
+    <h2 class="section-title">How LLMs Process Your Prompts</h2>
+    <p class="section-desc">Every time you send a message to ChatGPT, Claude, or any LLM, it goes through the same pipeline. Understanding this helps you write better prompts and get more useful outputs.</p>
+
+    <div class="llm-flow">
+      <div class="llm-flow-step">
+        <div class="llm-flow-label">You Write</div>
+        <div class="llm-flow-value">Your Prompt</div>
+        <div class="llm-flow-sub">Question, instruction, or context you type</div>
+      </div>
+      <div class="llm-flow-sep">→</div>
+      <div class="llm-flow-step">
+        <div class="llm-flow-label">Model Sees</div>
+        <div class="llm-flow-value">Context Window</div>
+        <div class="llm-flow-sub">System prompt + your message + full conversation history</div>
+      </div>
+      <div class="llm-flow-sep">→</div>
+      <div class="llm-flow-step">
+        <div class="llm-flow-label">Optional</div>
+        <div class="llm-flow-value">Tools</div>
+        <div class="llm-flow-sub">Web search, code execution, file reading, connectors</div>
+      </div>
+      <div class="llm-flow-sep">→</div>
+      <div class="llm-flow-step">
+        <div class="llm-flow-label">You Receive</div>
+        <div class="llm-flow-value">Structured Output</div>
+        <div class="llm-flow-sub">Text, code, JSON, markdown — shaped by your instructions</div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Prompt — what you write</div>
+            <div class="step-detail">The prompt is your input. The clearer and more specific it is, the better the output. Vague prompts give generic answers. Specific prompts with context, role, and format instructions give structured, useful answers.</div>
+          </div>
+        </div>
+        <div class="example-block">
+          <div class="example-label-bar"><span>Vague prompt vs. structured prompt</span></div>
+          <pre class="example-pre">❌ Vague:   "Explain pointers"
+
+✅ Structured: "You are a C programming teacher. Explain pointers
+   to a first-year engineering student in 3 short bullet points
+   with one code example. Use simple language."</pre>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Context Window — what the model can "see"</div>
+            <div class="step-detail">The context window is the total amount of text the model reads before generating a response. It includes the system prompt (instructions set by the app), your full conversation history, and any documents you pasted in. The model has no memory outside the current context window.</div>
+          </div>
+        </div>
+        <div class="callout">
+          <p><strong>Why this matters:</strong> If you start a new chat, the model forgets everything from before. Always re-provide important context when starting fresh. Pasting a document or code file into the chat gives the model that information to work with.</p>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Tools — extending what the model can do</div>
+            <div class="step-detail">Modern LLMs can use tools beyond just generating text. When a tool is available, the model decides whether to use it based on your prompt. You don't need to ask explicitly — the model picks the right tool for the task.</div>
+          </div>
+        </div>
+        <div class="concept-grid" style="margin:12px 0 0;">
+          <div class="concept-card">
+            <div class="concept-tag">Web Search</div>
+            <div class="concept-title">Real-time information</div>
+            <div class="concept-desc">Searches the internet to answer questions about current events, prices, documentation, or anything that may have changed after training.</div>
+          </div>
+          <div class="concept-card">
+            <div class="concept-tag">Code Execution</div>
+            <div class="concept-title">Run and verify code</div>
+            <div class="concept-desc">Executes Python or other code to perform calculations, process data, create charts, or verify that a solution actually works.</div>
+          </div>
+          <div class="concept-card">
+            <div class="concept-tag">File Reading</div>
+            <div class="concept-title">Work with your documents</div>
+            <div class="concept-desc">Reads PDFs, CSVs, spreadsheets, or text files you upload — so you can ask questions about your own data or documents.</div>
+          </div>
+          <div class="concept-card">
+            <div class="concept-tag">Connectors</div>
+            <div class="concept-title">Connect to your apps</div>
+            <div class="concept-desc">Integrates with Google Drive, Notion, Canva, GitHub, and other apps — letting the model read and write directly to the tools you already use.</div>
+          </div>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">Structured Output — shaping what you receive</div>
+            <div class="step-detail">LLMs can produce output in any format you specify. Tell it the format in your prompt and it will follow. This makes it easy to copy results directly into documents, code, or spreadsheets.</div>
+          </div>
+        </div>
+        <div class="example-block">
+          <div class="example-label-bar"><span>Ask for a specific output format</span></div>
+          <pre class="example-pre">"Give me a 5-question quiz on linked lists.
+Format: numbered list, question on one line,
+answer on the next line in bold."
+
+"Summarise this research paper in JSON with keys:
+title, authors, problem, method, result, limitations."</pre>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Claude Desktop -->
+  <div class="section">
+    <p class="section-label">Claude Desktop</p>
+    <h2 class="section-title">Skills &amp; Connectors for Educators</h2>
+    <p class="section-desc">Claude Desktop is the native app for your computer. Beyond the chat interface, it supports <strong>Skills</strong> (prompt templates for specific tasks) and <strong>Connectors</strong> (integrations with apps you already use). Together they turn Claude into a personalised assistant for teaching, research, and content creation.</p>
+
+    <!-- Skills -->
+    <p class="section-label" style="margin-bottom:10px;">Skills — Built-in Task Templates</p>
+    <div class="connector-grid" style="margin-bottom:28px;">
+      <div class="connector-card">
+        <div class="connector-icon">📄</div>
+        <div class="connector-name">Documentation Writer</div>
+        <div class="connector-cat">Writing</div>
+        <div class="connector-desc">Generate structured technical documentation — API references, README files, user guides, and project wikis from a brief description.</div>
+      </div>
+      <div class="connector-card">
+        <div class="connector-icon">🎓</div>
+        <div class="connector-name">Research Paper Assistant</div>
+        <div class="connector-cat">Academic</div>
+        <div class="connector-desc">Outline, draft, and refine academic papers. Suggests section structure, generates abstracts, and rewrites paragraphs for clarity and tone.</div>
+      </div>
+      <div class="connector-card">
+        <div class="connector-icon">🗂️</div>
+        <div class="connector-name">Lesson Plan Creator</div>
+        <div class="connector-cat">Teaching</div>
+        <div class="connector-desc">Generate complete lesson plans with learning objectives, activities, examples, and assessment questions for any topic and duration.</div>
+      </div>
+      <div class="connector-card">
+        <div class="connector-icon">🔍</div>
+        <div class="connector-name">Code Explainer</div>
+        <div class="connector-cat">Teaching</div>
+        <div class="connector-desc">Paste any code block — Claude explains it line by line in plain language, perfect for preparing class examples or understanding unfamiliar code.</div>
+      </div>
+    </div>
+
+    <!-- Connectors -->
+    <p class="section-label" style="margin-bottom:10px;">Connectors — Apps Claude Can Access</p>
+    <div class="connector-grid" style="margin-bottom:28px;">
+      <div class="connector-card">
+        <div class="connector-icon">📁</div>
+        <div class="connector-name">Google Drive</div>
+        <div class="connector-cat">Files &amp; Documents</div>
+        <div class="connector-desc">Read Docs, Sheets, and Slides from your Drive. Ask Claude to summarise a file, extract data from a sheet, or rewrite a document — without downloading anything.</div>
+      </div>
+      <div class="connector-card">
+        <div class="connector-icon">🎨</div>
+        <div class="connector-name">Canva</div>
+        <div class="connector-cat">Design</div>
+        <div class="connector-desc">Describe what you need — a poster, slide deck, or infographic — and Claude works with Canva to create or update designs from natural language instructions.</div>
+      </div>
+      <div class="connector-card">
+        <div class="connector-icon">✏️</div>
+        <div class="connector-name">Excalidraw</div>
+        <div class="connector-cat">Diagrams</div>
+        <div class="connector-desc">Generate flowcharts, architecture diagrams, and concept maps. Describe the diagram in text and Claude draws it in Excalidraw instantly.</div>
+      </div>
+      <div class="connector-card">
+        <div class="connector-icon">🐙</div>
+        <div class="connector-name">GitHub</div>
+        <div class="connector-cat">Code</div>
+        <div class="connector-desc">Read repositories, review code, and understand project structure. Ask Claude to explain a file, find bugs, or suggest improvements across your codebase.</div>
+      </div>
+    </div>
+
+    <!-- Faculty suggestions -->
+    <div class="callout" style="margin-top:0;">
+      <p style="font-weight:700;color:var(--ink);margin-bottom:10px;">Suggested for Faculty — Connectors &amp; Skills</p>
+      <p style="margin-bottom:8px;"><strong>Connectors to connect first:</strong></p>
+      <p>
+        📁 <strong>Google Drive</strong> — share lecture notes, question banks, and student materials directly with Claude<br>
+        📝 <strong>Notion</strong> — organise course content, meeting notes, and research references in one workspace Claude can read<br>
+        📧 <strong>Gmail / Google Calendar</strong> — schedule sessions, draft announcements, and summarise email threads<br>
+        📊 <strong>Google Sheets</strong> — analyse student marks, generate summaries, and spot patterns across batch data
+      </p>
+      <p style="margin-top:10px;margin-bottom:8px;"><strong>Skills to use regularly:</strong></p>
+      <p>
+        📋 <strong>Quiz Generator</strong> — create MCQs, fill-in-the-blank, and short-answer questions from any topic or uploaded notes<br>
+        🗓️ <strong>Syllabus Designer</strong> — build structured course syllabi with unit-wise breakdowns, references, and assessment plans<br>
+        📚 <strong>Research Summariser</strong> — paste or link a paper; get key problem, method, results, and limitations in 5 bullets<br>
+        💬 <strong>Student Feedback Analyser</strong> — paste student responses and extract common themes, misconceptions, and strengths
+      </p>
     </div>
 
   </div>
