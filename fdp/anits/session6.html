@@ -537,6 +537,45 @@ Requirements:
         </div>
       </div>
 
+      <!-- Prompt 3: Generate course table page -->
+      <div class="prompt-card">
+        <div class="prompt-header">
+          <div class="prompt-meta">
+            <div class="prompt-title">Generate a Course Directory Page</div>
+            <div class="prompt-sub">Paste your HTML pages — get a table with S.No, course name &amp; structure</div>
+          </div>
+          <button class="prompt-copy-btn" onclick="copyPrompt(this, 'prompt-course-table')">Copy</button>
+        </div>
+        <p class="prompt-desc">Paste your index.html and two quiz pages. The AI will generate a new <code style="font-family:var(--mono);font-size:12px;background:var(--bg-3);border:1px solid var(--border);border-radius:4px;padding:1px 5px;color:var(--blue);">course-directory.html</code> with a clean table listing each course's serial number, name, topics covered, and a link to open it.</p>
+        <div class="prompt-body">
+          <pre class="prompt-text" id="prompt-course-table">I have a website with the following HTML pages. Read all three and then generate a new page.
+
+--- Page 1: index.html (main page) ---
+<span class="prompt-placeholder">[PASTE YOUR index.html CODE HERE]</span>
+
+--- Page 2: First quiz page ---
+<span class="prompt-placeholder">[PASTE YOUR FIRST QUIZ PAGE CODE HERE]</span>
+
+--- Page 3: Second quiz page ---
+<span class="prompt-placeholder">[PASTE YOUR SECOND QUIZ PAGE CODE HERE]</span>
+
+Now generate a new HTML file called course-directory.html that shows a table with these columns:
+1. S.No — serial number (1, 2, 3 …)
+2. Course Name — the title or topic of each quiz page
+3. Topics Covered — key topics or sections listed in that page (as a short comma-separated list)
+4. Link — a clickable "Open →" anchor tag pointing to each quiz page file
+
+Requirements:
+- Use only HTML and CSS (no external libraries or frameworks)
+- Style the table with a clear header row, alternating row background colors, and a visible border
+- Make it mobile-friendly: wrap the table in a div with overflow-x: auto so it scrolls horizontally on small screens
+- Add a page heading "Course Directory" at the top
+- Use a clean, readable font and keep the design minimal
+- Include a "Back to Home" link at the bottom pointing to index.html</pre>
+          <p class="prompt-tip"><strong>How to use:</strong> Copy this prompt, then paste the full HTML source of each page in place of the three placeholders. You can get the source of any page by opening it in a browser → right-click → View Page Source → select all → copy.</p>
+        </div>
+      </div>
+
     </div>
   </div>
 
