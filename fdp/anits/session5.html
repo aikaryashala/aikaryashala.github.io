@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Session 5 — ANITS FDP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&family=Alegreya+SC:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+  html{zoom:1.25}
+    :root {
+      --bg:       #E8DDD0;
+      --bg-2:     #DFD3C4;
+      --bg-3:     #D4C5B0;
+      --card:     #F0EAE0;
+      --ink:      #1C0E08;
+      --ink-2:    #2F1708;
+      --ink-3:    #5B3520;
+      --ink-4:    #8B7060;
+      --border:   #C8B8A0;
+      --border-2: #B0A088;
+      --blue:     #7A3018;
+      --blue-bg:  rgba(122,48,24,.08);
+      --blue-bg-2:rgba(122,48,24,.16);
+      --green:    #3A6B18;
+      --green-bg: rgba(58,107,24,.08);
+      --mono:     "Fira Code","Cascadia Code",ui-monospace,monospace;
+      --sans:     "Alegreya",Georgia,"Book Antiqua",serif;
+      --sc:       "Alegreya SC","Alegreya",Georgia,serif;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:var(--sans); background-color:var(--bg); background-image:radial-gradient(#5a372314 .8px, transparent .8px), linear-gradient(90deg, #0000000a 0%, transparent 12% 88%, #0000000a 100%); background-size:16px 16px, 100% 100%; background-attachment:fixed; color:var(--ink); line-height:1.65; -webkit-font-smoothing:antialiased; }
+
+    /* ── Nav ── */
+    .nav { position:sticky; top:0; z-index:100; background:rgba(232,221,208,.92); backdrop-filter:blur(14px); border-bottom:1px solid var(--border); }
+    .nav-inner { max-width:900px; margin:0 auto; padding:0 24px; height:54px; display:flex; align-items:center; gap:16px; }
+    .back-link { display:inline-flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink-3); font-size:13px; font-weight:600; transition:color .15s; }
+    .back-link:hover { color:var(--ink); }
+    .nav-sep { width:1px; height:16px; background:var(--border-2); }
+    .nav-crumb { font-size:13px; color:var(--ink-4); }
+
+    /* ── Page Header ── */
+    .page-header { max-width:900px; margin:0 auto; padding:60px 24px 48px; border-bottom:1px solid var(--border); }
+    .session-badge { display:inline-flex; align-items:center; gap:10px; margin-bottom:20px; }
+    .badge-day { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-4); }
+    .badge-dot { width:4px; height:4px; border-radius:50%; background:var(--border-2); }
+    .badge-session { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--blue); background:var(--blue-bg); border:1px solid rgba(122,48,24,.2); border-radius:20px; padding:3px 10px; }
+    .page-title { font-size:clamp(26px,4.5vw,44px); font-weight:900; line-height:1.1; letter-spacing:-.03em; color:var(--ink); margin-bottom:14px; }
+    .page-desc { font-size:16px; color:var(--ink-3); line-height:1.7; max-width:620px; }
+
+    /* ── Shell ── */
+    .shell { max-width:900px; margin:0 auto; padding:0 24px 80px; }
+    .section { margin-top:52px; }
+    .section-label { font-size:11px; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-4); margin-bottom:8px; }
+    .section-title { font-size:clamp(18px,2.5vw,24px); font-weight:800; color:var(--ink); margin-bottom:10px; letter-spacing:-.02em; }
+    .section-desc { font-size:14px; color:var(--ink-3); line-height:1.7; margin-bottom:20px; }
+
+    /* ── Steps ── */
+    .steps { display:flex; flex-direction:column; gap:10px; }
+    .step { border:1px solid var(--border); border-radius:12px; background:var(--card); overflow:hidden; }
+    .step-header { display:flex; align-items:flex-start; gap:14px; padding:18px 20px 14px; }
+    .step-num { flex-shrink:0; width:28px; height:28px; border-radius:7px; background:var(--bg-3); font-size:11px; font-weight:800; color:var(--ink-3); display:flex; align-items:center; justify-content:center; margin-top:2px; }
+    .step-body { flex:1; }
+    .step-title { font-size:15px; font-weight:700; color:var(--ink); margin-bottom:6px; }
+    .step-detail { font-size:13.5px; color:var(--ink-3); line-height:1.65; }
+    .step-detail strong { color:var(--ink-2); }
+    .step-body code { font-family:var(--mono); font-size:12px; background:var(--bg-3); border:1px solid var(--border); border-radius:4px; padding:1px 6px; color:var(--blue); }
+
+    /* ── Command blocks ── */
+    .cmd-block { margin:0 20px 0; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+    .cmd-block + .cmd-block { margin-top:8px; }
+    .step-header + .cmd-block { margin-top:0; }
+    .cmd-block-label { font-family:var(--sc); font-size:10px; font-weight:700; letter-spacing:.1em; color:var(--ink-4); background:var(--bg-2); border-bottom:1px solid var(--border); padding:6px 14px; }
+    .cmd-block pre { font-family:var(--mono); font-size:12.5px; color:var(--ink-2); background:var(--bg-3); padding:14px 16px; line-height:1.9; white-space:pre; overflow-x:auto; margin:0; }
+    .cmd-block.output pre { color:#7dbf7d; background:#161610; }
+    .cmd-block.output .cmd-block-label { background:#1e1e16; border-bottom-color:#333; color:#777; }
+
+    /* ── Sub-steps ── */
+    .sub-steps { margin:12px 20px 0; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+    .sub-step { display:flex; align-items:flex-start; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border); background:var(--bg-2); }
+    .sub-step:last-child { border-bottom:none; }
+    .sub-step-num { flex-shrink:0; width:20px; height:20px; border-radius:50%; background:var(--blue-bg-2); font-size:10px; font-weight:800; color:var(--blue); display:flex; align-items:center; justify-content:center; margin-top:2px; }
+    .sub-step-body { font-size:13px; color:var(--ink-3); line-height:1.6; }
+    .sub-step-body strong { color:var(--ink-2); }
+
+    /* ── Callout ── */
+    .callout { margin:12px 20px 0; padding:13px 16px; background:var(--blue-bg); border:1px solid rgba(122,48,24,.18); border-left:3px solid var(--blue); border-radius:8px; }
+    .callout p { font-size:13px; color:var(--ink-3); line-height:1.7; }
+    .callout p strong { color:var(--ink-2); }
+    .callout code { font-family:var(--mono); font-size:11.5px; background:var(--bg-3); border:1px solid var(--border); border-radius:4px; padding:1px 5px; color:var(--blue); }
+    .callout.success { background:var(--green-bg); border-color:rgba(58,107,24,.2); border-left-color:var(--green); }
+
+    .step-pad { height:18px; }
+
+    /* ── Footer ── */
+    .site-footer { border-top:1px solid var(--border); padding:28px 24px; text-align:center; }
+    .footer-inner { max-width:900px; margin:0 auto; }
+    .footer-text { font-size:13px; color:var(--ink-4); }
+    .footer-text a { color:var(--ink-3); text-decoration:none; }
+    .footer-text a:hover { color:var(--ink); }
+
+    @media (max-width:600px) {
+      .page-header { padding:40px 18px 36px; }
+      .shell { padding:0 18px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="back-link">← ANITS FDP</a>
+    <div class="nav-sep"></div>
+    <span class="nav-crumb">Session 5</span>
+  </div>
+</nav>
+
+<header class="page-header">
+  <div class="session-badge">
+    <span class="badge-day">Day 3</span>
+    <span class="badge-dot"></span>
+    <span class="badge-session">Session 1</span>
+  </div>
+  <h1 class="page-title">Connect Your Machine<br>to GitHub via SSH</h1>
+  <p class="page-desc">Set up your Git identity, generate an SSH key, add it to GitHub, and establish a trusted connection — so you can push and pull without typing a password every time.</p>
+</header>
+
+<div class="shell">
+
+  <!-- Step 1: Configure Identity -->
+  <div class="section">
+    <p class="section-label">Step 1 of 7</p>
+    <h2 class="section-title">Configure Your Identity</h2>
+    <p class="section-desc">Git attaches your name and email to every commit you make. This is how your contributions are identified on GitHub. You only need to do this once per machine.</p>
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Set your name and email globally</div>
+            <div class="step-detail">Replace the values with your actual name and the email you used to register on GitHub. The <strong>--global</strong> flag applies this to all repositories on your machine.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">Terminal</div>
+          <pre>git config --global user.name "Your Name"
+git config --global user.email "your-email@example.com"</pre>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Verify the settings</div>
+            <div class="step-detail">Confirm that your name and email were saved correctly by listing all global config values.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">Terminal</div>
+          <pre>git config --global --list</pre>
+        </div>
+        <div class="cmd-block output">
+          <div class="cmd-block-label">Expected Output</div>
+          <pre>user.name=Your Name
+user.email=your-email@example.com</pre>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Step 2: Generate SSH Key -->
+  <div class="section">
+    <p class="section-label">Step 2 of 7</p>
+    <h2 class="section-title">Generate an SSH Key</h2>
+    <p class="section-desc">An SSH key is a pair of files — a <strong>private key</strong> (stays on your machine, never shared) and a <strong>public key</strong> (uploaded to GitHub). When you connect, GitHub checks that your private key matches the public key on file. No password needed after setup.</p>
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Generate the key pair</div>
+            <div class="step-detail">Use the email you registered on GitHub. The <code>-t ed25519</code> flag selects a modern, secure key type. The <code>-C</code> flag adds your email as a label on the key.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">Terminal</div>
+          <pre>ssh-keygen -t ed25519 -C "your-email@example.com"</pre>
+        </div>
+        <div class="callout">
+          <p>When prompted <strong>"Enter file in which to save the key"</strong> — press <strong>Enter</strong> to accept the default path (<code>~/.ssh/id_ed25519</code>). When asked for a passphrase, press Enter to skip (or set one for extra security).</p>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Start the SSH agent</div>
+            <div class="step-detail">The SSH agent runs in the background and manages your keys, so you don't have to re-enter your passphrase every time you push or pull.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">Terminal</div>
+          <pre>eval "$(ssh-agent -s)"</pre>
+        </div>
+        <div class="cmd-block output">
+          <div class="cmd-block-label">Expected Output</div>
+          <pre>Agent pid 12345</pre>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Add your private key to the agent</div>
+            <div class="step-detail">This loads your private key into the running SSH agent so it's available for authentication.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">Terminal</div>
+          <pre>ssh-add ~/.ssh/id_ed25519</pre>
+        </div>
+        <div class="cmd-block output">
+          <div class="cmd-block-label">Expected Output</div>
+          <pre>Identity added: /home/youruser/.ssh/id_ed25519 (your-email@example.com)</pre>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">Copy your public key</div>
+            <div class="step-detail">Display the public key in the terminal, then select all of it and copy it to your clipboard.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">Terminal</div>
+          <pre>cat ~/.ssh/id_ed25519.pub</pre>
+        </div>
+        <div class="cmd-block output">
+          <div class="cmd-block-label">What you'll see (copy the entire line)</div>
+          <pre>ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA...long string... your-email@example.com</pre>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <div class="step-title">Add the public key to GitHub</div>
+            <div class="step-detail">Paste the key you copied into your GitHub account settings.</div>
+          </div>
+        </div>
+        <div class="sub-steps">
+          <div class="sub-step">
+            <div class="sub-step-num">a</div>
+            <div class="sub-step-body">Go to <strong>GitHub → Settings → SSH and GPG Keys</strong></div>
+          </div>
+          <div class="sub-step">
+            <div class="sub-step-num">b</div>
+            <div class="sub-step-body">Click <strong>New SSH Key</strong></div>
+          </div>
+          <div class="sub-step">
+            <div class="sub-step-num">c</div>
+            <div class="sub-step-body">Give it a <strong>Title</strong> (e.g. <em>My Laptop</em>) so you can identify this machine later</div>
+          </div>
+          <div class="sub-step">
+            <div class="sub-step-num">d</div>
+            <div class="sub-step-body">Paste the copied key into the <strong>Key</strong> field and click <strong>Add SSH Key</strong></div>
+          </div>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Step 3: Trust GitHub Host Key -->
+  <div class="section">
+    <p class="section-label">Step 3 of 7</p>
+    <h2 class="section-title">Trust GitHub's SSH Host Key</h2>
+    <p class="section-desc">The very first time you connect to GitHub over SSH, your machine has never seen GitHub's server before. SSH will pause and ask you to confirm that the server is genuine before storing its fingerprint.</p>
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Connect for the first time</div>
+            <div class="step-detail">Run the command below. You will see a fingerprint prompt — this is normal and expected.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">Terminal</div>
+          <pre>ssh -T git@github.com</pre>
+        </div>
+        <div class="cmd-block output">
+          <div class="cmd-block-label">What you'll see</div>
+          <pre>The authenticity of host 'github.com (140.82.x.x)' can't be established.
+ED25519 key fingerprint is SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU.
+Are you sure you want to continue connecting (yes/no/[fingerprint])?</pre>
+        </div>
+        <div class="callout">
+          <p>Type <strong>yes</strong> and press Enter. SSH saves GitHub's fingerprint in <code>~/.ssh/known_hosts</code>. From now on, every future connection is verified automatically — you'll never see this prompt again on this machine.</p>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Step 4: Test SSH Connection -->
+  <div class="section">
+    <p class="section-label">Step 4 of 7</p>
+    <h2 class="section-title">Test the SSH Connection</h2>
+    <p class="section-desc">After adding your key to GitHub and accepting the host fingerprint, verify that authentication actually works end-to-end.</p>
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Run the authentication test</div>
+            <div class="step-detail">This command connects to GitHub and checks whether your SSH key is recognised — without cloning or opening a shell session.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">Terminal</div>
+          <pre>ssh -T git@github.com</pre>
+        </div>
+        <div class="cmd-block output">
+          <div class="cmd-block-label">Expected Output (success)</div>
+          <pre>Hi username! You've successfully authenticated, but GitHub does not provide shell access.</pre>
+        </div>
+        <div class="callout success">
+          <p>If you see your GitHub username in that message, your machine is now trusted. The phrase <em>"does not provide shell access"</em> is completely normal — it just means you can't log into GitHub's servers like a remote desktop, but you can push and pull code freely.</p>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Step 5: Clone via SSH -->
+  <div class="section">
+    <p class="section-label">Step 5 of 7</p>
+    <h2 class="section-title">Clone a Repository Using SSH</h2>
+    <p class="section-desc">Now that your machine is trusted, always use the SSH URL when cloning — not the HTTPS URL. This means no username or password prompts, ever.</p>
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Get the SSH URL from GitHub</div>
+            <div class="step-detail">On any GitHub repository page, click the green <strong>Code</strong> button → select the <strong>SSH</strong> tab → copy the URL. It always starts with <code>git@github.com:</code></div>
+          </div>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Clone the repository</div>
+            <div class="step-detail">Replace <strong>username</strong> with the GitHub account name and <strong>repository</strong> with the repo name. This creates a local folder with all the code inside.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">Terminal</div>
+          <pre>git clone git@github.com:username/repository.git</pre>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Step 6: Verify Remote -->
+  <div class="section">
+    <p class="section-label">Step 6 of 7</p>
+    <h2 class="section-title">Verify Your Remote</h2>
+    <p class="section-desc">After cloning, confirm that the remote URL is SSH — not HTTPS. This ensures every push and pull uses your key, not a password prompt.</p>
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Check the remote URLs</div>
+            <div class="step-detail">Run this command inside your cloned repository folder.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">Terminal</div>
+          <pre>git remote -v</pre>
+        </div>
+        <div class="cmd-block output">
+          <div class="cmd-block-label">Expected Output — SSH (correct)</div>
+          <pre>origin  git@github.com:username/repository.git (fetch)
+origin  git@github.com:username/repository.git (push)</pre>
+        </div>
+        <div class="callout">
+          <p>If you see <code>https://github.com/...</code> instead, the remote is using HTTPS. Switch it to SSH with:<br><br>
+          <code>git remote set-url origin git@github.com:username/repository.git</code></p>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Step 7: Debug SSH -->
+  <div class="section">
+    <p class="section-label">Step 7 of 7</p>
+    <h2 class="section-title">Check Your SSH Configuration</h2>
+    <p class="section-desc">If something isn't working, use verbose mode to see exactly what SSH is doing — which key it's trying, which step it reaches, and where it fails.</p>
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Run SSH in verbose mode</div>
+            <div class="step-detail">The <code>-v</code> flag prints a detailed log of the entire connection process. Use this any time a push or clone fails with a permission error.</div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-block-label">Terminal</div>
+          <pre>ssh -vT git@github.com</pre>
+        </div>
+        <div class="cmd-block output">
+          <div class="cmd-block-label">Key lines to look for</div>
+          <pre>debug1: Offering public key: /home/youruser/.ssh/id_ed25519 ED25519
+debug1: Server accepts key: /home/youruser/.ssh/id_ed25519 ED25519
+Hi username! You've successfully authenticated...</pre>
+        </div>
+        <div class="callout">
+          <p>
+            <strong>What each line means:</strong><br>
+            — <em>"Offering public key"</em> → SSH found your key file on disk<br>
+            — <em>"Server accepts key"</em> → GitHub recognised and approved it<br>
+            — If neither line appears, your key is not loaded. Re-run <code>ssh-add ~/.ssh/id_ed25519</code> and try again.
+          </p>
+        </div>
+        <div class="step-pad"></div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /shell -->
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-text"><a href="index.html">← Back to ANITS FDP</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
