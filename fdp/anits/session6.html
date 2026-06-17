@@ -188,6 +188,29 @@
       .compare-card-body { padding:12px 14px; }
     }
 
+    /* ── Prompt cards ── */
+    .prompt-stack { display:flex; flex-direction:column; gap:18px; }
+    .prompt-card { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+    .prompt-header { padding:14px 18px; border-bottom:1px solid var(--border); background:var(--bg-2); display:flex; align-items:flex-start; gap:12px; }
+    .prompt-meta { flex:1; min-width:0; }
+    .prompt-title { font-size:14px; font-weight:700; color:var(--ink-2); margin-bottom:3px; }
+    .prompt-sub { font-family:var(--sc); font-size:11px; color:var(--ink-4); letter-spacing:.06em; }
+    .prompt-copy-btn {
+      flex-shrink:0; font-family:var(--sc); font-size:11px; font-weight:700; letter-spacing:.04em;
+      color:var(--blue); background:var(--blue-bg);
+      border:1px solid rgba(122,48,24,.2); border-radius:7px;
+      padding:6px 14px; cursor:pointer;
+      transition:background .15s, border-color .15s, color .15s; line-height:1;
+    }
+    .prompt-copy-btn:hover { background:var(--blue-bg-2); border-color:rgba(122,48,24,.35); }
+    .prompt-copy-btn.copied { color:var(--green); background:var(--green-bg); border-color:rgba(58,107,24,.3); }
+    .prompt-desc { padding:12px 18px 0; font-size:13.5px; color:var(--ink-3); line-height:1.65; }
+    .prompt-body { padding:14px 18px 18px; }
+    .prompt-text { font-family:var(--mono); font-size:12.5px; color:var(--ink-2); line-height:1.85; white-space:pre-wrap; word-break:break-word; }
+    .prompt-placeholder { color:var(--blue); font-weight:600; background:rgba(122,48,24,.1); border-radius:3px; padding:0 3px; }
+    .prompt-tip { margin-top:10px; padding:10px 14px; background:var(--bg-3); border-radius:7px; font-size:12px; color:var(--ink-4); line-height:1.55; }
+    .prompt-tip strong { color:var(--ink-3); }
+
     /* ── Scroll button ── */
     .scroll-btn { position:fixed; bottom:28px; right:24px; z-index:200; width:40px; height:40px; border-radius:50%; background:var(--blue); color:#fff; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:18px; box-shadow:0 3px 14px rgba(0,0,0,.22); transition:background .15s; }
     .scroll-btn:hover { background:var(--ink-2); }
@@ -454,6 +477,69 @@ git push origin main</pre>
 
   </div>
 
+  <!-- Prompts section -->
+  <div class="section">
+    <p class="section-label">AI Prompts</p>
+    <h2 class="section-title">Prompts for Code</h2>
+    <p class="section-desc">Copy either prompt into Claude or ChatGPT. Replace the highlighted placeholder with your own code or requirement and paste it in.</p>
+
+    <div class="prompt-stack">
+
+      <!-- Prompt 1: Understand code -->
+      <div class="prompt-card">
+        <div class="prompt-header">
+          <div class="prompt-meta">
+            <div class="prompt-title">Understand My Code</div>
+            <div class="prompt-sub">Paste your code — get a plain-English walkthrough</div>
+          </div>
+          <button class="prompt-copy-btn" onclick="copyPrompt(this, 'prompt-understand')">Copy</button>
+        </div>
+        <p class="prompt-desc">Paste any code you wrote or copied. The AI will break it down section by section in simple language, highlight key concepts, and end with a question to check your understanding.</p>
+        <div class="prompt-body">
+          <pre class="prompt-text" id="prompt-understand">Explain the following code to me as if I am a beginner.
+
+<span class="prompt-placeholder">[PASTE YOUR CODE HERE]</span>
+
+Please:
+1. Give a one-line summary of what this code does overall.
+2. Go through it section by section — explain each part in plain English.
+3. Highlight any key concepts or patterns used (bold them).
+4. Point out anything that might be confusing for a beginner and explain why it works that way.
+5. End with one question to check if I understood.
+
+Keep your explanation concise and avoid jargon.</pre>
+          <p class="prompt-tip"><strong>How to use:</strong> Replace <strong>[PASTE YOUR CODE HERE]</strong> with your actual code — delete that line and paste your code in its place. Works for C, Python, JavaScript, HTML, or any language.</p>
+        </div>
+      </div>
+
+      <!-- Prompt 2: Generate code -->
+      <div class="prompt-card">
+        <div class="prompt-header">
+          <div class="prompt-meta">
+            <div class="prompt-title">Generate Code</div>
+            <div class="prompt-sub">Describe what you want — get working, commented code</div>
+          </div>
+          <button class="prompt-copy-btn" onclick="copyPrompt(this, 'prompt-generate')">Copy</button>
+        </div>
+        <p class="prompt-desc">Describe what you want the code to do. The AI will write beginner-friendly code with comments on each block, then explain how it works in plain English.</p>
+        <div class="prompt-body">
+          <pre class="prompt-text" id="prompt-generate">Write code that does the following:
+
+<span class="prompt-placeholder">[DESCRIBE WHAT YOU WANT THE CODE TO DO]</span>
+
+Requirements:
+- Language: <span class="prompt-placeholder">[YOUR PREFERRED LANGUAGE — e.g. Python, JavaScript, C]</span>
+- Keep it beginner-friendly — use clear variable names and avoid complex patterns.
+- Add a short comment above each logical block explaining what that block does.
+- After the code, give a 2–3 sentence explanation of how it works overall.
+- If there are multiple ways to do this, show the simplest approach first.</pre>
+          <p class="prompt-tip"><strong>How to use:</strong> Replace <strong>[DESCRIBE WHAT YOU WANT]</strong> with your requirement (e.g. "calculate the average of 5 numbers entered by the user") and <strong>[YOUR PREFERRED LANGUAGE]</strong> with C, Python, JavaScript, etc.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 </div>
 
 <footer class="site-footer">
@@ -487,6 +573,17 @@ function copyClone(btn) {
 function copyCmd(btn) {
   const pre = btn.closest('.cmd-block').querySelector('pre');
   navigator.clipboard.writeText(pre.textContent.trim()).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyPrompt(btn, id) {
+  const el = document.getElementById(id);
+  // Extract plain text — strip HTML tags (span.prompt-placeholder etc.)
+  const text = el.innerText || el.textContent;
+  navigator.clipboard.writeText(text.trim()).then(() => {
     btn.textContent = 'Copied!';
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
