@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DNS Resolution — How anits.edu Loads — ANITS FDP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&family=Alegreya+SC:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+  html { zoom: 1.25 }
+  :root {
+    --bg:        #E8DDD0;
+    --bg-2:      #DFD3C4;
+    --bg-3:      #D4C5B0;
+    --card:      #F0EAE0;
+    --ink:       #1C0E08;
+    --ink-2:     #2F1708;
+    --ink-3:     #5B3520;
+    --ink-4:     #8B7060;
+    --border:    #C8B8A0;
+    --border-2:  #B0A088;
+    --blue:      #7A3018;
+    --blue-bg:   rgba(122,48,24,.08);
+    --blue-bg-2: rgba(122,48,24,.16);
+    --green:     #2D6A1A;
+    --green-bg:  rgba(45,106,26,.09);
+    --green-bdr: rgba(45,106,26,.32);
+    --amber:     #A05A10;
+    --amber-bg:  rgba(160,90,16,.09);
+    --amber-bdr: rgba(160,90,16,.32);
+    --mono:      "Fira Code","Cascadia Code",ui-monospace,monospace;
+    --sans:      "Alegreya",Georgia,"Book Antiqua",serif;
+    --sc:        "Alegreya SC","Alegreya",Georgia,serif;
+  }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:var(--sans); background:var(--bg); background-image:radial-gradient(#5a372314 .8px,transparent .8px),linear-gradient(90deg,#0000000a 0%,transparent 12% 88%,#0000000a 100%); background-size:16px 16px,100% 100%; background-attachment:fixed; color:var(--ink); line-height:1.65; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+
+  /* Nav */
+  .nav { position:sticky; top:0; z-index:100; background:rgba(232,221,208,.92); backdrop-filter:blur(14px); border-bottom:1px solid var(--border); }
+  .nav-inner { max-width:980px; margin:0 auto; padding:0 24px; height:54px; display:flex; align-items:center; gap:16px; }
+  .back-link { display:inline-flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink-3); font-size:13px; font-weight:600; transition:color .15s; }
+  .back-link:hover { color:var(--ink); }
+  .nav-sep { width:1px; height:16px; background:var(--border-2); }
+  .nav-crumb { font-size:13px; color:var(--ink-4); }
+
+  /* Page header */
+  .page-header { max-width:980px; margin:0 auto; padding:52px 24px 40px; border-bottom:1px solid var(--border); }
+  .session-badge { display:inline-flex; align-items:center; gap:10px; margin-bottom:18px; }
+  .badge-label { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-4); }
+  .badge-dot { width:4px; height:4px; border-radius:50%; background:var(--border-2); }
+  .badge-type { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--blue); background:var(--blue-bg); border:1px solid rgba(122,48,24,.2); border-radius:20px; padding:3px 10px; }
+  .page-title { font-size:clamp(24px,4vw,40px); font-weight:900; line-height:1.1; letter-spacing:-.03em; color:var(--ink); margin-bottom:12px; }
+  .page-desc { font-size:15px; color:var(--ink-3); line-height:1.7; max-width:620px; }
+
+  /* Shell */
+  .shell { max-width:980px; margin:0 auto; padding:0 24px 80px; }
+  .section { margin-top:44px; }
+
+  /* Visualizer layout */
+  .viz-wrap { display:grid; grid-template-columns:auto 1fr; gap:28px; align-items:start; }
+
+  /* Diagram */
+  .diagram-outer { overflow-x:auto; overflow-y:visible; }
+  .diagram-container { position:relative; width:500px; height:530px; flex-shrink:0; }
+  .diagram-svg { position:absolute; top:0; left:0; pointer-events:none; width:500px; height:530px; }
+
+  /* Connectors */
+  .diagram-svg line {
+    stroke:var(--border-2); stroke-width:2; stroke-linecap:round;
+    transition:stroke .22s, stroke-width .22s;
+  }
+  .diagram-svg line.active { stroke:var(--blue);  stroke-width:2.5; }
+  .diagram-svg line.ret    { stroke:var(--green); stroke-width:2.5; }
+  .diagram-svg line.miss   { stroke:var(--amber); stroke-width:2; stroke-dasharray:5 3; }
+
+  /* Nodes */
+  .node {
+    position:absolute; border:1.5px solid var(--border-2); border-radius:10px;
+    background:var(--card); padding:7px 12px 6px;
+    display:flex; flex-direction:column; justify-content:center;
+    transition:border-color .22s, background .22s, box-shadow .22s;
+    user-select:none;
+  }
+  .node-name { font-family:var(--sc); font-size:10.5px; font-weight:700; letter-spacing:.06em; color:var(--ink-3); line-height:1.25; }
+  .node-sub  { font-family:var(--mono); font-size:9px; color:var(--ink-4); margin-top:2px; }
+
+  .node.active { border-color:var(--blue); background:var(--blue-bg-2); box-shadow:0 0 0 3px rgba(122,48,24,.12); }
+  .node.active .node-name { color:var(--blue); }
+  .node.ret    { border-color:var(--green); background:var(--green-bg); box-shadow:0 0 0 3px rgba(45,106,26,.12); }
+  .node.ret    .node-name { color:var(--green); }
+  .node.miss   { border-color:var(--amber); background:var(--amber-bg); box-shadow:0 0 0 3px rgba(160,90,16,.1); }
+  .node.miss   .node-name { color:var(--amber); }
+
+  /* Step card */
+  .step-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:22px; }
+  .step-badge { display:inline-block; font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; border-radius:20px; padding:3px 10px; margin-bottom:12px; }
+  .step-badge.q { color:var(--blue);  background:var(--blue-bg);  border:1px solid rgba(122,48,24,.2); }
+  .step-badge.r { color:var(--green); background:var(--green-bg); border:1px solid var(--green-bdr); }
+  .step-badge.m { color:var(--amber); background:var(--amber-bg); border:1px solid var(--amber-bdr); }
+
+  .step-title { font-size:21px; font-weight:800; color:var(--ink); letter-spacing:-.02em; margin-bottom:3px; }
+  .step-sub   { font-size:12.5px; color:var(--ink-4); margin-bottom:12px; }
+  .step-desc  { font-size:13.5px; color:var(--ink-3); line-height:1.78; }
+  .step-desc code { font-family:var(--mono); font-size:11.5px; background:var(--bg-3); border:1px solid var(--border); border-radius:4px; padding:1px 5px; color:var(--ink-2); }
+  .cmd-block { margin:8px 0; background:var(--ink-2); border-radius:7px; padding:9px 13px; }
+  .cmd-block code { font-size:11px; background:transparent; border:none; color:#E8DDD0; display:block; line-height:1.7; padding:0; border-radius:0; }
+
+  .step-hl { margin-top:14px; padding:9px 13px; border-left:3px solid; border-radius:0 6px 6px 0; font-size:13px; color:var(--ink-3); line-height:1.6; }
+  .step-hl.q { background:var(--blue-bg);  border-color:var(--blue);  }
+  .step-hl.r { background:var(--green-bg); border-color:var(--green); }
+  .step-hl.m { background:var(--amber-bg); border-color:var(--amber); }
+
+  /* Controls */
+  .controls { margin-top:16px; display:flex; align-items:center; gap:10px; }
+  .ctrl-btn { padding:7px 16px; border:1.5px solid var(--border-2); border-radius:8px; background:var(--card); color:var(--ink-3); font-family:var(--sans); font-size:13px; font-weight:700; cursor:pointer; transition:border-color .15s,background .15s,color .15s; }
+  .ctrl-btn:hover:not(:disabled) { border-color:var(--blue); color:var(--blue); background:var(--blue-bg); }
+  .ctrl-btn:disabled { opacity:.38; cursor:not-allowed; }
+
+  .step-dots { display:flex; gap:5px; align-items:center; flex:1; flex-wrap:wrap; }
+  .dot { width:7px; height:7px; border-radius:50%; background:var(--border-2); cursor:pointer; border:none; padding:0; transition:background .15s,transform .15s; flex-shrink:0; }
+  .dot.active { background:var(--blue); transform:scale(1.35); }
+  .dot:hover  { background:var(--ink-4); }
+
+  /* Legend */
+  .legend { display:flex; gap:18px; flex-wrap:wrap; margin-top:14px; padding-top:14px; border-top:1px solid var(--border); }
+  .legend-item { display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-4); }
+  .lg { width:12px; height:12px; border-radius:3px; border:1.5px solid; }
+  .lg.idle { border-color:var(--border-2); background:var(--card); }
+  .lg.qact { border-color:var(--blue);  background:var(--blue-bg);  }
+  .lg.ract { border-color:var(--green); background:var(--green-bg); }
+  .lg.mact { border-color:var(--amber); background:var(--amber-bg); }
+
+  /* Footer */
+  .site-footer { border-top:1px solid var(--border); padding:28px 24px; text-align:center; }
+  .footer-inner { max-width:980px; margin:0 auto; }
+  .footer-text { font-size:13px; color:var(--ink-4); }
+  .footer-text a { color:var(--ink-3); text-decoration:none; }
+  .footer-text a:hover { color:var(--ink); }
+
+  /* Scroll button */
+  .scroll-btn { position:fixed; bottom:28px; right:24px; z-index:200; width:40px; height:40px; border-radius:50%; background:var(--blue); color:#fff; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:18px; box-shadow:0 3px 14px rgba(0,0,0,.22); transition:background .15s; }
+  .scroll-btn:hover { background:var(--ink-2); }
+
+  @media (max-width:720px) {
+    .viz-wrap { grid-template-columns:1fr; }
+    .page-header { padding:36px 18px 30px; }
+    .shell { padding:0 18px 60px; }
+    .step-card { padding:16px; }
+  }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="back-link">&#8592; ANITS FDP</a>
+    <div class="nav-sep"></div>
+    <span class="nav-crumb">DNS Resolution Visualizer</span>
+  </div>
+</nav>
+
+<header class="page-header">
+  <div class="session-badge">
+    <span class="badge-label">Networks</span>
+    <span class="badge-dot"></span>
+    <span class="badge-type">Interactive Visualizer</span>
+  </div>
+  <h1 class="page-title">How anits.edu Loads<br>in Your Browser</h1>
+  <p class="page-desc">Step through the full journey — browser cache miss, OS cache miss, DNS nameserver chain, TCP handshake, HTTP request and response — with the real example of anits.edu.</p>
+</header>
+
+<div class="shell">
+  <div class="section">
+    <div class="viz-wrap">
+
+      <!-- Diagram -->
+      <div class="diagram-outer">
+        <div class="diagram-container">
+
+          <svg class="diagram-svg" xmlns="http://www.w3.org/2000/svg">
+            <!-- browser -- browser cache (horizontal) -->
+            <line id="c-br-bc" x1="167" y1="32"  x2="195" y2="32"/>
+            <!-- browser -- os (vertical) -->
+            <line id="c-br-os" x1="86"  y1="60"  x2="86"  y2="105"/>
+            <!-- os -- os cache (horizontal) -->
+            <line id="c-os-oc" x1="167" y1="132" x2="195" y2="132"/>
+            <!-- os -- recursive resolver (vertical) -->
+            <line id="c-os-re" x1="86"  y1="160" x2="86"  y2="205"/>
+            <!-- recursive resolver -- root dns (vertical) -->
+            <line id="c-re-ro" x1="86"  y1="260" x2="86"  y2="310"/>
+            <!-- root -- tld (vertical) -->
+            <line id="c-ro-tl" x1="86"  y1="365" x2="86"  y2="383"/>
+            <!-- tld -- auth (vertical) -->
+            <line id="c-tl-au" x1="86"  y1="438" x2="86"  y2="456"/>
+          </svg>
+
+          <!-- Nodes: left chain -->
+          <div class="node" id="n-browser"   style="left:5px;  top:5px;   width:162px;height:55px;">
+            <span class="node-name">Browser</span>
+            <span class="node-sub">Chrome / Firefox</span>
+          </div>
+          <div class="node" id="n-os"        style="left:5px;  top:105px; width:162px;height:55px;">
+            <span class="node-name">OS Resolver</span>
+            <span class="node-sub">Windows / Linux</span>
+          </div>
+          <div class="node" id="n-recursive" style="left:5px;  top:205px; width:162px;height:55px;">
+            <span class="node-name">Recursive Resolver</span>
+            <span class="node-sub">8.8.8.8 (Google DNS)</span>
+          </div>
+          <div class="node" id="n-root"      style="left:5px;  top:310px; width:162px;height:55px;">
+            <span class="node-name">Root DNS Server</span>
+            <span class="node-sub">a&#8211;m.root-servers.net</span>
+          </div>
+          <div class="node" id="n-tld"       style="left:5px;  top:383px; width:162px;height:55px;">
+            <span class="node-name">TLD DNS (.edu)</span>
+            <span class="node-sub">Educause registry</span>
+          </div>
+          <div class="node" id="n-auth"      style="left:5px;  top:456px; width:162px;height:55px;">
+            <span class="node-name">Auth DNS (anits.edu)</span>
+            <span class="node-sub">ANITS nameserver</span>
+          </div>
+
+          <!-- Nodes: right column (caches + server) -->
+          <div class="node" id="n-bcache"    style="left:195px;top:5px;   width:148px;height:55px;">
+            <span class="node-name">Browser Cache</span>
+            <span class="node-sub">DNS TTL cache</span>
+          </div>
+          <div class="node" id="n-ocache"    style="left:195px;top:105px; width:148px;height:55px;">
+            <span class="node-name">OS DNS Cache</span>
+            <span class="node-sub">hosts + nscd cache</span>
+          </div>
+          <div class="node" id="n-server"    style="left:195px;top:410px; width:148px;height:68px;">
+            <span class="node-name">anits.edu Server</span>
+            <span class="node-sub">Web server (port 443)</span>
+          </div>
+
+        </div>
+      </div><!-- /diagram-outer -->
+
+      <!-- Step info + controls -->
+      <div>
+        <div class="step-card">
+          <div class="step-badge q" id="sBadge">Overview</div>
+          <div class="step-title"   id="sTitle">You Type anits.edu</div>
+          <div class="step-sub"     id="sSub">The browser receives your request</div>
+          <div class="step-desc"    id="sDesc"></div>
+          <div class="step-hl q"    id="sHl"></div>
+        </div>
+
+        <div class="controls">
+          <button class="ctrl-btn" id="btnPrev" onclick="prevS()">&#8592; Prev</button>
+          <div class="step-dots" id="dots"></div>
+          <button class="ctrl-btn" id="btnNext" onclick="nextS()">Next &#8594;</button>
+        </div>
+
+        <div class="legend">
+          <div class="legend-item"><span class="lg idle"></span> Idle</div>
+          <div class="legend-item"><span class="lg qact"></span> DNS query</div>
+          <div class="legend-item"><span class="lg ract"></span> Return / cached</div>
+          <div class="legend-item"><span class="lg mact"></span> Cache miss</div>
+        </div>
+      </div>
+
+    </div><!-- /viz-wrap -->
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-text"><a href="index.html">&#8592; Back to ANITS FDP</a></p>
+  </div>
+</footer>
+
+<button class="scroll-btn" id="scrollBtn" onclick="scrollToggle()" title="Scroll">&#8595;</button>
+
+<script>
+// ── Stage data ────────────────────────────────────────────────────────────────
+const stages = [
+  {
+    badge:'Overview', bc:'q',
+    title:'You Type anits.edu',
+    sub:'The journey begins in the browser address bar',
+    desc:'You type <code>anits.edu</code> and press Enter. The browser needs the <strong>IP address</strong> of the server — the internet routes data using IPs, not domain names. This name-to-IP translation is called <strong>DNS Resolution</strong>.',
+    hl:'DNS (Domain Name System) is the phonebook of the internet — it maps domain names to IP addresses.',
+    hlc:'q', nodes:['browser'], conns:[], ret:[], retc:[], miss:[], missc:[]
+  },
+  {
+    badge:'Step 1 — Cache Miss', bc:'m',
+    title:'Browser Cache',
+    sub:'Browser checks its own DNS cache — not found',
+    desc:'The browser first looks in its <strong>local DNS cache</strong>. It stores IP addresses from past visits with a TTL (Time To Live). If anits.edu was visited recently and the TTL has not expired, the browser would use the cached IP directly — skipping all DNS queries.<br><br>Result: <strong>not found</strong> — first visit, or the cached entry has expired.',
+    hl:'Cache MISS. The browser passes the request to the operating system.',
+    hlc:'m', nodes:['browser'], conns:[], ret:[], retc:[], miss:['bcache'], missc:['c-br-bc']
+  },
+  {
+    badge:'Step 2 — Cache Miss', bc:'m',
+    title:'OS DNS Cache',
+    sub:'Operating system checks its DNS cache — not found',
+    desc:'The browser asks the <strong>OS resolver</strong> to look up the domain. The OS checks its own DNS cache — which also includes static entries from <code>/etc/hosts</code> (Linux / Mac) or the Windows hosts file.<br><br>Result: <strong>not found</strong> here either.',
+    hl:'Cache MISS. The OS will now contact a Recursive Resolver on the network.',
+    hlc:'m', nodes:['browser','os'], conns:['c-br-os'], ret:[], retc:[], miss:['ocache'], missc:['c-os-oc']
+  },
+  {
+    badge:'Step 3', bc:'q',
+    title:'Recursive Resolver',
+    sub:'OS sends the DNS query to 8.8.8.8 (Google DNS)',
+    desc:'The OS sends the query to a <strong>Recursive Resolver</strong> — configured via your router / DHCP. Common choices are Google DNS (8.8.8.8), Cloudflare (1.1.1.1), or your ISP\'s resolver.<br><br>The resolver checks <strong>its own cache</strong> first — also a miss for anits.edu. So it starts walking down the DNS hierarchy to find the answer.',
+    hl:'The Recursive Resolver acts as your agent, querying DNS servers on your behalf.',
+    hlc:'q', nodes:['os','recursive'], conns:['c-os-re'], ret:[], retc:[], miss:[], missc:[]
+  },
+  {
+    badge:'Step 4', bc:'q',
+    title:'Root DNS Server',
+    sub:'Recursive Resolver asks a Root nameserver',
+    desc:'The Recursive Resolver contacts one of the <strong>13 Root DNS servers</strong> (a&#8211;m.root-servers.net), operated by organizations like ICANN, Verisign, and NASA. There are hundreds of physical servers behind these 13 addresses.<br><br>The root server doesn\'t know the IP of anits.edu — but it knows which server is authoritative for <code>.edu</code> domains.',
+    hl:'Root responds: "I don\'t know anits.edu — but the .edu TLD server is at 192.26.92.30."',
+    hlc:'q', nodes:['recursive','root'], conns:['c-re-ro'], ret:[], retc:[], miss:[], missc:[]
+  },
+  {
+    badge:'Step 5', bc:'q',
+    title:'TLD DNS Server (.edu)',
+    sub:'Recursive Resolver asks the .edu nameserver',
+    desc:'The Recursive Resolver now queries the <strong>.edu TLD (Top-Level Domain) server</strong>, run by Educause. This server is authoritative for all <code>.edu</code> domain registrations.<br><br>It doesn\'t store the actual A record IP — but it knows which nameserver is authoritative for <code>anits.edu</code> specifically.',
+    hl:'TLD responds: "Ask the authoritative nameserver for anits.edu — it\'s ns1.anits.edu."',
+    hlc:'q', nodes:['recursive','tld'], conns:['c-ro-tl'], ret:[], retc:[], miss:[], missc:[]
+  },
+  {
+    badge:'Step 6', bc:'q',
+    title:'Authoritative DNS (anits.edu)',
+    sub:'The definitive source — IP address found',
+    desc:'The Recursive Resolver contacts <strong>ANITS\'s own authoritative nameserver</strong>. This is the final authority for all DNS records under anits.edu — maintained by the ANITS IT team. It holds the <strong>A record</strong> mapping anits.edu to a real IP address.',
+    hl:'Auth NS responds: anits.edu A record &#8594; 203.145.xx.xx. IP address found.',
+    hlc:'q', nodes:['recursive','auth'], conns:['c-tl-au'], ret:[], retc:[], miss:[], missc:[]
+  },
+  {
+    badge:'Step 7 — IP Returns', bc:'r',
+    title:'IP Travels Back — Caches Updated',
+    sub:'Auth DNS &#8594; Resolver &#8594; OS &#8594; Browser (all caches filled)',
+    desc:'The IP address flows back up the chain:<br><br><strong>Auth DNS &#8594; Recursive Resolver</strong> — resolver caches it (respects the record\'s TTL).<br><strong>Recursive Resolver &#8594; OS</strong> — OS stores it in its DNS cache.<br><strong>OS &#8594; Browser</strong> — browser stores it in the browser DNS cache.<br><br>The next time anyone visits anits.edu, the IP is found immediately in cache — no nameserver queries needed until TTL expires.',
+    hl:'DNS resolution complete. IP: 203.145.xx.xx. All caches updated. Browser is ready to connect.',
+    hlc:'r', nodes:[], conns:[], ret:['auth','recursive','os','ocache','browser','bcache'], retc:['c-tl-au','c-ro-tl','c-re-ro','c-os-re','c-os-oc','c-br-os','c-br-bc'], miss:[], missc:[]
+  },
+  {
+    badge:'Step 8', bc:'q',
+    title:'TCP Handshake',
+    sub:'Browser opens a TCP connection to 203.145.xx.xx:443',
+    desc:'Browser now connects to the server using <strong>TCP</strong>. It performs a <strong>3-way handshake</strong> to establish a reliable channel:<div class="cmd-block"><code>Browser  &#8594;  SYN        &#8594;  Server</code><code>Browser  &#8592;  SYN-ACK    &#8592;  Server</code><code>Browser  &#8594;  ACK        &#8594;  Server</code></div>For HTTPS (port 443), a <strong>TLS handshake</strong> follows immediately after to negotiate encryption.',
+    hl:'TCP ensures data arrives in order and without loss. No HTTP data is sent yet — just connection setup.',
+    hlc:'q', nodes:['browser','server'], conns:[], ret:[], retc:[], miss:[], missc:[]
+  },
+  {
+    badge:'Step 9', bc:'q',
+    title:'HTTP Request',
+    sub:'Browser sends GET / to the anits.edu server',
+    desc:'Over the established TCP connection, the browser sends an <strong>HTTP GET request</strong>:<div class="cmd-block"><code>GET / HTTP/1.1</code><code>Host: anits.edu</code><code>Accept: text/html,application/xhtml+xml</code><code>User-Agent: Mozilla/5.0 (Chrome/...)</code><code>Connection: keep-alive</code></div>This request travels as IP packets through routers and switches across the internet to reach the server.',
+    hl:'HTTP is just plain text sent over TCP/IP. Each line is a header describing what the browser wants.',
+    hlc:'q', nodes:['browser','server'], conns:[], ret:[], retc:[], miss:[], missc:[]
+  },
+  {
+    badge:'Step 10 — Response', bc:'r',
+    title:'HTTP Response',
+    sub:'Server sends 200 OK + HTML back to browser',
+    desc:'The anits.edu web server processes the request and sends back an <strong>HTTP response</strong>:<div class="cmd-block"><code>HTTP/1.1 200 OK</code><code>Content-Type: text/html; charset=UTF-8</code><code>Content-Length: 24680</code><code>&nbsp;</code><code>&lt;!DOCTYPE html&gt;</code><code>&lt;html&gt;...the full page...&lt;/html&gt;</code></div>The OS receives the TCP packets, reassembles them in the correct order, and passes the data stream to the browser.',
+    hl:'The response may trigger additional requests for CSS files, images, fonts, and JavaScript.',
+    hlc:'r', nodes:['server'], conns:[], ret:['browser'], retc:[], miss:[], missc:[]
+  },
+  {
+    badge:'Step 11 — Done', bc:'r',
+    title:'Browser Renders the Page',
+    sub:'HTML parsed &#8594; DOM built &#8594; pixels painted on screen',
+    desc:'The browser parses the HTML and builds the <strong>DOM (Document Object Model)</strong>. It then:<br><br>1. Fetches and applies linked <strong>CSS</strong> stylesheets<br>2. Downloads and executes <strong>JavaScript</strong><br>3. Loads <strong>images</strong> and other assets<br>4. <strong>Paints pixels</strong> on screen<br><br>The anits.edu homepage is now visible in your browser.',
+    hl:'The entire journey — DNS + TCP + HTTP — typically completes in under 200 milliseconds.',
+    hlc:'r', nodes:[], conns:[], ret:['browser'], retc:[], miss:[], missc:[]
+  }
+];
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const allNodeIds = ['browser','bcache','os','ocache','recursive','root','tld','auth','server'];
+const allConnIds = ['c-br-bc','c-br-os','c-os-oc','c-os-re','c-re-ro','c-ro-tl','c-tl-au'];
+
+function $n(id) { return document.getElementById('n-' + id); }
+function $c(id) { return document.getElementById(id); }
+
+// ── Render ────────────────────────────────────────────────────────────────────
+let cur = 0;
+
+function render(idx) {
+  const s = stages[idx];
+
+  allNodeIds.forEach(id => $n(id).classList.remove('active','ret','miss'));
+  allConnIds.forEach(id => { const el=$c(id); if(el) el.classList.remove('active','ret','miss'); });
+
+  (s.nodes  || []).forEach(id => $n(id)?.classList.add('active'));
+  (s.ret    || []).forEach(id => $n(id)?.classList.add('ret'));
+  (s.miss   || []).forEach(id => $n(id)?.classList.add('miss'));
+  (s.conns  || []).forEach(id => $c(id)?.classList.add('active'));
+  (s.retc   || []).forEach(id => $c(id)?.classList.add('ret'));
+  (s.missc  || []).forEach(id => $c(id)?.classList.add('miss'));
+
+  const badge = document.getElementById('sBadge');
+  badge.textContent = s.badge;
+  badge.className   = 'step-badge ' + s.bc;
+  document.getElementById('sTitle').textContent = s.title;
+  document.getElementById('sSub').textContent   = s.sub;
+  document.getElementById('sDesc').innerHTML    = s.desc;
+  const hl = document.getElementById('sHl');
+  hl.textContent = s.hl;
+  hl.className   = 'step-hl ' + s.hlc;
+
+  document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+  document.getElementById('btnPrev').disabled = idx === 0;
+  document.getElementById('btnNext').disabled = idx === stages.length - 1;
+}
+
+function prevS() { if (cur > 0)               { cur--; render(cur); } }
+function nextS() { if (cur < stages.length-1) { cur++; render(cur); } }
+function goS(i)  { cur = i; render(cur); }
+
+// ── Build dots ────────────────────────────────────────────────────────────────
+const dotsEl = document.getElementById('dots');
+stages.forEach((_, i) => {
+  const d = document.createElement('button');
+  d.className = 'dot';
+  d.title = stages[i].title;
+  d.onclick = () => goS(i);
+  dotsEl.appendChild(d);
+});
+
+// ── Keyboard ──────────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') nextS();
+  if (e.key === 'ArrowLeft')  prevS();
+});
+
+// ── Scroll toggle ─────────────────────────────────────────────────────────────
+(function(){
+  var btn = document.getElementById('scrollBtn');
+  function upd(){ btn.innerHTML = (window.scrollY > 200) ? '&#8593;' : '&#8595;'; }
+  window.addEventListener('scroll', upd, {passive:true});
+  upd();
+})();
+function scrollToggle(){
+  if (window.scrollY > 200) window.scrollTo({top:0,behavior:'smooth'});
+  else window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+render(0);
+</script>
+
+</body>
+</html>

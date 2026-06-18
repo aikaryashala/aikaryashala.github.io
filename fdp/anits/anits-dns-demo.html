@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>How www.anits.edu.in loads — DNS, connect &amp; fetch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0a0f1e;
+    --bg-2:#0d1426;
+    --panel:#121b32;
+    --panel-2:#16203a;
+    --line:#27324f;
+    --line-soft:#1d2742;
+    --ink:#e8ecf6;
+    --ink-dim:#8c97b3;
+    --ink-faint:#5b6789;
+    --query:#f5a623;   /* outbound: the question */
+    --answer:#34e2c4;  /* inbound: the answer */
+    --ok:#62e29a;      /* established / success */
+    --miss:#74809e;
+    --radius:14px;
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --disp:"Space Grotesk",system-ui,sans-serif;
+    --body:"Inter",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(900px 500px at 15% -10%, rgba(245,166,35,.07), transparent 60%),
+      radial-gradient(900px 600px at 95% 110%, rgba(52,226,196,.07), transparent 60%),
+      var(--bg);
+    color:var(--ink);
+    font-family:var(--body);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+    min-height:100vh;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 48px}
+
+  /* ---------- header ---------- */
+  header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px}
+  .title-block .eyebrow{
+    font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--query);margin:0 0 8px;
+  }
+  h1{
+    font-family:var(--disp);font-weight:700;font-size:clamp(22px,4vw,33px);
+    letter-spacing:-.01em;margin:0;line-height:1.08;
+  }
+  h1 .host{color:var(--answer)}
+  .sub{color:var(--ink-dim);font-size:13.5px;margin:7px 0 0}
+
+  .tabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);
+    padding:5px;border-radius:12px}
+  .tab{
+    font-family:var(--mono);font-size:12px;letter-spacing:.04em;
+    border:0;background:transparent;color:var(--ink-dim);cursor:pointer;
+    padding:9px 14px;border-radius:8px;transition:.18s;white-space:nowrap;
+  }
+  .tab .n{opacity:.5;margin-right:6px}
+  .tab[aria-selected="true"]{background:var(--panel-2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+  .tab[data-phase="dns"][aria-selected="true"]{color:var(--query)}
+  .tab[data-phase="connect"][aria-selected="true"]{color:var(--answer)}
+  .tab:hover{color:var(--ink)}
+
+  /* ---------- stage ---------- */
+  .stage-card{
+    background:linear-gradient(180deg,var(--bg-2),var(--bg));
+    border:1px solid var(--line);border-radius:var(--radius);
+    overflow:hidden;
+  }
+  .stage{position:relative;height:430px;padding:22px}
+  .wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .wires path{fill:none;stroke:var(--line);stroke-width:1.5}
+  .wires path.lit-query{stroke:var(--query);filter:drop-shadow(0 0 6px rgba(245,166,35,.6))}
+  .wires path.lit-answer{stroke:var(--answer);filter:drop-shadow(0 0 6px rgba(52,226,196,.6))}
+
+  .col{position:absolute;display:flex;flex-direction:column;gap:14px}
+
+  .node{
+    position:relative;background:var(--panel);border:1px solid var(--line);
+    border-radius:11px;padding:11px 13px;min-width:140px;
+    transition:border-color .25s, box-shadow .25s, transform .25s, background .25s;
+  }
+  .node .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-dim)}
+  .node .name{font-family:var(--disp);font-weight:600;font-size:14px;margin-top:3px;letter-spacing:-.01em}
+  .node .meta{font-family:var(--mono);font-size:10.5px;color:var(--ink-dim);margin-top:3px;word-break:break-all}
+  .node .dot{position:absolute;top:11px;right:11px;width:7px;height:7px;border-radius:50%;background:var(--line);transition:.25s}
+
+  .node.active{border-color:var(--query);box-shadow:0 0 0 1px var(--query),0 0 22px -6px var(--query);transform:translateY(-1px)}
+  .node.active .dot{background:var(--query);box-shadow:0 0 8px var(--query)}
+  .node.flash-answer{border-color:var(--answer);box-shadow:0 0 0 1px var(--answer),0 0 22px -6px var(--answer)}
+  .node.flash-answer .dot{background:var(--answer);box-shadow:0 0 8px var(--answer)}
+  .node.cached{border-color:var(--ok)}
+  .node.cached .dot{background:var(--ok)}
+  .node.dimmed{opacity:.4}
+
+  .hier-label{position:absolute;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--ink-dim);opacity:.7}
+
+  /* the travelling packet */
+  .packet{
+    position:absolute;left:0;top:0;transform:translate(-999px,-999px);
+    display:flex;align-items:center;gap:6px;padding:5px 9px;border-radius:20px;
+    font-family:var(--mono);font-size:11px;font-weight:600;white-space:nowrap;
+    pointer-events:none;opacity:0;z-index:5;
+  }
+  .packet::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;
+    box-shadow:0 0 10px currentColor}
+  .packet.show{opacity:1}
+  .packet.query{color:var(--query);background:rgba(245,166,35,.12);box-shadow:0 0 0 1px rgba(245,166,35,.4)}
+  .packet.answer{color:var(--answer);background:rgba(52,226,196,.12);box-shadow:0 0 0 1px rgba(52,226,196,.4)}
+
+  /* connect-phase page preview */
+  .preview{position:absolute;width:188px;background:#0b1326;border:1px solid var(--line);
+    border-radius:9px;overflow:hidden;display:none;flex-direction:column}
+  .preview .bar{display:flex;align-items:center;gap:5px;padding:7px 9px;border-bottom:1px solid var(--line);background:#0e1730}
+  .preview .bar i{width:7px;height:7px;border-radius:50%;background:var(--line);display:block}
+  .preview .bar span{font-family:var(--mono);font-size:9px;color:var(--ink-dim);margin-left:6px;letter-spacing:.04em}
+  .preview .canvas{height:118px;position:relative;background:#0b1326;padding:9px;display:flex;flex-direction:column;gap:7px}
+  .pv{border-radius:3px;background:#1b2745;opacity:0;transform:translateY(4px);transition:.4s}
+  .pv.head{height:14px}
+  .pv.hero{height:34px}
+  .pv.row{height:8px}
+  .pv.row.short{width:60%}
+  .pv.imgs{display:flex;gap:6px;height:26px}
+  .pv.imgs b{flex:1;border-radius:3px;background:#1b2745;display:block}
+  /* render stages */
+  .preview[data-render="1"] .pv,
+  .preview[data-render="2"] .pv,
+  .preview[data-render="3"] .pv,
+  .preview[data-render="4"] .pv{opacity:1;transform:none}
+  .preview[data-render="2"] .pv.head{background:linear-gradient(90deg,#2a3c6b,#33507e)}
+  .preview[data-render="2"] .pv.hero,
+  .preview[data-render="3"] .pv.hero,
+  .preview[data-render="4"] .pv.hero{background:linear-gradient(120deg,#13324a,#1d4f4a)}
+  .preview[data-render="2"] .pv.row,
+  .preview[data-render="3"] .pv.row,
+  .preview[data-render="4"] .pv.row{background:#33415f}
+  .preview[data-render="3"] .pv.imgs b,
+  .preview[data-render="4"] .pv.imgs b{background:linear-gradient(135deg,#3a2f5e,#2f4a6b)}
+  .preview .badge{position:absolute;bottom:7px;right:8px;font-family:var(--mono);font-size:8.5px;
+    color:var(--answer);opacity:0;transition:.3s}
+  .preview[data-render="4"] .badge{opacity:1}
+
+  /* ---------- readout panels ---------- */
+  .readout{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;margin-top:14px}
+  @media(max-width:760px){.readout{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 17px}
+  .panel .label{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:9px;display:flex;justify-content:space-between}
+  .step-no{color:var(--query)}
+  .caption{font-family:var(--disp);font-weight:600;font-size:17px;letter-spacing:-.01em;margin:0 0 6px}
+  .explain{font-size:13.5px;color:var(--ink-dim);margin:0}
+
+  .console{font-family:var(--mono);font-size:12px;min-height:150px;display:flex;flex-direction:column;gap:6px}
+  .ln{display:flex;gap:8px;align-items:baseline;opacity:0;animation:fade .25s forwards}
+  @keyframes fade{to{opacity:1}}
+  .ln .ar{flex:none;width:14px;font-weight:600}
+  .ln.q .ar{color:var(--query)}
+  .ln.a .ar{color:var(--answer)}
+  .ln.s .ar{color:var(--ink-dim)}
+  .ln .tx{color:var(--ink);word-break:break-word}
+  .ln.s .tx{color:var(--ink-dim)}
+  .ln .tx b{color:var(--answer);font-weight:600}
+  .ln .tx em{color:var(--query);font-style:normal}
+
+  /* ---------- controls ---------- */
+  .controls{display:flex;align-items:center;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .progress{flex:1;min-width:160px;height:5px;background:var(--line-soft);border-radius:4px;overflow:hidden}
+  .progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--query),var(--answer));transition:width .4s}
+  button.ctl{
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.03em;cursor:pointer;
+    background:var(--panel);color:var(--ink);border:1px solid var(--line);
+    padding:10px 15px;border-radius:9px;transition:.16s;
+  }
+  button.ctl:hover:not(:disabled){border-color:var(--query);color:#fff}
+  button.ctl:disabled{opacity:.4;cursor:not-allowed}
+  button.ctl.primary{background:var(--query);color:#1a1205;border-color:var(--query);font-weight:600}
+  button.ctl.primary:hover{filter:brightness(1.08)}
+  button.ctl.play[data-playing="true"]{background:var(--answer);color:#06201b;border-color:var(--answer);font-weight:600}
+  :focus-visible{outline:2px solid var(--answer);outline-offset:2px}
+
+  footer.note{margin-top:18px;font-family:var(--mono);font-size:10.5px;color:var(--ink-dim);opacity:.7;text-align:center;letter-spacing:.02em}
+
+  @media(prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms!important;transition-duration:.001ms!important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="title-block">
+      <p class="eyebrow">Name → number → connection → page</p>
+      <h1>How <span class="host">www.anits.edu.in</span> loads</h1>
+      <p class="sub">Anil Neerukonda Institute of Technology &amp; Sciences · the round trip from typing a name to seeing the page</p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Phase">
+      <button class="tab" data-phase="dns" role="tab" aria-selected="true"><span class="n">01</span>Resolve the name</button>
+      <button class="tab" data-phase="connect" role="tab" aria-selected="false"><span class="n">02</span>Connect &amp; fetch</button>
+    </div>
+  </header>
+
+  <div class="stage-card">
+    <div class="stage" id="stage">
+      <svg class="wires" id="wires" preserveAspectRatio="none"></svg>
+
+      <!-- DNS nodes -->
+      <div class="col dns" data-col="client" style="left:22px;top:88px">
+        <div class="node" id="n-browser"><span class="dot"></span><div class="tag">Client</div><div class="name">Browser</div><div class="meta">wants: www.anits.edu.in</div></div>
+        <div class="node" id="n-stub"><span class="dot"></span><div class="tag">OS</div><div class="name">Stub resolver</div><div class="meta">os cache · hosts file</div></div>
+      </div>
+      <div class="col dns" data-col="resolver" style="left:50%;top:150px;transform:translateX(-50%)">
+        <div class="node" id="n-resolver"><span class="dot"></span><div class="tag">ISP / 8.8.8.8</div><div class="name">Recursive resolver</div><div class="meta">does the legwork · caches</div></div>
+      </div>
+      <div class="col dns" data-col="hier" style="right:22px;top:34px">
+        <div class="hier-label" style="right:0;top:-22px">authoritative hierarchy</div>
+        <div class="node" id="n-root"><span class="dot"></span><div class="tag">Level ·</div><div class="name">Root server</div><div class="meta">knows the TLDs</div></div>
+        <div class="node" id="n-tld"><span class="dot"></span><div class="tag">Level .in</div><div class="name">.in TLD server</div><div class="meta">NIXI registry</div></div>
+        <div class="node" id="n-auth"><span class="dot"></span><div class="tag">Level anits.edu.in</div><div class="name">Authoritative NS</div><div class="meta">holds the A record</div></div>
+      </div>
+
+      <!-- Connect nodes -->
+      <div class="col connect" data-col="cclient" style="left:22px;top:120px;display:none">
+        <div class="node" id="n-client"><span class="dot"></span><div class="tag">Client</div><div class="name">Your browser</div><div class="meta" id="client-ip">→ 103.x.x.x : 443</div></div>
+      </div>
+      <div class="col connect" data-col="cserver" style="right:22px;top:120px;display:none">
+        <div class="node" id="n-server"><span class="dot"></span><div class="tag">Origin · port 443</div><div class="name">anits.edu.in server</div><div class="meta" id="server-ip">103.x.x.x</div></div>
+      </div>
+
+      <!-- connect-phase page preview -->
+      <div class="preview" id="preview" style="left:22px;top:208px">
+        <div class="bar"><i></i><i></i><i></i><span>www.anits.edu.in</span></div>
+        <div class="canvas">
+          <div class="pv head"></div>
+          <div class="pv hero"></div>
+          <div class="pv row"></div>
+          <div class="pv row short"></div>
+          <div class="pv imgs"><b></b><b></b><b></b></div>
+          <div class="badge">● rendered</div>
+        </div>
+      </div>
+
+      <div class="packet" id="packet"><span id="packet-label">A?</span></div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="panel">
+      <div class="label"><span>What's happening</span><span class="step-no" id="stepno">step 1 / 8</span></div>
+      <p class="caption" id="caption">—</p>
+      <p class="explain" id="explain">—</p>
+    </div>
+    <div class="panel">
+      <div class="label"><span>On the wire</span><span id="wirephase">dns</span></div>
+      <div class="console" id="console"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="ctl" id="prev" aria-label="Previous step">&#8249; Prev</button>
+    <button class="ctl play" id="play" data-playing="false">&#9654; Auto</button>
+    <button class="ctl primary" id="next" aria-label="Next step">Next &#8250;</button>
+    <div class="progress" aria-hidden="true"><i id="bar"></i></div>
+    <button class="ctl" id="reset">&#8635; Reset</button>
+  </div>
+
+  <footer class="note">Resolution &amp; connection flow is the real thing · IP octets and record values shown are illustrative.</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+  var EX_IP = "103.21.58.10"; // illustrative resolved address
+
+  // ---- step model -------------------------------------------------------
+  // type: "self"  -> a node checks itself (no travel)
+  //       "hop"   -> packet goes from->to (query) then to->from (answer)
+  //       "render"-> connect-phase page render step
+  var steps = [
+    // ===== PHASE 1: DNS =====
+    { phase:"dns", node:"n-browser",
+      caption:"Browser checks its own cache",
+      explain:"Before asking anyone, the browser looks in its in-memory DNS cache for www.anits.edu.in. Cold start, so it's a miss.",
+      log:[{c:"s",a:"·",t:"browser cache: <em>www.anits.edu.in</em> → not found"}] },
+
+    { phase:"dns", node:"n-stub",
+      caption:"OS stub resolver is asked",
+      explain:"The browser hands the name to the operating system's resolver, which checks the OS cache and the hosts file. Still a miss, so it forwards a recursive query to the configured resolver.",
+      log:[{c:"s",a:"·",t:"os cache + hosts file → not found"},
+           {c:"s",a:"·",t:"forwarding recursive query to resolver"}] },
+
+    { phase:"dns", type:"hop", from:"n-resolver", to:"n-root",
+      qlabel:"A? www.anits.edu.in", alabel:"ask .in",
+      caption:"Resolver asks a root server",
+      explain:"The recursive resolver starts at the top. A root server doesn't know the address, but it knows who runs .in and replies with a referral.",
+      log:[{c:"q",a:"→",t:"query root: <em>www.anits.edu.in</em> A"},
+           {c:"a",a:"←",t:"referral: ask the <b>.in</b> TLD servers"}] },
+
+    { phase:"dns", type:"hop", from:"n-resolver", to:"n-tld",
+      qlabel:"A? www.anits.edu.in", alabel:"ask anits.edu.in",
+      caption:"Resolver asks the .in TLD server",
+      explain:"The .in registry (NIXI) server knows which nameservers are authoritative for anits.edu.in, and refers the resolver one level deeper.",
+      log:[{c:"q",a:"→",t:"query .in: <em>www.anits.edu.in</em> A"},
+           {c:"a",a:"←",t:"referral: authoritative NS for <b>anits.edu.in</b>"}] },
+
+    { phase:"dns", type:"hop", from:"n-resolver", to:"n-auth",
+      qlabel:"A? www.anits.edu.in", alabel:"A "+EX_IP,
+      caption:"Authoritative nameserver answers",
+      explain:"This is the server that actually holds the zone. It returns the A record — the real IP address — along with a TTL telling everyone how long they may cache it.",
+      log:[{c:"q",a:"→",t:"query auth: <em>www.anits.edu.in</em> A"},
+           {c:"a",a:"←",t:"answer: A <b>"+EX_IP+"</b>  ttl 3600"}] },
+
+    { phase:"dns", node:"n-resolver", cacheNode:"n-resolver",
+      caption:"Resolver caches and replies",
+      explain:"The resolver stores the answer for the TTL window (so the next visitor skips all this) and sends the IP back down to the OS, then to the browser.",
+      log:[{c:"s",a:"·",t:"resolver caches A record for 3600s"},
+           {c:"a",a:"←",t:"to browser: <b>"+EX_IP+"</b>"}] },
+
+    { phase:"dns", node:"n-browser", cacheNode:"n-browser",
+      caption:"Browser now has the address",
+      explain:"The name is resolved. The browser knows that www.anits.edu.in lives at "+EX_IP+" and is ready to open a connection. Next phase →",
+      log:[{c:"s",a:"·",t:"resolved: www.anits.edu.in = <b>"+EX_IP+"</b>"},
+           {c:"s",a:"·",t:"ready to connect on port 443 (https)"}] },
+
+    // ===== PHASE 2: CONNECT & FETCH =====
+    { phase:"connect", type:"hop", from:"n-client", to:"n-server",
+      qlabel:"SYN", alabel:"SYN-ACK / ACK", threeway:true,
+      caption:"TCP three-way handshake",
+      explain:"To talk reliably, the browser and server agree to a connection: the browser sends SYN, the server replies SYN-ACK, the browser confirms with ACK. The pipe is open.",
+      log:[{c:"q",a:"→",t:"SYN  → "+EX_IP+":443"},
+           {c:"a",a:"←",t:"SYN-ACK"},
+           {c:"q",a:"→",t:"ACK — <b>connection established</b>"}] },
+
+    { phase:"connect", type:"hop", from:"n-client", to:"n-server",
+      qlabel:"ClientHello", alabel:"cert + keys",
+      caption:"TLS handshake (the padlock)",
+      explain:"Because it's https, the two sides negotiate encryption. The server presents its certificate; the browser verifies it's really anits.edu.in and signed by a trusted CA, then they derive shared keys.",
+      log:[{c:"q",a:"→",t:"ClientHello (ciphers, SNI: www.anits.edu.in)"},
+           {c:"a",a:"←",t:"ServerHello + <b>certificate</b>"},
+           {c:"s",a:"·",t:"cert valid · CA trusted · keys derived"}] },
+
+    { phase:"connect", type:"hop", from:"n-client", to:"n-server",
+      qlabel:"GET /", alabel:"200 OK · html",
+      caption:"HTTP request for the page",
+      explain:"Now the browser asks for the actual page over the encrypted channel. The server responds 200 OK with the HTML document.",
+      manifest:"index.html",
+      render:1,
+      log:[{c:"q",a:"→",t:"GET / HTTP/2  ·  Host: www.anits.edu.in"},
+           {c:"a",a:"←",t:"<b>200 OK</b>  content-type: text/html"},
+           {c:"a",a:"←",t:"↳ index.html  (14 KB)"}] },
+
+    { phase:"connect", node:"n-client", render:1,
+      caption:"Browser parses the HTML",
+      explain:"As it reads the HTML, the browser builds the page structure and discovers links to other files it still needs: a stylesheet, a script, images and a font.",
+      log:[{c:"s",a:"·",t:"building DOM…"},
+           {c:"s",a:"·",t:"discovered: styles.css · main.js · logo.png · hero.jpg · font.woff2"}] },
+
+    { phase:"connect", type:"hop", from:"n-client", to:"n-server",
+      qlabel:"GET styles.css", alabel:"css + js",
+      caption:"Fetching CSS and JavaScript",
+      explain:"Over the same connection (HTTP/2 multiplexes many requests at once), the browser pulls the stylesheet and script. CSS makes it look right; JS makes it interactive.",
+      manifest:["styles.css","main.js"],
+      render:2,
+      log:[{c:"q",a:"→",t:"GET styles.css · GET main.js"},
+           {c:"a",a:"←",t:"↳ styles.css (28 KB) · main.js (61 KB)"},
+           {c:"s",a:"·",t:"styles applied → layout &amp; colors appear"}] },
+
+    { phase:"connect", type:"hop", from:"n-client", to:"n-server",
+      qlabel:"GET images", alabel:"png · jpg · woff2",
+      caption:"Fetching images and fonts",
+      explain:"The remaining assets stream in — the logo, the hero image and the web font — each as its own response on the multiplexed connection.",
+      manifest:["logo.png","hero.jpg","font.woff2"],
+      render:3,
+      log:[{c:"q",a:"→",t:"GET logo.png · hero.jpg · font.woff2"},
+           {c:"a",a:"←",t:"↳ images + font delivered"}] },
+
+    { phase:"connect", node:"n-client", render:4, cacheNode:"n-client",
+      caption:"Page rendered",
+      explain:"All files are in. The browser paints the finished, styled, interactive page. www.anits.edu.in is on screen — and most of these answers are now cached for next time.",
+      log:[{c:"s",a:"·",t:"all resources loaded"},
+           {c:"a",a:"←",t:"<b>page fully rendered ✓</b>"}] },
+  ];
+
+  // ---- element refs -----------------------------------------------------
+  var stage=document.getElementById("stage"),
+      wires=document.getElementById("wires"),
+      packet=document.getElementById("packet"),
+      packetLabel=document.getElementById("packet-label"),
+      preview=document.getElementById("preview"),
+      consoleEl=document.getElementById("console"),
+      captionEl=document.getElementById("caption"),
+      explainEl=document.getElementById("explain"),
+      stepnoEl=document.getElementById("stepno"),
+      wirephaseEl=document.getElementById("wirephase"),
+      barEl=document.getElementById("bar"),
+      btnPrev=document.getElementById("prev"),
+      btnNext=document.getElementById("next"),
+      btnPlay=document.getElementById("play"),
+      btnReset=document.getElementById("reset"),
+      tabs=Array.prototype.slice.call(document.querySelectorAll(".tab"));
+
+  var cur=0, playing=false, animToken=0, playTimer=null;
+
+  // wire connections to draw per phase
+  var dnsWires=[["n-resolver","n-root"],["n-resolver","n-tld"],["n-resolver","n-auth"],
+                ["n-browser","n-stub"],["n-stub","n-resolver"]];
+  var connectWires=[["n-client","n-server"]];
+
+  function center(id){
+    var el=document.getElementById(id), s=stage.getBoundingClientRect(), r=el.getBoundingClientRect();
+    return {x:r.left-s.left+r.width/2, y:r.top-s.top+r.height/2, el:el};
+  }
+  function edge(fromId,toId){
+    var a=center(fromId), b=center(toId);
+    var r=document.getElementById(fromId).getBoundingClientRect();
+    var dx=b.x-a.x, dy=b.y-a.y, ang=Math.atan2(dy,dx);
+    var hw=r.width/2, hh=r.height/2;
+    var tx = Math.abs(Math.cos(ang))<1e-3?Infinity:hw/Math.abs(Math.cos(ang));
+    var ty = Math.abs(Math.sin(ang))<1e-3?Infinity:hh/Math.abs(Math.sin(ang));
+    var t=Math.min(tx,ty);
+    return {x:a.x+Math.cos(ang)*t, y:a.y+Math.sin(ang)*t};
+  }
+
+  function drawWires(phase){
+    wires.innerHTML="";
+    var s=stage.getBoundingClientRect();
+    wires.setAttribute("viewBox","0 0 "+s.width+" "+s.height);
+    var set = phase==="dns"?dnsWires:connectWires;
+    set.forEach(function(pair){
+      try{
+        var p1=edge(pair[0],pair[1]), p2=edge(pair[1],pair[0]);
+        var path=document.createElementNS("http://www.w3.org/2000/svg","path");
+        path.setAttribute("d","M"+p1.x+","+p1.y+" L"+p2.x+","+p2.y);
+        path.dataset.from=pair[0]; path.dataset.to=pair[1];
+        wires.appendChild(path);
+      }catch(e){}
+    });
+  }
+  function litWire(fromId,toId,cls){
+    Array.prototype.forEach.call(wires.querySelectorAll("path"),function(p){
+      var match=(p.dataset.from===fromId&&p.dataset.to===toId)||(p.dataset.from===toId&&p.dataset.to===fromId);
+      p.classList.toggle(cls, match);
+    });
+  }
+  function clearLit(){
+    Array.prototype.forEach.call(wires.querySelectorAll("path"),function(p){
+      p.classList.remove("lit-query","lit-answer");
+    });
+  }
+
+  function setPhaseDOM(phase){
+    document.querySelectorAll(".col.dns").forEach(function(c){c.style.display = phase==="dns"?"flex":"none";});
+    document.querySelectorAll(".col.connect").forEach(function(c){c.style.display = phase==="connect"?"flex":"none";});
+    preview.style.display = phase==="connect"?"flex":"none";
+    document.getElementById("client-ip").textContent="→ "+EX_IP+" : 443";
+    document.getElementById("server-ip").textContent=EX_IP;
+    tabs.forEach(function(t){t.setAttribute("aria-selected", t.dataset.phase===phase?"true":"false");});
+    wirephaseEl.textContent=phase;
+    drawWires(phase);
+  }
+
+  function clearNodeStates(){
+    document.querySelectorAll(".node").forEach(function(n){
+      n.classList.remove("active","flash-answer","dimmed");
+    });
+  }
+
+  function applyStatic(i){
+    var step=steps[i];
+    setPhaseDOM(step.phase);
+    clearNodeStates();
+    clearLit();
+    packet.classList.remove("show","query","answer");
+    packet.style.transform="translate(-999px,-999px)";
+
+    document.querySelectorAll(".node").forEach(function(n){n.classList.remove("cached");});
+    var renderLevel=0;
+    for(var k=0;k<=i;k++){
+      var s=steps[k];
+      if(s.cacheNode){var cn=document.getElementById(s.cacheNode); if(cn)cn.classList.add("cached");}
+      if(typeof s.render==="number") renderLevel=Math.max(renderLevel,s.render);
+    }
+    preview.setAttribute("data-render", String(renderLevel));
+
+    var act = step.node || step.from;
+    if(act){var ae=document.getElementById(act); if(ae)ae.classList.add("active");}
+
+    consoleEl.innerHTML="";
+    var startPhaseIdx=i; while(startPhaseIdx>0 && steps[startPhaseIdx-1].phase===step.phase) startPhaseIdx--;
+    for(var j=startPhaseIdx;j<=i;j++){
+      (steps[j].log||[]).forEach(function(l){ addLine(l,true); });
+    }
+
+    captionEl.textContent=step.caption;
+    explainEl.innerHTML=step.explain;
+    stepnoEl.textContent="step "+(i+1)+" / "+steps.length;
+    barEl.style.width=((i)/(steps.length-1)*100)+"%";
+
+    btnPrev.disabled = i===0;
+    btnNext.disabled = i===steps.length-1;
+  }
+
+  function addLine(l,instant){
+    var d=document.createElement("div");
+    d.className="ln "+l.c;
+    d.innerHTML='<span class="ar">'+l.a+'</span><span class="tx">'+l.t+'</span>';
+    if(instant) d.style.animation="none";
+    consoleEl.appendChild(d);
+  }
+
+  function travel(fromId,toId,label,cls,dur){
+    return new Promise(function(resolve){
+      var token=animToken;
+      var a=edge(fromId,toId), b=edge(toId,fromId);
+      packetLabel.textContent=label;
+      packet.className="packet show "+cls;
+      litWire(fromId,toId, cls==="query"?"lit-query":"lit-answer");
+      var t0=null;
+      var ease=function(x){return x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;};
+      function frame(ts){
+        if(token!==animToken){return;}
+        if(t0===null)t0=ts;
+        var p=Math.min(1,(ts-t0)/dur);
+        var e=ease(p);
+        var x=a.x+(b.x-a.x)*e, y=a.y+(b.y-a.y)*e;
+        packet.style.transform="translate("+(x)+"px,"+(y)+"px) translate(-50%,-50%)";
+        if(p<1){requestAnimationFrame(frame);}
+        else resolve();
+      }
+      if(reduce){ packet.style.transform="translate("+b.x+"px,"+b.y+"px) translate(-50%,-50%)"; setTimeout(resolve,120); }
+      else requestAnimationFrame(frame);
+    });
+  }
+  function wait(ms){return new Promise(function(r){setTimeout(r, reduce?Math.min(ms,80):ms);});}
+
+  function animate(i){
+    animToken++;
+    var token=animToken, step=steps[i];
+    if(step.type!=="hop"){
+      var act=step.node||step.from;
+      if(act){var ae=document.getElementById(act); if(ae){ae.classList.add("flash-answer"); setTimeout(function(){if(ae)ae.classList.remove("flash-answer");},650);}}
+      return Promise.resolve();
+    }
+    var from=step.from, to=step.to;
+    var seq=Promise.resolve();
+    seq=seq.then(function(){return travel(from,to,step.qlabel,"query",640);});
+    seq=seq.then(function(){
+      if(token!==animToken)return;
+      var te=document.getElementById(to); if(te)te.classList.add("flash-answer");
+      packet.classList.remove("show");
+      return wait(260);
+    });
+    seq=seq.then(function(){
+      if(token!==animToken)return;
+      return travel(to,from,step.alabel,"answer",640);
+    });
+    seq=seq.then(function(){
+      if(token!==animToken)return;
+      packet.classList.remove("show");
+      var te=document.getElementById(to); if(te)te.classList.remove("flash-answer");
+      var fe=document.getElementById(from); if(fe)fe.classList.add("flash-answer");
+      setTimeout(function(){if(fe)fe.classList.remove("flash-answer");},500);
+    });
+    return seq;
+  }
+
+  function goTo(i, doAnimate){
+    cur=Math.max(0,Math.min(steps.length-1,i));
+    applyStatic(cur);
+    if(doAnimate){ return animate(cur); }
+    return Promise.resolve();
+  }
+
+  function setPlaying(v){
+    playing=v;
+    btnPlay.dataset.playing=String(v);
+    btnPlay.textContent = v ? "❚❚ Pause" : "▶ Auto";
+    if(v) tick(); else clearTimeout(playTimer);
+  }
+  function tick(){
+    if(!playing)return;
+    if(cur>=steps.length-1){ setPlaying(false); return; }
+    goTo(cur+1,true).then(function(){
+      if(!playing)return;
+      playTimer=setTimeout(tick, reduce?500:900);
+    });
+  }
+
+  btnNext.addEventListener("click",function(){ setPlaying(false); goTo(cur+1,true); });
+  btnPrev.addEventListener("click",function(){ setPlaying(false); animToken++; goTo(cur-1,false); });
+  btnReset.addEventListener("click",function(){ setPlaying(false); animToken++; goTo(0,false); });
+  btnPlay.addEventListener("click",function(){ setPlaying(!playing); });
+
+  tabs.forEach(function(t){
+    t.addEventListener("click",function(){
+      setPlaying(false); animToken++;
+      var phase=t.dataset.phase;
+      var idx=0; for(var k=0;k<steps.length;k++){ if(steps[k].phase===phase){idx=k;break;} }
+      goTo(idx,false);
+    });
+  });
+
+  document.addEventListener("keydown",function(e){
+    if(e.key==="ArrowRight"){e.preventDefault();btnNext.click();}
+    else if(e.key==="ArrowLeft"){e.preventDefault();btnPrev.click();}
+    else if(e.key===" "){e.preventDefault();btnPlay.click();}
+  });
+
+  var rt;
+  window.addEventListener("resize",function(){ clearTimeout(rt); rt=setTimeout(function(){ drawWires(steps[cur].phase); },120); });
+
+  setPhaseDOM("dns");
+  window.requestAnimationFrame(function(){ drawWires("dns"); goTo(0,false); });
+})();
+</script>
+</body>
+</html>
