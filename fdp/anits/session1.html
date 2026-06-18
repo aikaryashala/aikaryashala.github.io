@@ -82,7 +82,7 @@
     .compare-lang { font-size:15px; font-weight:800; color:var(--ink); margin-bottom:6px; }
     .compare-path { font-size:12.5px; color:var(--ink-3); line-height:1.6; }
     .compare-path code { font-family:var(--mono); font-size:.88em; background:var(--bg-2); padding:1px 5px; border-radius:4px; color:var(--ink-2); }
-    .compare-tag { display:inline-block; margin-top:10px; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--blue); background:var(--blue-bg); border:1px solid rgba(37,99,235,.18); border-radius:6px; padding:2px 8px; }
+    .compare-tag { display:inline-block; margin-top:10px; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--blue); background:var(--blue-bg); border:1px solid rgba(122,48,24,.2); border-radius:6px; padding:2px 8px; }
 
     /* ── Steps ── */
     .steps { display:flex; flex-direction:column; gap:10px; }
@@ -172,21 +172,23 @@
         <div class="compare-lang">C++</div>
         <div class="compare-path">
           <code>.cpp</code> source →<br>
+          Preprocessor (<code>cpp</code>) →<br>
           Compiler (<code>g++</code>) →<br>
+          Assembler → Linker →<br>
           Native machine code →<br>
           CPU runs directly
         </div>
-        <span class="compare-tag">Compiled</span>
+        <span class="compare-tag">Compiled (AOT)</span>
       </div>
       <div class="compare-card">
         <div class="compare-lang">Python</div>
         <div class="compare-path">
           <code>.py</code> source →<br>
-          Interpreter (<code>python3</code>) →<br>
-          Bytecode (<code>.pyc</code>) →<br>
-          Python VM executes
+          Compiler (internal) →<br>
+          Bytecode (<code>.pyc</code> in <code>__pycache__/</code>) →<br>
+          CPython VM interprets
         </div>
-        <span class="compare-tag">Interpreted</span>
+        <span class="compare-tag">Bytecode + VM</span>
       </div>
       <div class="compare-card">
         <div class="compare-lang">Java</div>
@@ -194,9 +196,11 @@
           <code>.java</code> source →<br>
           Compiler (<code>javac</code>) →<br>
           Bytecode (<code>.class</code>) →<br>
-          JVM executes
+          JVM interprets +<br>
+          JIT compiles hot paths →<br>
+          Native machine code
         </div>
-        <span class="compare-tag">JVM Bytecode</span>
+        <span class="compare-tag">JVM Bytecode + JIT</span>
       </div>
     </div>
   </div>
