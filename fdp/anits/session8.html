@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Session 8 — Answering the Questions &amp; Discussions — ANITS FDP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&family=Alegreya+SC:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+  html{zoom:1.25}
+  :root {
+    --bg:       #E8DDD0;
+    --bg-2:     #DFD3C4;
+    --bg-3:     #D4C5B0;
+    --card:     #F0EAE0;
+    --ink:      #1C0E08;
+    --ink-2:    #2F1708;
+    --ink-3:    #5B3520;
+    --ink-4:    #8B7060;
+    --border:   #C8B8A0;
+    --border-2: #B0A088;
+    --blue:     #7A3018;
+    --blue-bg:  rgba(122,48,24,.08);
+    --blue-bg-2:rgba(122,48,24,.16);
+    --mono:     "Fira Code","Cascadia Code",ui-monospace,monospace;
+    --sans:     "Alegreya",Georgia,"Book Antiqua",serif;
+    --sc:       "Alegreya SC","Alegreya",Georgia,serif;
+  }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:var(--sans); background-color:var(--bg); background-image:radial-gradient(#5a372314 .8px, transparent .8px), linear-gradient(90deg, #0000000a 0%, transparent 12% 88%, #0000000a 100%); background-size:16px 16px, 100% 100%; background-attachment:fixed; color:var(--ink); line-height:1.65; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+
+  /* ── Nav ── */
+  .nav { position:sticky; top:0; z-index:100; background:rgba(232,221,208,.92); backdrop-filter:blur(14px); border-bottom:1px solid var(--border); }
+  .nav-inner { max-width:900px; margin:0 auto; padding:0 24px; height:54px; display:flex; align-items:center; gap:16px; }
+  .back-link { display:inline-flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink-3); font-size:13px; font-weight:600; transition:color .15s; }
+  .back-link:hover { color:var(--ink); }
+  .nav-sep { width:1px; height:16px; background:var(--border-2); }
+  .nav-crumb { font-size:13px; color:var(--ink-4); }
+
+  /* ── Page Header ── */
+  .page-header { max-width:900px; margin:0 auto; padding:60px 24px 48px; border-bottom:1px solid var(--border); }
+  .session-badge { display:inline-flex; align-items:center; gap:10px; margin-bottom:20px; }
+  .badge-day { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-4); }
+  .badge-dot { width:4px; height:4px; border-radius:50%; background:var(--border-2); }
+  .badge-session { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--blue); background:var(--blue-bg); border:1px solid rgba(122,48,24,.2); border-radius:20px; padding:3px 10px; }
+  .page-title { font-size:clamp(26px,4.5vw,44px); font-weight:900; line-height:1.1; letter-spacing:-.03em; color:var(--ink); margin-bottom:14px; }
+  .page-desc { font-size:16px; color:var(--ink-3); line-height:1.7; max-width:620px; }
+
+  /* ── Shell ── */
+  .shell { max-width:900px; margin:0 auto; padding:0 24px 80px; }
+  .section { margin-top:52px; }
+  .section-label { font-size:11px; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-4); margin-bottom:8px; }
+  .section-title { font-size:clamp(18px,2.5vw,24px); font-weight:800; color:var(--ink); margin-bottom:10px; letter-spacing:-.02em; }
+  .section-desc { font-size:14px; color:var(--ink-3); line-height:1.7; margin-bottom:24px; }
+
+  /* ── Q&A list ── */
+  .qa-list { display:flex; flex-direction:column; gap:10px; }
+  .qa-item { display:flex; align-items:flex-start; gap:14px; padding:18px 20px; border:1px solid var(--border); border-radius:12px; background:var(--card); }
+  .qa-badge { flex-shrink:0; width:28px; height:28px; border-radius:7px; background:var(--blue-bg-2); font-size:11px; font-weight:800; color:var(--blue); border:1px solid rgba(122,48,24,.2); display:flex; align-items:center; justify-content:center; margin-top:1px; }
+  .qa-body { flex:1; }
+  .qa-q { font-size:14.5px; font-weight:700; color:var(--ink); line-height:1.5; margin-bottom:6px; }
+  .qa-a { font-size:13.5px; color:var(--ink-3); line-height:1.7; }
+
+  /* ── Footer ── */
+  .site-footer { border-top:1px solid var(--border); padding:28px 24px; text-align:center; }
+  .footer-inner { max-width:900px; margin:0 auto; }
+  .footer-text { font-size:13px; color:var(--ink-4); }
+  .footer-text a { color:var(--ink-3); text-decoration:none; }
+  .footer-text a:hover { color:var(--ink); }
+
+  @media (max-width:640px) {
+    .page-header { padding:40px 18px 36px; }
+    .shell { padding:0 18px 60px; }
+    .qa-item { padding:14px 16px; gap:10px; }
+  }
+
+  /* ── Scroll button ── */
+  .scroll-btn { position:fixed; bottom:28px; right:24px; z-index:200; width:40px; height:40px; border-radius:50%; background:var(--blue); color:#fff; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:18px; box-shadow:0 3px 14px rgba(0,0,0,.22); transition:background .15s; }
+  .scroll-btn:hover { background:var(--ink-2); }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="back-link">&#8592; ANITS FDP</a>
+    <div class="nav-sep"></div>
+    <span class="nav-crumb">Session 8</span>
+  </div>
+</nav>
+
+<header class="page-header">
+  <div class="session-badge">
+    <span class="badge-day">Day 4</span>
+    <span class="badge-dot"></span>
+    <span class="badge-session">Session 2</span>
+  </div>
+  <h1 class="page-title">Answering the Questions<br>&amp; Discussions</h1>
+  <p class="page-desc">Open Q&amp;A — faculty questions from across all four days answered, key concepts revisited, and open discussion on teaching programming with AI tools.</p>
+</header>
+
+<div class="shell">
+
+  <div class="section">
+    <p class="section-label">Q &amp; A</p>
+    <h2 class="section-title">Questions &amp; Answers</h2>
+    <p class="section-desc">Questions raised during the session and the discussions that followed.</p>
+    <div class="qa-list">
+
+      <div class="qa-item">
+        <div class="qa-badge">Q</div>
+        <div class="qa-body">
+          <div class="qa-q">Add your questions here.</div>
+          <div class="qa-a">Answers and discussion notes will appear here.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-text"><a href="index.html">&#8592; Back to ANITS FDP</a></p>
+  </div>
+</footer>
+
+<button class="scroll-btn" id="scrollBtn" onclick="scrollToggle()" title="Scroll">&#8595;</button>
+<script>
+(function(){
+  var btn=document.getElementById("scrollBtn");
+  function upd(){ btn.textContent=(window.scrollY>200)?"\u2191":"\u2193"; }
+  window.addEventListener("scroll",upd,{passive:true});
+  upd();
+})();
+function scrollToggle(){
+  if(window.scrollY>200){ window.scrollTo({top:0,behavior:"smooth"}); }
+  else{ window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"}); }
+}
+</script>
+
+</body>
+</html>
