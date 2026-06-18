@@ -227,6 +227,59 @@
     </div>
   </div>
 
+  <!-- System Path -->
+  <div class="section">
+    <p class="section-label">Concept</p>
+    <h2 class="section-title">System PATH</h2>
+    <p class="section-desc">The PATH is an environment variable that tells the operating system where to look for programs when you type a command. Without it, you would have to type the full location of every program every time.</p>
+
+    <div class="callout">
+      <p>When you type <code>clang</code>, the OS does not search your entire disk — it only looks inside the directories listed in <code>$PATH</code>, one by one, until it finds a match. If it finds nothing, you get <strong>command not found</strong>.</p>
+    </div>
+
+    <div class="cmd-group">
+      <div class="cmd-group-title">View the PATH</div>
+      <table class="cmd-table">
+        <tr><td><code class="cmd-code">echo $PATH</code></td><td class="cmd-desc">Print the current PATH — shows all directories separated by <code>:</code></td></tr>
+        <tr><td><code class="cmd-code">which clang</code></td><td class="cmd-desc">Show the full path to the <code>clang</code> executable — e.g. <code>/usr/bin/clang</code></td></tr>
+        <tr><td><code class="cmd-code">which python3</code></td><td class="cmd-desc">Show the full path to <code>python3</code> — e.g. <code>/usr/bin/python3</code></td></tr>
+        <tr><td><code class="cmd-code">which gcc</code></td><td class="cmd-desc">Show where <code>gcc</code> lives on the system</td></tr>
+        <tr><td><code class="cmd-code">which ls</code></td><td class="cmd-desc">Even basic commands like <code>ls</code> are programs — <code>which</code> tells you where</td></tr>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p>A typical <code>$PATH</code> looks like this:<br>
+      <code>/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin</code><br><br>
+      The OS checks <code>/usr/local/sbin</code> first, then <code>/usr/local/bin</code>, and so on. The first match wins.</p>
+    </div>
+
+    <div class="cmd-group">
+      <div class="cmd-group-title">Why ./a.out needs the dot-slash</div>
+      <table class="cmd-table">
+        <tr><td><code class="cmd-code">./a.out</code></td><td class="cmd-desc">Run <code>a.out</code> from the <em>current directory</em> — <code>./</code> means "look here, not in PATH"</td></tr>
+        <tr><td><code class="cmd-code">a.out</code></td><td class="cmd-desc">Fails with <em>command not found</em> — the current directory is not in PATH by default</td></tr>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p>The current directory (<code>.</code>) is intentionally left out of PATH for security — otherwise a malicious <code>ls</code> placed in any folder could run instead of the real one.</p>
+    </div>
+
+    <div class="cmd-group">
+      <div class="cmd-group-title">Add a Directory to PATH</div>
+      <table class="cmd-table">
+        <tr><td><code class="cmd-code">export PATH=$PATH:/new/dir</code></td><td class="cmd-desc">Append <code>/new/dir</code> to PATH for the current terminal session</td></tr>
+        <tr><td><code class="cmd-code">echo $PATH</code></td><td class="cmd-desc">Verify the new directory was added at the end</td></tr>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p>Changes made with <code>export</code> last only for the current session. To make them permanent, add the line to your shell profile file: <code>~/.bashrc</code> (Bash) or <code>~/.zshrc</code> (Zsh), then run <code>source ~/.bashrc</code>.</p>
+    </div>
+
+  </div>
+
   <!-- System Internals -->
   <div class="section">
     <p class="section-label">Deep Dive</p>
