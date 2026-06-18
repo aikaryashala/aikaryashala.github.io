@@ -104,6 +104,15 @@
       .resource-link { padding:12px 14px; gap:10px; }
     }
 
+    /* ── Co-work steps ── */
+    .cowork-steps { display:flex; flex-direction:column; gap:8px; margin-bottom:20px; }
+    .cowork-step { display:flex; align-items:flex-start; gap:14px; padding:16px 18px; border:1px solid var(--border); border-radius:10px; background:var(--card); }
+    .cw-num { flex-shrink:0; width:26px; height:26px; border-radius:50%; background:var(--blue-bg-2); font-size:11px; font-weight:800; color:var(--blue); border:1px solid rgba(122,48,24,.25); display:flex; align-items:center; justify-content:center; margin-top:1px; }
+    .cw-body { flex:1; }
+    .cw-body strong { font-size:14px; color:var(--ink); font-weight:700; display:block; margin-bottom:3px; }
+    .cw-body p { font-size:13.5px; color:var(--ink-2); line-height:1.6; }
+    .cw-body code { font-family:var(--mono); font-size:12px; background:var(--bg-3); border:1px solid var(--border); border-radius:4px; padding:1px 6px; color:var(--blue); }
+
     /* ── Scroll button ── */
     .scroll-btn { position:fixed; bottom:28px; right:24px; z-index:200; width:40px; height:40px; border-radius:50%; background:var(--blue); color:#fff; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:18px; box-shadow:0 3px 14px rgba(0,0,0,.22); transition:background .15s; }
     .scroll-btn:hover { background:var(--ink-2); }
@@ -125,8 +134,8 @@
     <span class="badge-dot"></span>
     <span class="badge-session">Session 1</span>
   </div>
-  <h1 class="page-title">Practice —<br>Python, Java &amp; C++</h1>
-  <p class="page-desc">Hands-on coding exercises for three languages using codecheck.io — an interactive platform that checks your answers automatically.</p>
+  <h1 class="page-title">Practice, Co-work<br>with Claude &amp; DNS</h1>
+  <p class="page-desc">Hands-on coding exercises for Python, Java &amp; C++, pair programming with Claude AI, and an interactive DNS visualizer — all in one session.</p>
 </header>
 
 <div class="shell">
@@ -192,6 +201,68 @@
         <div class="resource-body">
           <div class="resource-title">Java — Objects Early Exercises</div>
           <div class="resource-sub">horstmann.com/codecheck/java-objects-early.html</div>
+        </div>
+        <span class="resource-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Co-work with Claude -->
+  <div class="section">
+    <p class="section-label">AI Pair Programming</p>
+    <h2 class="section-title">Co-work with Claude</h2>
+    <p class="section-desc">Use Claude as your coding partner — describe a problem, paste your code, and iterate together. Here is the workflow to follow during the session.</p>
+
+    <div class="cowork-steps">
+
+      <div class="cowork-step">
+        <div class="cw-num">1</div>
+        <div class="cw-body">
+          <strong>Open Claude alongside your code</strong>
+          <p>Go to <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-family:var(--mono);font-size:12.5px;">claude.ai</a> in a new tab. Keep your code editor (or codecheck.io exercise) open side-by-side. You will switch between the two as you work.</p>
+        </div>
+      </div>
+
+      <div class="cowork-step">
+        <div class="cw-num">2</div>
+        <div class="cw-body">
+          <strong>Paste your code or error</strong>
+          <p>Copy your code (or the error message you are stuck on) and paste it into the Claude chat. Wrap it in a code block so Claude reads it clearly: <code>```python</code> … <code>```</code></p>
+        </div>
+      </div>
+
+      <div class="cowork-step">
+        <div class="cw-num">3</div>
+        <div class="cw-body">
+          <strong>Ask a focused question</strong>
+          <p>Tell Claude exactly what you want — "Explain this line by line", "Why am I getting this error?", "Write a loop that prints even numbers from 1 to 20 in Java", or "What is wrong with my logic here?" The more specific, the better the answer.</p>
+        </div>
+      </div>
+
+      <div class="cowork-step">
+        <div class="cw-num">4</div>
+        <div class="cw-body">
+          <strong>Iterate — try it, then ask a follow-up</strong>
+          <p>Run the suggestion in your editor or codecheck.io. If it does not work, tell Claude what happened: "I got this output instead of the expected one." Keep the conversation going — do not start a new chat for every question.</p>
+        </div>
+      </div>
+
+      <div class="cowork-step">
+        <div class="cw-num">5</div>
+        <div class="cw-body">
+          <strong>Ask Claude to explain, not just fix</strong>
+          <p>After getting a working solution, ask: "Now explain why this works." Understanding beats copying. You can also ask Claude to quiz you: "Give me a similar problem to practise this concept."</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="link-stack">
+      <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" class="resource-link">
+        <span class="resource-icon">&#x2728;</span>
+        <div class="resource-body">
+          <div class="resource-title">Open Claude AI</div>
+          <div class="resource-sub">claude.ai — start a new conversation</div>
         </div>
         <span class="resource-arrow">→</span>
       </a>
