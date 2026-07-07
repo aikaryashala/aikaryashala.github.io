@@ -41,6 +41,41 @@
     .nav-links a:hover { color:#fff; border-color:var(--accent-blue); }
     .nav-hero-cta { font-size:13px !important; padding:9px 20px !important; }
 
+    /* ── Hamburger ── */
+    .hamburger {
+      display:none; flex-direction:column; justify-content:center; gap:5px;
+      width:36px; height:36px; background:none; border:none; cursor:pointer;
+      padding:4px; border-radius:8px; transition:background .2s;
+    }
+    .hamburger:hover { background:rgba(255,255,255,.08); }
+    .hamburger span {
+      display:block; height:2px; background:rgba(255,255,255,.8); border-radius:2px;
+      transition:transform .3s ease, opacity .3s ease, width .3s ease;
+    }
+    .hamburger span:nth-child(2) { width:75%; }
+    .hamburger.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity:0; width:100%; }
+    .hamburger.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+
+    /* ── Mobile nav drawer ── */
+    .mobile-nav {
+      display:none; position:fixed; inset:0; z-index:999;
+      flex-direction:column; align-items:center; justify-content:center; gap:28px;
+      background:rgba(11,16,32,.97); backdrop-filter:blur(20px);
+    }
+    .mobile-nav.open { display:flex; }
+    .mobile-nav a {
+      color:rgba(255,255,255,.85); text-decoration:none;
+      font-size:22px; font-weight:700; letter-spacing:.05em;
+      transition:color .2s;
+    }
+    .mobile-nav a:hover { color:var(--accent-blue); }
+    .mobile-nav .mob-close {
+      position:absolute; top:24px; right:24px;
+      background:none; border:none; color:#fff; font-size:28px; cursor:pointer; opacity:.7;
+    }
+    .mobile-nav .mob-close:hover { opacity:1; }
+
     /* ── Buttons ── */
     .hero-btn {
       display:inline-flex; align-items:center; justify-content:center;
@@ -316,7 +351,8 @@
       /* Nav */
       .nav-links { display:none; }
       .nav-shell { padding:8px 16px; }
-      .nav-hero-cta { padding:8px 16px !important; font-size:12px !important; }
+      .nav-hero-cta { display:none; }
+      .hamburger { display:flex; }
 
       /* Hero */
       .hero { padding:80px 16px 56px; }
@@ -402,8 +438,20 @@
       <a href="projects.html">Projects</a>
     </nav>
     <a href="https://docs.google.com/forms/d/e/1FAIpQLSeqHiK-VAOsLcggY9B23mADMwoidJtpXllB26Jc49CovTGdZA/viewform?pli=1" class="hero-btn hero-btn--green nav-hero-cta" target="_blank" rel="noopener noreferrer">Join Now</a>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </header>
+
+<!-- Mobile Nav Drawer -->
+<nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
+  <button class="mob-close" id="mobileNavClose" aria-label="Close menu">✕</button>
+  <a href="#journey" id="mobNavJourney">Our Journey</a>
+  <a href="students.html">Our Students</a>
+  <a href="projects.html">Projects</a>
+  <a href="https://docs.google.com/forms/d/e/1FAIpQLSeqHiK-VAOsLcggY9B23mADMwoidJtpXllB26Jc49CovTGdZA/viewform?pli=1" target="_blank" rel="noopener noreferrer" style="color:#34d399;">Join Now →</a>
+</nav>
 
 <!-- Hero -->
 <section class="hero">
@@ -414,13 +462,12 @@
     <div class="hero-copy">
       <div class="new-batch-badge">
         <span class="dot"></span>
-        New Batch Has Started — June 1st
+        Next batch is on Aug 05th 2026
       </div>
       <p class="hero-eyebrow">Training and Placement With (R&amp;D)</p>
       <h1>AI Karyashala</h1>
       <p class="hero-subtitle">
-        The new batch started on <strong>June 1st</strong>. You can still join —
-        enroll before <strong>June 7th</strong>.
+        The new batch started on <strong>June 1st</strong> — enroll for new batch.
       </p>
       <div class="hero-actions">
         <a href="https://docs.google.com/forms/d/e/1FAIpQLSeqHiK-VAOsLcggY9B23mADMwoidJtpXllB26Jc49CovTGdZA/viewform?pli=1" class="hero-btn hero-btn--green" target="_blank" rel="noopener noreferrer">Join Now</a>
@@ -630,7 +677,7 @@
   <div class="footer-content">
     <div class="footer-section">
       <h3>AI Karyashala</h3>
-      <p class="footer-tagline">Training and R&amp;D</p>
+      <p class="footer-tagline">Training and Placement With (R&amp;D)</p>
       <p class="footer-description">
         MUKUND SUVASA Apartment,<br>
         Pent-house, 3rd Ln,<br>
@@ -719,6 +766,27 @@
   });
 
   window.addEventListener('load', () => { if (!window.location.hash) window.scrollTo({ top: 0, behavior: 'auto' }); });
+
+  // Mobile nav
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const mobileNav    = document.getElementById('mobileNav');
+  const mobileClose  = document.getElementById('mobileNavClose');
+  const openMobileNav = () => {
+    mobileNav.classList.add('open');
+    hamburgerBtn.classList.add('open');
+    hamburgerBtn.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  };
+  const closeMobileNav = () => {
+    mobileNav.classList.remove('open');
+    hamburgerBtn.classList.remove('open');
+    hamburgerBtn.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  };
+  hamburgerBtn?.addEventListener('click', openMobileNav);
+  mobileClose?.addEventListener('click', closeMobileNav);
+  mobileNav?.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMobileNav));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMobileNav(); });
 </script>
 </body>
 </html>
