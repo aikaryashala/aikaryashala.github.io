@@ -1,0 +1,21 @@
+So, now lets make few changes in the projects.html page i want to add two new projects where i had placed the images in the images/projects the files are vamsi-project1.jpeg, vamsi-project2.jpeg, add this two in top of the project section. I'll manually add the anchor tag project URLS, so go ahead.
+
+---
+
+convert the jpeg to .webp.
+
+---
+
+Convert the vamsi-project2.jpeg to .webp
+
+---
+
+I had placed the project title and project deployement url also, i want you to write down the description based on that.
+
+---
+
+Can convert the given images to landscape.
+
+---
+
+Undo the thing.
