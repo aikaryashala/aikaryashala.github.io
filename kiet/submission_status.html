@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Karyashala · Setup Status</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --cream:      #faf6ef;
+  --cream-deep: #f4efe4;
+  --paper:      #fffcf5;
+  --ink:        #2b2622;
+  --ink-soft:   #6f665c;
+  --rule:       #e3dacb;
+
+  --rust:       #b8430a;
+  --rust-soft:  #fbeee6;
+  --teal:       #1f6f6b;
+  --teal-soft:  #e9f2f0;
+  --gold:       #b07d10;
+  --gold-soft:  #fbf2dc;
+
+  --serif: "Fraunces", Georgia, serif;
+  --sans:  "Inter Tight", system-ui, -apple-system, sans-serif;
+  --mono:  "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+html{ -webkit-text-size-adjust:100%; }
+
+body{
+  background:var(--cream);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:17px;
+  line-height:1.6;
+  min-height:100vh;
+  padding:56px 24px 80px;
+  position:relative;
+}
+
+/* paper grain */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  background-image:radial-gradient(var(--rule) 0.6px, transparent 0.6px);
+  background-size:14px 14px;
+  opacity:.55;
+}
+
+.sheet{
+  position:relative;
+  z-index:1;
+  width:100%;
+  max-width:720px;
+  margin:0 auto;
+}
+
+/* ---------- masthead ---------- */
+
+.eyebrow{
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--rust);
+}
+
+h1{
+  font-family:var(--serif);
+  font-weight:600;
+  font-size:clamp(34px, 6vw, 52px);
+  line-height:1.08;
+  letter-spacing:-0.01em;
+  margin:14px 0 12px;
+}
+
+h1 em{
+  font-style:italic;
+  font-weight:400;
+  color:var(--rust);
+}
+
+.standfirst{
+  color:var(--ink-soft);
+  max-width:46ch;
+}
+
+.rule{
+  height:1px;
+  background:var(--rule);
+  margin:32px 0;
+  position:relative;
+}
+.rule::after{
+  content:"";
+  position:absolute;
+  left:0; top:-2px;
+  width:64px; height:5px;
+  background:var(--rust);
+}
+
+/* ---------- lookup panel ---------- */
+
+.panel{
+  background:var(--paper);
+  border:1px solid var(--rule);
+  border-radius:6px;
+  padding:26px 26px 28px;
+  box-shadow:0 1px 0 var(--rule), 0 14px 30px -22px rgba(43,38,34,.35);
+}
+
+.field-label{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  display:block;
+  margin-bottom:10px;
+}
+
+.lookup{
+  display:flex;
+  gap:12px;
+}
+
+input{
+  flex:1;
+  min-width:0;
+  padding:15px 16px;
+  font-family:var(--mono);
+  font-size:20px;
+  font-weight:500;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--ink);
+  background:var(--cream-deep);
+  border:1px solid var(--rule);
+  border-radius:4px;
+  transition:border-color .15s ease, background .15s ease;
+}
+input::placeholder{
+  font-size:15px;
+  letter-spacing:.04em;
+  text-transform:none;
+  color:#a89c8c;
+}
+input:focus{
+  outline:none;
+  background:var(--paper);
+  border-color:var(--rust);
+  box-shadow:0 0 0 3px rgba(184,67,10,.13);
+}
+
+button{
+  padding:15px 26px;
+  font-family:var(--sans);
+  font-size:16px;
+  font-weight:600;
+  letter-spacing:.01em;
+  color:var(--paper);
+  background:var(--rust);
+  border:none;
+  border-radius:4px;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:background .15s ease, transform .1s ease;
+}
+button:hover{ background:#9c3808; }
+button:active{ transform:translateY(1px); }
+button:focus-visible{ outline:3px solid rgba(184,67,10,.35); outline-offset:2px; }
+
+.hint{
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--ink-soft);
+  margin-top:14px;
+}
+
+/* ---------- result card ---------- */
+
+.card{
+  display:none;
+  margin-top:28px;
+  background:var(--paper);
+  border:1px solid var(--rule);
+  border-left:5px solid var(--ink-soft);
+  border-radius:6px;
+  padding:28px;
+  box-shadow:0 14px 30px -24px rgba(43,38,34,.4);
+  animation:rise .28s ease both;
+}
+.card.show{ display:block; }
+
+@keyframes rise{
+  from{ opacity:0; transform:translateY(8px); }
+  to  { opacity:1; transform:none; }
+}
+@media (prefers-reduced-motion: reduce){
+  .card{ animation:none; }
+}
+
+.card.is-pass    { border-left-color:var(--teal); }
+.card.is-fail    { border-left-color:var(--rust); }
+.card.is-missing { border-left-color:var(--gold); }
+.card.is-error   { border-left-color:var(--ink-soft); }
+
+.verdict{
+  display:inline-block;
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  padding:6px 12px;
+  border-radius:3px;
+  margin-bottom:16px;
+}
+.is-pass    .verdict{ color:var(--teal); background:var(--teal-soft); }
+.is-fail    .verdict{ color:var(--rust); background:var(--rust-soft); }
+.is-missing .verdict{ color:var(--gold); background:var(--gold-soft); }
+.is-error   .verdict{ color:var(--ink-soft); background:var(--cream-deep); }
+
+.headline{
+  font-family:var(--serif);
+  font-weight:600;
+  font-size:clamp(24px, 4.5vw, 32px);
+  line-height:1.15;
+  margin-bottom:6px;
+}
+.headline em{ font-style:italic; font-weight:400; }
+
+.subline{
+  color:var(--ink-soft);
+  font-size:15.5px;
+  max-width:48ch;
+}
+
+.facts{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+  gap:20px 28px;
+  margin-top:24px;
+  padding-top:22px;
+  border-top:1px solid var(--rule);
+}
+
+.fact-label{
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  margin-bottom:5px;
+}
+.fact-value{
+  font-size:19px;
+  font-weight:500;
+  line-height:1.3;
+  word-break:break-word;
+}
+.fact-value.mono{
+  font-family:var(--mono);
+  font-size:18px;
+  letter-spacing:.04em;
+}
+
+.missing-block{
+  margin-top:24px;
+  padding-top:22px;
+  border-top:1px solid var(--rule);
+}
+
+.missing-list{
+  list-style:none;
+  margin-top:12px;
+  display:grid;
+  gap:9px;
+}
+.missing-list li{
+  position:relative;
+  padding:10px 14px 10px 38px;
+  background:var(--rust-soft);
+  border-radius:4px;
+  font-size:16.5px;
+}
+.missing-list li::before{
+  content:"";
+  position:absolute;
+  left:16px; top:19px;
+  width:7px; height:7px;
+  background:var(--rust);
+  border-radius:50%;
+}
+
+.pending{
+  font-family:var(--mono);
+  font-size:13px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+}
+
+footer{
+  margin-top:44px;
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:#a89c8c;
+  text-align:center;
+}
+
+@media (max-width:560px){
+  body{ padding:38px 18px 64px; }
+  .lookup{ flex-direction:column; }
+  button{ width:100%; }
+  .panel, .card{ padding:22px; }
+}
+</style>
+</head>
+
+<body>
+
+<main class="sheet">
+
+  <header>
+    <span class="eyebrow">AI Karyashala · Setup Records</span>
+    <h1>Setup <em>status</em></h1>
+    <p class="standfirst">Enter your roll number to see whether your submission was accepted, and what's still outstanding if it wasn't.</p>
+  </header>
+
+  <div class="rule"></div>
+
+  <section class="panel">
+    <label class="field-label" for="roll">Roll number</label>
+    <div class="lookup">
+      <input id="roll" placeholder="e.g. AK24B017" autocomplete="off" spellcheck="false">
+      <button id="searchBtn" type="button">Check status</button>
+    </div>
+    <p class="hint">Press Enter to search. Roll numbers aren't case sensitive.</p>
+  </section>
+
+  <section id="card" class="card" aria-live="polite"></section>
+
+  <footer>KIET Bootcamp</footer>
+
+</main>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxSge9OLoiotfn30A_bCLdTdYfayNK_eIJm6WV5aRaVkNlRTT_nrsO1sKxGg3m5FI0JcQ/exec";
+
+const input   = document.getElementById("roll");
+const card    = document.getElementById("card");
+const btn     = document.getElementById("searchBtn");
+
+btn.addEventListener("click", searchStudent);
+input.addEventListener("keypress", e => {
+  if (e.key === "Enter") searchStudent();
+});
+
+function esc(value){
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  })[c]);
+}
+
+function render(state, html){
+  card.className = "card show " + state;
+  card.innerHTML = html;
+}
+
+async function searchStudent(){
+  const roll = input.value.trim().toUpperCase();
+
+  if (roll === ""){
+    render("is-missing", `
+      <span class="verdict">Nothing to look up</span>
+      <h2 class="headline">Enter a roll number first</h2>
+      <p class="subline">Type the roll number printed on your batch sheet, then search again.</p>
+    `);
+    input.focus();
+    return;
+  }
+
+  render("", `<p class="pending">Looking up ${esc(roll)}…</p>`);
+
+  try{
+    const response = await fetch(`${SCRIPT_URL}?roll=${encodeURIComponent(roll)}`, {
+      redirect: "follow"
+    });
+    const raw = await response.text();
+
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      throw new Error("Server did not return JSON (HTTP " + response.status + ")");
+    }
+
+    if (!data.found){
+      render("is-missing", `
+        <span class="verdict">No record</span>
+        <h2 class="headline">No submission found</h2>
+        <p class="subline">Nothing is recorded against this roll number yet. Check the number and try again, or speak to your instructor if you did submit.</p>
+        <div class="facts">
+          <div>
+            <div class="fact-label">Roll number searched</div>
+            <div class="fact-value mono">${esc(roll)}</div>
+          </div>
+        </div>
+      `);
+      return;
+    }
+
+    const completed = String(data.status).toLowerCase().startsWith("completed");
+
+    if (completed){
+      render("is-pass", `
+        <span class="verdict">Completed</span>
+        <h2 class="headline">Submission <em>accepted</em></h2>
+        <p class="subline">Everything required for this assignment has been received.</p>
+        <div class="facts">
+          <div>
+            <div class="fact-label">Student name</div>
+            <div class="fact-value">${esc(data.name)}</div>
+          </div>
+          <div>
+            <div class="fact-label">Roll number</div>
+            <div class="fact-value mono">${esc(data.roll)}</div>
+          </div>
+          <div>
+            <div class="fact-label">Submitted at</div>
+            <div class="fact-value">${esc(data.timestamp)}</div>
+          </div>
+        </div>
+      `);
+      return;
+    }
+
+    const reason = String(data.status).replace(/^Failed:/i, "").trim();
+    const items  = reason
+      .split(",")
+      .map(r => r.trim())
+      .filter(Boolean)
+      .map(r => `<li>${esc(r)}</li>`)
+      .join("");
+
+    render("is-fail", `
+      <span class="verdict">Incomplete</span>
+      <h2 class="headline">Submission <em>not accepted</em></h2>
+      <p class="subline">Add the items below and resubmit before the deadline.</p>
+      <div class="facts">
+        <div>
+          <div class="fact-label">Student name</div>
+          <div class="fact-value">${esc(data.name)}</div>
+        </div>
+        <div>
+          <div class="fact-label">Roll number</div>
+          <div class="fact-value mono">${esc(data.roll)}</div>
+        </div>
+      </div>
+      <div class="missing-block">
+        <div class="fact-label">Still missing</div>
+        <ul class="missing-list">${items || "<li>Details not recorded</li>"}</ul>
+      </div>
+    `);
+
+  } catch (err){
+    render("is-error", `
+      <span class="verdict">Lookup failed</span>
+      <h2 class="headline">Couldn't reach the records server</h2>
+      <p class="subline">The status sheet didn't respond. Check your connection and search again.</p>
+      <div class="facts">
+        <div>
+          <div class="fact-label">Error detail</div>
+          <div class="fact-value mono">${esc(err.message || err)}</div>
+        </div>
+      </div>
+    `);
+  }
+}
+</script>
+
+</body>
+</html>
