@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KIET Bootcamp by AI Karayashala</title>
+<link rel="icon" href="aiklogo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#faf6ef;
+  --cream-deep:#f4efe4;
+  --paper:#fffcf5;
+  --ink:#201c17;
+  --ink-soft:#5b5147;
+  --rule:#e2d8c6;
+  --rust:#b8430a;
+  --teal:#1f6f68;
+  --gold:#a8791b;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background-color:var(--cream);
+  background-image:radial-gradient(var(--rule) 0.6px, transparent 0.6px);
+  background-size:16px 16px;
+  color:var(--ink);
+  font-family:'Inter Tight',system-ui,sans-serif;
+  font-size:16.5px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1000px;margin:0 auto;padding:0 28px 90px;}
+
+/* ---------- header ---------- */
+header{
+  padding:64px 0 40px;
+  border-bottom:1px solid var(--rule);
+  margin-bottom:44px;
+}
+.masthead img{
+  height:54px;width:auto;max-width:100%;
+  display:block;margin:0 0 30px;
+}
+h1{
+  font-family:'Fraunces',serif;font-weight:600;
+  font-size:clamp(30px,5.2vw,50px);line-height:1.02;
+  letter-spacing:-.02em;margin:0;max-width:16ch;
+}
+h1 i{font-style:italic;font-weight:400;color:var(--rust);}
+.lede{
+  margin:22px 0 0;color:var(--ink-soft);max-width:60ch;font-size:17.5px;
+}
+
+/* ---------- section label ---------- */
+.sectionlabel{
+  display:flex;align-items:baseline;gap:14px;margin-bottom:22px;
+}
+.sectionlabel h2{
+  font-family:'Fraunces',serif;font-weight:600;font-size:22px;margin:0;
+}
+.sectionlabel span{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:.16em;text-transform:uppercase;color:#a2957f;
+}
+.sectionlabel .line{flex:1;height:1px;background:var(--rule);}
+
+/* ---------- cards ---------- */
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:20px;
+}
+.card{
+  display:flex;flex-direction:column;
+  background:var(--paper);
+  border:1px solid var(--rule);
+  border-left:3px solid var(--rust);
+  border-radius:4px;
+  padding:22px 22px 20px;
+  text-decoration:none;color:inherit;
+  transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+.card:nth-child(3n+2){border-left-color:var(--teal);}
+.card:nth-child(3n+3){border-left-color:var(--gold);}
+.card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 16px 30px -22px rgba(32,28,23,.55);
+}
+.card:focus-visible{outline:2px solid var(--rust);outline-offset:3px;}
+.card .num{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:.18em;color:#a2957f;margin-bottom:10px;
+}
+.card h3{
+  font-family:'Fraunces',serif;font-weight:600;font-size:21px;
+  line-height:1.2;margin:0 0 8px;
+}
+.card p{
+  margin:0 0 18px;color:var(--ink-soft);font-size:15px;line-height:1.55;
+}
+.card .go{
+  margin-top:auto;
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--rust);
+}
+.card:nth-child(3n+2) .go{color:var(--teal);}
+.card:nth-child(3n+3) .go{color:var(--gold);}
+.card .go::after{content:" →";}
+
+footer{
+  margin-top:60px;padding-top:22px;border-top:1px solid var(--rule);
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:.12em;text-transform:uppercase;color:#a2957f;
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+
+@media (max-width:640px){
+  .wrap{padding:0 20px 60px;}
+  header{padding-top:44px;}
+  .masthead img{height:40px;margin-bottom:22px;}
+}
+@media (prefers-reduced-motion:reduce){
+  .card{transition:none;}
+  .card:hover{transform:none;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="masthead">
+    <img src="aiklogo.png" alt="AI Karayashala">
+    <h1>KIET Bootcamp <i>Resources</i></h1>
+  </div>
+  <!-- EDIT: one-line description of the bootcamp -->
+  <p class="lede">Everything for the bootcamp in one place — session material, practice prompts, worksheets, and reference pages. Bookmark this page; new links get added as we go.</p>
+</header>
+
+<div class="sectionlabel">
+  <h2>All resources</h2>
+  <span>06 links</span>
+  <div class="line"></div>
+</div>
+
+<!--
+  ============================================================
+  EDIT BELOW. Each card has three things to change:
+    1. href="..."   the page it opens
+    2. <h3>...</h3> the title
+    3. <p>...</p>   the one or two line description
+  To add a card, copy one whole <a class="card"> block and paste it.
+  Left-border colours (rust / teal / gold) cycle automatically.
+  Remove target="_blank" if you want links to open in the same tab.
+  ============================================================
+-->
+<div class="cards">
+
+  <a class="card" href="https://aikaryashala.com/system_setup/book/" target="_blank" rel="noopener">
+    <div class="num">01</div>
+    <h3>System Setup Book</h3>
+    <p>Reading material for you</p>
+    <div class="go">Open</div>
+  </a>
+
+  <a class="card" href="https://aikaryashala.com/system_setup/" target="_blank" rel="noopener">
+    <div class="num">02</div>
+    <h3>System Setup</h3>
+    <p>Step-by-step instructions for setting up your development environment.</p>
+    <div class="go">Open</div>
+  </a>
+
+  <a class="card" href="#" target="_blank" rel="noopener">
+    <div class="num">03</div>
+    <h3>Resource title three</h3>
+    <p>One or two lines describing what this page contains and who it's for.</p>
+    <div class="go">Open</div>
+  </a>
+
+  <a class="card" href="#" target="_blank" rel="noopener">
+    <div class="num">04</div>
+    <h3>Resource title four</h3>
+    <p>One or two lines describing what this page contains and who it's for.</p>
+    <div class="go">Open</div>
+  </a>
+
+  <a class="card" href="#" target="_blank" rel="noopener">
+    <div class="num">05</div>
+    <h3>Resource title five</h3>
+    <p>One or two lines describing what this page contains and who it's for.</p>
+    <div class="go">Open</div>
+  </a>
+
+  <a class="card" href="#" target="_blank" rel="noopener">
+    <div class="num">06</div>
+    <h3>Resource title six</h3>
+    <p>One or two lines describing what this page contains and who it's for.</p>
+    <div class="go">Open</div>
+  </a>
+
+</div>
+
+<footer>
+  <span>AI Karayashala · 7th, 8th Aug 2026</span>
+  <span>KIET Bootcamp</span>
+</footer>
+
+</div>
+</body>
+</html>
