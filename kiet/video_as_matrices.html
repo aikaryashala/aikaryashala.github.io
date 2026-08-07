@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Video Is a Stack of Matrices</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#faf6ef;
+  --cream-deep:#f4efe4;
+  --paper:#fffcf5;
+  --ink:#241f1a;
+  --ink-soft:#5d564c;
+  --ink-faint:#94897a;
+  --rule:#e0d7c6;
+  --rust:#b8430a;
+  --rust-soft:#f0ddd0;
+  --teal:#0f6b63;
+  --teal-soft:#d6e8e5;
+  --gold:#a67c05;
+  --gold-soft:#f2e6c4;
+  --code-bg:#231f1b;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background-color:var(--cream);
+  background-image:radial-gradient(rgba(90,70,40,.055) 1px, transparent 1px);
+  background-size:5px 5px;
+  color:var(--ink);
+  font-family:'Inter Tight',system-ui,sans-serif;
+  font-size:16.5px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1000px;margin:0 auto;padding:0 26px 90px}
+
+/* ---------- header ---------- */
+header{padding:64px 0 30px;text-align:center}
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--rust);
+}
+h1{
+  font-family:'Fraunces',serif;font-weight:600;
+  font-size:clamp(2.3rem,6vw,4rem);line-height:1.03;
+  margin:.35em 0 .28em;letter-spacing:-.02em;
+}
+h1 em{font-style:italic;color:var(--rust)}
+.lede{
+  max-width:60ch;margin:0 auto;color:var(--ink-soft);font-size:1.06rem;
+}
+.hr-deco{
+  display:flex;align-items:center;justify-content:center;gap:12px;margin:34px 0 22px;
+  color:var(--ink-faint);
+}
+.hr-deco:before,.hr-deco:after{content:"";height:1px;background:var(--rule);flex:1;max-width:200px}
+.hr-deco span{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em}
+
+/* ---------- stepper nav ---------- */
+nav.steps{
+  position:sticky;top:0;z-index:20;
+  background:linear-gradient(var(--cream) 72%, rgba(250,246,239,0));
+  padding:14px 0 20px;
+}
+.dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.dot{
+  appearance:none;border:1px solid var(--rule);background:var(--paper);
+  border-radius:999px;padding:7px 14px;cursor:pointer;
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.09em;
+  color:var(--ink-faint);text-transform:uppercase;
+  transition:all .25s ease;
+}
+.dot:hover{border-color:var(--rust);color:var(--rust)}
+.dot[aria-current="true"]{background:var(--rust);border-color:var(--rust);color:#fff}
+.dot b{font-weight:700}
+.dot .nm{display:none}
+@media(min-width:760px){.dot .nm{display:inline;margin-left:7px}}
+
+/* ---------- panels ---------- */
+.panel{display:none;animation:rise .45s cubic-bezier(.2,.7,.3,1)}
+.panel.on{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.card{
+  background:var(--paper);border:1px solid var(--rule);
+  border-radius:3px;padding:30px 28px;
+  box-shadow:0 1px 0 rgba(0,0,0,.02),0 18px 40px -32px rgba(60,40,10,.5);
+}
+.step-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.step-num{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--rust)}
+h2{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.55rem,3.4vw,2.2rem);line-height:1.14;margin:0 0 .3em;letter-spacing:-.01em}
+h2 em{font-style:italic;color:var(--teal)}
+.hook{
+  font-family:'Fraunces',serif;font-style:italic;font-size:1.12rem;color:var(--ink-soft);
+  border-left:2px solid var(--gold);padding-left:14px;margin:18px 0 24px;max-width:62ch;
+}
+p{max-width:66ch}
+.small{font-size:.92rem;color:var(--ink-soft)}
+.mono{font-family:'JetBrains Mono',monospace}
+
+/* ---------- stage / controls ---------- */
+.stage{
+  background:var(--cream-deep);border:1px solid var(--rule);border-radius:3px;
+  padding:22px;margin:22px 0;
+}
+.stage-label{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--ink-faint);margin-bottom:14px;
+}
+.row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+.col{flex:1 1 260px;min-width:0}
+.ctrls{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:16px}
+button.act{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  background:var(--ink);color:var(--cream);border:none;border-radius:2px;
+  padding:10px 16px;cursor:pointer;transition:background .2s;
+}
+button.act:hover{background:var(--rust)}
+button.act.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule)}
+button.act.ghost:hover{border-color:var(--rust);color:var(--rust);background:transparent}
+label.slide{display:block;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.09em;color:var(--ink-soft);text-transform:uppercase}
+label.slide span{color:var(--rust);font-weight:700}
+input[type=range]{width:100%;accent-color:var(--rust);margin-top:6px}
+.field{flex:1 1 190px}
+:focus-visible{outline:2px solid var(--rust);outline-offset:2px}
+
+/* ---------- pixel grids ---------- */
+.grid{display:grid;width:100%;aspect-ratio:16/12;border:1px solid var(--rule);background:#fff}
+.grid.gap{gap:1px;background:var(--rule)}
+.px{transition:background-color .28s ease, transform .28s ease;position:relative}
+.px.num{display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(0,0,0,.55)}
+.px.hit{cursor:crosshair}
+.px.sel{outline:2px solid var(--ink);outline-offset:-2px;z-index:3}
+.px.flash{transform:scale(.72);z-index:2}
+canvas.screen{width:100%;image-rendering:pixelated;border:1px solid var(--rule);display:block;background:#fff;aspect-ratio:16/12}
+.strip{display:flex;gap:5px;overflow-x:auto;padding:12px 2px 4px}
+.thumb{flex:0 0 auto;text-align:center;opacity:.42;transition:opacity .2s,transform .2s}
+.thumb.on{opacity:1;transform:translateY(-3px)}
+.thumb canvas{width:52px;image-rendering:pixelated;border:1px solid var(--rule);display:block;background:#fff}
+.thumb i{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--ink-faint);font-style:normal}
+
+/* ---------- readouts ---------- */
+.readout{
+  font-family:'JetBrains Mono',monospace;background:var(--code-bg);color:#eadfd0;
+  border-radius:3px;padding:14px 16px;font-size:12.5px;line-height:1.85;overflow-x:auto;
+}
+.readout b{color:#f0a15e;font-weight:500}
+.readout .g{color:#8fc9a4}
+.readout .d{color:#8e857a}
+.tag{
+  display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;padding:3px 8px;border-radius:2px;
+}
+.tag.rust{background:var(--rust-soft);color:var(--rust)}
+.tag.teal{background:var(--teal-soft);color:var(--teal)}
+.tag.gold{background:var(--gold-soft);color:var(--gold)}
+.stat{font-family:'Fraunces',serif;font-size:clamp(1.5rem,4vw,2.3rem);font-weight:600;line-height:1.1;color:var(--rust)}
+.stat.teal{color:var(--teal)}
+.statlabel{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+.tradeoff{
+  border-left:3px solid var(--teal);background:var(--teal-soft);
+  padding:14px 18px;margin-top:24px;border-radius:0 3px 3px 0;
+}
+.tradeoff .tag{margin-bottom:6px}
+.tradeoff p{margin:0;font-size:.95rem;max-width:70ch}
+.discuss{border-left-color:var(--gold);background:var(--gold-soft)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-soft);margin-top:10px;text-transform:uppercase;letter-spacing:.08em}
+.legend i{display:inline-block;width:10px;height:10px;border:1px solid rgba(0,0,0,.15);margin-right:6px;vertical-align:-1px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:26px}
+footer{text-align:center;margin-top:56px;color:var(--ink-faint);font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Prajnashala · Visual CS</div>
+  <h1>A video is a stack of <em>matrices</em></h1>
+  <p class="lede">Play with one tiny 16&nbsp;×&nbsp;12 clip all the way down to its numbers, and back up again. Five steps: see it move, open the matrix, hit the wall, encode, decode.</p>
+  <div class="hr-deco"><span>16 × 12 px · 12 frames · one bouncing ball</span></div>
+</header>
+
+<nav class="steps">
+  <div class="dots" id="dots"></div>
+</nav>
+
+<!-- ================= STEP 1 ================= -->
+<section class="panel on" id="p0">
+  <div class="card">
+    <div class="step-head"><span class="step-num">STEP 01 / THE ILLUSION</span></div>
+    <h2>Nothing here is <em>moving</em></h2>
+    <p class="hook">Flip a deck of drawings fast enough and a ball bounces. Slow enough and it's twelve separate pictures. Where exactly does one become the other?</p>
+
+    <div class="stage">
+      <div class="stage-label">Playback</div>
+      <div class="row">
+        <div class="col" style="flex:1 1 320px">
+          <canvas class="screen" id="s1canvas" width="16" height="12"></canvas>
+        </div>
+        <div class="col">
+          <div class="readout" id="s1read"></div>
+          <div class="ctrls">
+            <button class="act" id="s1play">Pause</button>
+            <button class="act ghost" id="s1step">Next frame</button>
+          </div>
+          <div class="field" style="margin-top:16px">
+            <label class="slide" for="s1fps">Frames per second: <span id="s1fpsv">12</span></label>
+            <input type="range" id="s1fps" min="1" max="24" value="12">
+          </div>
+        </div>
+      </div>
+      <div class="strip" id="s1strip"></div>
+    </div>
+
+    <p>Drop the rate to <b class="mono">1</b> and the deck falls apart into stills. Push it back up and your visual system stitches them together. The video file never stored motion — it stored <b>twelve pictures and a rate</b>.</p>
+
+    <div class="tradeoff">
+      <span class="tag teal">Trade-off</span>
+      <p>More frames per second buys smoother motion and costs proportionally more storage. 24&nbsp;fps is cinema's old compromise; 60&nbsp;fps is a game's. Nobody picks a number because it looks nice — they pick the cheapest rate that still fools the eye.</p>
+    </div>
+  </div>
+  <div class="pager"><span></span><button class="act next">Open a single frame →</button></div>
+</section>
+
+<!-- ================= STEP 2 ================= -->
+<section class="panel" id="p1">
+  <div class="card">
+    <div class="step-head"><span class="step-num">STEP 02 / THE MATRIX</span></div>
+    <h2>One frame is a <em>table of numbers</em></h2>
+    <p class="hook">A screen has no idea what a ball is. It gets told, cell by cell, how much red, green and blue to emit. So what does a picture look like from the machine's side?</p>
+
+    <div class="stage">
+      <div class="stage-label">Frame <span id="s2fno" class="mono">6</span> — click any pixel</div>
+      <div class="row">
+        <div class="col" style="flex:1 1 340px">
+          <div class="grid gap" id="s2grid" style="grid-template-columns:repeat(16,1fr)"></div>
+          <div class="ctrls">
+            <button class="act ghost" id="s2mode">Show numbers</button>
+            <button class="act ghost" id="s2chan">Channel: all</button>
+          </div>
+          <div class="field" style="margin-top:14px">
+            <label class="slide" for="s2f">Frame index: <span id="s2fv">6</span></label>
+            <input type="range" id="s2f" min="0" max="11" value="6">
+          </div>
+        </div>
+        <div class="col">
+          <div class="readout" id="s2read"></div>
+          <p class="small" style="margin-top:14px">Three matrices stacked — one per colour channel. Toggle a single channel and the picture collapses into pure intensity: the shape survives, the colour doesn't.</p>
+        </div>
+      </div>
+    </div>
+
+    <p>So an image is <b class="mono">height × width × 3</b> numbers, each 0–255, each one byte. A video is that same block repeated once per frame. Everything from here on is a fight with the size of this block.</p>
+
+    <div class="tradeoff discuss">
+      <span class="tag gold">Ask the room</span>
+      <p>A greyscale photo needs one number per pixel instead of three. Why do we still use three for almost everything — and where is greyscale still the right call?</p>
+    </div>
+  </div>
+  <div class="pager"><button class="act ghost prev">← Back</button><button class="act next">Count the bytes →</button></div>
+</section>
+
+<!-- ================= STEP 3 ================= -->
+<section class="panel" id="p2">
+  <div class="card">
+    <div class="step-head"><span class="step-num">STEP 03 / THE PROBLEM</span></div>
+    <h2>Stored honestly, a film is <em>a terabyte</em></h2>
+    <p class="hook">Our toy clip is 16 × 12. Real ones aren't. Before anyone invents a clever trick, work out what the naive answer actually costs.</p>
+
+    <div class="stage">
+      <div class="stage-label">Raw storage calculator</div>
+      <div class="row">
+        <div class="col">
+          <div class="field">
+            <label class="slide" for="s3res">Resolution: <span id="s3resv">1920 × 1080</span></label>
+            <input type="range" id="s3res" min="0" max="4" value="2">
+          </div>
+          <div class="field" style="margin-top:14px">
+            <label class="slide" for="s3fps">Frames per second: <span id="s3fpsv">30</span></label>
+            <input type="range" id="s3fps" min="12" max="60" step="6" value="30">
+          </div>
+          <div class="field" style="margin-top:14px">
+            <label class="slide" for="s3min">Runtime: <span id="s3minv">90 min</span></label>
+            <input type="range" id="s3min" min="5" max="180" step="5" value="90">
+          </div>
+        </div>
+        <div class="col">
+          <div class="statlabel">One frame, uncompressed</div>
+          <div class="stat" id="s3frame">5.93 MB</div>
+          <div class="statlabel" style="margin-top:16px">Every second</div>
+          <div class="stat" id="s3sec">178 MB</div>
+          <div class="statlabel" style="margin-top:16px">Whole runtime</div>
+          <div class="stat" id="s3tot">938 GB</div>
+          <div class="statlabel" style="margin-top:16px">Same film at 5 Mbit/s</div>
+          <div class="stat teal" id="s3comp">3.4 GB</div>
+          <div class="small mono" style="margin-top:8px;color:var(--ink-faint)" id="s3ratio">≈ 280 : 1</div>
+        </div>
+      </div>
+    </div>
+
+    <p>Nothing about that gap comes from better hardware. It comes from noticing that the raw block is <b>saying the same thing many times</b>: neighbouring pixels are nearly identical, and so are neighbouring frames. Redundancy is the whole opening.</p>
+
+    <div class="tradeoff">
+      <span class="tag teal">Trade-off</span>
+      <p>Squeezing 280:1 means throwing detail away and spending CPU time on every single frame, twice — once to encode, once to play. Storage got cheap; the compromise moved to battery and latency, not disk.</p>
+    </div>
+  </div>
+  <div class="pager"><button class="act ghost prev">← Back</button><button class="act next">Remove the redundancy →</button></div>
+</section>
+
+<!-- ================= STEP 4 ================= -->
+<section class="panel" id="p3">
+  <div class="card">
+    <div class="step-head"><span class="step-num">STEP 04 / ENCODING</span></div>
+    <h2>Two kinds of <em>repetition</em></h2>
+    <p class="hook">Between frame 5 and frame 6 of our clip, almost every pixel is untouched. Why would you write all 192 of them down again?</p>
+
+    <div class="stage">
+      <div class="stage-label">Spatial — how many distinct colours does a frame really need?</div>
+      <div class="row">
+        <div class="col" style="flex:1 1 200px">
+          <div class="grid" id="s4qgrid" style="grid-template-columns:repeat(16,1fr)"></div>
+        </div>
+        <div class="col">
+          <div class="field">
+            <label class="slide" for="s4q">Colour levels per channel: <span id="s4qv">256</span></label>
+            <input type="range" id="s4q" min="0" max="5" value="5">
+          </div>
+          <div class="readout" style="margin-top:14px" id="s4qread"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Temporal — store the change, not the picture</div>
+      <div class="row">
+        <div class="col" style="flex:1 1 150px">
+          <div class="grid" id="s4a" style="grid-template-columns:repeat(16,1fr)"></div>
+          <div class="statlabel" style="margin-top:8px;text-align:center">Frame <span id="s4an">5</span></div>
+        </div>
+        <div class="col" style="flex:1 1 150px">
+          <div class="grid" id="s4b" style="grid-template-columns:repeat(16,1fr)"></div>
+          <div class="statlabel" style="margin-top:8px;text-align:center">Frame <span id="s4bn">6</span></div>
+        </div>
+        <div class="col" style="flex:1 1 150px">
+          <div class="grid" id="s4d" style="grid-template-columns:repeat(16,1fr)"></div>
+          <div class="statlabel" style="margin-top:8px;text-align:center">What changed</div>
+        </div>
+      </div>
+      <div class="legend"><span><i style="background:#fffcf5"></i>identical — send nothing</span><span><i style="background:#b8430a"></i>changed — send this pixel</span></div>
+      <div class="field" style="margin-top:16px;max-width:420px">
+        <label class="slide" for="s4f">Compare frame <span id="s4fv">5</span> with the next one</label>
+        <input type="range" id="s4f" min="0" max="10" value="5">
+      </div>
+      <div class="readout" style="margin-top:16px" id="s4read"></div>
+    </div>
+
+    <p>That's the codec in one sentence: keep the occasional whole picture — a <b>keyframe</b> — and between them write only the differences. Coarser colour levels make more pixels count as "identical", which is exactly why the two sliders above pull on the same rope.</p>
+
+    <div class="tradeoff">
+      <span class="tag teal">Trade-off</span>
+      <p>Fewer keyframes means a smaller file and worse seeking — jump to the middle of a clip and the player must replay every difference since the last full picture. That pause when you drag a video's scrubber is this trade-off, out loud.</p>
+    </div>
+  </div>
+  <div class="pager"><button class="act ghost prev">← Back</button><button class="act next">Play it back →</button></div>
+</section>
+
+<!-- ================= STEP 5 ================= -->
+<section class="panel" id="p4">
+  <div class="card">
+    <div class="step-head"><span class="step-num">STEP 05 / DECODING</span></div>
+    <h2>The player rebuilds the <em>matrix</em></h2>
+    <p class="hook">The file no longer holds twelve pictures. It holds one picture and eleven lists of corrections. Watch the decoder put the frames back together — then take one correction away.</p>
+
+    <div class="stage">
+      <div class="stage-label">Decoder</div>
+      <div class="row">
+        <div class="col" style="flex:1 1 300px">
+          <div class="grid" id="s5grid" style="grid-template-columns:repeat(16,1fr)"></div>
+        </div>
+        <div class="col">
+          <div class="readout" id="s5read"></div>
+          <div class="ctrls">
+            <button class="act" id="s5run">Decode</button>
+            <button class="act ghost" id="s5reset">Reset</button>
+          </div>
+          <div class="ctrls" style="margin-top:6px">
+            <label class="slide" style="text-transform:none;letter-spacing:0;font-size:12.5px;font-family:'Inter Tight'">
+              <input type="checkbox" id="s5drop" style="accent-color:var(--rust);margin-right:8px;vertical-align:-2px">Lose the difference for frame 6
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p>Drop one packet and the error doesn't vanish next frame — the ball smears until the next keyframe wipes the buffer clean. That's the ghosting you've seen on a stalling stream, and it's evidence the decoder is holding one matrix in memory and patching it in place.</p>
+
+    <div class="tradeoff discuss">
+      <span class="tag gold">Ask the room</span>
+      <p>Pair up. One of you is the encoder and may only speak in instructions like "row 4, pixel 9, now rust". The other holds the grid and edits it. Send frames 5 through 8. Then argue about which instruction was the most wasteful — and design a shorter one.</p>
+    </div>
+
+    <div class="tradeoff">
+      <span class="tag rust">The round trip</span>
+      <p>Light → sensor → matrix of numbers → quantised → differences → bitstream → file. Then straight back: bitstream → differences → matrix → screen → light. Encoding and decoding are the same map, walked in opposite directions.</p>
+    </div>
+  </div>
+  <div class="pager"><button class="act ghost prev">← Back</button><button class="act ghost" id="restart">Start over ↺</button></div>
+</section>
+
+<footer>Prajnashala · self-contained teaching page · no dependencies</footer>
+</div>
+
+<script>
+/* ============ the toy clip ============ */
+const W=16,H=12,N=12;
+function mix(a,b,t){return [Math.round(a[0]+(b[0]-a[0])*t),Math.round(a[1]+(b[1]-a[1])*t),Math.round(a[2]+(b[2]-a[2])*t)];}
+function makeFrame(i){
+  const t=i/(N-1), px=[];
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    if(y>=H-2) px.push(y===H-2?[142,163,110]:[120,140,92]);
+    else{const k=y/(H-3);px.push([Math.round(216-26*k),Math.round(228-18*k),Math.round(240-12*k)]);}
+  }
+  const cx=1.8+t*(W-3.6), cy=(H-3.4)-5.4*Math.sin(Math.PI*t);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const d=Math.hypot(x-cx,y-cy), i2=y*W+x;
+    if(d<1.35) px[i2]=[184,67,10];
+    else if(d<2.0) px[i2]=mix(px[i2],[206,110,52],.55);
+  }
+  return px;
+}
+const FRAMES=[];for(let i=0;i<N;i++)FRAMES.push(makeFrame(i));
+const rgb=c=>'rgb('+c[0]+','+c[1]+','+c[2]+')';
+function quant(c,levels){
+  if(levels>=256)return c;
+  const s=255/(levels-1);
+  return c.map(v=>Math.round(Math.round(v/s)*s));
+}
+function qframe(f,levels){return f.map(c=>quant(c,levels));}
+function paintCanvas(cv,px){
+  const g=cv.getContext('2d'),im=g.createImageData(W,H);
+  for(let i=0;i<W*H;i++){im.data[i*4]=px[i][0];im.data[i*4+1]=px[i][1];im.data[i*4+2]=px[i][2];im.data[i*4+3]=255;}
+  g.putImageData(im,0,0);
+}
+function buildGrid(el,cls){
+  el.innerHTML='';const cells=[];
+  for(let i=0;i<W*H;i++){const d=document.createElement('div');d.className='px'+(cls?' '+cls:'');el.appendChild(d);cells.push(d);}
+  return cells;
+}
+function fmtBytes(b){
+  if(b<1024)return b.toFixed(0)+' B';
+  if(b<1048576)return (b/1024).toFixed(1)+' KB';
+  if(b<1073741824)return (b/1048576).toFixed(2)+' MB';
+  if(b<1099511627776)return (b/1073741824).toFixed(2)+' GB';
+  return (b/1099511627776).toFixed(2)+' TB';
+}
+
+/* ============ stepper ============ */
+const NAMES=['Illusion','Matrix','Problem','Encode','Decode'];
+const dots=document.getElementById('dots');
+NAMES.forEach((n,i)=>{
+  const b=document.createElement('button');
+  b.className='dot';b.innerHTML='<b>0'+(i+1)+'</b><span class="nm">'+n+'</span>';
+  b.onclick=()=>go(i);dots.appendChild(b);
+});
+let cur=0;
+function go(i){
+  cur=Math.max(0,Math.min(NAMES.length-1,i));
+  document.querySelectorAll('.panel').forEach((p,k)=>p.classList.toggle('on',k===cur));
+  [...dots.children].forEach((d,k)=>d.setAttribute('aria-current',k===cur));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+go(0);
+document.querySelectorAll('.next').forEach(b=>b.onclick=()=>go(cur+1));
+document.querySelectorAll('.prev').forEach(b=>b.onclick=()=>go(cur-1));
+document.getElementById('restart').onclick=()=>go(0);
+addEventListener('keydown',e=>{
+  if(/input|textarea/i.test(e.target.tagName))return;
+  if(e.key==='ArrowRight')go(cur+1);
+  if(e.key==='ArrowLeft')go(cur-1);
+});
+
+/* ============ STEP 1 ============ */
+const s1c=document.getElementById('s1canvas'),s1read=document.getElementById('s1read');
+const strip=document.getElementById('s1strip');const thumbs=[];
+for(let i=0;i<N;i++){
+  const w=document.createElement('div');w.className='thumb';
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;paintCanvas(cv,FRAMES[i]);
+  const lb=document.createElement('i');lb.textContent=i;
+  w.appendChild(cv);w.appendChild(lb);w.onclick=()=>{playing=false;s1playBtn.textContent='Play';f1=i;draw1();};
+  strip.appendChild(w);thumbs.push(w);
+}
+let f1=0,fps=12,playing=true,acc=0,last=performance.now();
+const s1playBtn=document.getElementById('s1play');
+function draw1(){
+  paintCanvas(s1c,FRAMES[f1]);
+  thumbs.forEach((t,k)=>t.classList.toggle('on',k===f1));
+  s1read.innerHTML='frame index &nbsp;<b>'+f1+'</b> <span class="d">/ 11</span><br>'+
+    'rate &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>'+fps+'</b> fps<br>'+
+    'each frame &nbsp;<span class="g">16 × 12 × 3 = 576 bytes</span><br>'+
+    'the clip &nbsp;&nbsp;&nbsp;<span class="g">12 × 576 = 6912 bytes</span>';
+}
+function loop(now){
+  const dt=now-last;last=now;
+  if(playing){acc+=dt;const step=1000/fps;while(acc>=step){acc-=step;f1=(f1+1)%N;}draw1();}
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+s1playBtn.onclick=()=>{playing=!playing;s1playBtn.textContent=playing?'Pause':'Play';};
+document.getElementById('s1step').onclick=()=>{playing=false;s1playBtn.textContent='Play';f1=(f1+1)%N;draw1();};
+document.getElementById('s1fps').oninput=e=>{fps=+e.target.value;document.getElementById('s1fpsv').textContent=fps;draw1();};
+draw1();
+
+/* ============ STEP 2 ============ */
+const s2cells=buildGrid(document.getElementById('s2grid'),'hit');
+const s2read=document.getElementById('s2read');
+let f2=6,mode2='colour',chan=3,sel=-1;
+const CH=['red','green','blue','all'];
+s2cells.forEach((c,i)=>c.onclick=()=>{sel=i;draw2();});
+function draw2(){
+  const f=FRAMES[f2];
+  s2cells.forEach((c,i)=>{
+    const p=f[i];
+    if(chan===3)c.style.background=rgb(p);
+    else{const v=p[chan];c.style.background='rgb('+[0,1,2].map(k=>k===chan?v:Math.round(v*0.25)).join(',')+')';}
+    c.classList.toggle('num',mode2==='num');
+    c.classList.toggle('sel',i===sel);
+    c.textContent = mode2==='num' ? (chan===3?Math.round((p[0]*.3+p[1]*.59+p[2]*.11)):p[chan]) : '';
+    if(mode2==='num'){const lum=(p[0]*.3+p[1]*.59+p[2]*.11);c.style.color=lum>140?'rgba(0,0,0,.6)':'rgba(255,255,255,.85)';}
+  });
+  document.getElementById('s2fno').textContent=f2;
+  const s=sel<0?null:{x:sel%W,y:Math.floor(sel/W),c:f[sel]};
+  s2read.innerHTML=
+    'frame['+f2+'] <span class="d">= 12 rows × 16 cols × 3</span><br><br>'+
+    (s?('pixel[<b>'+s.y+'</b>][<b>'+s.x+'</b>]<br>'+
+        '&nbsp;&nbsp;R <b>'+String(s.c[0]).padStart(3,' ')+'</b> &nbsp;G <b>'+String(s.c[1]).padStart(3,' ')+'</b> &nbsp;B <b>'+String(s.c[2]).padStart(3,' ')+'</b><br>'+
+        '&nbsp;&nbsp;<span class="d">hex</span> <span class="g">#'+s.c.map(v=>v.toString(16).padStart(2,'0')).join('')+'</span>')
+       :'<span class="d">click a pixel to read its three numbers</span>')+
+    '<br><br>channel &nbsp;<b>'+CH[chan]+'</b>';
+}
+document.getElementById('s2f').oninput=e=>{f2=+e.target.value;document.getElementById('s2fv').textContent=f2;draw2();};
+document.getElementById('s2mode').onclick=e=>{mode2=mode2==='colour'?'num':'colour';e.target.textContent=mode2==='num'?'Show colour':'Show numbers';draw2();};
+document.getElementById('s2chan').onclick=e=>{chan=(chan+1)%4;e.target.textContent='Channel: '+CH[chan];draw2();};
+draw2();
+
+/* ============ STEP 3 ============ */
+const RES=[[640,480,'640 × 480'],[1280,720,'1280 × 720'],[1920,1080,'1920 × 1080'],[2560,1440,'2560 × 1440'],[3840,2160,'3840 × 2160']];
+function calc3(){
+  const r=RES[+document.getElementById('s3res').value];
+  const f=+document.getElementById('s3fps').value, m=+document.getElementById('s3min').value;
+  document.getElementById('s3resv').textContent=r[2];
+  document.getElementById('s3fpsv').textContent=f;
+  document.getElementById('s3minv').textContent=m+' min';
+  const per=r[0]*r[1]*3, sec=per*f, tot=sec*m*60, comp=5e6/8*m*60;
+  document.getElementById('s3frame').textContent=fmtBytes(per);
+  document.getElementById('s3sec').textContent=fmtBytes(sec);
+  document.getElementById('s3tot').textContent=fmtBytes(tot);
+  document.getElementById('s3comp').textContent=fmtBytes(comp);
+  document.getElementById('s3ratio').textContent='≈ '+Math.round(tot/comp)+' : 1 compression';
+}
+['s3res','s3fps','s3min'].forEach(id=>document.getElementById(id).oninput=calc3);
+calc3();
+
+/* ============ STEP 4 ============ */
+const LEV=[2,4,8,16,64,256];
+const qcells=buildGrid(document.getElementById('s4qgrid'));
+const acells=buildGrid(document.getElementById('s4a'));
+const bcells=buildGrid(document.getElementById('s4b'));
+const dcells=buildGrid(document.getElementById('s4d'));
+function draw4(){
+  const lev=LEV[+document.getElementById('s4q').value];
+  const k=+document.getElementById('s4f').value;
+  document.getElementById('s4qv').textContent=lev;
+  document.getElementById('s4fv').textContent=k;
+  document.getElementById('s4an').textContent=k;
+  document.getElementById('s4bn').textContent=k+1;
+
+  const qa=qframe(FRAMES[k],lev), qb=qframe(FRAMES[k+1],lev), qshow=qframe(FRAMES[6],lev);
+  const uniq=new Set(qshow.map(c=>c.join(',')));
+  qshow.forEach((c,i)=>qcells[i].style.background=rgb(c));
+  document.getElementById('s4qread').innerHTML=
+    'levels/channel <b>'+lev+'</b><br>'+
+    'bits per pixel <b>'+(Math.log2(lev)*3).toFixed(0)+'</b> <span class="d">(was 24)</span><br>'+
+    'distinct colours in frame 6 <b>'+uniq.size+'</b> <span class="d">of 192 pixels</span>';
+
+  let changed=0;
+  qa.forEach((c,i)=>acells[i].style.background=rgb(c));
+  qb.forEach((c,i)=>{
+    bcells[i].style.background=rgb(c);
+    const same=c[0]===qa[i][0]&&c[1]===qa[i][1]&&c[2]===qa[i][2];
+    if(!same)changed++;
+    dcells[i].style.background=same?'#fffcf5':'#b8430a';
+  });
+  const full=W*H*3, delta=changed*4;
+  document.getElementById('s4read').innerHTML=
+    'pixels changed &nbsp;<b>'+changed+'</b> <span class="d">of 192</span><br>'+
+    'whole frame &nbsp;&nbsp;&nbsp;<b>'+full+' B</b><br>'+
+    'difference only <span class="g">'+delta+' B</span> <span class="d">(position + colour)</span><br>'+
+    'saving &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="g">'+(100-delta/full*100).toFixed(0)+'%</span>';
+}
+document.getElementById('s4q').oninput=draw4;
+document.getElementById('s4f').oninput=draw4;
+draw4();
+
+/* ============ STEP 5 ============ */
+const s5cells=buildGrid(document.getElementById('s5grid'));
+const s5read=document.getElementById('s5read');
+let buf=null,timer=null,bytes=0;
+function s5reset(){
+  clearTimeout(timer);buf=null;bytes=0;
+  s5cells.forEach(c=>{c.style.background='#fffcf5';c.classList.remove('flash');});
+  s5read.innerHTML='<span class="d">buffer empty — waiting for the keyframe</span><br><br>received <b>0 B</b>';
+}
+function paint(i,c){
+  s5cells[i].style.background=rgb(c);
+  s5cells[i].classList.add('flash');
+  setTimeout(()=>s5cells[i].classList.remove('flash'),260);
+}
+/* positions that differ between two source frames — this is what the encoder sent */
+function deltaOf(idx){
+  const a=FRAMES[idx-1],b=FRAMES[idx],out=[];
+  for(let k=0;k<W*H;k++) if(a[k][0]!==b[k][0]||a[k][1]!==b[k][1]||a[k][2]!==b[k][2]) out.push(k);
+  return out;
+}
+function say(label,note){
+  s5read.innerHTML=label+'<br><span class="d">'+note+'</span><br><br>received <b>'+bytes+' B</b>';
+}
+function s5run(){
+  s5reset();
+  const drop=document.getElementById('s5drop').checked;
+  let i=0;
+  (function tick(){
+    if(i>=N)return;
+    if(i===0||i===8){
+      buf=FRAMES[i].map(c=>c.slice());
+      buf.forEach((c,k)=>paint(k,c));
+      bytes+=576;
+      say('frame '+i+' &nbsp;<b>KEYFRAME</b>','whole 16 × 12 matrix overwrites the buffer');
+    } else if(drop&&i===6){
+      say('frame 6 &nbsp;<b>DIFFERENCE LOST</b>','buffer keeps the stale pixels — the ball ghosts');
+    } else {
+      const d=deltaOf(i);
+      d.forEach(k=>{buf[k]=FRAMES[i][k].slice();paint(k,buf[k]);});
+      bytes+=d.length*4;
+      say('frame '+i+' &nbsp;<b>DIFFERENCE</b>',d.length+' pixels patched, '+(192-d.length)+' left untouched');
+    }
+    i++;timer=setTimeout(tick,620);
+  })();
+}
+document.getElementById('s5run').onclick=s5run;
+document.getElementById('s5reset').onclick=s5reset;
+document.getElementById('s5drop').onchange=()=>{if(buf)s5run();};
+s5reset();
+</script>
+</body>
+</html>
