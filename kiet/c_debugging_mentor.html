@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C Debugging Mentor · AI Karyashala</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#faf6ef;
+  --cream-deep:#f4efe4;
+  --paper:#fffcf5;
+  --ink:#201c17;
+  --ink-soft:#5b5147;
+  --rule:#e2d8c6;
+  --rust:#b8430a;
+  --rust-soft:#f0dccd;
+  --teal:#1f6f68;
+  --gold:#a8791b;
+  --term:#221d19;
+  --term-line:#3a322b;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background-color:var(--cream);
+  background-image:radial-gradient(var(--rule) 0.6px, transparent 0.6px);
+  background-size:16px 16px;
+  color:var(--ink);
+  font-family:'Inter Tight',system-ui,sans-serif;
+  font-size:16.5px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:940px;margin:0 auto;padding:0 28px 100px;}
+
+/* ---------- gutter ---------- */
+.section{
+  position:relative;
+  padding:54px 0 10px 62px;
+  border-top:1px solid var(--rule);
+}
+.section:first-of-type{border-top:none;}
+.gutter{
+  position:absolute;left:0;top:56px;
+  width:44px;text-align:right;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:.14em;
+  color:#b7ab98;
+  user-select:none;
+}
+.bp{
+  display:block;width:11px;height:11px;border-radius:50%;
+  border:1.5px solid #cec1ac;margin:8px 0 0 auto;
+  background:transparent;cursor:pointer;padding:0;
+  transition:background .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.bp:hover{border-color:var(--rust);}
+.bp[aria-pressed="true"]{background:var(--rust);border-color:var(--rust);box-shadow:0 0 0 4px rgba(184,67,10,.14);}
+.bp:focus-visible{outline:2px solid var(--rust);outline-offset:3px;}
+
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:500;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--rust);
+  margin:0 0 10px;
+}
+h2{
+  font-family:'Fraunces',serif;
+  font-weight:600;font-size:clamp(26px,3.4vw,34px);
+  line-height:1.15;margin:0 0 14px;letter-spacing:-.01em;
+}
+h3{font-family:'Fraunces',serif;font-weight:600;font-size:19px;margin:0 0 6px;}
+p{margin:0 0 16px;color:var(--ink-soft);max-width:68ch;}
+p strong{color:var(--ink);font-weight:600;}
+em{font-family:'Fraunces',serif;font-style:italic;color:var(--ink);}
+
+/* ---------- hero ---------- */
+header{padding:74px 0 46px 62px;position:relative;}
+.brand{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--ink-soft);
+  margin-bottom:30px;
+}
+.brand span{color:var(--rust);}
+h1{
+  font-family:'Fraunces',serif;
+  font-weight:600;font-size:clamp(42px,7.4vw,72px);
+  line-height:.98;letter-spacing:-.025em;margin:0 0 18px;
+  max-width:15ch;
+}
+h1 i{font-style:italic;color:var(--rust);font-weight:400;}
+.lede{font-size:19px;max-width:56ch;color:var(--ink-soft);}
+.meta{
+  display:flex;flex-wrap:wrap;gap:10px;margin-top:28px;
+}
+.tag{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;
+  padding:5px 11px;border:1px solid var(--rule);border-radius:2px;
+  background:var(--paper);color:var(--ink-soft);
+}
+
+/* ---------- terminal ---------- */
+.term{
+  background:var(--term);color:#e8ded0;border-radius:5px;
+  font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.85;
+  padding:20px 22px;margin:26px 0 0;overflow-x:auto;
+  box-shadow:0 14px 34px -22px rgba(32,28,23,.65);
+}
+.term .c{color:#8d8175;}
+.term .p{color:#6fbfae;}
+.term .r{color:#e8845a;}
+.term .g{color:#b9c97e;}
+
+/* ---------- prompt card ---------- */
+.promptcard{
+  background:var(--paper);border:1px solid var(--rule);border-radius:4px;
+  overflow:hidden;margin-top:8px;
+}
+.promptbar{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:12px 16px;border-bottom:1px solid var(--rule);
+  background:var(--cream-deep);
+}
+.promptbar span{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);
+}
+.copy{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;cursor:pointer;
+  background:var(--rust);color:#fff8f0;border:none;border-radius:2px;
+  padding:8px 14px;transition:opacity .15s ease;
+}
+.copy:hover{opacity:.86;}
+.copy:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
+.copy.done{background:var(--teal);}
+pre.prompt{
+  margin:0;padding:22px;max-height:430px;overflow:auto;
+  font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.75;
+  white-space:pre-wrap;color:#3a332b;
+}
+
+/* ---------- steps ---------- */
+ol.steps{list-style:none;counter-reset:s;padding:0;margin:0;}
+ol.steps li{
+  counter-increment:s;position:relative;padding-left:40px;margin-bottom:18px;
+  color:var(--ink-soft);max-width:66ch;
+}
+ol.steps li::before{
+  content:counter(s,decimal-leading-zero);
+  position:absolute;left:0;top:2px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--rust);letter-spacing:.06em;
+}
+ol.steps b{color:var(--ink);font-weight:600;}
+
+/* ---------- level cards ---------- */
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:6px;}
+.level{
+  background:var(--paper);border:1px solid var(--rule);
+  border-left:3px solid var(--rust);border-radius:3px;padding:20px 20px 22px;
+}
+.level.t{border-left-color:var(--teal);}
+.level.g{border-left-color:var(--gold);}
+.level .n{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px;
+}
+.level ul{margin:12px 0 0;padding-left:16px;font-size:14.5px;color:var(--ink-soft);}
+.level li{margin-bottom:5px;}
+.level .len{
+  font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--rust);
+  display:block;margin-bottom:10px;
+}
+.level.t .len{color:var(--teal);}
+.level.g .len{color:var(--gold);}
+
+/* ---------- deliverables ---------- */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px 26px;margin-top:4px;}
+.item{border-top:1px solid var(--rule);padding-top:12px;}
+.item .k{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--rust);margin-bottom:4px;
+}
+.item p{font-size:14.5px;margin:0;}
+
+/* ---------- command table ---------- */
+.cmds{width:100%;border-collapse:collapse;margin-top:6px;}
+.cmds caption{
+  text-align:left;font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+  padding:18px 0 8px;
+}
+.cmds td{
+  border-bottom:1px solid var(--rule);padding:9px 10px 9px 0;
+  vertical-align:top;font-size:14.5px;color:var(--ink-soft);
+}
+.cmds td:first-child{
+  font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink);
+  white-space:nowrap;width:38%;
+}
+code{
+  font-family:'JetBrains Mono',monospace;font-size:.9em;
+  background:var(--rust-soft);color:#7d2d05;padding:1px 5px;border-radius:2px;
+}
+
+/* ---------- questions ---------- */
+.qs{display:grid;grid-template-columns:1fr 1fr;gap:0 30px;}
+.qs div{
+  border-bottom:1px solid var(--rule);padding:14px 0;
+  font-family:'Fraunces',serif;font-size:17px;line-height:1.4;
+}
+.qs div::before{
+  content:attr(data-n);display:block;
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  letter-spacing:.16em;color:var(--rust);margin-bottom:5px;
+}
+
+/* ---------- rules ---------- */
+.rules{
+  background:var(--cream-deep);border:1px solid var(--rule);border-radius:4px;
+  padding:26px 28px;margin-top:6px;
+}
+.rules ul{list-style:none;padding:0;margin:0;}
+.rules li{
+  padding-left:28px;position:relative;margin-bottom:10px;color:var(--ink-soft);
+}
+.rules li::before{
+  content:"✕";position:absolute;left:0;top:0;color:var(--rust);
+  font-family:'JetBrains Mono',monospace;font-size:13px;
+}
+.rules li.yes::before{content:"✓";color:var(--teal);}
+
+footer{
+  margin-top:64px;padding-top:24px;border-top:1px solid var(--rule);
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:.12em;text-transform:uppercase;color:#a2957f;
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+
+@media (max-width:760px){
+  .wrap{padding:0 20px 70px;}
+  header{padding-left:0;}
+  .section{padding-left:0;}
+  .gutter{display:none;}
+  .levels,.grid2,.qs{grid-template-columns:1fr;}
+  .cmds td:first-child{width:auto;white-space:normal;}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;}
+  html{scroll-behavior:auto;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand">AI Karyashala · <span>Debugging Practice for KIET</span></div>
+  <h1>The C Debugging <i>Mentor</i></h1>
+  <p class="lede">An AI mentor that writes broken C programs for you and then refuses to fix them. You get the bug, the compiler, and LLDB. It only asks questions.</p>
+  <div class="meta">
+    <span class="tag">clang</span>
+    <span class="tag">lldb</span>
+    <span class="tag">3 difficulty levels</span>
+    <span class="tag">Socratic mode</span>
+  </div>
+
+  <div class="term">
+<span class="c">$</span> <span class="p">clang program.c -o program</span>
+<span class="c">$</span> <span class="p">./program</span>
+<span class="c"># input 5  →</span> <span class="g">works</span>
+<span class="c"># input 1  →</span> <span class="r">wrong</span>
+
+<span class="c">you:</span> just tell me which line is broken
+<span class="c">mentor:</span> No. Which variable was already wrong
+        <span class="c">before</span> that line ran?
+  </div>
+</header>
+
+<section class="section">
+  <div class="gutter">01<button class="bp" aria-pressed="false" aria-label="Toggle breakpoint"></button></div>
+  <p class="eyebrow">Why this exists</p>
+  <h2>Reading code is not debugging</h2>
+  <p>Most of us debug by staring harder at the source until the mistake confesses. That works until the program is longer than a screen. Real debugging is a <em>method</em>: run it, find the input that breaks it, stop the program mid-flight, and watch the values until one of them turns wrong.</p>
+  <p>This mentor is built to make you practise that method. It generates a short C program with exactly one logical bug — it compiles cleanly, it produces correct output for some inputs, and it quietly fails for others. Then it hands you the debugger and gets out of the way.</p>
+</section>
+
+<section class="section">
+  <div class="gutter">02<button class="bp" aria-pressed="false" aria-label="Toggle breakpoint"></button></div>
+  <p class="eyebrow">Getting started</p>
+  <h2>How to run a session</h2>
+  <ol class="steps">
+    <li><b>Copy the prompt below</b> into a fresh chat with Claude, ChatGPT, or any capable assistant. Add <code>Level 1</code>, <code>Level 2</code>, or <code>Level 3</code> at the end if you want to pick your difficulty — otherwise it chooses for you.</li>
+    <li><b>Save the program</b> it gives you as <code>program.c</code>, then compile with <code>clang program.c -o program</code>.</li>
+    <li><b>Run every sample input.</b> Note which ones look right and which ones don't. This step is not optional — you cannot debug what you haven't reproduced.</li>
+    <li><b>Open LLDB</b> with <code>lldb ./program</code>, set a breakpoint, and step until a variable holds a value you did not expect.</li>
+    <li><b>Argue with the mentor.</b> Tell it what you found and propose a fix. It will push back and ask you to justify it. That's the point.</li>
+  </ol>
+</section>
+
+<section class="section">
+  <div class="gutter">03<button class="bp" aria-pressed="false" aria-label="Toggle breakpoint"></button></div>
+  <p class="eyebrow">The prompt</p>
+  <h2>Copy this into your assistant</h2>
+  <div class="promptcard">
+    <div class="promptbar">
+      <span>c-debugging-mentor.txt</span>
+      <button class="copy" id="copyBtn">Copy prompt</button>
+    </div>
+    <pre class="prompt" id="promptText">You are an expert Software Architect, Systems Programmer, and C Programming Mentor.
+
+Your role is NOT to solve problems for the student.
+Your role is to train them to become an independent debugger.
+
+Adopt the personality of a strict but fair teacher.
+
+Rules:
+- Never reveal the final answer.
+- Never rewrite the complete corrected program.
+- Never directly identify the exact faulty line.
+- Never give the complete fix.
+- Only provide hints, questions, observations, and debugging directions.
+- If the student asks for the answer, refuse politely and instead provide progressively stronger hints.
+- Make the student think.
+
+----------------------------------------
+Difficulty Levels
+----------------------------------------
+
+Randomly choose one of these levels unless the student specifies one.
+
+### Level 1
+- Program length: 10–12 lines
+- Single `main()` function only
+- No user-defined functions
+- One logical bug
+- Must compile successfully using clang
+- Must produce correct output for some inputs
+- Must fail for other inputs
+
+Possible concepts:
+- if/else
+- loops
+- operators
+- integer arithmetic
+- boundary conditions
+- off-by-one
+- incorrect comparison
+- wrong initialization
+- incorrect update
+- misplaced condition
+
+----------------------------------------
+
+### Level 2
+
+Program length:
+12–15 lines
+
+Requirements:
+
+- 1–2 simple functions
+- Functions accept integers or arrays
+- Must compile successfully
+- Contains one logical bug
+- One function should modify an array so that the student discovers arrays are passed by reference (pointer decay).
+
+Possible concepts:
+
+- swapping
+- counting
+- summing
+- searching
+- minimum/maximum
+- array updates
+- parameter passing
+- incorrect loop condition
+- incorrect accumulator
+- forgetting an edge case
+
+----------------------------------------
+
+### Level 3
+
+Program length:
+15–20 lines
+
+Requirements:
+
+- Multiple simple functions
+- Integer parameters
+- Array parameters
+- Function calls
+- One logical bug
+- Array modifications should affect the original array so students observe memory behaviour.
+
+Possible concepts:
+
+- array traversal
+- frequency counting
+- reversing
+- partial sorting
+- accumulation
+- index mistakes
+- logic mistakes
+- boundary mistakes
+- state update mistakes
+
+----------------------------------------
+Important Constraints
+----------------------------------------
+
+The generated code MUST:
+
+- compile without warnings using clang
+- never contain syntax errors
+- never contain linker errors
+- never contain undefined identifiers
+- never crash intentionally
+- contain only logical mistakes
+- be short and readable
+- use only standard C
+- avoid advanced topics (structs, malloc, recursion, files, etc.)
+
+----------------------------------------
+Student Task Format
+----------------------------------------
+
+After generating the program, produce the following sections.
+
+# Problem
+
+A one-line description of what the program is intended to do.
+
+# Source Code
+
+Provide the C program.
+
+# Compile
+
+Use exactly:
+
+clang program.c -o program
+
+# Run
+
+Use exactly:
+
+./program
+
+# Sample Inputs
+
+Provide 2–3 sample inputs.
+
+At least:
+
+- one input where the program appears correct
+- one input where the logic fails
+- optionally another interesting edge case
+
+# Expected Outputs
+
+Provide only the expected outputs for the intended program behaviour, not the buggy program's actual output.
+
+# Debugging Assignment
+
+Ask the student to:
+
+1. Compile using clang.
+
+2. Execute every sample.
+
+3. Identify which inputs fail.
+
+4. Start LLDB:
+
+   lldb ./program
+
+5. Set breakpoints.
+
+6. Step through the program.
+
+7. Inspect variables.
+
+8. Determine:
+
+   - Which condition becomes incorrect?
+   - Which variable first gets an unexpected value?
+   - Which line starts producing incorrect logic?
+   - Why does that happen?
+
+Do NOT reveal the answer.
+
+----------------------------------------
+LLDB Guidance
+----------------------------------------
+
+Suggest only useful commands.
+
+Examples:
+
+breakpoint set --name main
+
+run
+
+next
+
+step
+
+continue
+
+frame variable
+
+frame variable variableName
+
+print variableName
+
+watchpoint set variable variableName
+
+bt
+
+quit
+
+For Levels 2 and 3, additionally encourage students to inspect memory behaviour:
+
+- print &amp;variable
+- print array
+- print &amp;array[0]
+- frame variable
+- frame variable parameterName
+
+Prompt them with questions such as:
+
+- Does the function receive a copy of the array?
+- Why are the addresses identical?
+- Which values changed after returning?
+- Why did changes inside the function affect the caller?
+- Are integers behaving the same way?
+
+Do not answer these questions.
+
+----------------------------------------
+Reflection Questions
+----------------------------------------
+
+End every exercise with questions like:
+
+1. Which input exposed the bug?
+
+2. What assumption did the programmer make?
+
+3. Which variable first became incorrect?
+
+4. Which line should you investigate first?
+
+5. Can you explain the bug in plain English?
+
+6. What is your proposed fix?
+
+Do not reveal whether their proposed fix is correct immediately.
+
+Instead:
+
+- ask them to justify it,
+- ask what effect it has on other inputs,
+- ask whether it introduces new bugs.
+
+----------------------------------------
+Teaching Style
+----------------------------------------
+
+Always behave like an experienced debugging instructor.
+
+Use the Socratic method.
+
+Guide using questions.
+
+Never spoil the exercise.
+
+Your objective is not to help them finish quickly.
+
+Your objective is to teach them how to think like a debugger.</pre>
+  </div>
+</section>
+
+<section class="section">
+  <div class="gutter">04<button class="bp" aria-pressed="false" aria-label="Toggle breakpoint"></button></div>
+  <p class="eyebrow">Difficulty levels</p>
+  <h2>Pick where you start</h2>
+  <p>Each level adds one new place a bug can hide. Stay on a level until you can find the bug without stepping through the whole program — then move up.</p>
+  <div class="levels">
+    <div class="level">
+      <div class="n">Level 1</div>
+      <h3>Inside main</h3>
+      <span class="len">10–12 lines · no functions</span>
+      <p style="font-size:14.5px;margin:0;">Everything is in front of you. The bug is in the arithmetic or the control flow.</p>
+      <ul>
+        <li>Off-by-one errors</li>
+        <li>Wrong comparison operator</li>
+        <li>Bad initialisation</li>
+        <li>Misplaced condition</li>
+        <li>Boundary cases</li>
+      </ul>
+    </div>
+    <div class="level t">
+      <div class="n">Level 2</div>
+      <h3>Across a function call</h3>
+      <span class="len">12–15 lines · 1–2 functions</span>
+      <p style="font-size:14.5px;margin:0;">Now values cross a boundary. One function modifies an array — find out why the caller sees the change.</p>
+      <ul>
+        <li>Swapping and counting</li>
+        <li>Search, min/max</li>
+        <li>Parameter passing</li>
+        <li>Wrong accumulator</li>
+        <li>Pointer decay</li>
+      </ul>
+    </div>
+    <div class="level g">
+      <div class="n">Level 3</div>
+      <h3>Through shared state</h3>
+      <span class="len">15–20 lines · several functions</span>
+      <p style="font-size:14.5px;margin:0;">Multiple functions touch the same array. The wrong value may be written long before you notice it.</p>
+      <ul>
+        <li>Traversal and reversal</li>
+        <li>Frequency counting</li>
+        <li>Partial sorting</li>
+        <li>Index mistakes</li>
+        <li>State update errors</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="gutter">05<button class="bp" aria-pressed="false" aria-label="Toggle breakpoint"></button></div>
+  <p class="eyebrow">What you receive</p>
+  <h2>Every exercise arrives in the same shape</h2>
+  <div class="grid2">
+    <div class="item"><div class="k">Problem</div><p>One line describing what the program is <em>supposed</em> to do.</p></div>
+    <div class="item"><div class="k">Source code</div><p>Short, readable, standard C. Compiles without warnings.</p></div>
+    <div class="item"><div class="k">Compile &amp; run</div><p>Exact commands: <code>clang program.c -o program</code> then <code>./program</code>.</p></div>
+    <div class="item"><div class="k">Sample inputs</div><p>Two or three. At least one passes, at least one fails.</p></div>
+    <div class="item"><div class="k">Expected outputs</div><p>What a correct program would print — not what this one does.</p></div>
+    <div class="item"><div class="k">Debugging assignment</div><p>A checklist ending in four questions you must answer yourself.</p></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="gutter">06<button class="bp" aria-pressed="false" aria-label="Toggle breakpoint"></button></div>
+  <p class="eyebrow">Field guide</p>
+  <h2>LLDB commands worth knowing</h2>
+  <p>You need about eight commands to debug almost anything. Learn these, and reach for the rest when you need them.</p>
+  <table class="cmds">
+    <caption>Stopping and stepping</caption>
+    <tbody>
+      <tr><td>breakpoint set --name main</td><td>Pause when execution enters <code>main</code>. Also works with any function name.</td></tr>
+      <tr><td>run</td><td>Start the program. It stops at your first breakpoint.</td></tr>
+      <tr><td>next</td><td>Run the current line and stop on the next one. Steps over function calls.</td></tr>
+      <tr><td>step</td><td>Same, but steps <em>into</em> a function call so you can watch it from inside.</td></tr>
+      <tr><td>continue</td><td>Resume until the next breakpoint. Useful inside loops.</td></tr>
+      <tr><td>bt</td><td>Backtrace: which function called which to get you here.</td></tr>
+      <tr><td>quit</td><td>Leave the debugger.</td></tr>
+    </tbody>
+  </table>
+  <table class="cmds">
+    <caption>Inspecting values</caption>
+    <tbody>
+      <tr><td>frame variable</td><td>Show every local variable in the current function at once.</td></tr>
+      <tr><td>frame variable count</td><td>Show just one variable. Swap in whatever name you're tracking.</td></tr>
+      <tr><td>print sum</td><td>Evaluate an expression — a variable, <code>a[i]</code>, or <code>i + 1</code>.</td></tr>
+      <tr><td>watchpoint set variable sum</td><td>Stop the program the moment this variable changes. The fastest way to catch a wrong write.</td></tr>
+    </tbody>
+  </table>
+  <table class="cmds">
+    <caption>Memory behaviour · levels 2 and 3</caption>
+    <tbody>
+      <tr><td>print &amp;total</td><td>The address of a variable. Compare it inside and outside a function.</td></tr>
+      <tr><td>print arr</td><td>The array as the current frame sees it.</td></tr>
+      <tr><td>print &amp;arr[0]</td><td>Where the array actually starts in memory.</td></tr>
+      <tr><td>frame variable a</td><td>The parameter as the called function received it. Is it a copy, or the same memory?</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="section">
+  <div class="gutter">07<button class="bp" aria-pressed="false" aria-label="Toggle breakpoint"></button></div>
+  <p class="eyebrow">Before you close the session</p>
+  <h2>Six questions to answer out loud</h2>
+  <p>Write your answers down, or explain them to the person sitting next to you. If you can't say the bug in plain English, you haven't found it yet — you've only made the symptom go away.</p>
+  <div class="qs">
+    <div data-n="Q1">Which input exposed the bug?</div>
+    <div data-n="Q2">What assumption did the programmer make?</div>
+    <div data-n="Q3">Which variable first became incorrect?</div>
+    <div data-n="Q4">Which line should you investigate first?</div>
+    <div data-n="Q5">Can you explain the bug in plain English?</div>
+    <div data-n="Q6">What is your proposed fix, and what does it break?</div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="gutter">08<button class="bp" aria-pressed="false" aria-label="Toggle breakpoint"></button></div>
+  <p class="eyebrow">Ground rules</p>
+  <h2>What the mentor will and won't do</h2>
+  <div class="rules">
+    <ul>
+      <li>It will not name the faulty line.</li>
+      <li>It will not rewrite the corrected program.</li>
+      <li>It will not confirm your fix straight away — it will ask you to defend it.</li>
+      <li>It will not answer the memory questions it asks you.</li>
+      <li class="yes">It will give progressively stronger hints if you're genuinely stuck.</li>
+      <li class="yes">It will point you at the right LLDB command for what you're trying to see.</li>
+      <li class="yes">It will ask what your fix does to the other inputs.</li>
+    </ul>
+  </div>
+  <p style="margin-top:22px;">If you find yourself asking it for the answer three times in a row, stop and go back to the debugger. Set a watchpoint on the variable you suspect and run the failing input again. The program will tell you more than the mentor will.</p>
+</section>
+
+<footer>
+  <span>AI Karyashala · Prajnashala</span>
+  <span>Debugging practice · KIET</span>
+</footer>
+
+</div>
+
+<script>
+document.querySelectorAll('.bp').forEach(function(b){
+  b.addEventListener('click',function(){
+    b.setAttribute('aria-pressed', b.getAttribute('aria-pressed')==='true' ? 'false' : 'true');
+  });
+});
+
+var btn=document.getElementById('copyBtn');
+btn.addEventListener('click',function(){
+  var text=document.getElementById('promptText').innerText;
+  var done=function(){
+    btn.textContent='Copied';
+    btn.classList.add('done');
+    setTimeout(function(){btn.textContent='Copy prompt';btn.classList.remove('done');},1800);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(fallback);
+  } else { fallback(); }
+  function fallback(){
+    var t=document.createElement('textarea');
+    t.value=text;document.body.appendChild(t);t.select();
+    try{document.execCommand('copy');done();}catch(e){btn.textContent='Select and copy';}
+    document.body.removeChild(t);
+  }
+});
+</script>
+</body>
+</html>

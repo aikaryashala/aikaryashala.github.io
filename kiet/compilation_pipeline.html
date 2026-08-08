@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>From sum.c to a running process — the clang pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#faf6ef;
+  --cream-deep:#f1ebdd;
+  --paper:#fffcf5;
+  --ink:#1c1a17;
+  --ink-soft:#4a453d;
+  --muted:#8a8175;
+  --rust:#b8430a;
+  --rust-soft:#e8d3c4;
+  --teal:#0f6b63;
+  --teal-soft:#cde0dd;
+  --gold:#c08611;
+  --gold-soft:#f0e0bd;
+  --line:rgba(28,26,23,.14);
+  --line-strong:rgba(28,26,23,.28);
+  --code-bg:#221e1a;
+  --code-bg-2:#2b2621;
+  --shadow:0 1px 0 rgba(28,26,23,.05), 0 12px 30px -18px rgba(28,26,23,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background-color:var(--cream);
+  background-image:radial-gradient(rgba(28,26,23,.055) 1px, transparent 1px);
+  background-size:22px 22px;
+  color:var(--ink);
+  font-family:'Inter Tight',system-ui,sans-serif;
+  font-size:16.5px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+
+/* ---------- masthead ---------- */
+header.masthead{padding:52px 0 26px;border-bottom:1px solid var(--line)}
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;letter-spacing:.19em;text-transform:uppercase;
+  color:var(--rust);font-weight:500;
+}
+h1{
+  font-family:'Fraunces',Georgia,serif;
+  font-weight:600;font-size:clamp(34px,5.6vw,60px);
+  line-height:1.04;letter-spacing:-.02em;margin:14px 0 0;
+}
+h1 em{font-style:italic;font-weight:400;color:var(--rust)}
+.lede{max-width:60ch;color:var(--ink-soft);margin:16px 0 0;font-size:17px}
+.cmdbar{
+  margin-top:26px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;
+}
+.cmd{
+  font-family:'JetBrains Mono',monospace;font-size:14.5px;
+  background:var(--code-bg);color:#f2e9dc;padding:13px 18px;border-radius:3px;
+  border-left:3px solid var(--rust);box-shadow:var(--shadow);
+}
+.cmd .fl{color:#ffa46a}
+.cmd .pr{color:#8a8175}
+.cmdnote{font-size:13.5px;color:var(--muted);max-width:34ch}
+
+/* ---------- rail ---------- */
+.railwrap{
+  position:sticky;top:0;z-index:30;
+  background:linear-gradient(180deg,var(--cream) 72%,rgba(250,246,239,0));
+  padding:14px 0 20px;
+}
+.rail{
+  display:flex;align-items:center;gap:0;overflow-x:auto;
+  padding-bottom:4px;scrollbar-width:thin;
+}
+.rail::-webkit-scrollbar{height:5px}
+.rail::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:9px}
+.railnode{
+  display:flex;align-items:center;gap:8px;
+  font-family:'JetBrains Mono',monospace;font-size:12.5px;
+  background:var(--paper);border:1px solid var(--line);
+  padding:8px 13px;border-radius:3px;color:var(--muted);
+  cursor:pointer;white-space:nowrap;flex:0 0 auto;
+  transition:all .35s cubic-bezier(.2,.7,.3,1);
+}
+.railnode:hover{border-color:var(--line-strong);color:var(--ink)}
+.railnode.done{color:var(--ink);border-color:var(--line-strong);background:var(--paper)}
+.railnode.active{
+  background:var(--ink);color:var(--paper);border-color:var(--ink);
+  transform:translateY(-2px);
+  box-shadow:0 8px 18px -12px rgba(28,26,23,.8);
+}
+.railnode .dotmark{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.4}
+.railnode.active .dotmark{opacity:1;background:#ff9b5e;animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.55);opacity:.55}}
+.railgap{flex:0 0 auto;width:34px;height:1px;background:var(--line-strong);position:relative;opacity:.55}
+.railgap.lit{opacity:1;background:var(--rust)}
+.railgap.lit::after{
+  content:"";position:absolute;right:-1px;top:-3px;
+  border-left:6px solid var(--rust);border-top:3.5px solid transparent;border-bottom:3.5px solid transparent;
+}
+.railgap.flow::before{
+  content:"";position:absolute;top:-2px;left:0;width:5px;height:5px;border-radius:50%;
+  background:var(--rust);animation:travel .75s ease-out 1;
+}
+@keyframes travel{from{left:0;opacity:1}to{left:100%;opacity:0}}
+
+/* ---------- stage ---------- */
+main{padding-bottom:40px}
+.stage{display:none}
+.stage.on{display:block;animation:stageIn .5s cubic-bezier(.2,.7,.3,1) both}
+@keyframes stageIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+body.allmode .stage{display:block;animation:none;border-top:1px solid var(--line);padding-top:34px;margin-top:34px}
+body.allmode .navbar,body.allmode .railwrap{display:none}
+
+.stagehead{display:flex;flex-wrap:wrap;gap:26px 40px;align-items:flex-end;justify-content:space-between}
+.stagenum{
+  font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:.19em;
+  text-transform:uppercase;color:var(--muted);
+}
+.stagenum b{color:var(--rust);font-weight:500}
+h2{
+  font-family:'Fraunces',Georgia,serif;font-weight:600;
+  font-size:clamp(27px,3.7vw,40px);line-height:1.1;letter-spacing:-.015em;
+  margin:9px 0 0;max-width:20ch;
+}
+h2 em{font-style:italic;color:var(--rust);font-weight:400}
+
+.io{display:flex;align-items:center;gap:11px;flex-wrap:wrap;padding-bottom:5px}
+.filechip{
+  font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;
+  padding:8px 13px;border-radius:3px;border:1px solid var(--line-strong);
+  background:var(--paper);
+}
+.filechip.out{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.filechip.lib{background:var(--teal-soft);border-color:var(--teal);color:var(--teal)}
+.io .to{color:var(--rust);font-size:17px}
+.toolchip{
+  font-family:'JetBrains Mono',monospace;font-size:12.5px;
+  padding:7px 12px;border-radius:3px;background:var(--rust-soft);
+  color:#7d2d05;border:1px solid rgba(184,67,10,.3);
+}
+
+.rule{height:1px;background:var(--line);margin:26px 0 0}
+.rule.thick{height:3px;background:var(--ink);width:56px;margin:26px 0 0}
+
+.onesent{
+  margin:24px 0 0;font-family:'Fraunces',Georgia,serif;font-size:clamp(19px,2.3vw,23px);
+  line-height:1.45;max-width:56ch;color:var(--ink);
+}
+.onesent .tag{
+  display:block;font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:.17em;text-transform:uppercase;color:var(--teal);margin-bottom:8px;
+}
+
+.grid{display:grid;grid-template-columns:1.35fr .85fr;gap:26px;margin-top:26px;align-items:start}
+@media(max-width:880px){.grid{grid-template-columns:1fr}}
+
+/* ---------- code cards ---------- */
+.codecard{border-radius:4px;overflow:hidden;box-shadow:var(--shadow);border:1px solid rgba(28,26,23,.2)}
+.codebar{
+  background:var(--code-bg-2);color:#cbbfae;padding:9px 14px;
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.05em;
+}
+.codebar .fname{color:#f4e9d9;font-weight:500}
+.copybtn{
+  font:inherit;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  background:transparent;border:1px solid rgba(244,233,217,.28);color:#cbbfae;
+  padding:4px 10px;border-radius:2px;cursor:pointer;transition:.2s;
+}
+.copybtn:hover{background:rgba(244,233,217,.12);color:#fff}
+.copybtn.ok{border-color:#8fd0a0;color:#8fd0a0}
+pre{
+  margin:0;background:var(--code-bg);color:#e7dccb;
+  font-family:'JetBrains Mono',monospace;font-size:12.6px;line-height:1.68;
+  padding:16px 18px;overflow-x:auto;tab-size:4;
+}
+pre.tall{max-height:430px;overflow-y:auto}
+.t-com{color:#7d7365;font-style:italic}
+.t-pre{color:#c48fd8}
+.t-str{color:#95c98f}
+.t-kw{color:#ff9b5e}
+.t-fn{color:#6fc9be}
+.t-num,.t-imm{color:#e0bb63}
+.t-gvar{color:#e0bb63}
+.t-var,.t-reg{color:#6fc9be}
+.t-dir{color:#c48fd8}
+.t-lbl{color:#ff9b5e}
+.t-cmd{color:#95c98f;font-weight:700}
+.t-reloc{color:#ff9b5e}
+.t-undef{color:#ff6b6b;font-weight:700}
+.t-addr{color:#8a8175}
+
+/* ---------- side notes ---------- */
+.side{display:flex;flex-direction:column;gap:16px}
+.note{
+  background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--rust);
+  padding:15px 17px;border-radius:3px;
+}
+.note.teal{border-left-color:var(--teal)}
+.note.gold{border-left-color:var(--gold)}
+.note h3{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.17em;
+  text-transform:uppercase;margin:0 0 9px;color:var(--muted);font-weight:500;
+}
+.note p{margin:0;font-size:14.6px;color:var(--ink-soft);line-height:1.58}
+.note ul{margin:0;padding-left:17px;font-size:14.6px;color:var(--ink-soft)}
+.note li{margin-bottom:6px}
+.note li::marker{color:var(--rust)}
+.note code,p code,li code,td code{
+  font-family:'JetBrains Mono',monospace;font-size:.88em;
+  background:var(--cream-deep);padding:1px 5px;border-radius:2px;color:#7d2d05;
+}
+.note.teal li::marker{color:var(--teal)}
+.simplify{
+  font-family:'Inter Tight',sans-serif;font-size:13.4px;color:var(--muted);
+  border-top:1px dashed var(--line-strong);padding-top:11px;margin-top:6px;
+}
+.simplify b{color:var(--gold);font-weight:600}
+
+/* ---------- memory diagram ---------- */
+.memwrap{background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:12px;box-shadow:var(--shadow)}
+svg.mem{width:100%;height:auto;display:block}
+.segbox{fill:var(--cream-deep);stroke:var(--line-strong);stroke-width:1}
+.seg{opacity:.2;transition:opacity .4s}
+.seg.on{opacity:1;animation:segIn .55s cubic-bezier(.2,.7,.3,1) both}
+.seg.hot .segbox{stroke:var(--rust);stroke-width:2;fill:#f7e5d8}
+.seg.hot2 .segbox{stroke:var(--teal);stroke-width:2;fill:#dfeceb}
+.seg.hot3 .segbox{stroke:var(--gold);stroke-width:2;fill:#f7ecd4}
+@keyframes segIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.memlbl{font-family:'JetBrains Mono',monospace;font-size:11.5px;fill:var(--ink)}
+.memlbl.sm{font-size:9.6px;fill:var(--muted)}
+.memlbl.b{font-weight:700}
+.memcap{font-family:'Inter Tight',sans-serif;font-size:11.5px;fill:var(--ink-soft)}
+
+/* ---------- execution stepper ---------- */
+.exec{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;margin-top:24px}
+@media(max-width:880px){.exec{grid-template-columns:1fr}}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.panel h3{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.17em;
+  text-transform:uppercase;margin:0;padding:11px 15px;color:var(--muted);
+  border-bottom:1px solid var(--line);font-weight:500;background:var(--cream-deep);
+}
+.instr{list-style:none;margin:0;padding:10px 0;font-family:'JetBrains Mono',monospace;font-size:12.6px}
+.instr li{padding:5px 15px 5px 34px;position:relative;color:var(--ink-soft);transition:.25s}
+.instr li.pc{background:#f7e5d8;color:var(--ink);font-weight:500}
+.instr li.pc::before{
+  content:"▸";position:absolute;left:14px;color:var(--rust);font-size:14px;
+  animation:pcin .3s ease both;
+}
+@keyframes pcin{from{transform:translateX(-6px);opacity:0}to{transform:none;opacity:1}}
+.instr li.past{color:var(--muted);opacity:.6}
+.instr li .lab{color:var(--rust)}
+.stackpanel{padding:12px 15px;min-height:170px;display:flex;flex-direction:column-reverse;gap:7px;justify-content:flex-start}
+.frame{
+  font-family:'JetBrains Mono',monospace;font-size:12.4px;
+  border:1px solid var(--line-strong);border-left:3px solid var(--teal);
+  background:var(--cream-deep);padding:8px 12px;border-radius:2px;
+  animation:framein .3s cubic-bezier(.2,.7,.3,1) both;
+}
+.frame small{display:block;color:var(--muted);font-size:10.6px;margin-top:3px}
+.frame.top{border-left-color:var(--rust);background:#f7e5d8}
+.frame.libc{border-left-color:var(--gold)}
+@keyframes framein{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+.console{
+  background:var(--code-bg);color:#e7dccb;font-family:'JetBrains Mono',monospace;
+  font-size:12.6px;padding:13px 15px;min-height:74px;
+}
+.console .out{color:#95c98f}
+.console .cur{display:inline-block;width:7px;height:14px;background:#e7dccb;vertical-align:-2px;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.execnote{
+  font-size:14.4px;color:var(--ink-soft);background:var(--paper);border:1px solid var(--line);
+  border-left:3px solid var(--rust);padding:13px 16px;border-radius:3px;margin-top:14px;min-height:66px;
+}
+.execctl{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap}
+.minibtn{
+  font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;
+  background:var(--paper);border:1px solid var(--line-strong);color:var(--ink);
+  padding:9px 15px;border-radius:3px;cursor:pointer;transition:.2s;
+}
+.minibtn:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.minibtn[disabled]{opacity:.35;cursor:not-allowed}
+.minibtn[disabled]:hover{background:var(--paper);color:var(--ink);border-color:var(--line-strong)}
+.tick{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted)}
+
+/* ---------- tables ---------- */
+table.map{width:100%;border-collapse:collapse;font-size:14.2px;margin-top:4px}
+table.map th{
+  text-align:left;font-family:'JetBrains Mono',monospace;font-size:10.6px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500;
+  border-bottom:1px solid var(--line-strong);padding:0 10px 7px 0;
+}
+table.map td{padding:8px 10px 8px 0;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-soft)}
+table.map td:first-child{font-family:'JetBrains Mono',monospace;font-size:12.6px;color:var(--ink);white-space:nowrap}
+
+/* ---------- nav ---------- */
+.navbar{
+  position:sticky;bottom:0;z-index:40;background:rgba(250,246,239,.94);
+  backdrop-filter:blur(7px);border-top:1px solid var(--line);
+  padding:13px 0;margin-top:44px;
+}
+.navinner{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.navbtn{
+  font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.11em;text-transform:uppercase;
+  background:var(--ink);color:var(--paper);border:1px solid var(--ink);
+  padding:11px 19px;border-radius:3px;cursor:pointer;transition:.2s;
+}
+.navbtn:hover{background:var(--rust);border-color:var(--rust)}
+.navbtn.ghost{background:transparent;color:var(--ink);border-color:var(--line-strong)}
+.navbtn.ghost:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.navbtn[disabled]{opacity:.3;cursor:not-allowed}
+.navbtn[disabled]:hover{background:transparent;color:var(--ink);border-color:var(--line-strong)}
+.dots{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:center}
+.dot{
+  width:9px;height:9px;border-radius:50%;background:transparent;
+  border:1.4px solid var(--line-strong);cursor:pointer;padding:0;transition:.25s;
+}
+.dot:hover{border-color:var(--ink)}
+.dot.seen{background:var(--line-strong);border-color:var(--line-strong)}
+.dot.now{background:var(--rust);border-color:var(--rust);transform:scale(1.42)}
+.dot.phase2{border-radius:1px}
+.counter{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);min-width:96px}
+.viewtoggle{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.11em;text-transform:uppercase;
+  background:transparent;border:1px dashed var(--line-strong);color:var(--muted);
+  padding:8px 13px;border-radius:3px;cursor:pointer;
+}
+.viewtoggle:hover{color:var(--ink);border-color:var(--ink)}
+footer{border-top:1px solid var(--line);padding:26px 0 60px;color:var(--muted);font-size:13.4px}
+footer b{color:var(--ink-soft);font-weight:600}
+:focus-visible{outline:2.5px solid var(--rust);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media print{
+  .navbar,.railwrap,.copybtn,.execctl{display:none}
+  .stage{display:block!important;page-break-after:always;border-top:1px solid #999;padding-top:20px;margin-top:20px}
+  body{background:#fff}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header class="masthead">
+  <div class="eyebrow">Compilation &amp; execution · one stage per page</div>
+  <h1>From <em>sum.c</em> to a running process</h1>
+  <p class="lede">One command hides six separate programs. <code style="font-family:'JetBrains Mono',monospace;font-size:.9em">--save-temps</code> tells clang to keep every intermediate file it would normally throw away, so you can open each one and see exactly what changed. Walk the stages in order — each page shows one file, the tool that produced it, and what is inside it.</p>
+  <div class="cmdbar">
+    <div class="cmd"><span class="pr">$</span> clang <span class="fl">--save-temps</span> sum.c <span class="fl">-o</span> sum</div>
+    <div class="cmdnote">Leaves <b>sum.i</b>, <b>sum.ll</b>, <b>sum.s</b>, <b>sum.o</b> and <b>sum</b> sitting in your directory.</div>
+  </div>
+</header>
+</div>
+
+<div class="railwrap">
+  <div class="wrap">
+    <div class="rail" id="rail"></div>
+  </div>
+</div>
+
+<div class="wrap">
+<main id="stages">
+
+<!-- ============ STAGE 1 ============ -->
+<section class="stage" data-rail="0" data-phase="1">
+  <div class="stagehead">
+    <div>
+      <div class="stagenum">Stage <b>01</b> · Source · you wrote this</div>
+      <h2>The file the machine <em>cannot</em> run</h2>
+    </div>
+    <div class="io">
+      <span class="filechip out">sum.c</span>
+    </div>
+  </div>
+  <div class="rule thick"></div>
+  <p class="onesent"><span class="tag">What sum.c contains</span>Human-readable C text: directives that have not been acted on yet, a macro name that stands for a number, comments for people, and two functions that no CPU understands.</p>
+  <div class="grid">
+    <div class="codecard">
+      <div class="codebar"><span class="fname">sum.c</span><button class="copybtn">Copy</button></div>
+<pre data-lang="c">#include &lt;stdio.h&gt;
+
+#define N 5
+
+/* add up 1..n the slow, obvious way */
+int sum(int n) {
+    int total = 0;
+    for (int i = 1; i &lt;= n; i++)
+        total += i;
+    return total;
+}
+
+int main(void) {
+    printf("sum = %d\n", sum(N));
+    return 0;
+}</pre>
+    </div>
+    <div class="side">
+      <div class="note">
+        <h3>Three things to notice</h3>
+        <ul>
+          <li><code>#include</code> and <code>#define</code> are <b>not</b> C statements — they are instructions to a separate program that runs first.</li>
+          <li><code>printf</code> is <b>used</b> here but not <b>defined</b> anywhere in this file.</li>
+          <li>The comment is for you. It will not survive the next stage.</li>
+        </ul>
+      </div>
+      <div class="note teal">
+        <h3>Predict before you click</h3>
+        <p>Which of the three things above disappears at stage 2? Which one survives all the way to stage 6 as an unfilled hole?</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STAGE 2 ============ -->
+<section class="stage" data-rail="1" data-phase="1">
+  <div class="stagehead">
+    <div>
+      <div class="stagenum">Stage <b>02</b> · Preprocessing</div>
+      <h2>Paste, substitute, <em>strip</em></h2>
+    </div>
+    <div class="io">
+      <span class="filechip">sum.c</span><span class="to">→</span>
+      <span class="toolchip">clang -E</span><span class="to">→</span>
+      <span class="filechip out">sum.i</span>
+    </div>
+  </div>
+  <div class="rule thick"></div>
+  <p class="onesent"><span class="tag">What sum.i contains</span>Pure C with every <code>#include</code> file pasted in whole, every macro replaced by its value, and every comment deleted — one flat translation unit of roughly 800 lines.</p>
+  <div class="grid">
+    <div class="codecard">
+      <div class="codebar"><span class="fname">sum.i &nbsp;(abridged)</span><button class="copybtn">Copy</button></div>
+<pre data-lang="c" class="tall"># 1 "sum.c"
+# 1 "&lt;built-in&gt;" 1
+# 1 "&lt;command line&gt;" 1
+# 1 "sum.c" 2
+# 1 "/usr/include/stdio.h" 1 3 4
+typedef unsigned long size_t;
+typedef struct _IO_FILE FILE;
+extern FILE *stdin;
+extern FILE *stdout;
+extern int printf (const char *__restrict __format, ...);
+extern int puts (const char *__s);
+extern int fflush (FILE *__stream);
+extern void *malloc (size_t __size);
+extern void free (void *__ptr);
+
+/* ...roughly 780 more declarations pulled in
+   by stdio.h and everything stdio.h includes... */
+
+# 3 "sum.c" 2
+
+int sum(int n) {
+    int total = 0;
+    for (int i = 1; i &lt;= n; i++)
+        total += i;
+    return total;
+}
+
+int main(void) {
+    printf("sum = %d\n", sum(5));
+    return 0;
+}</pre>
+    </div>
+    <div class="side">
+      <div class="note">
+        <h3>Exactly what changed</h3>
+        <ul>
+          <li><code>#include &lt;stdio.h&gt;</code> became ~800 lines of <b>declarations</b> — promises about functions, no code.</li>
+          <li><code>sum(N)</code> became <code>sum(5)</code>. The name <code>N</code> no longer exists.</li>
+          <li>The comment is gone.</li>
+          <li>Lines like <code># 3 "sum.c"</code> are bookkeeping so error messages can still point at your original line numbers.</li>
+        </ul>
+      </div>
+      <div class="note teal">
+        <h3>Try it yourself</h3>
+        <p><code>wc -l sum.c sum.i</code> — two files, same program, wildly different line counts. That gap <i>is</i> the preprocessor.</p>
+      </div>
+      <div class="note gold">
+        <h3>The point</h3>
+        <p>Nothing was compiled yet. This stage is pure text surgery — copy, replace, delete.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STAGE 3 ============ -->
+<section class="stage" data-rail="2" data-phase="1">
+  <div class="stagehead">
+    <div>
+      <div class="stagenum">Stage <b>03</b> · Front end → intermediate representation</div>
+      <h2>One language for <em>every</em> machine</h2>
+    </div>
+    <div class="io">
+      <span class="filechip">sum.i</span><span class="to">→</span>
+      <span class="toolchip">clang -S -emit-llvm</span><span class="to">→</span>
+      <span class="filechip out">sum.ll</span>
+    </div>
+  </div>
+  <div class="rule thick"></div>
+  <p class="onesent"><span class="tag">What sum.ll contains</span>LLVM IR — a typed, machine-independent instruction language where your loop has become explicit blocks and branches, and which every optimizer pass reads and rewrites.</p>
+  <div class="grid">
+    <div class="codecard">
+      <div class="codebar"><span class="fname">sum.ll &nbsp;(abridged)</span><button class="copybtn">Copy</button></div>
+<pre data-lang="llvm" class="tall">; ModuleID = 'sum.c'
+source_filename = "sum.c"
+target triple = "x86_64-pc-linux-gnu"
+
+@.str = private unnamed_addr constant [10 x i8] c"sum = %d\0A\00", align 1
+
+define i32 @sum(i32 noundef %n) {
+entry:
+  %n.addr = alloca i32, align 4
+  %total  = alloca i32, align 4
+  %i      = alloca i32, align 4
+  store i32 %n, ptr %n.addr, align 4
+  store i32 0, ptr %total, align 4
+  store i32 1, ptr %i, align 4
+  br label %for.cond
+
+for.cond:
+  %0 = load i32, ptr %i, align 4
+  %1 = load i32, ptr %n.addr, align 4
+  %cmp = icmp sle i32 %0, %1
+  br i1 %cmp, label %for.body, label %for.end
+
+for.body:
+  %2 = load i32, ptr %i, align 4
+  %3 = load i32, ptr %total, align 4
+  %add = add nsw i32 %3, %2
+  store i32 %add, ptr %total, align 4
+  %4 = load i32, ptr %i, align 4
+  %inc = add nsw i32 %4, 1
+  store i32 %inc, ptr %i, align 4
+  br label %for.cond
+
+for.end:
+  %5 = load i32, ptr %total, align 4
+  ret i32 %5
+}
+
+define i32 @main() {
+entry:
+  %call  = call i32 @sum(i32 noundef 5)
+  %call1 = call i32 (ptr, ...) @printf(ptr noundef @.str, i32 noundef %call)
+  ret i32 0
+}
+
+declare i32 @printf(ptr noundef, ...)</pre>
+    </div>
+    <div class="side">
+      <div class="note">
+        <h3>Exactly what changed</h3>
+        <ul>
+          <li>The 800 lines of declarations vanished — only <code>printf</code>, the one you actually called, survives as a <code>declare</code>.</li>
+          <li>Your <code>for</code> loop is gone. In its place: four labelled blocks and <code>br</code> jumps between them.</li>
+          <li>The string literal moved out of <code>main</code> into a named global, <code>@.str</code>.</li>
+          <li>Types are still everywhere: <code>i32</code>, <code>ptr</code>, <code>[10 x i8]</code>.</li>
+        </ul>
+      </div>
+      <div class="note teal">
+        <h3>Why bother with an IR?</h3>
+        <p>Every optimisation is written once against IR instead of once per CPU. Add a new language front end or a new chip back end, and everything in the middle still works.</p>
+      </div>
+      <div class="note gold">
+        <h3>No registers yet</h3>
+        <p><code>%0</code>, <code>%total</code>, <code>%add</code> are unlimited virtual registers, not real hardware ones. Picking real registers is the next stage's job.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STAGE 4 ============ -->
+<section class="stage" data-rail="3" data-phase="1">
+  <div class="stagehead">
+    <div>
+      <div class="stagenum">Stage <b>04</b> · Back end → code generation</div>
+      <h2>Real registers, real <em>stack offsets</em></h2>
+    </div>
+    <div class="io">
+      <span class="filechip">sum.ll</span><span class="to">→</span>
+      <span class="toolchip">llc &nbsp;(clang -S)</span><span class="to">→</span>
+      <span class="filechip out">sum.s</span>
+    </div>
+  </div>
+  <div class="rule thick"></div>
+  <p class="onesent"><span class="tag">What sum.s contains</span>x86-64 assembly text — actual CPU instructions using actual register names and byte offsets from the frame pointer, still readable by a human but tied to one processor family.</p>
+  <div class="grid">
+    <div class="codecard">
+      <div class="codebar"><span class="fname">sum.s</span><button class="copybtn">Copy</button></div>
+<pre data-lang="asm" class="tall">        .text
+        .globl  sum
+sum:
+        pushq   %rbp                # save caller's frame pointer
+        movq    %rsp, %rbp
+        movl    %edi, -4(%rbp)      # n
+        movl    $0, -8(%rbp)        # total = 0
+        movl    $1, -12(%rbp)       # i = 1
+.LBB0_1:
+        movl    -12(%rbp), %eax
+        cmpl    -4(%rbp), %eax      # i &lt;= n ?
+        jg      .LBB0_4
+        movl    -12(%rbp), %eax
+        addl    %eax, -8(%rbp)      # total += i
+        addl    $1, -12(%rbp)       # i++
+        jmp     .LBB0_1
+.LBB0_4:
+        movl    -8(%rbp), %eax      # return value in %eax
+        popq    %rbp
+        retq
+
+        .globl  main
+main:
+        pushq   %rbp
+        movq    %rsp, %rbp
+        subq    $16, %rsp
+        movl    $5, %edi            # 1st argument = 5
+        callq   sum
+        movl    %eax, %esi          # 2nd printf argument
+        leaq    .L.str(%rip), %rdi  # 1st printf argument
+        movb    $0, %al
+        callq   printf
+        xorl    %eax, %eax          # return 0
+        addq    $16, %rsp
+        popq    %rbp
+        retq
+
+        .section .rodata.str1.1,"aMS",@progbits,1
+.L.str:
+        .asciz  "sum = %d\n"</pre>
+    </div>
+    <div class="side">
+      <div class="note">
+        <h3>Exactly what changed</h3>
+        <ul>
+          <li>Virtual registers became <b>real</b> ones: <code>%eax</code>, <code>%edi</code>, <code>%esi</code>.</li>
+          <li>Local variables became <b>offsets</b>: <code>total</code> is now <code>-8(%rbp)</code>.</li>
+          <li>The calling convention appeared — arguments go in <code>%edi</code>, <code>%esi</code>; return values come back in <code>%eax</code>.</li>
+          <li><code>.globl</code> marks <code>sum</code> and <code>main</code> as visible to other files.</li>
+        </ul>
+      </div>
+      <div class="note teal">
+        <h3>Still just text</h3>
+        <p>You can open <code>sum.s</code> in any editor and edit it by hand. Nothing here is binary yet.</p>
+      </div>
+      <div class="note gold">
+        <h3>Change one flag</h3>
+        <p>Compile with <code>-O2</code> and this file shrinks dramatically — the optimiser can compute <code>sum(5)</code> at compile time and the loop disappears entirely.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STAGE 5 ============ -->
+<section class="stage" data-rail="4" data-phase="1">
+  <div class="stagehead">
+    <div>
+      <div class="stagenum">Stage <b>05</b> · Assembling</div>
+      <h2>Text becomes <em>bytes</em></h2>
+    </div>
+    <div class="io">
+      <span class="filechip">sum.s</span><span class="to">→</span>
+      <span class="toolchip">as &nbsp;(clang -c)</span><span class="to">→</span>
+      <span class="filechip out">sum.o</span>
+    </div>
+  </div>
+  <div class="rule thick"></div>
+  <p class="onesent"><span class="tag">What sum.o contains</span>A relocatable ELF object file: real machine-code bytes for <code>sum</code> and <code>main</code>, plus a symbol table where <code>printf</code> is still marked <b>undefined</b> and its address left as a hole.</p>
+  <div class="grid">
+    <div class="codecard">
+      <div class="codebar"><span class="fname">objdump -d -r sum.o &nbsp;·&nbsp; nm sum.o</span><button class="copybtn">Copy</button></div>
+<pre data-lang="out" class="tall">$ objdump -d -r sum.o
+
+sum.o:     file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;sum&gt;:
+   0:  55                    push   %rbp
+   1:  48 89 e5              mov    %rsp,%rbp
+   4:  89 7d fc              mov    %edi,-0x4(%rbp)
+   7:  c7 45 f8 00 00 00 00  movl   $0x0,-0x8(%rbp)
+   e:  c7 45 f4 01 00 00 00  movl   $0x1,-0xc(%rbp)
+  ...
+  2c:  8b 45 f8              mov    -0x8(%rbp),%eax
+  2f:  5d                    pop    %rbp
+  30:  c3                    ret
+
+0000000000000031 &lt;main&gt;:
+  31:  55                    push   %rbp
+  32:  48 89 e5              mov    %rsp,%rbp
+  39:  bf 05 00 00 00        mov    $0x5,%edi
+  3e:  e8 00 00 00 00        call   43 &lt;main+0x12&gt;
+                     3f: R_X86_64_PLT32   sum-0x4
+  4b:  e8 00 00 00 00        call   50 &lt;main+0x1f&gt;
+                     4c: R_X86_64_PLT32   printf-0x4
+  55:  31 c0                 xor    %eax,%eax
+  59:  c3                    ret
+
+$ nm sum.o
+0000000000000031 T main
+                 U printf
+0000000000000000 T sum</pre>
+    </div>
+    <div class="side">
+      <div class="note">
+        <h3>Exactly what changed</h3>
+        <ul>
+          <li>Each instruction now has its <b>encoding</b>: <code>push %rbp</code> is the single byte <code>55</code>.</li>
+          <li>Both <code>call</code> targets are <code>e8 00 00 00 00</code> — zeros. The address is <b>not known yet</b>.</li>
+          <li>Every zero-hole is recorded as a <b>relocation</b> (<code>R_X86_64_PLT32</code>): a note saying "linker, patch this spot with the address of <code>printf</code>".</li>
+          <li><code>nm</code> says it plainly — <code>T</code> = defined here, <code>U</code> = undefined, someone else must supply it.</li>
+        </ul>
+      </div>
+      <div class="note teal">
+        <h3>Why "relocatable"?</h3>
+        <p>Addresses start at 0 because this code does not yet know where in the final program it will sit. The linker decides that and shifts everything accordingly.</p>
+      </div>
+      <div class="note gold">
+        <h3>Not runnable</h3>
+        <p>Try <code>./sum.o</code> — permission denied. It has code, but no entry point and no resolved addresses.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STAGE 6 ============ -->
+<section class="stage" data-rail="5" data-phase="1">
+  <div class="stagehead">
+    <div>
+      <div class="stagenum">Stage <b>06</b> · Linking</div>
+      <h2>Filling in <em>every hole</em></h2>
+    </div>
+    <div class="io">
+      <span class="filechip">sum.o</span>
+      <span class="filechip lib">libc.so</span><span class="to">→</span>
+      <span class="toolchip">ld &nbsp;(the linker)</span><span class="to">→</span>
+      <span class="filechip out">sum</span>
+    </div>
+  </div>
+  <div class="rule thick"></div>
+  <p class="onesent"><span class="tag">What sum contains</span>A complete ELF executable: your object code combined with C startup code, every relocation patched, <code>printf</code> resolved against <code>libc.so.6</code>, and a recorded entry point for the operating system.</p>
+  <div class="grid">
+    <div class="codecard">
+      <div class="codebar"><span class="fname">file sum &nbsp;·&nbsp; ldd sum &nbsp;·&nbsp; nm sum</span><button class="copybtn">Copy</button></div>
+<pre data-lang="out" class="tall">$ file sum
+sum: ELF 64-bit LSB executable, x86-64, dynamically linked,
+     interpreter /lib64/ld-linux-x86-64.so.2, not stripped
+
+$ ldd sum
+     linux-vdso.so.1
+     libc.so.6 =&gt; /lib/x86_64-linux-gnu/libc.so.6
+     /lib64/ld-linux-x86-64.so.2
+
+$ nm sum | grep -E ' (main|sum)$|printf'
+0000000000001149 T main
+                 U printf@GLIBC_2.2.5
+0000000000001139 T sum
+
+$ readelf -h sum | grep Entry
+  Entry point address:     0x1040        &lt;- _start, not main
+
+$ ls -l sum
+-rwxr-xr-x  1 rohini  16696  sum          &lt;- x = executable</pre>
+    </div>
+    <div class="side">
+      <div class="note">
+        <h3>What the linker did</h3>
+        <ul>
+          <li>Gave every function a <b>final address</b> — <code>sum</code> at <code>0x1139</code>, <code>main</code> at <code>0x1149</code>.</li>
+          <li>Went back to each relocation hole and wrote the real number in.</li>
+          <li>Added the C runtime startup object (<code>crt1.o</code>) which defines <code>_start</code> — the true entry point.</li>
+          <li>Recorded a <b>dependency</b> on <code>libc.so.6</code> instead of copying <code>printf</code>'s code in.</li>
+        </ul>
+      </div>
+      <div class="note teal">
+        <h3>Static vs dynamic</h3>
+        <p>Dynamic linking keeps <code>sum</code> at ~16 KB and lets every program on the machine share one copy of libc in memory. <code>clang -static sum.c</code> copies libc in instead — the file jumps to megabytes.</p>
+      </div>
+      <div class="note gold">
+        <h3>Still one loose end</h3>
+        <p><code>printf</code> is resolved to a <i>name</i>, not yet to an address. The final address is bound when the program is loaded — which is the next page.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STAGE 7 ============ -->
+<section class="stage" data-rail="6" data-phase="2">
+  <div class="stagehead">
+    <div>
+      <div class="stagenum">Stage <b>07</b> · Loading · <code style="font-family:'JetBrains Mono',monospace">./sum</code></div>
+      <h2>From disk into <em>memory</em></h2>
+    </div>
+    <div class="io">
+      <span class="filechip">sum &nbsp;(on disk)</span><span class="to">→</span>
+      <span class="toolchip">loader</span><span class="to">→</span>
+      <span class="filechip out">code + data in RAM</span>
+    </div>
+  </div>
+  <div class="rule thick"></div>
+  <p class="onesent"><span class="tag">What the loader does first</span>It copies the <b>code section</b> (your instruction bytes) and the <b>data section</b> (globals and the string <code>"sum = %d\n"</code>) out of the file and into RAM at fixed addresses.</p>
+  <div class="grid">
+    <div class="memwrap" id="mem7"></div>
+    <div class="side">
+      <div class="note">
+        <h3>What comes from the file</h3>
+        <table class="map">
+          <tr><th>Section</th><th>Holds</th></tr>
+          <tr><td>.text</td><td>Machine code for <code>sum</code>, <code>main</code>, startup</td></tr>
+          <tr><td>.rodata</td><td>The string <code>"sum = %d\n"</code> — read-only</td></tr>
+          <tr><td>.data</td><td>Initialised globals</td></tr>
+          <tr><td>.bss</td><td>Zeroed globals — takes no space in the file, only in RAM</td></tr>
+        </table>
+      </div>
+      <div class="note teal">
+        <h3>libc arrives too</h3>
+        <p>The interpreter <code>ld-linux.so</code> runs first, loads <code>libc.so.6</code> into the same memory space, and finally binds <code>printf</code> to a real address.</p>
+      </div>
+      <div class="simplify"><b>Simplified here:</b> real systems do not copy the whole file in. They map <i>virtual</i> pages that the kernel fetches from disk only when first touched. "Copied into RAM" is the right mental model to start with; page tables come later.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STAGE 8 ============ -->
+<section class="stage" data-rail="6" data-phase="2">
+  <div class="stagehead">
+    <div>
+      <div class="stagenum">Stage <b>08</b> · Loading · memory layout</div>
+      <h2>Room to grow: <em>stack</em> and <em>heap</em></h2>
+    </div>
+    <div class="io">
+      <span class="filechip">code + data</span><span class="to">→</span>
+      <span class="toolchip">+ stack &amp; heap segments</span><span class="to">→</span>
+      <span class="filechip out">process image</span>
+    </div>
+  </div>
+  <div class="rule thick"></div>
+  <p class="onesent"><span class="tag">What gets set up next</span>Two regions that were never in the file: a <b>stack</b> at the high end that grows downward for function frames, and a <b>heap</b> just above the data that grows upward whenever you call <code>malloc</code>.</p>
+  <div class="grid">
+    <div class="memwrap" id="mem8"></div>
+    <div class="side">
+      <div class="note">
+        <h3>Stack</h3>
+        <ul>
+          <li>Holds one <b>frame</b> per active function call — parameters, locals, return address.</li>
+          <li>In <code>sum</code>, <code>total</code> and <code>i</code> live here at <code>-8(%rbp)</code> and <code>-12(%rbp)</code>.</li>
+          <li>Managed automatically: <code>push</code> on call, <code>pop</code> on return. Nothing to free.</li>
+        </ul>
+      </div>
+      <div class="note teal">
+        <h3>Heap</h3>
+        <ul>
+          <li>Only grows when you ask — <code>malloc</code>, <code>calloc</code>.</li>
+          <li>Lives until you <code>free</code> it, not until the function returns.</li>
+          <li><code>sum.c</code> never touches it, so this region stays empty for our program.</li>
+        </ul>
+      </div>
+      <div class="note gold">
+        <h3>They grow toward each other</h3>
+        <p>That gap in the middle is shared. Runaway recursion eats it from the top; runaway allocation eats it from the bottom. Meeting in the middle is a stack overflow.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STAGE 9 ============ -->
+<section class="stage" data-rail="6" data-phase="2">
+  <div class="stagehead">
+    <div>
+      <div class="stagenum">Stage <b>09</b> · Handing control to the CPU</div>
+      <h2>Setting the <em>program counter</em></h2>
+    </div>
+    <div class="io">
+      <span class="filechip">process image</span><span class="to">→</span>
+      <span class="toolchip">PC ← address of main</span><span class="to">→</span>
+      <span class="filechip out">ready to execute</span>
+    </div>
+  </div>
+  <div class="rule thick"></div>
+  <p class="onesent"><span class="tag">The final setup step</span>The CPU's <b>program counter</b> is loaded with the address of <code>main</code>'s first instruction — <code>0x1149</code> — and from that moment the hardware, not the loader, decides what happens next.</p>
+  <div class="grid">
+    <div class="memwrap" id="mem9"></div>
+    <div class="side">
+      <div class="note">
+        <h3>What the PC is</h3>
+        <p>A single register inside the CPU holding the address of the next instruction to fetch. Every instruction executed bumps it forward; every <code>jmp</code>, <code>call</code> and <code>ret</code> overwrites it. That register is the whole of "where the program is right now".</p>
+      </div>
+      <div class="note teal">
+        <h3>The fetch–decode–execute loop</h3>
+        <ul>
+          <li><b>Fetch</b> the bytes at the address in PC.</li>
+          <li><b>Decode</b> them into an operation.</li>
+          <li><b>Execute</b> it, and advance the PC.</li>
+          <li>Repeat, forever, until the process exits.</li>
+        </ul>
+      </div>
+      <div class="simplify"><b>Simplified here:</b> the PC is really set to <code>_start</code> in libc first. That code sets up <code>argc</code>, <code>argv</code> and the environment, then calls <code>main</code> for you. We jump straight to <code>main</code> because that is the part you wrote.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STAGE 10 ============ -->
+<section class="stage" data-rail="6" data-phase="2">
+  <div class="stagehead">
+    <div>
+      <div class="stagenum">Stage <b>10</b> · Execution</div>
+      <h2>Frames pushed, frames <em>popped</em></h2>
+    </div>
+    <div class="io">
+      <span class="toolchip">fetch → decode → execute</span>
+    </div>
+  </div>
+  <div class="rule thick"></div>
+  <p class="onesent"><span class="tag">What happens now</span>The CPU walks the instructions one at a time, pushing a stack frame each time a function is called and popping it on return, until <code>main</code> reaches its own <code>ret</code>.</p>
+
+  <div class="exec">
+    <div class="panel">
+      <h3>Instructions · PC marks the current one</h3>
+      <ul class="instr" id="instrList"></ul>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div class="panel">
+        <h3>Stack · grows downward, drawn top-of-stack first</h3>
+        <div class="stackpanel" id="stackPanel"></div>
+      </div>
+      <div class="panel">
+        <h3>Terminal output</h3>
+        <div class="console" id="console"><span class="pr" style="color:#8a8175">$</span> ./sum<br><span class="cur"></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="execnote" id="execNote"></div>
+  <div class="execctl">
+    <button class="minibtn" id="execPrev">‹ Back</button>
+    <button class="minibtn" id="execPlay">Play</button>
+    <button class="minibtn" id="execNext">Step ›</button>
+    <button class="minibtn" id="execReset">Reset</button>
+    <span class="tick" id="execTick">step 1 / 8</span>
+  </div>
+</section>
+
+<!-- ============ STAGE 11 ============ -->
+<section class="stage" data-rail="6" data-phase="2">
+  <div class="stagehead">
+    <div>
+      <div class="stagenum">Stage <b>11</b> · Termination</div>
+      <h2>The number that <em>gets out</em></h2>
+    </div>
+    <div class="io">
+      <span class="filechip">main returns 0</span><span class="to">→</span>
+      <span class="toolchip">exit()</span><span class="to">→</span>
+      <span class="filechip out">exit status</span>
+    </div>
+  </div>
+  <div class="rule thick"></div>
+  <p class="onesent"><span class="tag">The last thing the process does</span>The value <code>main</code> returns is handed to the <code>exit</code> system call, the kernel tears down the whole memory image, and the shell keeps that one number as the <b>exit status</b>.</p>
+  <div class="grid">
+    <div class="codecard">
+      <div class="codebar"><span class="fname">the whole thing, end to end</span><button class="copybtn">Copy</button></div>
+<pre data-lang="out">$ clang --save-temps sum.c -o sum
+
+$ ls
+sum   sum.c   sum.i   sum.ll   sum.o   sum.s
+
+$ ./sum
+sum = 15
+
+$ echo $?
+0
+
+$ ./sum ; echo "exit status was $?"
+sum = 15
+exit status was 0</pre>
+    </div>
+    <div class="side">
+      <div class="note">
+        <h3>What "exit status" is for</h3>
+        <ul>
+          <li>0 means success. Anything else means a failure the caller can act on.</li>
+          <li>It is the only value a program returns to whoever started it — everything else went to stdout.</li>
+          <li>Shell scripts branch on it: <code>./sum &amp;&amp; echo ok</code> only prints <code>ok</code> when the status is 0.</li>
+          <li>Only the low 8 bits survive, so <code>return 256</code> arrives as 0.</li>
+        </ul>
+      </div>
+      <div class="note teal">
+        <h3>The whole journey</h3>
+        <p>One text file → one flat text file → typed IR → assembly text → machine-code bytes with holes → a patched executable → a memory image with a stack and a heap → a CPU walking instructions → the single number <code>0</code>.</p>
+      </div>
+      <div class="note gold">
+        <h3>Take it further</h3>
+        <p>Change <code>return 0</code> to <code>return 3</code>, recompile, and watch <code>echo $?</code> change. Then diff <code>sum.s</code> before and after — one instruction moved.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<div class="navbar">
+  <div class="wrap navinner">
+    <button class="navbtn ghost" id="prevBtn">‹ Previous</button>
+    <div class="dots" id="dots"></div>
+    <span class="counter" id="counter"></span>
+    <button class="viewtoggle" id="viewBtn">Show all stages</button>
+    <button class="navbtn" id="nextBtn">Next stage ›</button>
+  </div>
+</div>
+
+<div class="wrap"><footer>
+  <b>How to use this page.</b> One stage per screen — arrow keys or the buttons below move between them. The rail at the top shows where the current stage sits in the pipeline. Two places are deliberately simplified and marked as such: memory is drawn as flat RAM rather than virtual pages, and control is shown passing straight to <code>main</code> rather than through libc's startup code.
+</footer></div>
+
+<script>
+/* ---------------- syntax highlighting ---------------- */
+const LANGS = {
+  c: {
+    com:/\/\*[\s\S]*?\*\/|\/\/[^\n]*/,
+    pre:/^[ \t]*#[ \t]*(?:[a-z_]+|\d+)[^\n]*/,
+    str:/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)'/,
+    kw:/\b(?:int|char|void|return|for|while|if|else|const|unsigned|signed|long|short|struct|extern|static|float|double|sizeof|typedef|__restrict)\b/,
+    fn:/\b[A-Za-z_]\w*(?=\s*\()/,
+    num:/\b\d+\b/
+  },
+  llvm: {
+    com:/;[^\n]*/,
+    str:/c?"(?:[^"\\]|\\.)*"/,
+    kw:/\b(?:define|declare|target|triple|datalayout|source_filename|private|unnamed_addr|constant|align|alloca|store|load|br|label|icmp|sle|add|nsw|ret|call|noundef|i1|i8|i32|i64|ptr|void|x)\b/,
+    gvar:/@[\w.$]+/,
+    var:/%[\w.$]+/,
+    num:/\b\d+\b/
+  },
+  asm: {
+    com:/#[^\n]*/,
+    str:/"(?:[^"\\]|\\.)*"/,
+    lbl:/^[ \t]*[.\w$]+:/,
+    dir:/^[ \t]*\.[A-Za-z0-9_.]+/,
+    reg:/%[a-z0-9]+/,
+    imm:/\$[-\w]+/,
+    kw:/\b(?:pushq|popq|movq|movl|movb|addq|addl|subq|subl|cmpl|jg|jmp|callq|retq|leaq|xorl)\b/,
+    num:/\b(?:0x[0-9a-f]+|\d+)\b/
+  },
+  out: {
+    cmd:/^\$[^\n]*/,
+    com:/^\s*(?:\.\.\.|#)[^\n]*|&lt;-[^\n]*|<-[^\n]*/,
+    str:/"(?:[^"\\]|\\.)*"/,
+    reloc:/R_X86_64_\w+/,
+    undef:/^\s{5,}U(?=\s)/,
+    kw:/\b(?:push|mov|movl|call|ret|add|cmp|jg|jmp|lea|xor|pop)\b/,
+    addr:/\b[0-9a-f]{6,16}\b/
+  }
+};
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function hl(code, lang){
+  const spec = LANGS[lang];
+  if(!spec) return esc(code);
+  const keys = Object.keys(spec);
+  const re = new RegExp(keys.map(k=>'('+spec[k].source+')').join('|'),'gm');
+  let out='', last=0, m;
+  while((m = re.exec(code)) !== null){
+    if(m[0].length === 0){ re.lastIndex++; continue; }
+    out += esc(code.slice(last, m.index));
+    let cls = keys[0];
+    for(let i=1;i<=keys.length;i++){ if(m[i] !== undefined){ cls = keys[i-1]; break; } }
+    out += '<span class="t-'+cls+'">'+esc(m[0])+'</span>';
+    last = m.index + m[0].length;
+  }
+  out += esc(code.slice(last));
+  return out;
+}
+document.querySelectorAll('pre[data-lang]').forEach(p=>{
+  p.dataset.raw = p.textContent;
+  p.innerHTML = hl(p.textContent, p.dataset.lang);
+});
+document.querySelectorAll('.copybtn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const pre = btn.closest('.codecard').querySelector('pre');
+    navigator.clipboard.writeText(pre.dataset.raw || pre.textContent).then(()=>{
+      btn.textContent = 'Copied'; btn.classList.add('ok');
+      setTimeout(()=>{ btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1400);
+    });
+  });
+});
+
+/* ---------------- memory diagram ---------------- */
+function memSVG(o){
+  const seg = (cls, y, h, name, sub, hot) =>
+    `<g class="seg ${o[cls]?'on':''} ${hot||''}">
+       <rect class="segbox" x="46" y="${y}" width="300" height="${h}" rx="2"/>
+       <text class="memlbl b" x="60" y="${y+20}">${name}</text>
+       <text class="memlbl sm" x="60" y="${y+35}">${sub}</text>
+     </g>`;
+  return `<svg class="mem" viewBox="0 0 660 424" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Process memory layout">
+    <text class="memcap" x="46" y="20">RAM · one process image</text>
+    <text class="memlbl sm" x="356" y="46">high address</text>
+    <text class="memlbl sm" x="356" y="378">low address</text>
+    <line x1="350" y1="52" x2="350" y2="370" stroke="rgba(28,26,23,.28)" stroke-width="1" stroke-dasharray="3 4"/>
+
+    ${seg('stack', 34, 62, 'STACK', 'frames · locals · return addresses', o.stackHot?'hot':'')}
+    <g class="seg ${o.stack?'on':''}">
+      <path d="M196 102 l0 26 m-6 -8 l6 8 l6 -8" stroke="#b8430a" stroke-width="1.6" fill="none"/>
+      <text class="memlbl sm" x="212" y="122" style="fill:#b8430a">grows down</text>
+    </g>
+
+    <g class="seg ${o.stack&&o.heap?'on':''}">
+      <text class="memlbl sm" x="60" y="152">— free gap · shared by both —</text>
+    </g>
+
+    <g class="seg ${o.heap?'on':''}">
+      <path d="M196 196 l0 -26 m-6 8 l6 -8 l6 8" stroke="#0f6b63" stroke-width="1.6" fill="none"/>
+      <text class="memlbl sm" x="212" y="182" style="fill:#0f6b63">grows up on malloc</text>
+    </g>
+    ${seg('heap', 200, 52, 'HEAP', 'empty — sum.c never calls malloc', o.heapHot?'hot2':'')}
+    ${seg('data', 258, 54, 'DATA SECTION', 'globals · "sum = %d\\n"', o.dataHot?'hot':'')}
+    ${seg('code', 318, 56, 'CODE SECTION (.text)', 'machine code for main, sum, libc stubs', o.codeHot?'hot':'')}
+
+    <g class="seg ${o.pc?'on':''} ${o.pcHot?'hot3':''}">
+      <rect class="segbox" x="452" y="300" width="180" height="74" rx="2"/>
+      <text class="memlbl b" x="466" y="322">CPU · PC</text>
+      <text class="memlbl sm" x="466" y="340">0x1149</text>
+      <text class="memlbl sm" x="466" y="356">= main + 0</text>
+      <path d="M448 340 L360 344" stroke="#c08611" stroke-width="1.8" fill="none"/>
+      <path d="M360 344 l9 -4 l-9 -3 z" fill="#c08611"/>
+    </g>
+
+    <g class="seg ${o.file?'on':''}">
+      <rect class="segbox" x="452" y="34" width="180" height="62" rx="2" style="fill:#fffcf5"/>
+      <text class="memlbl b" x="466" y="56">sum · ELF file</text>
+      <text class="memlbl sm" x="466" y="72">on disk</text>
+      <text class="memlbl sm" x="466" y="87">.text · .rodata · .data</text>
+      <path d="M540 100 L440 300" stroke="#b8430a" stroke-width="1.6" fill="none" stroke-dasharray="4 4"/>
+      <path d="M440 300 l1 -10 l7 5 z" fill="#b8430a"/>
+      <text class="memcap" x="470" y="200" style="fill:#b8430a">loader copies in</text>
+    </g>
+  </svg>`;
+}
+document.getElementById('mem7').innerHTML = memSVG({code:1,data:1,codeHot:1,dataHot:1,file:1});
+document.getElementById('mem8').innerHTML = memSVG({code:1,data:1,stack:1,heap:1,stackHot:1,heapHot:1});
+document.getElementById('mem9').innerHTML = memSVG({code:1,data:1,stack:1,heap:1,pc:1,pcHot:1});
+
+/* ---------------- execution stepper ---------------- */
+const INSTRS = [
+  {t:'main:',                 lab:1},
+  {t:'  pushq  %rbp'},
+  {t:'  movq   %rsp, %rbp'},
+  {t:'  movl   $5, %edi'},
+  {t:'  callq  sum'},
+  {t:'  movl   %eax, %esi'},
+  {t:'  leaq   .L.str(%rip), %rdi'},
+  {t:'  callq  printf'},
+  {t:'  xorl   %eax, %eax'},
+  {t:'  retq'}
+];
+const EXEC = [
+  { pc:[0,1,2], stack:[{n:'main()', s:'frame pushed · %rbp set'}],
+    note:'The PC is at main. Pushing %rbp and setting %rsp creates main\u2019s stack frame — the region where its locals will live.' },
+  { pc:[3], stack:[{n:'main()', s:'preparing the call'}],
+    note:'The argument 5 is placed in %edi. On x86-64 the first integer argument travels in a register, not on the stack.' },
+  { pc:[4], stack:[{n:'main()', s:'return address pushed'},{n:'\u2192 calling sum(5)', s:'PC about to jump to 0x1139'}],
+    note:'callq pushes the address of the next instruction onto the stack, then sets the PC to sum. That pushed address is how the CPU will find its way back.' },
+  { pc:[4], stack:[{n:'main()', s:'waiting'},{n:'sum(n=5)', s:'total=15  i=6  · loop finished'}],
+    note:'sum runs its own loop entirely inside its own frame: total at -8(%rbp), i at -12(%rbp). After six iterations total holds 15.' },
+  { pc:[5], stack:[{n:'main()', s:'resumed · %eax = 15'}],
+    note:'retq pops the saved return address back into the PC and discards sum\u2019s frame. The result 15 comes back in %eax, and main copies it to %esi.' },
+  { pc:[6,7], stack:[{n:'main()', s:'waiting'},{n:'printf(...)', s:'inside libc.so.6', libc:1}],
+    note:'The format string\u2019s address goes in %rdi and the PC jumps into libc — code that was never in sum.o, resolved at load time.', out:'sum = 15' },
+  { pc:[8], stack:[{n:'main()', s:'%eax = 0'}],
+    note:'printf returns and its frame is gone. xorl %eax,%eax is the compiler\u2019s cheap way of writing "return 0".', out:'sum = 15' },
+  { pc:[9], stack:[],
+    note:'main\u2019s retq hands 0 back to libc\u2019s startup code, which calls exit(0). Every frame is gone and the process is finished.', out:'sum = 15' }
+];
+const instrList = document.getElementById('instrList');
+INSTRS.forEach((ins,i)=>{
+  const li = document.createElement('li');
+  li.innerHTML = ins.lab ? '<span class="lab">'+ins.t+'</span>' : ins.t.replace(/^(\s*)(\w+)/,'$1<span style="color:#b8430a">$2</span>');
+  instrList.appendChild(li);
+});
+let execI = 0, execTimer = null;
+function renderExec(){
+  const s = EXEC[execI];
+  const maxPc = Math.max(...s.pc);
+  [...instrList.children].forEach((li,i)=>{
+    li.className = s.pc.includes(i) ? 'pc' : (i < maxPc ? 'past' : '');
+  });
+  const sp = document.getElementById('stackPanel');
+  sp.innerHTML = s.stack.length
+    ? s.stack.map((f,i)=>'<div class="frame '+(i===s.stack.length-1?'top':'')+' '+(f.libc?'libc':'')+'">'+f.n+'<small>'+f.s+'</small></div>').join('')
+    : '<div class="frame" style="border-left-color:#8a8175;opacity:.65">stack empty<small>process has exited</small></div>';
+  document.getElementById('execNote').textContent = s.note;
+  const con = document.getElementById('console');
+  con.innerHTML = '<span style="color:#8a8175">$</span> ./sum<br>'
+    + (s.out ? '<span class="out">'+s.out+'</span><br>' : '')
+    + (execI === EXEC.length-1 ? '<span style="color:#8a8175">$</span> echo $?<br><span class="out">0</span><br>' : '')
+    + '<span class="cur"></span>';
+  document.getElementById('execTick').textContent = 'step '+(execI+1)+' / '+EXEC.length;
+  document.getElementById('execPrev').disabled = execI === 0;
+  document.getElementById('execNext').disabled = execI === EXEC.length-1;
+}
+function execStop(){ clearInterval(execTimer); execTimer = null; document.getElementById('execPlay').textContent = 'Play'; }
+document.getElementById('execNext').onclick = ()=>{ execStop(); if(execI < EXEC.length-1){ execI++; renderExec(); } };
+document.getElementById('execPrev').onclick = ()=>{ execStop(); if(execI > 0){ execI--; renderExec(); } };
+document.getElementById('execReset').onclick = ()=>{ execStop(); execI = 0; renderExec(); };
+document.getElementById('execPlay').onclick = function(){
+  if(execTimer){ execStop(); return; }
+  if(execI === EXEC.length-1) execI = 0;
+  this.textContent = 'Pause';
+  renderExec();
+  execTimer = setInterval(()=>{
+    if(execI < EXEC.length-1){ execI++; renderExec(); } else { execStop(); }
+  }, 2100);
+};
+renderExec();
+
+/* ---------------- rail + stage navigation ---------------- */
+const RAIL = [
+  {n:'sum.c', k:'source'},
+  {n:'sum.i', k:'preprocessed'},
+  {n:'sum.ll', k:'IR'},
+  {n:'sum.s', k:'assembly'},
+  {n:'sum.o', k:'object'},
+  {n:'sum', k:'executable'},
+  {n:'▶ running', k:'process'}
+];
+const rail = document.getElementById('rail');
+RAIL.forEach((r,i)=>{
+  if(i > 0){
+    const g = document.createElement('div');
+    g.className = 'railgap'; g.dataset.gap = i;
+    rail.appendChild(g);
+  }
+  const b = document.createElement('button');
+  b.className = 'railnode'; b.dataset.rail = i;
+  b.innerHTML = '<span class="dotmark"></span>'+r.n;
+  b.title = r.k;
+  b.onclick = ()=>{ const t = stages.findIndex(s=>+s.dataset.rail === i); if(t >= 0) go(t); };
+  rail.appendChild(b);
+});
+const stages = [...document.querySelectorAll('.stage')];
+const dots = document.getElementById('dots');
+stages.forEach((s,i)=>{
+  const d = document.createElement('button');
+  d.className = 'dot' + (s.dataset.phase === '2' ? ' phase2' : '');
+  d.setAttribute('aria-label','Go to stage '+(i+1));
+  d.onclick = ()=>go(i);
+  dots.appendChild(d);
+});
+let cur = -1;
+function go(i, quiet){
+  const prev = cur;
+  cur = Math.max(0, Math.min(stages.length-1, i));
+  stages.forEach((s,k)=>s.classList.toggle('on', k === cur));
+  const railIdx = +stages[cur].dataset.rail;
+  document.querySelectorAll('.railnode').forEach(n=>{
+    const ni = +n.dataset.rail;
+    n.classList.toggle('active', ni === railIdx);
+    n.classList.toggle('done', ni < railIdx);
+  });
+  document.querySelectorAll('.railgap').forEach(g=>{
+    const gi = +g.dataset.gap;
+    g.classList.toggle('lit', gi <= railIdx);
+    g.classList.remove('flow');
+    if(gi === railIdx && prev < cur && !quiet){ void g.offsetWidth; g.classList.add('flow'); }
+  });
+  [...dots.children].forEach((d,k)=>{
+    d.classList.toggle('now', k === cur);
+    d.classList.toggle('seen', k < cur);
+  });
+  const phase = stages[cur].dataset.phase === '1' ? 'compile' : 'run';
+  document.getElementById('counter').textContent = 'stage '+(cur+1)+' / '+stages.length+' · '+phase;
+  document.getElementById('prevBtn').disabled = cur === 0;
+  document.getElementById('nextBtn').disabled = cur === stages.length-1;
+  document.getElementById('nextBtn').textContent = cur === stages.length-1 ? 'End of pipeline' : 'Next stage ›';
+  if(!quiet) window.scrollTo({top:0, behavior:'smooth'});
+  const act = document.querySelector('.railnode.active');
+  if(act) act.scrollIntoView({block:'nearest', inline:'center', behavior:'smooth'});
+  if(cur !== 9) execStop();
+}
+document.getElementById('nextBtn').onclick = ()=>go(cur+1);
+document.getElementById('prevBtn').onclick = ()=>go(cur-1);
+document.addEventListener('keydown', e=>{
+  if(document.body.classList.contains('allmode')) return;
+  if(e.target.tagName === 'BUTTON' && e.key === ' ') return;
+  if(e.key === 'ArrowRight'){ go(cur+1); }
+  if(e.key === 'ArrowLeft'){ go(cur-1); }
+});
+document.getElementById('viewBtn').onclick = function(){
+  const all = document.body.classList.toggle('allmode');
+  this.textContent = all ? 'Back to one stage' : 'Show all stages';
+  if(!all) go(cur, true);
+};
+go(0, true);
+</script>
+</body>
+</html>
