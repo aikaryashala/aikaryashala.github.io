@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grade B Students &middot; AI Karyashala</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+    :root {
+      --cream:      #faf6ef;
+      --cream-2:    #f4efe4;
+      --paper:      #fffdf8;
+      --ink:        #241c15;
+      --ink-soft:   #4a3d31;
+      --muted:      #7a6a58;
+      --rust:       #b8430a;
+      --rust-soft:  rgba(184, 67, 10, 0.10);
+      --teal:       #1f6f66;
+      --teal-soft:  rgba(31, 111, 102, 0.12);
+      --gold:       #a97400;
+      --gold-soft:  rgba(169, 116, 0, 0.14);
+      --line:       rgba(36, 28, 21, 0.13);
+      --line-soft:  rgba(36, 28, 21, 0.07);
+      --grade:      var(--gold);
+      --grade-soft: var(--gold-soft);
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: "Inter Tight", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      position: relative;
+    }
+    /* dot-grain texture */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image: radial-gradient(rgba(36,28,21,0.16) 0.5px, transparent 0.5px);
+      background-size: 4px 4px;
+      opacity: 0.5;
+    }
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 56px 22px 88px;
+    }
+
+    /* ---------- masthead ---------- */
+    .eyebrow {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .eyebrow::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+    }
+    .grade-mark {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 8px;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--grade);
+      background: var(--grade-soft);
+      border: 1px solid var(--grade);
+      border-radius: 2px;
+      padding: 5px 11px;
+      margin-bottom: 18px;
+    }
+    h1 {
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 600;
+      font-size: clamp(2.3rem, 6vw, 3.6rem);
+      line-height: 1.06;
+      letter-spacing: -0.015em;
+      margin: 0 0 14px;
+    }
+    h1 em {
+      font-style: italic;
+      color: var(--rust);
+      font-weight: 500;
+    }
+    .lede {
+      font-size: 1.06rem;
+      color: var(--ink-soft);
+      max-width: 62ch;
+      margin: 0;
+    }
+    .lede strong { font-weight: 600; color: var(--ink); }
+    .rule {
+      height: 1px;
+      background: var(--line);
+      margin: 40px 0 0;
+      position: relative;
+    }
+    .rule::before {
+      content: "";
+      position: absolute;
+      left: 0; top: -1px;
+      width: 78px; height: 3px;
+      background: var(--rust);
+    }
+
+    /* ---------- stats ---------- */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+      margin: 36px 0 12px;
+    }
+    .stat {
+      background: var(--cream-2);
+      padding: 18px 20px 20px;
+    }
+    .stat .label {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.64rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .stat .value {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 2.1rem;
+      font-weight: 600;
+      line-height: 1.1;
+      margin-top: 6px;
+      letter-spacing: -0.02em;
+    }
+    .stat.is-done .value { color: var(--teal); }
+    .stat.is-open .value { color: var(--rust); }
+
+    /* ---------- toolbar ---------- */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin: 26px 0 8px;
+    }
+    .search {
+      flex: 1 1 240px;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      padding: 9px 13px;
+    }
+    .search svg { flex: none; opacity: 0.5; }
+    .search input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.85rem;
+      color: var(--ink);
+    }
+    .search input::placeholder { color: var(--muted); opacity: 0.75; }
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      background: var(--paper);
+      border: 1px solid var(--line);
+      padding: 10px 14px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .toggle:hover { border-color: var(--rust); }
+    .toggle input { accent-color: var(--rust); margin: 0; }
+    .toggle.on {
+      background: var(--rust-soft);
+      border-color: var(--rust);
+      color: var(--rust);
+    }
+    .count-note {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin: 0 0 26px;
+    }
+
+    /* ---------- team cards ---------- */
+    .team {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      margin-bottom: 20px;
+      break-inside: avoid;
+    }
+    .team.hidden { display: none; }
+    .team-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 18px 22px 16px;
+      background: var(--cream-2);
+      border-bottom: 1px solid var(--line);
+    }
+    .num {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      color: var(--rust);
+      padding-top: 7px;
+      min-width: 26px;
+    }
+    .team-id { flex: 1 1 220px; min-width: 0; }
+    .team-name {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+    .team-meta {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+    .tally { text-align: right; margin-left: auto; }
+    .tally .frac {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--grade);
+      letter-spacing: -0.01em;
+    }
+    .tally .frac span { color: var(--muted); font-weight: 400; }
+    .tally .cap {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .bar {
+      display: flex;
+      gap: 3px;
+      padding: 0 22px;
+      margin-top: 14px;
+    }
+    .bar i {
+      height: 4px;
+      flex: 1;
+      background: var(--line);
+      display: block;
+    }
+    .bar i.on { background: var(--teal); }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 400;
+      text-align: left;
+      padding: 14px 22px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    tbody td {
+      padding: 12px 22px;
+      border-bottom: 1px solid var(--line-soft);
+      vertical-align: middle;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr.miss { background: rgba(184, 67, 10, 0.035); }
+    .htno {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.82rem;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+    .sname { font-weight: 500; }
+    .lead-dot {
+      display: inline-block;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--rust);
+      margin-right: 7px;
+      vertical-align: 2px;
+    }
+    .role {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.66rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .role.leader { color: var(--rust); }
+    td.st { text-align: right; white-space: nowrap; }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.64rem;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border: 1px solid;
+      border-radius: 2px;
+    }
+    .status.done  { color: var(--teal); border-color: var(--teal); background: var(--teal-soft); }
+    .status.miss  { color: var(--rust); border-color: var(--rust); background: var(--rust-soft); }
+
+    .empty {
+      display: none;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.8rem;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      padding: 34px 22px;
+      text-align: center;
+    }
+    .empty.show { display: block; }
+
+    .colophon {
+      margin-top: 44px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      line-height: 1.9;
+    }
+
+    @media (max-width: 640px) {
+      .wrap { padding: 36px 16px 64px; }
+      thead th:nth-child(3), tbody td:nth-child(3) { display: none; }
+      thead th, tbody td { padding-left: 16px; padding-right: 16px; }
+      .team-head { padding: 16px; }
+      .bar { padding: 0 16px; }
+      .tally { text-align: left; margin-left: 0; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      body::before { display: none; }
+      .toolbar, .count-note { display: none !important; }
+      .team, .team.hidden { display: block !important; break-inside: avoid; }
+      .wrap { max-width: none; padding: 0; }
+      .team { border-color: #bbb; }
+    }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="eyebrow">AI Karyashala &nbsp;/&nbsp; KIET Bootcamp &nbsp;/&nbsp; Hackathon Results</div>
+
+    <div class="grade-mark">Grade B</div>
+    <h1>Grade B <em>Students</em></h1>
+    <p class="lede">Teams where <strong>exactly four members</strong> completed the task. The rows tinted in rust are the pending submissions.</p>
+    <div class="rule"></div>
+
+    <section class="stats">
+      <div class="stat"><div class="label">Teams</div><div class="value">14</div></div>
+      <div class="stat"><div class="label">Students</div><div class="value">74</div></div>
+      <div class="stat is-done"><div class="label">Completed</div><div class="value">56</div></div>
+      <div class="stat is-open"><div class="label">Not completed</div><div class="value">18</div></div>
+    </section>
+
+    <div class="toolbar">
+      <div class="search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Search roll number, name, or team&hellip;" autocomplete="off">
+      </div>
+      <label class="toggle"><input type="checkbox" id="only">Only not completed</label>
+    </div>
+    <p class="count-note" id="note"></p>
+
+    <article class="team" data-team="25ktcsmd1_1">
+      <div class="team-head">
+        <div class="num">01</div>
+        <div class="team-id">
+          <div class="team-name">25KTCSMD1_1</div>
+          <div class="team-meta">25KTCSMD1 &middot; KIET</div>
+        </div>
+        <div class="tally">
+          <div class="frac">4<span>/5</span></div>
+          <div class="cap">completed</div>
+        </div>
+      </div>
+      <div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></div>
+      <table>
+        <thead><tr><th>HTNO</th><th>Student name</th><th>Role</th><th style="text-align:right">Status</th></tr></thead>
+        <tbody><tr class="miss" data-find="256q1a4217 ramoju vamsi krishna 25ktcsmd1_1"><td class="htno">256Q1A4217</td><td class="sname"><span class="lead-dot"></span>RAMOJU VAMSI KRISHNA</td><td class="role leader">L1 Leader</td><td class="st"><span class="status miss">Not completed</span></td></tr><tr class="" data-find="25b21a4233 balabhadruni prasad 25ktcsmd1_1"><td class="htno">25B21A4233</td><td class="sname">BALABHADRUNI PRASAD</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25b21a4226 surneedi thanuja 25ktcsmd1_1"><td class="htno">25B21A4226</td><td class="sname">SURNEEDI THANUJA</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25b21a4263 vasa hema 25ktcsmd1_1"><td class="htno">25B21A4263</td><td class="sname">VASA HEMA</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25b21a4229 vinukonda vijay 25ktcsmd1_1"><td class="htno">25B21A4229</td><td class="sname">VINUKONDA VIJAY</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr></tbody>
+      </table>
+    </article>
+    <article class="team" data-team="25ktcsmd2_7">
+      <div class="team-head">
+        <div class="num">02</div>
+        <div class="team-id">
+          <div class="team-name">25KTCSMD2_7</div>
+          <div class="team-meta">25KTCSMD2 &middot; KIET</div>
+        </div>
+        <div class="tally">
+          <div class="frac">4<span>/5</span></div>
+          <div class="cap">completed</div>
+        </div>
+      </div>
+      <div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></div>
+      <table>
+        <thead><tr><th>HTNO</th><th>Student name</th><th>Role</th><th style="text-align:right">Status</th></tr></thead>
+        <tbody><tr class="" data-find="25b21a4243 menduguti sravana sandhya 25ktcsmd2_7"><td class="htno">25B21A4243</td><td class="sname"><span class="lead-dot"></span>MENDUGUTI SRAVANA SANDHYA</td><td class="role leader">L1 Leader</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25b21a4247 illa anusri 25ktcsmd2_7"><td class="htno">25B21A4247</td><td class="sname">ILLA ANUSRI</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="miss" data-find="25b21a4265 nagidi sanjay 25ktcsmd2_7"><td class="htno">25B21A4265</td><td class="sname">NAGIDI SANJAY</td><td class="role">Member</td><td class="st"><span class="status miss">Not completed</span></td></tr><tr class="" data-find="25b21a4249 sait yuvaraj sharma 25ktcsmd2_7"><td class="htno">25B21A4249</td><td class="sname">SAIT YUVARAJ SHARMA</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25b21a4259 vittanala sai ram 25ktcsmd2_7"><td class="htno">25B21A4259</td><td class="sname">VITTANALA SAI RAM</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr></tbody>
+      </table>
+    </article>
+    <article class="team" data-team="25ktcsmh_1">
+      <div class="team-head">
+        <div class="num">03</div>
+        <div class="team-id">
+          <div class="team-name">25KTCSMH_1</div>
+          <div class="team-meta">25KTCSMH &middot; KIEK</div>
+        </div>
+        <div class="tally">
+          <div class="frac">4<span>/6</span></div>
+          <div class="cap">completed</div>
+        </div>
+      </div>
+      <div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></div>
+      <table>
+        <thead><tr><th>HTNO</th><th>Student name</th><th>Role</th><th style="text-align:right">Status</th></tr></thead>
+        <tbody><tr class="" data-find="256q1a4235 jammula raghuram 25ktcsmh_1"><td class="htno">256Q1A4235</td><td class="sname"><span class="lead-dot"></span>JAMMULA RAGHURAM</td><td class="role leader">L1 Leader</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="miss" data-find="256q1a4239 borra balaji 25ktcsmh_1"><td class="htno">256Q1A4239</td><td class="sname">BORRA BALAJI</td><td class="role">Member</td><td class="st"><span class="status miss">Not completed</span></td></tr><tr class="" data-find="256q1a4245 dasari navadeep nandu 25ktcsmh_1"><td class="htno">256Q1A4245</td><td class="sname">DASARI NAVADEEP NANDU</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="miss" data-find="256q1a4254 nakka tarun nani 25ktcsmh_1"><td class="htno">256Q1A4254</td><td class="sname">NAKKA TARUN NANI</td><td class="role">Member</td><td class="st"><span class="status miss">Not completed</span></td></tr><tr class="" data-find="256q1a4256 narra sri divya 25ktcsmh_1"><td class="htno">256Q1A4256</td><td class="sname">NARRA SRI DIVYA</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="256q1a4236 ramireddy dhanush kumar 25ktcsmh_1"><td class="htno">256Q1A4236</td><td class="sname">RAMIREDDY DHANUSH KUMAR</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr></tbody>
+      </table>
+    </article>
+    <article class="team" data-team="25kwaidd_13">
+      <div class="team-head">
+        <div class="num">04</div>
+        <div class="team-id">
+          <div class="team-name">25KWAIDD_13</div>
+          <div class="team-meta">25KWAIDD &middot; KIEW</div>
+        </div>
+        <div class="tally">
+          <div class="frac">4<span>/6</span></div>
+          <div class="cap">completed</div>
+        </div>
+      </div>
+      <div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></div>
+      <table>
+        <thead><tr><th>HTNO</th><th>Student name</th><th>Role</th><th style="text-align:right">Status</th></tr></thead>
+        <tbody><tr class="" data-find="25jn1a4563 keerthana sai puja eatha 25kwaidd_13"><td class="htno">25JN1A4563</td><td class="sname"><span class="lead-dot"></span>KEERTHANA SAI PUJA EATHA</td><td class="role leader">L1 Leader</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4567 chollangi hima bindu 25kwaidd_13"><td class="htno">25JN1A4567</td><td class="sname">CHOLLANGI HIMA BINDU</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4564 gopi lakshmi bhavya hanitha 25kwaidd_13"><td class="htno">25JN1A4564</td><td class="sname">GOPI LAKSHMI BHAVYA HANITHA</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4566 kavatarapu sindhu naga sri 25kwaidd_13"><td class="htno">25JN1A4566</td><td class="sname">KAVATARAPU SINDHU NAGA SRI</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="miss" data-find="25jn1a4568 kovvuri satya deepika 25kwaidd_13"><td class="htno">25JN1A4568</td><td class="sname">KOVVURI SATYA DEEPIKA</td><td class="role">Member</td><td class="st"><span class="status miss">Not completed</span></td></tr><tr class="miss" data-find="25jn1a4565 pydikondala rama vidya nandini 25kwaidd_13"><td class="htno">25JN1A4565</td><td class="sname">PYDIKONDALA RAMA VIDYA NANDINI</td><td class="role">Member</td><td class="st"><span class="status miss">Not completed</span></td></tr></tbody>
+      </table>
+    </article>
+    <article class="team" data-team="25kwaidd_4">
+      <div class="team-head">
+        <div class="num">05</div>
+        <div class="team-id">
+          <div class="team-name">25KWAIDD_4</div>
+          <div class="team-meta">25KWAIDD &middot; KIEW</div>
+        </div>
+        <div class="tally">
+          <div class="frac">4<span>/5</span></div>
+          <div class="cap">completed</div>
+        </div>
+      </div>
+      <div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></div>
+      <table>
+        <thead><tr><th>HTNO</th><th>Student name</th><th>Role</th><th style="text-align:right">Status</th></tr></thead>
+        <tbody><tr class="miss" data-find="25jn1a4516 yarramsetti dhana lakshmi 25kwaidd_4"><td class="htno">25JN1A4516</td><td class="sname"><span class="lead-dot"></span>YARRAMSETTI DHANA LAKSHMI</td><td class="role leader">L1 Leader</td><td class="st"><span class="status miss">Not completed</span></td></tr><tr class="" data-find="25jn1a4519 chavvakula prameela rani 25kwaidd_4"><td class="htno">25JN1A4519</td><td class="sname">CHAVVAKULA PRAMEELA RANI</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4518 chopperla naga sarojini harika 25kwaidd_4"><td class="htno">25JN1A4518</td><td class="sname">CHOPPERLA NAGA SAROJINI HARIKA</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4520 gampala sritulasi 25kwaidd_4"><td class="htno">25JN1A4520</td><td class="sname">Gampala Sritulasi</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4517 goru lova durga sravani 25kwaidd_4"><td class="htno">25JN1A4517</td><td class="sname">GORU LOVA DURGA SRAVANI</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr></tbody>
+      </table>
+    </article>
+    <article class="team" data-team="25kwaidd_7">
+      <div class="team-head">
+        <div class="num">06</div>
+        <div class="team-id">
+          <div class="team-name">25KWAIDD_7</div>
+          <div class="team-meta">25KWAIDD &middot; KIEW</div>
+        </div>
+        <div class="tally">
+          <div class="frac">4<span>/5</span></div>
+          <div class="cap">completed</div>
+        </div>
+      </div>
+      <div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></div>
+      <table>
+        <thead><tr><th>HTNO</th><th>Student name</th><th>Role</th><th style="text-align:right">Status</th></tr></thead>
+        <tbody><tr class="" data-find="25jn1a4531 nukanamanthi udayasri 25kwaidd_7"><td class="htno">25JN1A4531</td><td class="sname"><span class="lead-dot"></span>NUKANAMANTHI UDAYASRI</td><td class="role leader">L1 Leader</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4535 kakarla kavya venu 25kwaidd_7"><td class="htno">25JN1A4535</td><td class="sname">KAKARLA KAVYA VENU</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="miss" data-find="25jn1a4532 kotikalapudi venkata durga sri valya 25kwaidd_7"><td class="htno">25JN1A4532</td><td class="sname">KOTIKALAPUDI VENKATA DURGA SRI VALYA</td><td class="role">Member</td><td class="st"><span class="status miss">Not completed</span></td></tr><tr class="" data-find="25jn1a4533 medisetti teshma 25kwaidd_7"><td class="htno">25JN1A4533</td><td class="sname">MEDISETTI TESHMA</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4534 padala charitha devi 25kwaidd_7"><td class="htno">25JN1A4534</td><td class="sname">PADALA CHARITHA DEVI</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr></tbody>
+      </table>
+    </article>
+    <article class="team" data-team="25kwaidd_9">
+      <div class="team-head">
+        <div class="num">07</div>
+        <div class="team-id">
+          <div class="team-name">25KWAIDD_9</div>
+          <div class="team-meta">25KWAIDD &middot; KIEW</div>
+        </div>
+        <div class="tally">
+          <div class="frac">4<span>/5</span></div>
+          <div class="cap">completed</div>
+        </div>
+      </div>
+      <div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></div>
+      <table>
+        <thead><tr><th>HTNO</th><th>Student name</th><th>Role</th><th style="text-align:right">Status</th></tr></thead>
+        <tbody><tr class="" data-find="25jn1a4541 golakoti sai pravallika 25kwaidd_9"><td class="htno">25JN1A4541</td><td class="sname"><span class="lead-dot"></span>GOLAKOTI SAI PRAVALLIKA</td><td class="role leader">L1 Leader</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4544 davuluri padma hasita 25kwaidd_9"><td class="htno">25JN1A4544</td><td class="sname">DAVULURI PADMA HASITA</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4542 kotipalli iswarya 25kwaidd_9"><td class="htno">25JN1A4542</td><td class="sname">KOTIPALLI ISWARYA</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4543 pullepu tejasri 25kwaidd_9"><td class="htno">25JN1A4543</td><td class="sname">PULLEPU TEJASRI</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="miss" data-find="25jn1a4545 vipparthi meghana satya priya 25kwaidd_9"><td class="htno">25JN1A4545</td><td class="sname">VIPPARTHI MEGHANA SATYA PRIYA</td><td class="role">Member</td><td class="st"><span class="status miss">Not completed</span></td></tr></tbody>
+      </table>
+    </article>
+    <article class="team" data-team="25kwaidh_11">
+      <div class="team-head">
+        <div class="num">08</div>
+        <div class="team-id">
+          <div class="team-name">25KWAIDH_11</div>
+          <div class="team-meta">25KWAIDH &middot; KIEW</div>
+        </div>
+        <div class="tally">
+          <div class="frac">4<span>/5</span></div>
+          <div class="cap">completed</div>
+        </div>
+      </div>
+      <div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></div>
+      <table>
+        <thead><tr><th>HTNO</th><th>Student name</th><th>Role</th><th style="text-align:right">Status</th></tr></thead>
+        <tbody><tr class="" data-find="25jn1a45c2 ganji lakshmi veera bhadraveni 25kwaidh_11"><td class="htno">25JN1A45C2</td><td class="sname"><span class="lead-dot"></span>GANJI LAKSHMI VEERA BHADRAVENI</td><td class="role leader">L1 Leader</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a45c6 gamidi venu madhuri 25kwaidh_11"><td class="htno">25JN1A45C6</td><td class="sname">GAMIDI VENU MADHURI</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a45c5 kuchipudi jasmitha devi 25kwaidh_11"><td class="htno">25JN1A45C5</td><td class="sname">KUCHIPUDI JASMITHA DEVI</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a45c3 pedamallu lakshmi hasini 25kwaidh_11"><td class="htno">25JN1A45C3</td><td class="sname">PEDAMALLU LAKSHMI HASINI</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="miss" data-find="25jn1a45c4 penumajji yagnasri 25kwaidh_11"><td class="htno">25JN1A45C4</td><td class="sname">PENUMAJJI YAGNASRI</td><td class="role">Member</td><td class="st"><span class="status miss">Not completed</span></td></tr></tbody>
+      </table>
+    </article>
+    <article class="team" data-team="25kwaidh_5">
+      <div class="team-head">
+        <div class="num">09</div>
+        <div class="team-id">
+          <div class="team-name">25KWAIDH_5</div>
+          <div class="team-meta">25KWAIDH &middot; KIEW</div>
+        </div>
+        <div class="tally">
+          <div class="frac">4<span>/5</span></div>
+          <div class="cap">completed</div>
+        </div>
+      </div>
+      <div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></div>
+      <table>
+        <thead><tr><th>HTNO</th><th>Student name</th><th>Role</th><th style="text-align:right">Status</th></tr></thead>
+        <tbody><tr class="miss" data-find="25jn1a4592 avuluri dhana sri 25kwaidh_5"><td class="htno">25JN1A4592</td><td class="sname"><span class="lead-dot"></span>AVULURI DHANA SRI</td><td class="role leader">L1 Leader</td><td class="st"><span class="status miss">Not completed</span></td></tr><tr class="" data-find="25jn1a4593 ganjala vardhini 25kwaidh_5"><td class="htno">25JN1A4593</td><td class="sname">GANJALA VARDHINI</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4594 gullapalli yakanya 25kwaidh_5"><td class="htno">25JN1A4594</td><td class="sname">GULLAPALLI YAKANYA</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4595 mareedu likitha 25kwaidh_5"><td class="htno">25JN1A4595</td><td class="sname">MAREEDU LIKITHA</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4596 pentakota thanusri sai devi 25kwaidh_5"><td class="htno">25JN1A4596</td><td class="sname">PENTAKOTA THANUSRI SAI DEVI</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr></tbody>
+      </table>
+    </article>
+    <article class="team" data-team="25kwcsmd_5">
+      <div class="team-head">
+        <div class="num">10</div>
+        <div class="team-id">
+          <div class="team-name">25KWCSMD_5</div>
+          <div class="team-meta">25KWCSMD &middot; KIEW</div>
+        </div>
+        <div class="tally">
+          <div class="frac">4<span>/5</span></div>
+          <div class="cap">completed</div>
+        </div>
+      </div>
+      <div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></div>
+      <table>
+        <thead><tr><th>HTNO</th><th>Student name</th><th>Role</th><th style="text-align:right">Status</th></tr></thead>
+        <tbody><tr class="" data-find="25jn1a4221 boddu vennela 25kwcsmd_5"><td class="htno">25JN1A4221</td><td class="sname"><span class="lead-dot"></span>BODDU VENNELA</td><td class="role leader">L1 Leader</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4224 dangeti sireesha 25kwcsmd_5"><td class="htno">25JN1A4224</td><td class="sname">DANGETI SIREESHA</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="miss" data-find="25jn1a4225 katta harika 25kwcsmd_5"><td class="htno">25JN1A4225</td><td class="sname">KATTA HARIKA</td><td class="role">Member</td><td class="st"><span class="status miss">Not completed</span></td></tr><tr class="" data-find="25jn1a4222 koruprolu abhinaya 25kwcsmd_5"><td class="htno">25JN1A4222</td><td class="sname">KORUPROLU ABHINAYA</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4223 padala phani priya anjani reddy 25kwcsmd_5"><td class="htno">25JN1A4223</td><td class="sname">Padala Phani Priya Anjani Reddy</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr></tbody>
+      </table>
+    </article>
+    <article class="team" data-team="25kwcsmd_6">
+      <div class="team-head">
+        <div class="num">11</div>
+        <div class="team-id">
+          <div class="team-name">25KWCSMD_6</div>
+          <div class="team-meta">25KWCSMD &middot; KIEW</div>
+        </div>
+        <div class="tally">
+          <div class="frac">4<span>/5</span></div>
+          <div class="cap">completed</div>
+        </div>
+      </div>
+      <div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></div>
+      <table>
+        <thead><tr><th>HTNO</th><th>Student name</th><th>Role</th><th style="text-align:right">Status</th></tr></thead>
+        <tbody><tr class="" data-find="25jn1a4226 ganji jyothi naga surekha 25kwcsmd_6"><td class="htno">25JN1A4226</td><td class="sname"><span class="lead-dot"></span>GANJI JYOTHI NAGA SUREKHA</td><td class="role leader">L1 Leader</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4227 ganji veera naga sai lakshmi 25kwcsmd_6"><td class="htno">25JN1A4227</td><td class="sname">GANJI VEERA NAGA SAI LAKSHMI</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4228 kamuju geetha sri 25kwcsmd_6"><td class="htno">25JN1A4228</td><td class="sname">KAMUJU GEETHA SRI</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4229 reddy devi nikhitha 25kwcsmd_6"><td class="htno">25JN1A4229</td><td class="sname">REDDY DEVI NIKHITHA</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="miss" data-find="25jn1a4230 vasarla neha 25kwcsmd_6"><td class="htno">25JN1A4230</td><td class="sname">Vasarla Neha</td><td class="role">Member</td><td class="st"><span class="status miss">Not completed</span></td></tr></tbody>
+      </table>
+    </article>
+    <article class="team" data-team="25kwcsmh_10">
+      <div class="team-head">
+        <div class="num">12</div>
+        <div class="team-id">
+          <div class="team-name">25KWCSMH_10</div>
+          <div class="team-meta">25KWCSMH &middot; KIEW</div>
+        </div>
+        <div class="tally">
+          <div class="frac">4<span>/5</span></div>
+          <div class="cap">completed</div>
+        </div>
+      </div>
+      <div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></div>
+      <table>
+        <thead><tr><th>HTNO</th><th>Student name</th><th>Role</th><th style="text-align:right">Status</th></tr></thead>
+        <tbody><tr class="" data-find="25jn1a42a3 uppu padma sahithi 25kwcsmh_10"><td class="htno">25JN1A42A3</td><td class="sname"><span class="lead-dot"></span>UPPU PADMA SAHITHI</td><td class="role leader">L1 Leader</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a42a7 bheemavarapu bhavani sai preethi 25kwcsmh_10"><td class="htno">25JN1A42A7</td><td class="sname">BHEEMAVARAPU BHAVANI SAI PREETHI</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="miss" data-find="25jn1a42a6 bokka venkata satya bhavani 25kwcsmh_10"><td class="htno">25JN1A42A6</td><td class="sname">BOKKA VENKATA SATYA BHAVANI</td><td class="role">Member</td><td class="st"><span class="status miss">Not completed</span></td></tr><tr class="" data-find="25jn1a42a5 botta amulya 25kwcsmh_10"><td class="htno">25JN1A42A5</td><td class="sname">BOTTA AMULYA</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a42a4 doddapani sindhu sri 25kwcsmh_10"><td class="htno">25JN1A42A4</td><td class="sname">DODDAPANI SINDHU SRI</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr></tbody>
+      </table>
+    </article>
+    <article class="team" data-team="25kwcsmh_4">
+      <div class="team-head">
+        <div class="num">13</div>
+        <div class="team-id">
+          <div class="team-name">25KWCSMH_4</div>
+          <div class="team-meta">25KWCSMH &middot; KIEW</div>
+        </div>
+        <div class="tally">
+          <div class="frac">4<span>/6</span></div>
+          <div class="cap">completed</div>
+        </div>
+      </div>
+      <div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></div>
+      <table>
+        <thead><tr><th>HTNO</th><th>Student name</th><th>Role</th><th style="text-align:right">Status</th></tr></thead>
+        <tbody><tr class="" data-find="25jn1a4267 kollabathula manju 25kwcsmh_4"><td class="htno">25JN1A4267</td><td class="sname"><span class="lead-dot"></span>KOLLABATHULA MANJU</td><td class="role leader">L1 Leader</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4268 kaligineedi aditya sri satya sai nikitha 25kwcsmh_4"><td class="htno">25JN1A4268</td><td class="sname">KALIGINEEDI ADITYA SRI SATYA SAI NIKITHA</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="miss" data-find="25jn1a4271 manikala tanuja 25kwcsmh_4"><td class="htno">25JN1A4271</td><td class="sname">MANIKALA TANUJA</td><td class="role">Member</td><td class="st"><span class="status miss">Not completed</span></td></tr><tr class="" data-find="25jn1a4269 nakka dharani venkata sravya 25kwcsmh_4"><td class="htno">25JN1A4269</td><td class="sname">NAKKA DHARANI VENKATA SRAVYA</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4270 sheik majanbee 25kwcsmh_4"><td class="htno">25JN1A4270</td><td class="sname">SHEIK MAJANBEE</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="miss" data-find="25jn1a4272 tata meghana 25kwcsmh_4"><td class="htno">25JN1A4272</td><td class="sname">TATA MEGHANA</td><td class="role">Member</td><td class="st"><span class="status miss">Not completed</span></td></tr></tbody>
+      </table>
+    </article>
+    <article class="team" data-team="25kwcsmh_8">
+      <div class="team-head">
+        <div class="num">14</div>
+        <div class="team-id">
+          <div class="team-name">25KWCSMH_8</div>
+          <div class="team-meta">25KWCSMH &middot; KIEW</div>
+        </div>
+        <div class="tally">
+          <div class="frac">4<span>/6</span></div>
+          <div class="cap">completed</div>
+        </div>
+      </div>
+      <div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></div>
+      <table>
+        <thead><tr><th>HTNO</th><th>Student name</th><th>Role</th><th style="text-align:right">Status</th></tr></thead>
+        <tbody><tr class="miss" data-find="25jn1a4291 miriyala lakshmi prasanna 25kwcsmh_8"><td class="htno">25JN1A4291</td><td class="sname"><span class="lead-dot"></span>MIRIYALA LAKSHMI PRASANNA</td><td class="role leader">L1 Leader</td><td class="st"><span class="status miss">Not completed</span></td></tr><tr class="" data-find="25jn1a4293 basavani akhila 25kwcsmh_8"><td class="htno">25JN1A4293</td><td class="sname">BASAVANI AKHILA</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="miss" data-find="25jn1a4294 kakara mallika 25kwcsmh_8"><td class="htno">25JN1A4294</td><td class="sname">KAKARA MALLIKA</td><td class="role">Member</td><td class="st"><span class="status miss">Not completed</span></td></tr><tr class="" data-find="25jn1a4292 maruboina pavani 25kwcsmh_8"><td class="htno">25JN1A4292</td><td class="sname">MARUBOINA PAVANI</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4295 pampana akhila 25kwcsmh_8"><td class="htno">25JN1A4295</td><td class="sname">PAMPANA AKHILA</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr><tr class="" data-find="25jn1a4296 vegi devi mani sri valli 25kwcsmh_8"><td class="htno">25JN1A4296</td><td class="sname">VEGI DEVI MANI SRI VALLI</td><td class="role">Member</td><td class="st"><span class="status done">Completed</span></td></tr></tbody>
+      </table>
+    </article>
+
+    <div class="empty" id="empty">No students match that search.</div>
+
+    <p class="colophon">
+      Generated from hackathon registration and completion data (subfolders-4.csv).<br>
+      A dot marks the L1 leader of each team.
+    </p>
+  </div>
+<script>
+  (function () {
+    var box   = document.getElementById('q');
+    var only  = document.getElementById('only');
+    var teams = Array.prototype.slice.call(document.querySelectorAll('.team'));
+    var note  = document.getElementById('note');
+    var empty = document.getElementById('empty');
+
+    function apply() {
+      var q = (box.value || '').trim().toLowerCase();
+      var missOnly = only ? only.checked : false;
+      var shownTeams = 0, shownRows = 0;
+
+      teams.forEach(function (t) {
+        var rows = Array.prototype.slice.call(t.querySelectorAll('tbody tr'));
+        var any = false;
+        rows.forEach(function (r) {
+          var hay = r.getAttribute('data-find');
+          var ok = (!q || hay.indexOf(q) !== -1) &&
+                   (!missOnly || r.classList.contains('miss'));
+          r.style.display = ok ? '' : 'none';
+          if (ok) { any = true; shownRows++; }
+        });
+        var teamHit = !q || t.getAttribute('data-team').indexOf(q) !== -1;
+        if (teamHit && !q && !missOnly) any = true;
+        if (teamHit && q) {
+          rows.forEach(function (r) {
+            if (!missOnly || r.classList.contains('miss')) {
+              if (r.style.display === 'none') { r.style.display = ''; shownRows++; }
+              any = true;
+            }
+          });
+        }
+        t.classList.toggle('hidden', !any);
+        if (any) shownTeams++;
+      });
+
+      note.textContent = shownTeams + ' team' + (shownTeams === 1 ? '' : 's') +
+                         ' · ' + shownRows + ' student' + (shownRows === 1 ? '' : 's') + ' shown';
+      empty.classList.toggle('show', shownTeams === 0);
+      if (only) only.parentNode.classList.toggle('on', missOnly);
+    }
+
+    box.addEventListener('input', apply);
+    if (only) only.addEventListener('change', apply);
+    apply();
+  })();
+</script>
+</body>
+</html>
