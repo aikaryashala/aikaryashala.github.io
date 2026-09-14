@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Our Journey - AI Karyashala</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream:#faf6ef;
+      --paper:#fffdf9;
+      --ink:#2b2622;
+      --muted:#6f675e;
+
+      --rust:#b8430a;
+      --teal:#14746f;
+      --gold:#a97b12;
+
+      --line:rgba(43,38,34,.14);
+      --line2:rgba(43,38,34,.07);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box;
+        font-family:"Inter Tight",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif; }
+
+    html { scroll-behavior:smooth; }
+
+    body {
+      background:var(--cream); color:var(--ink); overflow-x:hidden;
+      background-image:radial-gradient(rgba(43,38,34,.055) 1px, transparent 1px);
+      background-size:4px 4px;
+    }
+
+    h1,h2 { font-family:"Fraunces",serif; font-weight:600; letter-spacing:-.01em; line-height:1.12; color:var(--ink); }
+    a { color:inherit; }
+    img { display:block; max-width:100%; }
+    button:focus-visible, a:focus-visible { outline:2px solid var(--rust); outline-offset:2px; }
+
+    @media(prefers-reduced-motion:reduce){ *{ transition:none!important; } }
+
+    /* ── Header ── */
+    .header { position:sticky; top:0; z-index:1000; background:var(--cream); border-bottom:1px solid var(--line); }
+    .nav-shell {
+      max-width:1100px; margin:0 auto; padding:14px 20px;
+      display:flex; gap:24px; align-items:center; justify-content:space-between;
+    }
+    .nav-brand { display:flex; align-items:center; }
+    .nav-brand img { height:26px; }
+    .nav-links { display:flex; gap:26px; font-size:14px; }
+    .nav-links a { color:var(--ink); text-decoration:none; padding-bottom:2px;
+                   border-bottom:2px solid transparent; transition:color .15s,border-color .15s; }
+    .nav-links a:hover { color:var(--rust); border-color:var(--rust); }
+    .nav-links a.active { color:var(--rust); border-color:var(--rust); font-weight:600; }
+    .nav-hero-cta { font-size:14px !important; padding:9px 18px !important; }
+
+    /* ── Buttons ── */
+    .btn {
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:12px 26px; border-radius:2px; text-decoration:none;
+      font-weight:600; font-size:15px; border:1px solid var(--rust);
+      transition:background .15s,color .15s;
+    }
+    .btn--primary { background:var(--rust); color:var(--paper); }
+    .btn--primary:hover { background:#96370a; }
+
+    /* ── Hamburger ── */
+    .hamburger {
+      display:none; flex-direction:column; justify-content:center; gap:5px;
+      width:36px; height:36px; background:none; border:none; cursor:pointer;
+      padding:4px; border-radius:2px; transition:background .15s;
+    }
+    .hamburger:hover { background:var(--line2); }
+    .hamburger span {
+      display:block; height:2px; background:var(--ink); border-radius:1px;
+      transition:transform .2s ease, opacity .2s ease, width .2s ease;
+    }
+    .hamburger span:nth-child(2) { width:75%; }
+    .hamburger.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity:0; width:100%; }
+    .hamburger.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+
+    /* ── Mobile nav drawer ── */
+    .mobile-nav {
+      display:none; position:fixed; inset:0; z-index:1001;
+      flex-direction:column; align-items:center; justify-content:center; gap:26px;
+      background:var(--cream);
+    }
+    .mobile-nav.open { display:flex; }
+    .mobile-nav a { color:var(--ink); text-decoration:none; font-size:20px; font-weight:600; transition:color .15s; }
+    .mobile-nav a:hover { color:var(--rust); }
+    .mobile-nav a.active { color:var(--rust); }
+    .mobile-nav .mob-close {
+      position:absolute; top:20px; right:20px;
+      background:none; border:none; color:var(--ink); font-size:26px; cursor:pointer; opacity:.7;
+    }
+    .mobile-nav .mob-close:hover { opacity:1; color:var(--rust); }
+
+    /* ── Hero ── */
+    .hero { padding:72px 20px 56px; max-width:800px; margin:0 auto; text-align:center; }
+    .hero-eyebrow { font-family:"JetBrains Mono",monospace; font-size:13px; color:var(--rust); margin-bottom:10px; }
+    .hero-copy h1 { font-size:clamp(28px,4.4vw,42px); margin:0 0 16px; }
+    .hero-subtitle { font-size:17px; line-height:1.6; color:var(--muted); max-width:62ch; margin:0 auto; }
+
+    /* ── Journey ── */
+    .journey { padding:8px 20px 72px; max-width:800px; margin:0 auto; }
+    .jlist { margin-top:0; }
+    .jrow {
+      display:grid; grid-template-columns:44px 1fr; gap:16px;
+      padding:18px 0; border-bottom:1px solid var(--line2);
+      text-decoration:none; color:inherit;
+    }
+    .jrow:last-child { border-bottom:none; }
+    .jrow:hover .jtitle { color:var(--rust); }
+    .jnum { font-family:"JetBrains Mono",monospace; font-size:13px; color:var(--rust); padding-top:2px; }
+    .jtitle { font-family:"Fraunces",serif; font-weight:600; font-size:17px; margin-bottom:4px; transition:color .15s; }
+    .jrow p { font-size:14px; color:var(--muted); line-height:1.5; margin:0; }
+    .jrow--soon { cursor:default; }
+    .jrow--soon .jtitle { color:var(--ink); }
+    .j-badge {
+      display:inline-block; margin-top:8px; font-family:"JetBrains Mono",monospace; font-size:10.5px;
+      font-weight:700; letter-spacing:.04em; color:var(--muted); border:1px solid var(--line);
+      border-radius:2px; padding:2px 8px;
+    }
+
+    /* ── Footer ── */
+    .site-footer { margin-top:40px; padding:48px 20px 32px; background:var(--paper); border-top:1px solid var(--line); }
+    .footer-content {
+      max-width:1100px; margin:0 auto;
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:40px;
+    }
+    .footer-section { display:flex; flex-direction:column; gap:10px; }
+    .footer-section h3 { font-size:22px; margin-bottom:2px; }
+    .footer-section h4 { font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--muted); letter-spacing:.04em; margin:0; }
+    .footer-tagline { font-size:14px; font-weight:600; color:var(--ink); margin:0; }
+    .footer-description { font-size:13.5px; line-height:1.6; color:var(--muted); margin:0; }
+    .footer-section p { font-size:13.5px; color:var(--muted); margin:0; }
+    .footer-phone { font-size:13.5px; color:var(--muted); margin:0; }
+    .footer-social-link { color:var(--rust) !important; text-decoration:none; font-weight:600; font-size:13.5px; transition:color .15s; }
+    .footer-social-link:hover { color:#96370a !important; }
+    .footer-links { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
+    .footer-links a { color:var(--muted); text-decoration:none; font-size:13.5px; transition:color .15s; }
+    .footer-links a:hover { color:var(--rust); }
+    .footer-divider { max-width:1100px; margin:32px auto 0; height:1px; background:var(--line); }
+    .footer-credit { max-width:1100px; margin:20px auto 0; color:var(--muted); font-size:12px; text-align:center; font-family:"JetBrains Mono",monospace; }
+
+    /* jump to top */
+    .jump-to-top {
+      position:fixed; bottom:24px; right:24px; width:40px; height:40px;
+      border-radius:2px; background:var(--paper); border:1px solid var(--line);
+      color:var(--ink); font-size:16px; cursor:pointer; opacity:0; pointer-events:none;
+      transition:opacity .2s,border-color .15s,color .15s; z-index:900;
+    }
+    .jump-to-top.visible { opacity:1; pointer-events:auto; }
+    .jump-to-top:hover { border-color:var(--rust); color:var(--rust); }
+
+    /* ── Responsive ── */
+    @media(max-width:768px) {
+      .nav-links { display:none; }
+      .nav-hero-cta { display:none; }
+      .hamburger { display:flex; }
+
+      .hero { padding:48px 16px 40px; }
+      .hero-subtitle { font-size:16px; }
+
+      .journey { padding:0 16px 56px; }
+
+      .site-footer { padding:40px 16px 64px; }
+      .footer-content { grid-template-columns:1fr; gap:28px; }
+      .footer-section h3 { font-size:20px; }
+    }
+
+    @media(max-width:480px) {
+      .hero { padding:40px 14px 32px; }
+      .site-footer { padding:36px 14px 56px; }
+    }
+
+    @media print {
+      .header, .mobile-nav, .jump-to-top { display:none !important; }
+      body { background:#fff; }
+    }
+  </style>
+</head>
+<body class="journey-page">
+
+<!-- Header -->
+<header class="header">
+  <div class="nav-shell">
+    <a href="index.html" aria-label="Home" class="nav-brand">
+      <img src="images/logo transparent.png" alt="AI Karyashala logo">
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="journey.html" class="active">Our journey</a>
+      <a href="students.html">Our students</a>
+      <a href="projects.html">Projects</a>
+    </nav>
+    <a href="/ugadhi-2026/index.html" class="btn btn--primary nav-hero-cta" target="_blank" rel="noopener noreferrer">Join the next batch</a>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- Mobile Nav Drawer -->
+<nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
+  <button class="mob-close" id="mobileNavClose" aria-label="Close menu">✕</button>
+  <a href="index.html">Home</a>
+  <a href="journey.html" class="active">Our journey</a>
+  <a href="students.html">Our students</a>
+  <a href="projects.html">Projects</a>
+  <a href="/ugadhi-2026/index.html" target="_blank" rel="noopener noreferrer" style="color:var(--rust);">Join the next batch →</a>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-copy">
+    <p class="hero-eyebrow">our journey</p>
+    <h1>Our journey</h1>
+    <p class="hero-subtitle">Twelve milestones. One path.</p>
+  </div>
+</section>
+
+<!-- Journey Timeline -->
+<section class="journey">
+  <div class="jlist">
+    <a href="yoga.html" class="jrow">
+      <span class="jnum">01</span>
+      <span>
+        <span class="jtitle">Yoga</span>
+        <p>Discipline, focus, and inner balance.</p>
+      </span>
+    </a>
+    <a href="apdts.html" class="jrow">
+      <span class="jnum">02</span>
+      <span>
+        <span class="jtitle">APDTS</span>
+        <p>Digital summit &amp; tech showcase.</p>
+      </span>
+    </a>
+    <a href="projects.html" class="jrow">
+      <span class="jnum">03</span>
+      <span>
+        <span class="jtitle">Projects</span>
+        <p>Hands-on development.</p>
+      </span>
+    </a>
+    <a href="https://aikaryashala.com/bootcamp/kiet/" class="jrow" target="_blank" rel="noopener noreferrer">
+      <span class="jnum">04</span>
+      <span>
+        <span class="jtitle">KIET</span>
+        <p>Academic &amp; professional foundation.</p>
+      </span>
+    </a>
+    <a href="bootcamp-reviews.html" class="jrow">
+      <span class="jnum">05</span>
+      <span>
+        <span class="jtitle">Bootcamp</span>
+        <p>Accelerated learning &amp; career launchpad.</p>
+      </span>
+    </a>
+    <a href="buildathon.html" class="jrow">
+      <span class="jnum">06</span>
+      <span>
+        <span class="jtitle">Buildathon</span>
+        <p>AI for Vizag Buildathon — build &amp; compete.</p>
+      </span>
+    </a>
+    <a href="sumedha.html" class="jrow">
+      <span class="jnum">07</span>
+      <span>
+        <span class="jtitle">Sumedha 2026</span>
+        <p>AIKYA Community stall at Gayathri College.</p>
+      </span>
+    </a>
+    <a href="#" class="jrow">
+      <span class="jnum">08</span>
+      <span>
+        <span class="jtitle">AU 100 years</span>
+        <p>Tech summit at AU Convention Centre.</p>
+      </span>
+    </a>
+    <a href="aifusion.html" class="jrow">
+      <span class="jnum">09</span>
+      <span>
+        <span class="jtitle">AI Fusion</span>
+        <p>Attended AI Fusion summit 2026.</p>
+      </span>
+    </a>
+    <a href="gvpcew/index.html" class="jrow">
+      <span class="jnum">10</span>
+      <span>
+        <span class="jtitle">GVP College</span>
+        <p>Seven-day DSA session at Gayatri Vidya Parishad College of Engineering for Women.</p>
+      </span>
+    </a>
+    <a href="fdp/anits/index.html" class="jrow">
+      <span class="jnum">11</span>
+      <span>
+        <span class="jtitle">ANITS FDP</span>
+        <p>Faculty Development Programme on Programming Languages, Jun 15–18, 2026.</p>
+      </span>
+    </a>
+    <span class="jrow jrow--soon">
+      <span class="jnum">12</span>
+      <span>
+        <span class="jtitle">KIET Hackathon</span>
+        <p>AI Hackathon at KIET, Jul 24–25, 2026.</p>
+        <span class="j-badge">coming soon</span>
+      </span>
+    </span>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="footer-content">
+    <div class="footer-section">
+      <h3>AI Karyashala</h3>
+      <p class="footer-tagline">Training and R&amp;D</p>
+      <p class="footer-description">Building software craft for the next generation of engineers.</p>
+    </div>
+
+    <div class="footer-section">
+      <h4>connect</h4>
+      <p>By Rohini Kumar Barla</p>
+      <p class="footer-phone">Mobile: +91 91042 42425</p>
+      <p style="margin-top:2px;"><a href="https://www.linkedin.com/in/rohinibarla/" target="_blank" rel="noopener noreferrer" class="footer-social-link">LinkedIn profile →</a></p>
+    </div>
+
+    <div class="footer-section">
+      <h4>quick links</h4>
+      <ul class="footer-links">
+        <li><a href="journey.html">Our journey</a></li>
+        <li><a href="students.html">Our students</a></li>
+        <li><a href="projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-divider"></div>
+  <p class="footer-credit">© 2026 AI Karyashala</p>
+  <button class="jump-to-top" aria-label="Jump to top" title="Back to top">↑</button>
+</footer>
+
+<script>
+  const jumpBtn = document.querySelector('.jump-to-top');
+  if (jumpBtn) {
+    window.addEventListener('scroll', () => jumpBtn.classList.toggle('visible', window.scrollY > 300), { passive: true });
+    jumpBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  }
+
+  window.addEventListener('load', () => { if (!window.location.hash) window.scrollTo({ top: 0, behavior: 'auto' }); });
+
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const mobileNav    = document.getElementById('mobileNav');
+  const mobileClose  = document.getElementById('mobileNavClose');
+  const openMobileNav = () => {
+    mobileNav.classList.add('open');
+    hamburgerBtn.classList.add('open');
+    hamburgerBtn.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  };
+  const closeMobileNav = () => {
+    mobileNav.classList.remove('open');
+    hamburgerBtn.classList.remove('open');
+    hamburgerBtn.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  };
+  hamburgerBtn?.addEventListener('click', openMobileNav);
+  mobileClose?.addEventListener('click', closeMobileNav);
+  mobileNav?.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMobileNav));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMobileNav(); });
+</script>
+</body>
+</html>

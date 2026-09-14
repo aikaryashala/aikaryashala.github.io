@@ -163,30 +163,6 @@
     .placed-line { color:var(--ink); font-weight:600; }
     .placed-line .placed { color:var(--teal); }
 
-    /* ── Journey ── */
-    .journey { padding:64px 20px; max-width:800px; margin:0 auto; scroll-margin-top:80px; }
-    .journey-header { text-align:center; margin-bottom:8px; }
-    .journey-header h2 { font-size:28px; margin:6px 0 8px; }
-    .journey-sub { font-size:14px; color:var(--muted); margin:0; }
-    .jlist { margin-top:28px; }
-    .jrow {
-      display:grid; grid-template-columns:44px 1fr; gap:16px;
-      padding:18px 0; border-bottom:1px solid var(--line2);
-      text-decoration:none; color:inherit;
-    }
-    .jrow:last-child { border-bottom:none; }
-    .jrow:hover .jtitle { color:var(--rust); }
-    .jnum { font-family:"JetBrains Mono",monospace; font-size:13px; color:var(--rust); padding-top:2px; }
-    .jtitle { font-family:"Fraunces",serif; font-weight:600; font-size:17px; margin-bottom:4px; transition:color .15s; }
-    .jrow p { font-size:14px; color:var(--muted); line-height:1.5; margin:0; }
-    .jrow--soon { cursor:default; }
-    .jrow--soon .jtitle { color:var(--ink); }
-    .j-badge {
-      display:inline-block; margin-top:8px; font-family:"JetBrains Mono",monospace; font-size:10.5px;
-      font-weight:700; letter-spacing:.04em; color:var(--muted); border:1px solid var(--line);
-      border-radius:2px; padding:2px 8px;
-    }
-
     /* ── Footer ── */
     .site-footer { margin-top:80px; padding:48px 20px 32px; background:var(--paper); border-top:1px solid var(--line); }
     .footer-content {
@@ -238,8 +214,6 @@
       .photo-grid { grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:8px; }
 
       .vision { padding:48px 16px; }
-      .journey { padding:48px 16px; }
-      .journey-header h2 { font-size:24px; }
 
       .site-footer { padding:40px 16px 64px; margin-top:56px; }
       .footer-content { grid-template-columns:1fr; gap:28px; }
@@ -251,7 +225,6 @@
       .photo-grid { grid-template-columns:repeat(auto-fill,minmax(70px,1fr)); gap:6px; }
       .batch-section { padding:40px 14px; }
       .vision { padding:40px 14px; }
-      .journey { padding:40px 14px; }
       .site-footer { padding:36px 14px 56px; }
       .btn { padding:11px 20px; font-size:14px; }
     }
@@ -276,7 +249,7 @@
       <img src="images/logo transparent.png" alt="AI Karyashala logo">
     </a>
     <nav class="nav-links" aria-label="Main">
-      <a href="#journey">Our journey</a>
+      <a href="journey.html">Our journey</a>
       <a href="students.html">Our students</a>
       <a href="projects.html">Projects</a>
     </nav>
@@ -291,7 +264,7 @@
 <nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
   <button class="mob-close" id="mobileNavClose" aria-label="Close menu">✕</button>
   <a href="index.html" class="active">Home</a>
-  <a href="#journey" id="mobNavJourney">Our journey</a>
+  <a href="journey.html">Our journey</a>
   <a href="students.html">Our students</a>
   <a href="projects.html">Projects</a>
   <a href="https://docs.google.com/forms/d/e/1FAIpQLSeqHiK-VAOsLcggY9B23mADMwoidJtpXllB26Jc49CovTGdZA/viewform?pli=1" target="_blank" rel="noopener noreferrer" style="color:var(--rust);">Join now →</a>
@@ -387,102 +360,6 @@
   </div>
 </section>
 
-<!-- Journey Timeline -->
-<section class="journey" id="journey">
-  <div class="journey-header">
-    <p class="hero-eyebrow" style="text-align:center;">our journey</p>
-    <h2>Our journey</h2>
-    <p class="journey-sub">Twelve milestones. One path.</p>
-  </div>
-  <div class="jlist">
-    <a href="yoga.html" class="jrow">
-      <span class="jnum">01</span>
-      <span>
-        <span class="jtitle">Yoga</span>
-        <p>Discipline, focus, and inner balance.</p>
-      </span>
-    </a>
-    <a href="apdts.html" class="jrow">
-      <span class="jnum">02</span>
-      <span>
-        <span class="jtitle">APDTS</span>
-        <p>Digital summit &amp; tech showcase.</p>
-      </span>
-    </a>
-    <a href="projects.html" class="jrow">
-      <span class="jnum">03</span>
-      <span>
-        <span class="jtitle">Projects</span>
-        <p>Hands-on development.</p>
-      </span>
-    </a>
-    <a href="https://aikaryashala.com/bootcamp/kiet/" class="jrow" target="_blank" rel="noopener noreferrer">
-      <span class="jnum">04</span>
-      <span>
-        <span class="jtitle">KIET</span>
-        <p>Academic &amp; professional foundation.</p>
-      </span>
-    </a>
-    <a href="bootcamp-reviews.html" class="jrow">
-      <span class="jnum">05</span>
-      <span>
-        <span class="jtitle">Bootcamp</span>
-        <p>Accelerated learning &amp; career launchpad.</p>
-      </span>
-    </a>
-    <a href="buildathon.html" class="jrow">
-      <span class="jnum">06</span>
-      <span>
-        <span class="jtitle">Buildathon</span>
-        <p>AI for Vizag Buildathon — build &amp; compete.</p>
-      </span>
-    </a>
-    <a href="sumedha.html" class="jrow">
-      <span class="jnum">07</span>
-      <span>
-        <span class="jtitle">Sumedha 2026</span>
-        <p>AIKYA Community stall at Gayathri College.</p>
-      </span>
-    </a>
-    <a href="#" class="jrow">
-      <span class="jnum">08</span>
-      <span>
-        <span class="jtitle">AU 100 years</span>
-        <p>Tech summit at AU Convention Centre.</p>
-      </span>
-    </a>
-    <a href="aifusion.html" class="jrow">
-      <span class="jnum">09</span>
-      <span>
-        <span class="jtitle">AI Fusion</span>
-        <p>Attended AI Fusion summit 2026.</p>
-      </span>
-    </a>
-    <a href="gvpcew/index.html" class="jrow">
-      <span class="jnum">10</span>
-      <span>
-        <span class="jtitle">GVP College</span>
-        <p>Seven-day DSA session at Gayatri Vidya Parishad College of Engineering for Women.</p>
-      </span>
-    </a>
-    <a href="fdp/anits/index.html" class="jrow">
-      <span class="jnum">11</span>
-      <span>
-        <span class="jtitle">ANITS FDP</span>
-        <p>Faculty Development Programme on Programming Languages, Jun 15–18, 2026.</p>
-      </span>
-    </a>
-    <span class="jrow jrow--soon">
-      <span class="jnum">12</span>
-      <span>
-        <span class="jtitle">KIET Hackathon</span>
-        <p>AI Hackathon at KIET, Jul 24–25, 2026.</p>
-        <span class="j-badge">coming soon</span>
-      </span>
-    </span>
-  </div>
-</section>
-
 <!-- Footer -->
 <footer class="site-footer">
   <div class="footer-content">
@@ -515,7 +392,7 @@
     <div class="footer-section">
       <h4>quick links</h4>
       <ul class="footer-links">
-        <li><a href="#journey">Our journey</a></li>
+        <li><a href="journey.html">Our journey</a></li>
         <li><a href="students.html">Our students</a></li>
         <li><a href="projects.html">Projects</a></li>
       </ul>
@@ -534,18 +411,7 @@
     jumpBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
   }
 
-  // Web-font swap reflows the page after the browser's native fragment
-  // scroll has already run, leaving a cross-page #journey link stranded
-  // at the top — so re-run the jump ourselves once fonts have settled.
-  if (window.location.hash) {
-    const jumpToHash = () => {
-      document.querySelector(window.location.hash)?.scrollIntoView({ behavior: 'auto', block: 'start' });
-    };
-    window.addEventListener('load', jumpToHash);
-    document.fonts?.ready.then(jumpToHash);
-  } else {
-    window.addEventListener('load', () => window.scrollTo({ top: 0, behavior: 'auto' }));
-  }
+  window.addEventListener('load', () => { if (!window.location.hash) window.scrollTo({ top: 0, behavior: 'auto' }); });
 
   // Mobile nav
   const hamburgerBtn = document.getElementById('hamburgerBtn');
