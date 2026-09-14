@@ -3,61 +3,266 @@
 <head>
   <meta charset="UTF-8">
   <title>Our Students - AI Karyashala</title>
-  <link rel="stylesheet" href="style.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream:#faf6ef;
+      --paper:#fffdf9;
+      --ink:#2b2622;
+      --muted:#6f675e;
+
+      --rust:#b8430a;
+      --teal:#14746f;
+      --gold:#a97b12;
+
+      --line:rgba(43,38,34,.14);
+      --line2:rgba(43,38,34,.07);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box;
+        font-family:"Inter Tight",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif; }
+
+    html { scroll-behavior:smooth; }
+
+    body {
+      background:var(--cream); color:var(--ink); overflow-x:hidden;
+      background-image:radial-gradient(rgba(43,38,34,.055) 1px, transparent 1px);
+      background-size:4px 4px;
+    }
+
+    h1,h2 { font-family:"Fraunces",serif; font-weight:600; letter-spacing:-.01em; line-height:1.12; color:var(--ink); }
+    a { color:inherit; }
+    img { display:block; max-width:100%; }
+    button:focus-visible, a:focus-visible { outline:2px solid var(--rust); outline-offset:2px; }
+
+    @media(prefers-reduced-motion:reduce){ *{ transition:none!important; } }
+
+    /* ── Header ── */
+    .header { position:sticky; top:0; z-index:1000; background:var(--cream); border-bottom:1px solid var(--line); }
+    .nav-shell {
+      max-width:1100px; margin:0 auto; padding:14px 20px;
+      display:flex; gap:24px; align-items:center; justify-content:space-between;
+    }
+    .nav-brand { display:flex; align-items:center; }
+    .nav-brand img { height:26px; }
+    .nav-links { display:flex; gap:26px; font-size:14px; }
+    .nav-links a { color:var(--ink); text-decoration:none; padding-bottom:2px;
+                   border-bottom:2px solid transparent; transition:color .15s,border-color .15s; }
+    .nav-links a:hover { color:var(--rust); border-color:var(--rust); }
+    .nav-links a.active { color:var(--rust); border-color:var(--rust); font-weight:600; }
+    .nav-hero-cta { font-size:14px !important; padding:9px 18px !important; }
+
+    /* ── Buttons ── */
+    .btn {
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:12px 26px; border-radius:2px; text-decoration:none;
+      font-weight:600; font-size:15px; border:1px solid var(--rust);
+      transition:background .15s,color .15s;
+    }
+    .btn--primary { background:var(--rust); color:var(--paper); }
+    .btn--primary:hover { background:#96370a; }
+
+    /* ── Hamburger ── */
+    .hamburger {
+      display:none; flex-direction:column; justify-content:center; gap:5px;
+      width:36px; height:36px; background:none; border:none; cursor:pointer;
+      padding:4px; border-radius:2px; transition:background .15s;
+    }
+    .hamburger:hover { background:var(--line2); }
+    .hamburger span {
+      display:block; height:2px; background:var(--ink); border-radius:1px;
+      transition:transform .2s ease, opacity .2s ease, width .2s ease;
+    }
+    .hamburger span:nth-child(2) { width:75%; }
+    .hamburger.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity:0; width:100%; }
+    .hamburger.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+
+    /* ── Mobile nav drawer ── */
+    .mobile-nav {
+      display:none; position:fixed; inset:0; z-index:1001;
+      flex-direction:column; align-items:center; justify-content:center; gap:26px;
+      background:var(--cream);
+    }
+    .mobile-nav.open { display:flex; }
+    .mobile-nav a { color:var(--ink); text-decoration:none; font-size:20px; font-weight:600; transition:color .15s; }
+    .mobile-nav a:hover { color:var(--rust); }
+    .mobile-nav a.active { color:var(--rust); }
+    .mobile-nav .mob-close {
+      position:absolute; top:20px; right:20px;
+      background:none; border:none; color:var(--ink); font-size:26px; cursor:pointer; opacity:.7;
+    }
+    .mobile-nav .mob-close:hover { opacity:1; color:var(--rust); }
+
+    /* ── Hero ── */
+    .hero { padding:72px 20px 56px; max-width:800px; margin:0 auto; text-align:center; }
+    .hero-eyebrow { font-family:"JetBrains Mono",monospace; font-size:13px; color:var(--rust); margin-bottom:10px; }
+    .hero-copy h1 { font-size:clamp(28px,4.4vw,42px); margin:0 0 16px; }
+    .hero-subtitle { font-size:17px; line-height:1.6; color:var(--muted); max-width:62ch; margin:0 auto; }
+
+    /* ── Students Section ── */
+    .students-section { padding:16px 20px 72px; overflow:hidden; }
+    .students-container { max-width:1200px; margin:0 auto; }
+    .students-title { font-size:24px; text-align:center; margin-bottom:8px; }
+    .students-hint {
+      display:block; text-align:center; font-family:"JetBrains Mono",monospace;
+      font-size:12px; color:var(--muted); margin-bottom:32px;
+    }
+
+    .carousel-row { margin-bottom:16px; }
+    .id-row { position:relative; width:100%; }
+    .id-scroll {
+      position:relative; overflow-x:auto; overflow-y:hidden; cursor:grab;
+      scrollbar-width:none; -ms-overflow-style:none;
+    }
+    .id-scroll::-webkit-scrollbar { display:none; }
+    .id-scroll.dragging { cursor:grabbing; }
+    .id-track { display:flex; gap:14px; align-items:center; width:max-content; }
+
+    .hover-zone { position:absolute; top:0; bottom:0; width:70px; z-index:3; }
+    .hover-zone.hover-left { left:0; }
+    .hover-zone.hover-right { right:0; }
+
+    .id-card { width:190px; aspect-ratio:680/1071; flex-shrink:0; perspective:1000px; }
+    .id-card input { display:none; }
+    .card-inner {
+      display:block; width:100%; height:100%; position:relative;
+      transform-style:preserve-3d; cursor:pointer;
+      transition:transform .5s cubic-bezier(.4,.1,.2,1);
+    }
+    .id-card input:checked + .card-inner { transform:rotateY(180deg); }
+    .card-face {
+      position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden;
+      border:1px solid var(--line); border-radius:2px; background:var(--paper);
+      overflow:hidden; transition:border-color .15s;
+    }
+    .card-inner:hover .card-face { border-color:var(--rust); }
+    .card-face.back { transform:rotateY(180deg); }
+    .card-face picture, .card-face img { width:100%; height:100%; object-fit:cover; display:block; }
+
+    /* ── Footer ── */
+    .site-footer { margin-top:40px; padding:48px 20px 32px; background:var(--paper); border-top:1px solid var(--line); }
+    .footer-content {
+      max-width:1100px; margin:0 auto;
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:40px;
+    }
+    .footer-section { display:flex; flex-direction:column; gap:10px; }
+    .footer-section h3 { font-size:22px; margin-bottom:2px; }
+    .footer-section h4 { font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--muted); letter-spacing:.04em; margin:0; }
+    .footer-tagline { font-size:14px; font-weight:600; color:var(--ink); margin:0; }
+    .footer-description { font-size:13.5px; line-height:1.6; color:var(--muted); margin:0; }
+    .footer-section p { font-size:13.5px; color:var(--muted); margin:0; }
+    .footer-phone { font-size:13.5px; color:var(--muted); margin:0; }
+    .footer-social-link { color:var(--rust) !important; text-decoration:none; font-weight:600; font-size:13.5px; transition:color .15s; }
+    .footer-social-link:hover { color:#96370a !important; }
+    .footer-links { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
+    .footer-links a { color:var(--muted); text-decoration:none; font-size:13.5px; transition:color .15s; }
+    .footer-links a:hover { color:var(--rust); }
+    .footer-divider { max-width:1100px; margin:32px auto 0; height:1px; background:var(--line); }
+    .footer-credit { max-width:1100px; margin:20px auto 0; color:var(--muted); font-size:12px; text-align:center; font-family:"JetBrains Mono",monospace; }
+
+    /* jump to top */
+    .jump-to-top {
+      position:fixed; bottom:24px; right:24px; width:40px; height:40px;
+      border-radius:2px; background:var(--paper); border:1px solid var(--line);
+      color:var(--ink); font-size:16px; cursor:pointer; opacity:0; pointer-events:none;
+      transition:opacity .2s,border-color .15s,color .15s; z-index:900;
+    }
+    .jump-to-top.visible { opacity:1; pointer-events:auto; }
+    .jump-to-top:hover { border-color:var(--rust); color:var(--rust); }
+
+    /* ── Responsive ── */
+    @media(max-width:768px) {
+      .nav-links { display:none; }
+      .nav-hero-cta { display:none; }
+      .hamburger { display:flex; }
+
+      .hero { padding:48px 16px 40px; }
+      .hero-subtitle { font-size:16px; }
+
+      .students-section { padding:8px 16px 56px; }
+      .id-card { width:150px; }
+      .id-track { gap:10px; }
+      .hover-zone { display:none; }
+
+      .site-footer { padding:40px 16px 64px; }
+      .footer-content { grid-template-columns:1fr; gap:28px; }
+      .footer-section h3 { font-size:20px; }
+    }
+
+    @media(max-width:480px) {
+      .hero { padding:40px 14px 32px; }
+      .id-card { width:120px; }
+      .id-track { gap:8px; }
+      .site-footer { padding:36px 14px 56px; }
+    }
+
+    @media print {
+      .header, .mobile-nav, .jump-to-top { display:none !important; }
+      body { background:#fff; }
+    }
+  </style>
 </head>
 <body class="students-page">
 
-<!-- Header with floating nav -->
+<!-- Header -->
 <header class="header">
   <div class="nav-shell">
     <a href="index.html" aria-label="Home" class="nav-brand">
-      <img src="images/logo transparent.png" alt="AI Karyashala logo" class="header-logo">
+      <img src="images/logo transparent.png" alt="AI Karyashala logo">
     </a>
-
     <nav class="nav-links" aria-label="Main">
-      <a href="index.html#journey">Our Journey</a>
-      <a href="students.html" class="active">Our Students</a>
+      <a href="index.html#journey">Our journey</a>
+      <a href="students.html" class="active">Our students</a>
       <a href="projects.html">Projects</a>
     </nav>
-
-    <a href="/ugadhi-2026/index.html" class="hero-btn hero-btn--primary nav-hero-cta" target="_blank" rel="noopener noreferrer">
-      Join the Next Batch
-    </a>
+    <a href="/ugadhi-2026/index.html" class="btn btn--primary nav-hero-cta" target="_blank" rel="noopener noreferrer">Join the next batch</a>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </header>
 
-<!-- Hero Section -->
-<section class="hero reveal students-hero">
-  <div class="hero-shell">
-    <div class="hero-copy">
-      <p class="hero-eyebrow">Our Community</p>
-      <h1>Meet Our Students</h1>
-      <p class="hero-subtitle">
-        Talented individuals building software craft and real-world readiness through disciplined practice and AI-powered workflows.
-      </p>
-    </div>
+<!-- Mobile Nav Drawer -->
+<nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
+  <button class="mob-close" id="mobileNavClose" aria-label="Close menu">✕</button>
+  <a href="index.html">Home</a>
+  <a href="index.html#journey">Our journey</a>
+  <a href="students.html" class="active">Our students</a>
+  <a href="projects.html">Projects</a>
+  <a href="/ugadhi-2026/index.html" target="_blank" rel="noopener noreferrer" style="color:var(--rust);">Join the next batch →</a>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-copy">
+    <p class="hero-eyebrow">our community</p>
+    <h1>Meet our students</h1>
+    <p class="hero-subtitle">
+      Talented individuals building software craft and real-world readiness through disciplined practice and AI-powered workflows.
+    </p>
   </div>
 </section>
 
-<!-- Students Carousel Section -->
-<section class="students-section reveal">
+<!-- Students Grid -->
+<section class="students-section">
   <div class="students-container">
-    <h2 class="students-title">Our Students</h2>
-    <!-- Row 1: Moving Right -->
+    <h2 class="students-title">Our students</h2>
+    <span class="students-hint">click a card to flip — తెలుగు ↔ English · drag or hover the edges to browse</span>
     <div class="carousel-row">
       <div class="id-row" data-direction="forward">
         <div class="hover-zone hover-left"></div>
         <div class="id-scroll">
           <div class="id-track">
-            <!-- MEMBER 1-15 for Row 1 -->
             <div class="id-card">
               <input type="checkbox" id="s1">
               <label for="s1" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m1.webp">
-                    <source type="image/png" srcset="images/members/m1.png">
                     <img src="images/members/m1.png" alt="Member 1 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -66,14 +271,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s2">
               <label for="s2" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m2.webp">
-                    <source type="image/png" srcset="images/members/m2.png">
                     <img src="images/members/m2.png" alt="Member 2 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -82,14 +285,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s3">
               <label for="s3" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m3.webp">
-                    <source type="image/png" srcset="images/members/m3.png">
                     <img src="images/members/m3.png" alt="Member 3 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -98,14 +299,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s4">
               <label for="s4" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m4.webp">
-                    <source type="image/png" srcset="images/members/m4.png">
                     <img src="images/members/m4.png" alt="Member 4 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -114,14 +313,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s5">
               <label for="s5" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m5.webp">
-                    <source type="image/png" srcset="images/members/m5.png">
                     <img src="images/members/m5.png" alt="Member 5 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -130,14 +327,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s6">
               <label for="s6" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m6.webp">
-                    <source type="image/png" srcset="images/members/m6.png">
                     <img src="images/members/m6.png" alt="Member 6 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -146,14 +341,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s7">
               <label for="s7" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m7.webp">
-                    <source type="image/png" srcset="images/members/m7.png">
                     <img src="images/members/m7.png" alt="Member 7 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -162,14 +355,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s8">
               <label for="s8" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m8.webp">
-                    <source type="image/png" srcset="images/members/m8.png">
                     <img src="images/members/m8.png" alt="Member 8 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -178,14 +369,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s9">
               <label for="s9" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m9.webp">
-                    <source type="image/png" srcset="images/members/m9.png">
                     <img src="images/members/m9.png" alt="Member 9 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -194,14 +383,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s10">
               <label for="s10" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m10.webp">
-                    <source type="image/png" srcset="images/members/m10.png">
                     <img src="images/members/m10.png" alt="Member 10 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -210,14 +397,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s11">
               <label for="s11" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m11.webp">
-                    <source type="image/png" srcset="images/members/m11.png">
                     <img src="images/members/m11.png" alt="Member 11 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -226,14 +411,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s12">
               <label for="s12" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m12.webp">
-                    <source type="image/png" srcset="images/members/m12.png">
                     <img src="images/members/m12.png" alt="Member 12 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -242,14 +425,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s13">
               <label for="s13" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m13.webp">
-                    <source type="image/png" srcset="images/members/m13.png">
                     <img src="images/members/m13.png" alt="Member 13 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -258,14 +439,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s14">
               <label for="s14" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m14.webp">
-                    <source type="image/png" srcset="images/members/m14.png">
                     <img src="images/members/m14.png" alt="Member 14 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -274,14 +453,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s15">
               <label for="s15" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m15.webp">
-                    <source type="image/png" srcset="images/members/m15.png">
                     <img src="images/members/m15.png" alt="Member 15 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -296,20 +473,17 @@
       </div>
     </div>
 
-    <!-- Row 2: Moving Left -->
     <div class="carousel-row">
       <div class="id-row" data-direction="reverse">
         <div class="hover-zone hover-left"></div>
         <div class="id-scroll">
           <div class="id-track">
-            <!-- MEMBER 16-29 for Row 2 -->
             <div class="id-card">
               <input type="checkbox" id="s16">
               <label for="s16" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m16.webp">
-                    <source type="image/png" srcset="images/members/m16.png">
                     <img src="images/members/m16.png" alt="Member 16 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -318,14 +492,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s17">
               <label for="s17" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m17.webp">
-                    <source type="image/png" srcset="images/members/m17.png">
                     <img src="images/members/m17.png" alt="Member 17 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -334,14 +506,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s18">
               <label for="s18" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m18.webp">
-                    <source type="image/png" srcset="images/members/m18.png">
                     <img src="images/members/m18.png" alt="Member 18 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -350,14 +520,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s19">
               <label for="s19" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m19.webp">
-                    <source type="image/png" srcset="images/members/m19.png">
                     <img src="images/members/m19.png" alt="Member 19 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -366,14 +534,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s20">
               <label for="s20" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m20.webp">
-                    <source type="image/png" srcset="images/members/m20.png">
                     <img src="images/members/m20.png" alt="Member 20 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -382,14 +548,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s21">
               <label for="s21" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m21.webp">
-                    <source type="image/png" srcset="images/members/m21.png">
                     <img src="images/members/m21.png" alt="Member 21 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -398,14 +562,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s22">
               <label for="s22" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m22.webp">
-                    <source type="image/png" srcset="images/members/m22.png">
                     <img src="images/members/m22.png" alt="Member 22 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -414,14 +576,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s23">
               <label for="s23" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m23.webp">
-                    <source type="image/png" srcset="images/members/m23.png">
                     <img src="images/members/m23.png" alt="Member 23 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -430,14 +590,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s24">
               <label for="s24" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m24.webp">
-                    <source type="image/png" srcset="images/members/m24.png">
                     <img src="images/members/m24.png" alt="Member 24 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -446,14 +604,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s25">
               <label for="s25" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m25.webp">
-                    <source type="image/png" srcset="images/members/m25.png">
                     <img src="images/members/m25.png" alt="Member 25 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -462,14 +618,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s26">
               <label for="s26" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m26.webp">
-                    <source type="image/png" srcset="images/members/m26.png">
                     <img src="images/members/m26.png" alt="Member 26 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -478,14 +632,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s27">
               <label for="s27" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m27.webp">
-                    <source type="image/png" srcset="images/members/m27.png">
                     <img src="images/members/m27.png" alt="Member 27 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -494,14 +646,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s28">
               <label for="s28" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m28.webp">
-                    <source type="image/png" srcset="images/members/m28.png">
                     <img src="images/members/m28.png" alt="Member 28 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -510,14 +660,12 @@
                 </div>
               </label>
             </div>
-
             <div class="id-card">
               <input type="checkbox" id="s29">
               <label for="s29" class="card-inner">
                 <div class="card-face front">
                   <picture>
                     <source type="image/webp" srcset="images/members/m29.webp">
-                    <source type="image/png" srcset="images/members/m29.png">
                     <img src="images/members/m29.png" alt="Member 29 Telugu" loading="lazy">
                   </picture>
                 </div>
@@ -534,40 +682,164 @@
   </div>
 </section>
 
+<!-- Footer -->
 <footer class="site-footer">
   <div class="footer-content">
     <div class="footer-section">
       <h3>AI Karyashala</h3>
-      <p class="footer-tagline">Training and R&D</p>
+      <p class="footer-tagline">Training and R&amp;D</p>
       <p class="footer-description">Building software craft for the next generation of engineers.</p>
     </div>
 
     <div class="footer-section">
-      <h4>Connect</h4>
+      <h4>connect</h4>
       <p>By Rohini Kumar Barla</p>
       <p class="footer-phone">Mobile: +91 91042 42425</p>
-      <p style="margin-top: 12px;"><a href="https://www.linkedin.com/in/rohinibarla/" target="_blank" rel="noopener noreferrer" class="footer-social-link">LinkedIn Profile →</a></p>
+      <p style="margin-top:2px;"><a href="https://www.linkedin.com/in/rohinibarla/" target="_blank" rel="noopener noreferrer" class="footer-social-link">LinkedIn profile →</a></p>
     </div>
 
     <div class="footer-section">
-      <h4>Quick Links</h4>
+      <h4>quick links</h4>
       <ul class="footer-links">
-        <li><a href="index.html#journey">Our Journey</a></li>
-        <li><a href="students.html">Our Students</a></li>
+        <li><a href="index.html#journey">Our journey</a></li>
+        <li><a href="students.html">Our students</a></li>
         <li><a href="projects.html">Projects</a></li>
       </ul>
     </div>
   </div>
 
   <div class="footer-divider"></div>
-
-  <p class="footer-credit">
-    © 2025 AI Karyashala
-  </p>
-
+  <p class="footer-credit">© 2025 AI Karyashala</p>
   <button class="jump-to-top" aria-label="Jump to top" title="Back to top">↑</button>
 </footer>
 
-<script src="script.js"></script>
+<script>
+  const jumpBtn = document.querySelector('.jump-to-top');
+  if (jumpBtn) {
+    window.addEventListener('scroll', () => jumpBtn.classList.toggle('visible', window.scrollY > 300), { passive: true });
+    jumpBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  }
+
+  window.addEventListener('load', () => { if (!window.location.hash) window.scrollTo({ top: 0, behavior: 'auto' }); });
+
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const mobileNav    = document.getElementById('mobileNav');
+  const mobileClose  = document.getElementById('mobileNavClose');
+  const openMobileNav = () => {
+    mobileNav.classList.add('open');
+    hamburgerBtn.classList.add('open');
+    hamburgerBtn.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  };
+  const closeMobileNav = () => {
+    mobileNav.classList.remove('open');
+    hamburgerBtn.classList.remove('open');
+    hamburgerBtn.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  };
+  hamburgerBtn?.addEventListener('click', openMobileNav);
+  mobileClose?.addEventListener('click', closeMobileNav);
+  mobileNav?.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMobileNav));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMobileNav(); });
+
+  // ── Auto-scrolling student carousel ──
+  document.querySelectorAll('.id-row').forEach(setupRow);
+
+  function setupRow(row) {
+    const slider = row.querySelector('.id-scroll');
+    const track = row.querySelector('.id-track');
+    const hoverLeft = row.querySelector('.hover-left');
+    const hoverRight = row.querySelector('.hover-right');
+    if (!slider || !track) return;
+
+    const isReverse = row.dataset.direction === 'reverse';
+    const directionMultiplier = isReverse ? -1 : 1;
+
+    // clone the row once for a seamless infinite loop; clones get unique ids
+    Array.from(track.querySelectorAll('.id-card')).forEach(card => {
+      const clone = card.cloneNode(true);
+      const input = clone.querySelector('input');
+      const label = clone.querySelector('label');
+      if (input && label) {
+        const newId = input.id + '-dup';
+        input.id = newId;
+        label.setAttribute('for', newId);
+      }
+      track.appendChild(clone);
+    });
+
+    const loopWidth = () => track.scrollWidth / 2;
+
+    if (isReverse) {
+      requestAnimationFrame(() => { slider.scrollLeft = loopWidth(); });
+    }
+
+    const baseSpeed = 0.35;
+    let edgeBoost = 0;
+    let isPaused = false;
+    let isDown = false;
+    let startX = 0;
+    let startScroll = 0;
+    let dragDistance = 0;
+
+    function tick() {
+      if (!isPaused) {
+        slider.scrollLeft += (baseSpeed + edgeBoost) * directionMultiplier;
+        const lw = loopWidth();
+        if (lw > 0) {
+          if (directionMultiplier === 1 && slider.scrollLeft >= lw) slider.scrollLeft -= lw;
+          else if (directionMultiplier === -1 && slider.scrollLeft <= 0) slider.scrollLeft += lw;
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+
+    function rampSpeed(e, zoneDirection) {
+      const zoneWidth = e.currentTarget.offsetWidth;
+      const distance = zoneDirection === -1 ? zoneWidth - e.offsetX : e.offsetX;
+      const intensity = Math.min(Math.max(distance / zoneWidth, 0), 1);
+      edgeBoost = intensity * 1.4 * directionMultiplier * zoneDirection;
+    }
+    hoverLeft?.addEventListener('mousemove', e => rampSpeed(e, -1), { passive: true });
+    hoverRight?.addEventListener('mousemove', e => rampSpeed(e, 1), { passive: true });
+    hoverLeft?.addEventListener('mouseleave', () => { edgeBoost = 0; }, { passive: true });
+    hoverRight?.addEventListener('mouseleave', () => { edgeBoost = 0; }, { passive: true });
+
+    slider.addEventListener('mousedown', e => {
+      isDown = true; isPaused = true; dragDistance = 0;
+      slider.classList.add('dragging');
+      startX = e.pageX; startScroll = slider.scrollLeft;
+    });
+
+    const endDrag = () => {
+      if (!isDown) return;
+      isDown = false; isPaused = false;
+      slider.classList.remove('dragging');
+    };
+    slider.addEventListener('mouseup', endDrag);
+    slider.addEventListener('mouseleave', endDrag);
+
+    slider.addEventListener('mousemove', e => {
+      if (!isDown) return;
+      const walk = e.pageX - startX;
+      dragDistance = Math.abs(walk);
+      slider.scrollLeft = startScroll - walk;
+    }, { passive: true });
+
+    // suppress the flip-click that would otherwise fire at the end of a drag
+    slider.addEventListener('click', e => {
+      if (dragDistance > 6) e.preventDefault();
+    }, true);
+
+    slider.addEventListener('wheel', e => {
+      e.preventDefault();
+      slider.scrollLeft += e.deltaY;
+    }, { passive: false });
+
+    slider.addEventListener('mouseover', e => { if (e.target.closest('.id-card')) isPaused = true; }, { passive: true });
+    slider.addEventListener('mouseout', e => { if (e.target.closest('.id-card')) isPaused = false; }, { passive: true });
+  }
+</script>
 </body>
 </html>
