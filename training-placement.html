@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Our Journey - AI Karyashala</title>
+  <title>Training &amp; Placement - AI Karyashala</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -64,6 +64,8 @@
     }
     .btn--primary { background:var(--rust); color:var(--paper); }
     .btn--primary:hover { background:#96370a; }
+    .btn--ghost { background:transparent; color:var(--rust); }
+    .btn--ghost:hover { background:rgba(184,67,10,.08); }
 
     /* ── Hamburger ── */
     .hamburger {
@@ -98,34 +100,41 @@
     .mobile-nav .mob-close:hover { opacity:1; color:var(--rust); }
 
     /* ── Hero ── */
-    .hero { padding:72px 20px 56px; max-width:800px; margin:0 auto; text-align:center; }
+    .hero { padding:72px 20px 32px; max-width:800px; margin:0 auto; text-align:center; }
     .hero-eyebrow { font-family:"JetBrains Mono",monospace; font-size:13px; color:var(--rust); margin-bottom:10px; }
+    .hero-eyebrow a { color:var(--rust); text-decoration:none; }
+    .hero-eyebrow a:hover { text-decoration:underline; }
     .hero-copy h1 { font-size:clamp(28px,4.4vw,42px); margin:0 0 16px; }
     .hero-subtitle { font-size:17px; line-height:1.6; color:var(--muted); max-width:62ch; margin:0 auto; }
 
-    /* ── Journey ── */
-    .journey { padding:8px 20px 72px; max-width:800px; margin:0 auto; }
-    .jlist { margin-top:0; }
-    .jrow {
-      display:grid; grid-template-columns:44px 1fr; gap:16px;
-      padding:18px 0; border-bottom:1px solid var(--line2);
-      text-decoration:none; color:inherit;
-    }
-    .jrow:last-child { border-bottom:none; }
-    .jrow:hover .jtitle { color:var(--rust); }
-    .jnum { font-family:"JetBrains Mono",monospace; font-size:13px; color:var(--rust); padding-top:2px; }
-    .jtitle { font-family:"Fraunces",serif; font-weight:600; font-size:17px; margin-bottom:4px; transition:color .15s; }
-    .jrow p { font-size:14px; color:var(--muted); line-height:1.5; margin:0; }
-    .jrow--soon { cursor:default; }
-    .jrow--soon .jtitle { color:var(--ink); }
-    .j-badge {
-      display:inline-block; margin-top:8px; font-family:"JetBrains Mono",monospace; font-size:10.5px;
-      font-weight:700; letter-spacing:.04em; color:var(--muted); border:1px solid var(--line);
-      border-radius:2px; padding:2px 8px;
+    .badge-row { text-align:center; margin-top:20px; }
+    .service-badge {
+      font-family:"JetBrains Mono",monospace; font-size:10.5px; font-weight:700; letter-spacing:.04em;
+      padding:4px 10px; border-radius:2px; border:1px solid var(--line); color:var(--muted);
     }
 
+    /* ── Stat Banner ── */
+    .stat-banner { padding:48px 20px; text-align:center; background:var(--paper); border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin-top:40px; }
+    .stat-banner-shell { display:inline-flex; flex-direction:column; align-items:center; gap:10px; }
+    .stat-main { display:flex; align-items:baseline; gap:6px; line-height:1; font-family:"JetBrains Mono",monospace; }
+    .stat-num   { font-size:clamp(48px,8vw,72px); font-weight:700; color:var(--rust); }
+    .stat-sep   { font-size:clamp(28px,5vw,44px); font-weight:400; color:var(--line); }
+    .stat-denom { font-size:clamp(28px,5vw,44px); font-weight:700; color:var(--muted); }
+    .stat-label { font-size:14px; color:var(--muted); }
+
+    /* ── Body prose ── */
+    .service-detail { padding:56px 20px 8px; max-width:700px; margin:0 auto; }
+    .service-detail p { font-size:16px; line-height:1.7; color:var(--muted); margin-bottom:16px; }
+    .service-detail strong { color:var(--ink); }
+
+    /* ── CTA ── */
+    .cta-section { padding:40px 20px 72px; max-width:700px; margin:0 auto; text-align:center; }
+    .cta-section .btn { margin-bottom:14px; }
+    .cta-back { display:block; font-family:"JetBrains Mono",monospace; font-size:13px; color:var(--muted); text-decoration:none; }
+    .cta-back:hover { color:var(--rust); }
+
     /* ── Footer ── */
-    .site-footer { margin-top:40px; padding:48px 20px 32px; background:var(--paper); border-top:1px solid var(--line); }
+    .site-footer { margin-top:0; padding:48px 20px 32px; background:var(--paper); border-top:1px solid var(--line); }
     .footer-content {
       max-width:1100px; margin:0 auto;
       display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:40px;
@@ -161,10 +170,10 @@
       .nav-hero-cta { display:none; }
       .hamburger { display:flex; }
 
-      .hero { padding:48px 16px 40px; }
+      .hero { padding:48px 16px 24px; }
       .hero-subtitle { font-size:16px; }
-
-      .journey { padding:0 16px 56px; }
+      .service-detail { padding:40px 16px 0; }
+      .cta-section { padding:32px 16px 56px; }
 
       .site-footer { padding:40px 16px 64px; }
       .footer-content { grid-template-columns:1fr; gap:28px; }
@@ -172,7 +181,7 @@
     }
 
     @media(max-width:480px) {
-      .hero { padding:40px 14px 32px; }
+      .hero { padding:40px 14px 20px; }
       .site-footer { padding:36px 14px 56px; }
     }
 
@@ -182,7 +191,7 @@
     }
   </style>
 </head>
-<body class="journey-page">
+<body class="service-page">
 
 <!-- Header -->
 <header class="header">
@@ -191,8 +200,8 @@
       <img src="images/logo transparent.png" alt="AI Karyashala logo">
     </a>
     <nav class="nav-links" aria-label="Main">
-      <a href="journey.html" class="active">Our journey</a>
-      <a href="services.html">Services</a>
+      <a href="journey.html">Our journey</a>
+      <a href="services.html" class="active">Services</a>
       <a href="students.html">Our students</a>
       <a href="projects.html">Projects</a>
     </nav>
@@ -207,8 +216,8 @@
 <nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
   <button class="mob-close" id="mobileNavClose" aria-label="Close menu">✕</button>
   <a href="index.html">Home</a>
-  <a href="journey.html" class="active">Our journey</a>
-  <a href="services.html">Services</a>
+  <a href="journey.html">Our journey</a>
+  <a href="services.html" class="active">Services</a>
   <a href="students.html">Our students</a>
   <a href="projects.html">Projects</a>
   <a href="/ugadhi-2026/index.html" target="_blank" rel="noopener noreferrer" style="color:var(--rust);">Join the next batch →</a>
@@ -217,101 +226,51 @@
 <!-- Hero -->
 <section class="hero">
   <div class="hero-copy">
-    <p class="hero-eyebrow">our journey</p>
-    <h1>Our journey</h1>
-    <p class="hero-subtitle">Twelve milestones. One path.</p>
+    <p class="hero-eyebrow"><a href="services.html">services</a> / training &amp; placement</p>
+    <h1>Training &amp; Placement</h1>
+    <p class="hero-subtitle">The AI-Native Job Ready Program — building industry-ready talent through disciplined practice and real-world projects.</p>
+  </div>
+  <div class="badge-row">
+    <span class="service-badge">existing service</span>
   </div>
 </section>
 
-<!-- Journey Timeline -->
-<section class="journey">
-  <div class="jlist">
-    <a href="yoga.html" class="jrow">
-      <span class="jnum">01</span>
-      <span>
-        <span class="jtitle">Yoga</span>
-        <p>Discipline, focus, and inner balance.</p>
-      </span>
-    </a>
-    <a href="apdts.html" class="jrow">
-      <span class="jnum">02</span>
-      <span>
-        <span class="jtitle">APDTS</span>
-        <p>Digital summit &amp; tech showcase.</p>
-      </span>
-    </a>
-    <a href="projects.html" class="jrow">
-      <span class="jnum">03</span>
-      <span>
-        <span class="jtitle">Projects</span>
-        <p>Hands-on development.</p>
-      </span>
-    </a>
-    <a href="https://aikaryashala.com/bootcamp/kiet/" class="jrow" target="_blank" rel="noopener noreferrer">
-      <span class="jnum">04</span>
-      <span>
-        <span class="jtitle">KIET</span>
-        <p>Academic &amp; professional foundation.</p>
-      </span>
-    </a>
-    <a href="bootcamp-reviews.html" class="jrow">
-      <span class="jnum">05</span>
-      <span>
-        <span class="jtitle">Bootcamp</span>
-        <p>Accelerated learning &amp; career launchpad.</p>
-      </span>
-    </a>
-    <a href="buildathon.html" class="jrow">
-      <span class="jnum">06</span>
-      <span>
-        <span class="jtitle">Buildathon</span>
-        <p>AI for Vizag Buildathon — build &amp; compete.</p>
-      </span>
-    </a>
-    <a href="sumedha.html" class="jrow">
-      <span class="jnum">07</span>
-      <span>
-        <span class="jtitle">Sumedha 2026</span>
-        <p>AIKYA Community stall at Gayathri College.</p>
-      </span>
-    </a>
-    <a href="#" class="jrow">
-      <span class="jnum">08</span>
-      <span>
-        <span class="jtitle">AU 100 years</span>
-        <p>Tech summit at AU Convention Centre.</p>
-      </span>
-    </a>
-    <a href="aifusion.html" class="jrow">
-      <span class="jnum">09</span>
-      <span>
-        <span class="jtitle">AI Fusion</span>
-        <p>Attended AI Fusion summit 2026.</p>
-      </span>
-    </a>
-    <a href="gvpcew/index.html" class="jrow">
-      <span class="jnum">10</span>
-      <span>
-        <span class="jtitle">GVP College</span>
-        <p>Seven-day DSA session at Gayatri Vidya Parishad College of Engineering for Women.</p>
-      </span>
-    </a>
-    <a href="fdp/anits/index.html" class="jrow">
-      <span class="jnum">11</span>
-      <span>
-        <span class="jtitle">ANITS FDP</span>
-        <p>Faculty Development Programme on Programming Languages, Jun 15–18, 2026.</p>
-      </span>
-    </a>
-    <span class="jrow jrow--soon">
-      <span class="jnum">12</span>
-      <span>
-        <span class="jtitle">KIET Hackathon</span>
-        <p>AI Hackathon at KIET, Jul 24–25, 2026.</p>
-        <span class="j-badge">coming soon</span>
-      </span>
-    </span>
+<!-- Stat Banner -->
+<section class="stat-banner">
+  <div class="stat-banner-shell">
+    <div class="stat-main">
+      <span class="stat-num">19</span>
+      <span class="stat-sep">/</span>
+      <span class="stat-denom">26</span>
+    </div>
+    <div class="stat-label">students placed from our first batch</div>
   </div>
+</section>
+
+<!-- Body -->
+<section class="service-detail">
+  <p>
+    With the advent of Gen-AI, the way software is built has completely changed. But some things
+    still remain timeless — strong fundamentals, problem-solving ability, fluid expression,
+    algorithmic thinking, deep understanding of systems and networks, and debugging with clarity.
+  </p>
+  <p>
+    The <strong>AI-Native Job Ready Program</strong> is our core training track, built to prepare
+    students for the modern AI-driven software industry. Students train in-house, working through
+    disciplined practice, real projects, and mentorship — becoming <strong>AI-Native Engineers</strong>
+    who can build for the modern AI era while staying grounded in core engineering principles.
+  </p>
+  <p>
+    Placement is part of the program, not an afterthought — we work with students through
+    interviews and hiring, and track outcomes closely. In our first batch, 19 out of 26 students
+    got placed.
+  </p>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <a href="https://docs.google.com/forms/d/e/1FAIpQLSehGLIxJwZY0Gh9En4KRL5D0CJljwa3eLDd560ECHbyu6oMPA/viewform" class="btn btn--primary" target="_blank" rel="noopener noreferrer">Apply now</a>
+  <a href="services.html" class="cta-back">← Back to services</a>
 </section>
 
 <!-- Footer -->
