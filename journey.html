@@ -40,6 +40,13 @@
 
     @media(prefers-reduced-motion:reduce){ *{ transition:none!important; } }
 
+    /* ── Top Banner ── */
+    .top-banner {
+      background:var(--rust); color:var(--cream); text-align:center; padding:10px 16px; font-size:14px;
+    }
+    .top-banner strong { font-family:"JetBrains Mono",monospace; font-weight:700; }
+    .top-banner a { color:var(--cream); text-decoration:underline; font-weight:600; }
+
     /* ── Header ── */
     .header { position:sticky; top:0; z-index:1000; background:var(--cream); border-bottom:1px solid var(--line); }
     .nav-shell {
@@ -159,6 +166,7 @@
     @media(max-width:768px) {
       .nav-links { display:none; }
       .nav-hero-cta { display:none; }
+      .top-banner { font-size:12px; padding:8px 12px; }
       .hamburger { display:flex; }
 
       .hero { padding:48px 16px 40px; }
@@ -177,12 +185,17 @@
     }
 
     @media print {
-      .header, .mobile-nav, .jump-to-top { display:none !important; }
+      .header, .mobile-nav, .jump-to-top, .top-banner { display:none !important; }
       body { background:#fff; }
     }
   </style>
 </head>
 <body class="journey-page">
+
+<!-- Top Banner -->
+<div class="top-banner">
+  <a href="https://samagra.annam.ai" target="_blank" rel="noopener noreferrer">Join this course now</a>, to be ready for the AI-era Software Development.
+</div>
 
 <!-- Header -->
 <header class="header">
